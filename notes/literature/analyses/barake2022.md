@@ -1,6 +1,8 @@
 # Barake, Chouc, Neef & Zucman (2022) — "Revenue Effects of the Global Minimum Tax Under Pillar Two"
 **Intertax, 50(10), 689–710**
 
+# General notes
+
 ## Research Question
 How much additional revenue could countries collect from a 15% GMT, and how does revenue distribution differ under IIR vs. QDMTT?
 
@@ -33,7 +35,7 @@ How much additional revenue could countries collect from a 15% GMT, and how does
 - IIR vs. QDMTT comparison directly motivates distributional analysis
 - Key for testing whether revenue estimates hold up ex post
 
-## Detailed notes
+# Detailed notes
 
 p. 689 Globalisation: countries compete for investments; incentive to reduce CIT. Globalisation: MNEs shift earnings to lowest tax jurisdiction; lower amount of effective taxes paid.
 
@@ -42,7 +44,7 @@ Oct 2021: 137 jurisdictions agreed on: 15% global minimum tax (Pillar Two, OECD)
 * Qualified Domestic Minimum Top-up Tax (QDMTT): revenue collected by source country where affiliate of MNE has residence.
 
 p. 690 Paper is first-stage effects without behavioural adjustment.
-Global revenue potential GMT: €179 billion; if substance-based carve-outs apply, dependent on income deduction rates: €134-165 billion. EU revenue under IIR: €83 billion; €67 billion without carve-outs. US benefits most under IIR with estimated revenues of €58 billion.
+Global revenue potential GMT: €179 billion; if substance-based carve-outs apply, dependent on income deduction rates: €139-165 billion. EU revenue under IIR: 55 billion; €67 billion without carve-outs. US benefits most under IIR with estimated revenues of €58 billion.
 
 
 List of tax havens [footnote 1]: This article considers the following jurisdictions as tax havens: Andorra, Anguilla, Antigua and Barbuda, Aruba, Bahamas, Bahrain, Barbados, Belgium, Belize, Bermuda, Bonaire, British Virgin Islands, Cayman Islands, Curacao, Cyprus, Gibraltar, Grenada, Guernsey, Hong Kong, Ireland, Isle of man, Jersey, Lebanon, Liechtenstein, Luxembourg, Macau, Malta, Marshall Islands, Mauritius, Monaco, the Netherlands, Panama, Puerto Rico, Seychelles, Singapore, Sint Maarten, St. Kitts and Nevis, St. Lucia, St Vincent and the Grenadines, Switzerland, Turks and Caicos. This corresponds to the list established by Thomas R. Tørsløv, Ludvig S. Wier & Gabriel Zucman, The Missing Profits of Nations, NBER Working Paper Series, No. 24701 (2018). 
@@ -61,7 +63,7 @@ p. 691 OECD CbCR only systematic source on taxes effectively paid by MNEs. Tørs
 
 p. 692 OECD and Tørsløv: 40% of MNE foreign profits recorded outside of HQ (36% for Tørsløv).
 
-ORBIS data: used for domestic enterprises with revenue above €750 million. Should apply to pre-tax profits as reported in financial accounts with a number of adjustments "eliminating common gaps between accounting and taxable income".
+ORBIS data: used for domestic enterprises with revenue above €750 million. GMT should apply to pre-tax profits as reported in financial accounts with a number of adjustments "eliminating common gaps between accounting and taxable income".
 
 Reduced by substance-based carve-outs. Tax liability globally determined for each MNE. Tax base calculated under long-run carve-out rates:
 
@@ -71,11 +73,11 @@ $Profits_{p,j}$ are profits before tax.
 
 p. 693 Implementation of IIR:
 
-$$Revenue_p = \sum_{j} (15\% - ETR_{p,j}) \cdot Tax\ base_{p,j}$$
+$$Revenue_p = \sum_{j}^J (15\% - ETR_{p,j}) \cdot Tax\ base_{p,j}$$
 
 Implementation of QDMTT:
 
-$$Revenue_j = \sum_{p} (15\% - ETR_{p,j}) \cdot Tax\ base_{p,j}$$
+$$Revenue_j = \sum_{p}^P (15\% - ETR_{p,j}) \cdot Tax\ base_{p,j}$$
 
 Assumptions: 10% ETR in all tax havens (conservative assumption), while Tørsløv (2018, 2019) finds ETR of 4.8%. Minimum tax revenue from non-haven imputed by assuming revenue gains from tax havens to non-tax havens in CbCR data applies to extended sample.
 
