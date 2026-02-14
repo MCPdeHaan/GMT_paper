@@ -1,0 +1,426 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage[backend=biber,style=apa,sorting=nyt,natbib=true]{biblatex}
+\DeclareLanguageMapping{american}{american-apa}
+\hypersetup{
+    colorlinks=true,
+    allcolors=NavyBlue,
+    pdfborder={0 0 0}
+}
+\addbibresource{../../bibliography.bib}
+
+\onehalfspacing
+
+\title{\textbf{The Global Minimum Tax: A Comprehensive Literature Review\\[6pt]
+\large Data, Methodology, and Feasible Research Directions\\for an Empirical Master Thesis}}
+\author{Maurits de Haan\\[4pt]
+\small MSc Economic Policy}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+\label{sec:intro}
+
+
+In October 2021, 137 jurisdictions of the OECD/G20 Inclusive Framework agreed on a two-pillar solution to reform international corporate taxation. Pillar Two establishes a Global Minimum Tax (GMT) of 15\% on large multinational enterprises (MNEs) with consolidated revenues exceeding EUR~750 million. The reform entered into force in January 2024 across several jurisdictions, making it one of the most consequential changes to international tax architecture in a century.
+
+The academic literature on the GMT has grown rapidly. It spans formal models of tax competition \citep{Johannesen2022,hebous2023,janeba2023,schjelderup2024,hindriks2025}, revenue simulations \citep{barake2022,hugger2025}, descriptive empirics on MNE structures and tax avoidance \citep{bilicka2023,devereux2023,torslov2022}, network analyses of treaty shopping \citep{vantriet2025}, institutional analyses of the GloBE rules \citep{hanlon2023,schanz2023}, normative arguments for minimum tax rates \citep{cassee2019}, and related work on optimal taxation and R\&D policy \citep{akcigit2022} and wealth taxation \citep{boadway2026}.
+
+This review synthesises all 16 papers with a singular focus: identifying the data, methodology, and research question that would make for a feasible, innovative, and publishable empirical master thesis in the field of economic policy. The review is organised as follows. Section~\ref{sec:theory} reviews the theoretical literature. Section~\ref{sec:empirical} reviews the empirical and simulation-based literature. Section~\ref{sec:institutional} reviews institutional and normative contributions. Section~\ref{sec:data} maps the available data landscape. Section~\ref{sec:methods} synthesises the methodological approaches used. Section~\ref{sec:gaps} identifies empirical gaps. Section~\ref{sec:proposals} proposes three concrete research questions with feasibility assessments.
+
+TEST
+
+
+\section{Theoretical Literature: Models of Tax Competition Under a Minimum Tax}
+\label{sec:theory}
+
+
+\subsection{The Welfare Ambiguity of the GMT}
+\label{subsec:johannesen}
+
+\citet{Johannesen2022} develops the foundational formal model of international tax competition under a global minimum tax. The model features $N$ countries---tax havens (no domestic tax base, competing for shifted profits) and non-havens (real economic activity)---playing a Nash game in tax rates. Firms allocate reported profits between jurisdictions subject to convex concealment costs $s(M)$. The key insight is that the net welfare effect of the GMT on non-havens is \emph{ambiguous}: while reduced profit shifting raises government revenue, higher equilibrium rates in havens transfer resources from non-haven firms to haven governments. Formally, the welfare function integrates over heterogeneous household ownership shares:
+\begin{equation}
+W = \int W\bigl(u(c,G)\bigr) f(\alpha)\, d\alpha
+\end{equation}
+where $c$ is private consumption and $G$ is the public good. Welfare is unambiguously positive only when $t_M$ is high enough to eliminate profit shifting entirely. The model abstracts from real investment allocation, making it a benchmark for understanding the ``paper profit'' channel of the GMT.
+
+\subsection{Pareto-Improving Minimum Taxation}
+\label{subsec:hebous}
+
+\citet{hebous2023} ask whether a minimum rate can benefit \emph{both} the low-tax and the high-tax country---a Pareto improvement. Generalising \citet{Johannesen2022}, they derive two critical rates: the Pareto-efficient rate $\mu^*$ (preferred by the low-tax country) and the maximal Pareto-dominant rate $\mu^{**}$ (highest rate still leaving the low-tax country better off than Nash). Both depend on the slope of the high-tax country's best-response function $T'(t)$, a parameter empirically estimated at 0.25--0.67 \citep{hebous2023}. At the benchmark $t^N = 12.5\%$ (Ireland's statutory rate), the implied range is $\mu^* \in [12.5\%, 18.75\%]$ and $\mu^{**} \in [12.5\%, 25\%]$. The agreed 15\% rate falls below $\mu^*$ for most plausible parameterisations, suggesting room for a more ambitious minimum. This result is \emph{directly testable}: an empirical thesis could estimate $T'(t)$ using statutory CIT rate data and the GMT announcement as a natural experiment.
+
+\subsection{Revenue Effects Under Strategic Responses}
+\label{subsec:janeba}
+
+\citet{janeba2023} formalise a critical policy prediction: the revenue effect of the GMT depends on the instrument used by non-haven governments. In a three-country model (two symmetric non-havens, one haven) with endogenous profit shifting, they show:
+\begin{itemize}[nosep]
+    \item Under \emph{tax-rate competition}: revenues in non-havens increase when initial profit shifting is severe (Proposition~2). The non-haven rate rises, amplifying the mechanical revenue gain.
+    \item Under \emph{lump-sum subsidy competition}: the GMT leaves non-haven net revenues \emph{completely unchanged} (Propositions~3--5). Revenue gains are exactly offset by higher subsidies needed to attract firms.
+\end{itemize}
+The subsidy-offset result is particularly striking because Switzerland, Ireland, and several other jurisdictions have publicly discussed or implemented subsidies and tax credits to compensate firms for the GMT---precisely the mechanism the model predicts would neutralise revenue gains. This theoretical prediction provides a clear empirical test: do countries that respond with subsidies experience smaller net revenue gains?
+
+\subsection{The Role of the Substance-Based Income Exclusion}
+\label{subsec:schjelderup}
+
+\citet{schjelderup2024} model the Substance-Based Income Exclusion (SBIE) explicitly, showing that it transforms the GMT into a \emph{production subsidy} in low-tax countries. The SBIE allows MNEs to exclude $\sigma(\omega L + K)$ from the GloBE income base, where $\sigma$ is the carve-out fraction (eventually 5\%), $\omega L$ is payroll, and $K$ is tangible assets. The effective factor prices under Pillar~Two become:
+\begin{align}
+w^{**} &= \omega\Bigl(1 - \frac{\sigma(T - t^*)}{1-T}\Bigr) < w^* \label{eq:sbie_wage}\\[6pt]
+r^{**} &< r^* \quad \text{when } \sigma > \frac{\delta - \tilde{\delta}}{1-t^*}  \label{eq:sbie_capital}
+\end{align}
+where $T = 15\%$ is the minimum rate and $t^*$ is the haven's statutory rate. Thus, capital and labour inputs receive implicit subsidies, while material imports from headquarters face higher effective prices. The numerical calibration shows that the true ETR falls to 8.5--11.5\%, well below the headline 15\%. The model predicts that capital-intensive MNE subsidiaries benefit disproportionately from the SBIE---a testable cross-sectional prediction using firm-level data.
+
+\subsection{The Enforcement Dilemma}
+\label{subsec:hindriks}
+
+\citet{hindriks2025} contribute a cautionary result: the GMT may \emph{undermine} international tax enforcement cooperation. In their three-stage game (enforcement $\to$ tax rates $\to$ profit allocation), a CES enforcement technology captures complementarity between countries' audit efforts:
+\begin{equation}
+\delta(e_1, e_2) = \bigl(0.5\, e_1^{-\rho} + 0.5\, e_2^{-\rho}\bigr)^{-1/\rho}
+\end{equation}
+They show that for intermediate country asymmetry, there exists a critical GMT level $\lambda_0$ above which the low-tax country defects from enforcement cooperation, making the high-tax country \emph{worse off} despite the floor on tax rates (the ``enforcement dilemma''). The critical threshold depends on the enforcement complementarity parameter $\rho$: stronger complementarity ($\rho \to \infty$, weakest-link) makes cooperation more robust. This result is empirically testable using data on mutual agreement procedures, automatic exchange of information, and joint audits pre- and post-GMT.
+
+
+\section{Empirical and Simulation-Based Literature}
+\label{sec:empirical}
+
+
+\subsection{The Baseline: Missing Profits of Nations}
+\label{subsec:torslov}
+
+The empirical foundation for the GMT literature is \citet{torslov2022}, who estimate that 36\% of multinational profits (\$616~billion) were shifted to tax havens in 2015. Their methodology combines national accounts and foreign affiliate statistics (FATS) to compute the \emph{excess profitability} of foreign firms in tax havens relative to local firms:
+\begin{equation}
+\text{Shifted profits}_j = (\pi_f^j - \pi_l^j) \times \text{Foreign wages}_j
+\end{equation}
+where $\pi = \text{profits}/\text{wages}$ is the profit-to-wage ratio. An independent cross-validation using excess cross-border service exports and intra-group interest payments yields \$646~billion---closely matching the primary estimate. The regression validation uses BEA outward FATS at the country$\times$industry$\times$year level:
+\begin{equation}
+\pi_{cti} = \alpha_t + \beta_{1t} \ln(K_{cti}) + \beta_{2t} \ln(RD_{cti}) + \gamma_t X_{ct} + \delta_t \cdot \text{Haven} + \varepsilon_{cti}
+\end{equation}
+controlling for capital intensity, R\&D expenditure, GDP, population, and industry$\times$year fixed effects. The haven premium $\hat{\delta}_t$ is statistically significant and robust to controls. US MNEs shift twice as much as non-US MNEs relative to foreign earnings (54\% vs.\ 27\%). All data and code are publicly available at \texttt{missingprofits.world} and via Zenodo, making this methodology fully replicable and updatable with post-GMT data.
+
+\subsection{Revenue Simulations Under Pillar Two}
+\label{subsec:barake}
+
+\citet{barake2022} provide the benchmark revenue simulation. Using OECD aggregated Country-by-Country Reporting (CbCR) data for 2016--2017, complemented with the \citet{torslov2022} estimates, they compute the ``tax deficit'' for each parent--partner jurisdiction pair:
+\begin{equation}
+\text{Revenue}_{pj} = \max\bigl(0,\; 15\% - \text{ETR}_{pj}\bigr) \times \bigl[\text{Profits}_{pj} - 5\% \times (\text{Payroll}_{pj} + \text{Tangible Assets}_{pj})\bigr]
+\label{eq:barake}
+\end{equation}
+Key findings include: global revenue potential of EUR ~155~ billion (with long-run carve-outs included); EU-27 revenues of EUR~55~billion (16\% of current CIT revenues); and a \emph{dramatic redistribution} depending on the collection mechanism---under the Income Inclusion Rule (IIR), the US captures EUR~54~billion; under the Qualified Domestic Minimum Top-Up Tax (QDMTT), revenues shift to host jurisdictions (Netherlands EUR~14~billion, Luxembourg EUR~12.5~billion). Critically, 20--40\% of EU revenue comes from \emph{undertaxed domestic profits}---firms paying ETRs below 15\% in their home country. The simulation is static (no behavioural adjustment), uses tabulated CbCR data that masks within-pair heterogeneity, and does not model the UTPR.
+
+\subsection{Within-Jurisdiction ETR Heterogeneity}
+\label{subsec:hugger}
+
+\citet{hugger2025} provide the most comprehensive analysis of ETR \emph{distributions} within jurisdictions---a critical advance over the averages used in prior simulations. Using novel percentile data from OECD CbCR statistics (5th, 25th, 50th, 75th, 95th percentiles of ETRs within jurisdictions), they reconstruct ETR distributions for 222 jurisdictions:
+\begin{itemize}[nosep]
+    \item The median jurisdictional ETR is 16.4\%, but within-jurisdiction ETR dispersion \emph{exceeds} cross-jurisdiction dispersion: the median distance between p5 and p95 within a jurisdiction is 20.2 percentage points.
+    \item USD~2,143~billion per year in profits of large MNEs are taxed below 15\%.
+    \item \textbf{More than half (53.2\%) of this low-taxed profit is reported in jurisdictions with average ETRs \emph{above} 15\%.}
+    \item Only USD~753~billion per year is taxed below 5\%; 79.9\% in investment hubs but 13.5\% in high-income non-hub jurisdictions.
+\end{itemize}
+This finding has profound implications for revenue allocation: if most low-taxed profit sits in ``high-tax'' jurisdictions (due to tax incentives, patent boxes, R\&D credits, or tax holidays), then the QDMTT---not the IIR---is the primary revenue instrument, and ``high-tax'' countries themselves are the main beneficiaries. The methodology is replicable with publicly available OECD Corporate Tax Statistics data, updated annually.
+
+\subsection{Tax-Avoidance Networks and IP Location}
+\label{subsec:bilicka}
+
+\citet{bilicka2023} map the global network of intellectual property location by MNEs. Using the Orbis~IP database (133~million patent records) matched to Orbis ownership data (9,200 Pillar~2 firms; 1.5~million subsidiaries), they show that:
+\begin{itemize}[nosep]
+    \item Pillar~2 firms (2.6\% of affiliates) file 42\% of all patent applications and 45\% of tax-haven applications.
+    \item The share of patents ending up in tax havens doubled from 2\% to 4\% since 1990.
+    \item More valuable patents (by estimated value and citations) have higher haven applicant and buyer shares.
+    \item Post-2011 reforms (BEPS Action~5, US cost-sharing rules) did not reverse the rising haven share.
+\end{itemize}
+The paper is descriptive (no causal identification) but provides a pre-GMT baseline for IP location patterns. With the GMT now in force, a natural event-study design could test whether haven patent applications decline---exploiting the staggered implementation of Pillar~2 across jurisdictions and the sharp EUR~750~million threshold.
+
+\subsection{Critical Mass and the SBIE Empirically}
+\label{subsec:devereux_emp}
+
+\citet{devereux2023} address two empirical questions using Orbis (11,334 firm groups, 2018) and Amadeus (43,564 foreign-owned EU subsidiaries, 2019):
+\begin{enumerate}[nosep]
+    \item \textbf{Critical mass}: Only 1--5\% of in-scope MNE profit comes from firms with no subsidiary in any other G7 country. EU-27 implementation creates strong incentive pressure for the US, Japan, UK, and Switzerland to follow. However, pressure on China (16\%), Australia (37\%), and Taiwan (44\%) is weaker.
+    \item \textbf{SBIE generosity}: The average ratio of SBIE to pre-tax profit is 57\% (year~1) and 41\% (after 10~years). The aggregate effective minimum on total profit is thus 9.45\% (year~1), rising only to 11.55\% (after 10~years)---well below the headline 15\%. Luxembourg, Malta, and Ireland have particularly low SBIE-to-profit ratios, consistent with profit booking without commensurate real activity.
+\end{enumerate}
+This analysis directly informs revenue estimation: the SBIE substantially reduces the GMT's effective bite, particularly in jurisdictions with genuine economic substance.
+
+\subsection{Treaty Shopping and Developing Countries}
+\label{subsec:vantriet}
+
+\citet{vantriet2025} apply network analysis---specifically, an adapted Floyd-Warshall shortest-path algorithm---to the international tax treaty system of 118 jurisdictions, using IBFD and EY treaty parameters. They compute tax-minimising routes for dividends, interest, and royalties, and identify ``potentially aggressive'' treaties. Key findings for developing countries:
+\begin{itemize}[nosep]
+    \item LMICs lose less \emph{on average} from treaty shopping than all countries (3.0~pp vs.\ 5.6~pp for dividends), but individual vulnerability is extreme: Egypt and Uganda lose nearly 100\% of dividend WHT revenue.
+    \item Top conduit countries (Netherlands, Switzerland, Singapore) have implemented the IIR, while most LMICs have \emph{not} adopted QDMTTs.
+    \item This creates a perverse outcome: conduit countries on aggressive treaty routes are positioned to \emph{collect top-up taxes} on undertaxed profits in developing countries, nullifying investment incentives and diverting revenue away from LMICs.
+\end{itemize}
+The methodology is fully replicable with publicly available tax parameters and could be updated to incorporate post-GMT treaty revisions and QDMTT adoptions.
+
+
+\section{Institutional and Normative Contributions}
+\label{sec:institutional}
+
+
+\subsection{Accounting Mechanics of GloBE Income}
+\label{subsec:hanlon}
+
+\citet{hanlon2023} provides a detailed walkthrough of the computational mechanics of Pillar Two. The key insight is that GloBE income is neither financial accounting income nor taxable income---it is a ``third measure'' requiring a third accounting system, with major implications for compliance costs. The deferred tax adjustment is essential to prevent timing differences (e.g., accelerated depreciation) from generating artificially low ETRs, but it adds enormous complexity. \citeauthor{hanlon2023} demonstrates that starting with taxable income instead of book income would produce identical ETR and top-up tax outcomes while eliminating the deferred tax system entirely (shown via a worked numerical example with six alternative columns). Three risks from using book income are identified: accounting standard setters effectively influence tax revenue; governments may pressure standard setters; and firms may manage earnings downward.
+
+\subsection{Simplification Safe Harbour}
+\label{subsec:schanz}
+
+\citet{schanz2023} proposes a two-level simplification safe harbour---country-level and MNE-level---designed to eliminate GloBE declarations for MNEs in jurisdictions where ETRs are clearly above 15\%. Country-level ``red flags'' are classified into four boxes based on whether national base deviations from GloBE income create downside risk. The framework could drastically reduce compliance costs: the vast majority of MNE-country pairs owe no top-up tax yet must bear full GloBE compliance costs under current rules. The OECD has since published a Transitional CbCR Safe Harbour, but the permanent safe harbour remains under development.
+
+\subsection{Normative Foundations}
+\label{subsec:cassee}
+
+\citet{cassee2019} argues from both cosmopolitan and internationalist perspectives in political philosophy that global minimum tax rates are justified as preference-independent, externality-correcting instruments. The key contribution is identifying that the alternative ``fiscal policy constraint'' (proposed by Dietsch and Rixen) creates asymmetric restraint: it allows nonstrategic low-tax countries to approximate strategic outcomes, while high-tax countries are forced to raise rates further. Minimum rates avoid this problem by directly establishing a floor. The appropriate rate depends on the theory of justice: cosmopolitans optimise global distribution; internationalists maximise effective fiscal self-determination.
+
+\subsection{Optimal Taxation and R\&D}
+\label{subsec:akcigit}
+
+\citet{akcigit2022} estimate a dynamic mechanism design model of optimal corporate taxation with R\&D spillovers, using US Census and USPTO patent data. The key finding---that simple linear corporate taxes paired with nonlinear R\&D subsidies approximate the unconstrained optimum---is relevant to the GMT debate because the 15\% floor constrains a dimension (corporate tax level) that is less important than the R\&D subsidy design. The complementarity parameter between R\&D investment and firm type ($\hat{\rho}_{\theta r} = 1.88$) implies that high-productivity firms gain disproportionately from R\&D spending, suggesting that the SBIE's one-size-fits-all carve-outs may be suboptimal from an innovation perspective.
+
+\subsection{Global Minimum Wealth Tax}
+\label{subsec:boadway}
+
+\citet{boadway2026} analyse Zucman's proposed 2\% minimum wealth tax on billionaires, finding that the Pillar~Two coordination mechanism (IIR $\to$ QDMTT $\to$ UTPR) cannot be replicated for a worldwide wealth tax. The critical disanalogy is informational: Pillar~Two requires only jurisdictional ETRs (local information), while a worldwide wealth tax requires knowledge of all assets and taxes across all jurisdictions. This insight underscores the comparative informational advantage of the corporate GMT architecture.
+
+
+\section{Data Landscape}
+\label{sec:data}
+
+
+Table~\ref{tab:data} maps the data sources used across the literature.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Data Sources in the GMT Literature}
+\label{tab:data}
+\begin{tabular}{@{}p{3.5cm}p{4cm}p{2.5cm}p{3.5cm}@{}}
+\toprule
+\textbf{Data Source} & \textbf{Content} & \textbf{Access} & \textbf{Used By} \\
+\midrule
+OECD CbCR Statistics & Aggregated profits, taxes, employees, tangible assets by parent--affiliate pairs & Public & \citet{barake2022}, \citet{hugger2025} \\[4pt]
+OECD CbCR Distributional & ETR percentiles (p5--p95) within jurisdictions & Public & \citet{hugger2025} \\[4pt]
+Orbis (Bureau van Dijk) & Firm-level financials, ownership, subsidiaries & Commercial & \citet{devereux2023}, \citet{bilicka2023} \\[4pt]
+Amadeus (Bureau van Dijk) & Unconsolidated EU subsidiary financials & Commercial & \citet{devereux2023} \\[4pt]
+Orbis IP & Global patent applications, transactions, values & Commercial & \citet{bilicka2023} \\[4pt]
+FATS (Eurostat, OECD, BEA) & Foreign affiliate value-added, profits, wages & Public & \citet{torslov2022} \\[4pt]
+National Accounts (SNA) & Corporate surplus, factor shares & Public & \citet{torslov2022} \\[4pt]
+IBFD / EY Treaty Data & Bilateral WHT rates, DTT parameters & Semi-public & \citet{vantriet2025} \\[4pt]
+IMF CDIS & Bilateral FDI stocks & Public & \citet{vantriet2025} \\[4pt]
+US BEA Outward FATS & US MNE affiliate data by country$\times$industry & Public & \citet{torslov2022} \\[4pt]
+USPTO / NBER Patents & Patent applications, citations, values & Public & \citet{akcigit2022} \\[4pt]
+\bottomrule
+\end{tabular}
+\end{table}
+
+For a master thesis without commercial database access, the most promising data sources are:
+\begin{enumerate}[nosep]
+    \item \textbf{OECD Corporate Tax Statistics} (CbCR aggregated and distributional data): publicly available, annual updates, covering 50+ parent jurisdictions and 200+ affiliate jurisdictions.
+    \item \textbf{OECD Statutory CIT Rates}: comprehensive historical series for 100+ countries.
+    \item \textbf{missingprofits.world}: full replication data from \citet{torslov2022}, including FATS-based estimates for 2015.
+    \item \textbf{IBFD/EY treaty parameters}: publicly available treaty rates for network analysis.
+    \item \textbf{OECD Investment Tax Incentives Database}: classification of tax holidays, patent boxes, R\&D credits.
+    \item \textbf{PwC Pillar Two Country Tracker}: implementation status by jurisdiction.
+\end{enumerate}
+
+
+\section{Methodological Synthesis}
+\label{sec:methods}
+
+
+Table~\ref{tab:methods} classifies the methodological approaches across the literature.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Methodological Approaches in the GMT Literature}
+\label{tab:methods}
+\begin{tabular}{@{}p{3.8cm}p{6.8cm}p{3cm}@{}}
+\toprule
+\textbf{Method} & \textbf{Description} & \textbf{Papers} \\
+\midrule
+Game-theoretic equilibrium & Nash games in tax rates/subsidies with profit shifting; comparative statics on minimum tax & \citet{Johannesen2022}, \citet{hebous2023}, \citet{janeba2023}, \citet{hindriks2025} \\[4pt]
+Structural firm model & Cobb-Douglas subsidiary with transfer pricing; SBIE as factor-price distortion & \citet{schjelderup2024} \\[4pt]
+Static microsimulation & Tax deficit $\times$ tax base per jurisdiction pair; scaled to GDP & \citet{barake2022} \\[4pt]
+ETR distribution estimation & Percentile-based reconstruction with imputation; profit allocation across ETR bins & \citet{hugger2025} \\[4pt]
+Macro excess-profitability & Foreign vs.\ local profit-to-wage ratios from FATS/national accounts & \citet{torslov2022} \\[4pt]
+Network shortest-path & Floyd-Warshall on treaty WHT network; tax-minimising routes & \citet{vantriet2025} \\[4pt]
+Descriptive patent analysis & Patent filings, transactions, values by haven/non-haven status & \citet{bilicka2023} \\[4pt]
+Structural estimation (SMM) & Dynamic mechanism design with innovation; simulated method of moments & \citet{akcigit2022} \\[4pt]
+Institutional analysis & GloBE rule mechanics, compliance design, policy feasibility & \citet{hanlon2023}, \citet{schanz2023} \\[4pt]
+Normative philosophy & Justice-based evaluation of minimum tax rates & \citet{cassee2019} \\[4pt]
+\bottomrule
+\end{tabular}
+\end{table}
+
+A striking feature of the GMT literature is the \textbf{near-complete absence of causal identification}. No paper uses difference-in-differences, regression discontinuity, instrumental variables, or randomised experiments. The empirical contributions are either descriptive \citep{bilicka2023,devereux2023}, simulation-based \citep{barake2022,hugger2025}, or macro-accounting-based \citep{torslov2022}. This represents a significant gap: as the GMT is now being implemented (2024--2025), quasi-experimental identification strategies become feasible for the first time.
+
+
+\section{Empirical Gaps and Research Opportunities}
+\label{sec:gaps}
+
+
+Based on the synthesis above, I identify five major empirical gaps:
+
+\begin{enumerate}
+
+\item \textbf{Behavioural responses of MNEs.} All revenue simulations are static \citep{barake2022,hugger2025}. No paper estimates how MNEs adjust profit shifting, transfer pricing, IP location, real investment, or organisational structure in response to the GMT. The theoretical predictions are clear but untested: \citet{janeba2023} predict subsidy-offset; \citet{schjelderup2024} predict increased FDI and employment in low-tax subsidiaries via the SBIE; \citet{bilicka2023} provide a pre-GMT baseline for IP location shifts. With 2024--2025 implementation data becoming available, quasi-experimental designs (event studies, difference-in-differences around implementation dates and thresholds) become feasible.
+
+\item \textbf{Strategic government responses.} \citet{hebous2023} predict strategic complementarity in tax rates; \citet{janeba2023} predict subsidy responses. No paper empirically tracks whether governments have raised statutory rates toward 15\%, introduced QDMTTs, or created new subsidies and tax incentives in response to the GMT. A panel dataset of policy instruments by jurisdiction could test these predictions.
+
+\item \textbf{Within-jurisdiction ETR heterogeneity and revenue allocation.} \citet{hugger2025} show that over half of low-taxed profit sits in ``high-tax'' jurisdictions, but no paper combines this distributional information with a microsimulation of GMT revenues under alternative collection mechanisms (IIR vs.\ QDMTT vs.\ UTPR). This has direct policy implications: if most low-taxed profit is domestic, the QDMTT matters more than the IIR.
+
+\item \textbf{Developing country outcomes.} \citet{vantriet2025} show that conduit countries may capture top-up tax revenue intended for LMICs, but this is demonstrated qualitatively. A quantitative microsimulation combining treaty-shopping routes with CbCR-based revenue estimates would be highly novel and policy-relevant.
+
+\item \textbf{Innovation and R\&D effects.} \citet{akcigit2022} and \citet{schjelderup2024} provide theoretical frameworks linking tax design to innovation. The GMT's interaction with patent boxes, R\&D credits, and the SBIE has not been empirically evaluated. \citet{bilicka2023} provide a baseline; post-GMT patent data could test whether innovation location patterns change.
+
+\end{enumerate}
+
+
+\section{Proposed Research Questions}
+\label{sec:proposals}
+
+
+Based on the identified gaps, available data, and the methodological toolkit of the MSc Economic Policy programme (causal inference, empirical economics, applied data science, R programming), I propose three research questions ranked by feasibility, innovation, and publication potential.
+
+\subsection{Proposal 1: Government Strategic Responses to the GMT---A Difference-in-Differences Approach}
+\label{subsec:proposal1}
+
+\subsubsection{Research Question}
+\emph{How have governments adjusted their corporate tax policies---statutory rates, effective rates, tax incentives, and subsidies---in response to the Global Minimum Tax agreement?}
+
+\subsubsection{Motivation}
+The theoretical literature makes two competing predictions. \citet{hebous2023} predict that low-tax countries raise rates toward the minimum (strategic complementarity), while \citet{janeba2023} predict that subsidy responses may neutralise revenue gains. No paper has tested these predictions empirically. This is the first moment in history when such a test is possible: the GMT was agreed in October 2021, with implementation beginning January 2024.
+
+\subsubsection{Data}
+\begin{itemize}[nosep]
+    \item \textbf{Treatment}: Timeline of GMT agreement (October 2021), Directive adoption (EU, December 2022), and national implementation dates (PwC Pillar~Two Country Tracker). This provides a staggered treatment design.
+    \item \textbf{Outcome variables}: (i) Statutory CIT rates (OECD Tax Database, 2000--2025); (ii) effective average and marginal tax rates (OECD, ZEW); (iii) tax incentive generosity (OECD Tax Incentives Database: R\&D credits, patent boxes, investment allowances, tax holidays); (iv) QDMTT adoption (binary); (v) new subsidy programmes (qualitative coding from government announcements).
+    \item \textbf{Controls}: GDP growth, government debt, FDI inflows, political orientation, pre-GMT tax competition intensity.
+\end{itemize}
+
+\subsubsection{Methodology}
+\begin{enumerate}[nosep]
+    \item \textbf{Event study}: Using the October 2021 agreement as the event, estimate:
+    \begin{equation}
+    Y_{it} = \alpha_i + \gamma_t + \sum_{k=-5}^{+4} \beta_k \cdot D_{i,t-k} + X_{it}'\delta + \varepsilon_{it}
+    \label{eq:eventstudy}
+    \end{equation}
+    where $Y_{it}$ is the tax policy variable, $D_{i,t-k}$ is a lead/lag indicator relative to the treatment event, and $\alpha_i$, $\gamma_t$ are country and year fixed effects.
+    
+    \item \textbf{Difference-in-differences}: Compare countries below vs.\ above 15\% statutory CIT rate before the agreement. Countries below 15\% are ``treated'' (forced to adjust); countries above are controls.
+    
+    \item \textbf{Heterogeneity}: By pre-GMT rate level, haven status, EU membership, and the SBIE-to-profit ratio from \citet{devereux2023}.
+\end{enumerate}
+
+\subsubsection{Feasibility and Innovation}
+\textbf{High feasibility}: all data are publicly available; the method (DiD with staggered treatment) aligns directly with the MSc toolkit. \textbf{High innovation}: no existing paper uses causal identification on GMT policy responses. \textbf{Publication potential}: strong, given the policy relevance and the fact that this is the first quasi-experimental test of tax competition theory in the GMT context.
+
+% ---
+
+\subsection{Proposal 2: The Revenue Geography of the GMT---Within-Jurisdiction ETR Distributions and IIR vs.\ QDMTT Allocation}
+\label{subsec:proposal2}
+
+\subsubsection{Research Question}
+\emph{How much GMT revenue is ``domestic'' to high-tax countries once within-jurisdiction ETR heterogeneity is accounted for, and how does this change the expected revenue allocation between IIR and QDMTT?}
+
+\subsubsection{Motivation}
+\citet{hugger2025} show that 53.2\% of low-taxed profit sits in jurisdictions with average ETRs above 15\%. \citet{barake2022} simulate revenue under average ETRs, ignoring within-country heterogeneity. Combining these two innovations---within-jurisdiction ETR distributions with microsimulation of revenue allocation---has not been done and would significantly refine existing estimates.
+
+\subsubsection{Data}
+\begin{itemize}[nosep]
+    \item \textbf{OECD CbCR distributional data}: Percentiles of ETR distributions within jurisdictions (available from OECD Corporate Tax Statistics, 2017--2021).
+    \item \textbf{OECD CbCR aggregated data}: Profits, taxes, employees, tangible assets by parent--affiliate pair.
+    \item \textbf{SBIE parameters}: Long-run carve-out fractions (5\%/5\%) from GloBE Model Rules.
+    \item \textbf{QDMTT adoption status}: PwC tracker.
+\end{itemize}
+
+\subsubsection{Methodology}
+\begin{enumerate}[nosep]
+    \item \textbf{Reconstruct ETR distributions}: Following \citet{hugger2025}, use percentile data to construct jurisdiction-level ETR distributions. Assume piecewise uniform between percentiles.
+    \item \textbf{Allocate profits to ETR bins}: For each jurisdiction, allocate total CbCR profits across the ETR distribution to identify the below-15\% share.
+    \item \textbf{Compute top-up tax liabilities}: Apply Equation~\eqref{eq:barake} within each ETR bin, netting out the SBIE.
+    \item \textbf{Allocate revenue}: Under three scenarios: (a) full IIR (revenue to parent jurisdiction); (b) full QDMTT (revenue stays in source jurisdiction); (c) actual status quo (based on which countries have adopted QDMTTs).
+    \item \textbf{Sensitivity analysis}: Vary SBIE parameters, distribution assumptions, and behavioural adjustment factors (using semi-elasticities from prior literature).
+\end{enumerate}
+
+\subsubsection{Feasibility and Innovation}
+\textbf{High feasibility}: all data are publicly available; the method extends existing microsimulations with additional distributional data. \textbf{High innovation}: the combination of distributional ETR data with IIR/QDMTT revenue allocation is novel. \textbf{Publication potential}: moderate-to-high; the results directly inform policy negotiations on the QDMTT.
+
+% ---
+
+\subsection{Proposal 3: Does the GMT Reduce Profit Shifting?---A Pre/Post Analysis Using Updated CbCR Data}
+\label{subsec:proposal3}
+
+\subsubsection{Research Question}
+\emph{Has the implementation of the Global Minimum Tax (2024--2025) reduced the magnitude of profit shifting to low-tax jurisdictions, as measured by excess profitability and the concentration of reported profits?}
+
+\subsubsection{Motivation}
+The entire GMT project is predicated on the assumption that a 15\% floor will reduce profit shifting. The theoretical literature is divided: \citet{Johannesen2022} and \citet{hebous2023} predict reduced shifting when the minimum is binding, while \citet{janeba2023} and \citet{schjelderup2024} identify channels (subsidies, SBIE) that could offset or even reverse the effect. \citet{torslov2022} provide the pre-GMT baseline; \citet{hugger2025} provide distributional measures. Combining these with newly released CbCR data for fiscal years 2022--2024 (expected release 2025--2026) would enable the first direct assessment of the GMT's impact on profit shifting.
+
+\subsubsection{Data}
+\begin{itemize}[nosep]
+    \item \textbf{OECD CbCR aggregated data} (2016--2024, as vintages become available).
+    \item \textbf{missingprofits.world replication data} for the \citet{torslov2022} baseline.
+    \item \textbf{OECD CbCR distributional data} (ETR percentiles, 2017--2024).
+    \item \textbf{Statutory CIT rates, QDMTT adoption dates, SBIE parameters.}
+\end{itemize}
+
+\subsubsection{Methodology}
+\begin{enumerate}[nosep]
+    \item \textbf{Pre/post comparison}: Compare the concentration of reported profits in haven jurisdictions before (2016--2021) and after (2022--2024) the GMT agreement/implementation, controlling for macroeconomic trends.
+    \item \textbf{Difference-in-differences}: Exploit variation in GMT implementation timing across jurisdictions. Treatment group: jurisdiction pairs where the parent country implemented Pillar~Two. Control group: pairs where neither country has implemented.
+    \item \textbf{Outcome variables}: (i) Share of profits in low-ETR jurisdictions; (ii) excess profitability ($\pi_f - \pi_l$) per \citet{torslov2022}; (iii) within-jurisdiction ETR dispersion per \citet{hugger2025}; (iv) SBIE coverage ratios per \citet{devereux2023}.
+    \item \textbf{Heterogeneity}: By parent country, haven type (EU hub, Caribbean, Asian hub), and MNE size (above/below EUR~750m).
+\end{enumerate}
+
+\subsubsection{Feasibility and Innovation}
+\textbf{Medium feasibility}: depends on timeliness of CbCR data releases; the 2022--2023 vintage should be available by early 2026. \textbf{Very high innovation}: this would be the first causal estimate of the GMT's impact on profit shifting. \textbf{Publication potential}: very high if executed with rigorous identification and sufficient post-implementation data.
+
+
+\section{Recommended Strategy}
+\label{sec:strategy}
+
+
+Given the constraints of a master thesis (timeline, data access, supervisor expertise in tax), I recommend the following strategy:
+
+\begin{enumerate}
+    \item \textbf{Primary research question}: Proposal~1 (Government Strategic Responses). This has the highest feasibility (all public data, established DiD methodology), strong policy relevance, and genuine novelty. It directly tests the competing predictions of \citet{hebous2023} and \citet{janeba2023}.
+    
+    \item \textbf{Complementary analysis}: Elements of Proposal~2 (Revenue Geography). The within-jurisdiction ETR analysis from \citet{hugger2025} can be incorporated as a descriptive complement, showing \emph{where} the GMT revenue sits and how government responses affect revenue allocation.
+    
+    \item \textbf{Stretch goal}: If CbCR data for post-implementation years become available during the thesis period, elements of Proposal~3 can be incorporated as a preliminary pre/post analysis.
+\end{enumerate}
+
+The combined approach---causal identification of government responses \emph{plus} descriptive revenue geography---would make for a paper that is both methodologically rigorous (satisfying the causal inference training of the MSc programme) and directly useful for policy analysis and business decisions.
+
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+
+The GMT literature is theoretically rich but empirically underdeveloped. The dominant approaches---game-theoretic models and static microsimulations---have not yet been complemented by causal empirical evidence, largely because the reform is only now being implemented. This creates a unique window of opportunity for a thesis completed in 2026: the first cohort of scholars can apply quasi-experimental methods to the most significant change in international tax architecture in a century.
+
+The data infrastructure is strong---OECD CbCR statistics, comprehensive statutory rate databases, and the \citet{torslov2022} replication archive provide an excellent foundation. The theoretical predictions are sharp and testable: do governments raise rates or offset with subsidies? Does profit shifting decline? Does within-jurisdiction ETR heterogeneity reshape the revenue geography?
+
+A thesis that combines difference-in-differences identification of government policy responses with distributional revenue analysis would fill a genuine gap in the literature, contribute to the ongoing policy debate, and have strong publication potential.
+
+
+\printbibliography
+
+
+\end{document}
