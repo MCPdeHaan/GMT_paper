@@ -1,40 +1,6 @@
 # Barake, Chouc, Neef & Zucman (2022) — "Revenue Effects of the Global Minimum Tax Under Pillar Two"
 **Intertax, 50(10), 689–710**
 
-# General notes
-
-## Research Question
-How much additional revenue could countries collect from a 15% GMT, and how does revenue distribution differ under IIR vs. QDMTT?
-
-## Data Sources
-1. **OECD aggregated CbCR statistics** (FY 2016–2017): 38 parent jurisdictions. Pre-tax profits, taxes paid, employees, tangible assets per parent–partner pair.
-2. **Tørsløv, Wier & Zucman (2018, 2019)**: profits booked in havens by HQ country; extends coverage to 83 parent jurisdictions.
-3. **Orbis (Bureau van Dijk)**: 182 large-scale purely domestic EU companies (turnover > EUR 750m).
-4. **Auxiliary data**: ILO mean nominal earnings (payroll proxy), KPMG statutory CIT rates, ECB exchange rates, IMF WEO GDP growth.
-
-## Methodology
-- **Type**: Static microsimulation
-- ETR computed as: income taxes paid / pre-tax profits (averaged 2016–2017)
-- Top-up tax: Revenue_{pj} = (15% − ETR_{pj}) × [Profits_{pj} − 5% × (Payroll_{pj} + Tangible Assets_{pj})]
-- Results scaled to 2021 using nominal GDP growth
-- 20% wage premium applied to ILO earnings for MNE employees
-- Two polar scenarios: full IIR vs. full QDMTT
-- No behavioural adjustment in baseline
-
-## Limitations
-- Static (no behavioural adjustment by MNEs or governments)
-- Tabulated CbCR masks within-pair heterogeneity (downward bias)
-- Double-counting of intra-firm dividends partially addressed
-- TWZ data not restricted to EUR 750m firms
-- Does not model UTPR or Pillar One interaction
-
-## Thesis Relevance
-- **Benchmark simulation**: transparent, replicable methodology using public OECD CbCR data
-- Can be updated with newer vintages (2018–2021 now available)
-- Can incorporate behavioural adjustments using profit-shifting semi-elasticities
-- IIR vs. QDMTT comparison directly motivates distributional analysis
-- Key for testing whether revenue estimates hold up ex post
-
 # Detailed notes
 
 p. 689 Globalisation: countries compete for investments; incentive to reduce CIT. Globalisation: MNEs shift earnings to lowest tax jurisdiction; lower amount of effective taxes paid.
