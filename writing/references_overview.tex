@@ -1,0 +1,21 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{csquotes}
+\usepackage[backend=biber,style=apa,sorting=nyt,natbib=true]{biblatex}
+\DeclareLanguageMapping{american}{american-apa}
+\addbibresource{bibliography.bib}
+
+\author{Overview of Sources}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\nocite{*} % Include all entries from bib file
+
+\printbibliography[heading=none]
+
+\end{document}
