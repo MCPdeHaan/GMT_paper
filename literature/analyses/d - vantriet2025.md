@@ -1,5 +1,5 @@
 # Van 't Riet & Lejour (2025) — "Developing Countries, Treaty Shopping and the GMT"
-**Public Finance Review, 53(6), 671–732**
+Public Finance Review, 53(6), 671–732
 
 p. 672
 Developing countries do not have a higher chance of revenue losses. But some countries are very vulnerable for withholding tax revenue by treaty shopping. 
@@ -12,10 +12,10 @@ Reason for international coordination for tax avoidance (G20/OECD BEPS): budget 
 
 Findings
 
-1. **Average Losses:** Contrary to some expectations, developing countries are, on average, *less* likely to suffer from tax revenue losses due to treaty shopping than developed countries. This is largely because their standard WHT rates are already lower, leaving less room for reduction.
-2. **Specific Vulnerability:** The average masks significant heterogeneity. Specific countries, such as Bangladesh, Egypt, Indonesia, Kenya, Uganda, and Zambia, are vulnerable to substantial potential losses of WHT revenue.
-3. **Aggressive Treaties:** The vulnerability of these specific countries usually stems from a small number of "potentially aggressive" tax treaties with conduit jurisdictions like the Netherlands, Switzerland, the UAE, and Singapore.
-4. **GMT Paradox:** The Global Minimum Tax may lead to a transfer of tax revenue from developing countries to developed treaty partners if the former do not implement specific domestic top-up taxes (QDMTTs).
+1. Average Losses: Contrary to some expectations, developing countries are, on average, *less* likely to suffer from tax revenue losses due to treaty shopping than developed countries. This is largely because their standard WHT rates are already lower, leaving less room for reduction.
+2. Specific Vulnerability: The average masks significant heterogeneity. Specific countries, such as Bangladesh, Egypt, Indonesia, Kenya, Uganda, and Zambia, are vulnerable to substantial potential losses of WHT revenue.
+3. Aggressive Treaties: The vulnerability of these specific countries usually stems from a small number of "potentially aggressive" tax treaties with conduit jurisdictions like the Netherlands, Switzerland, the UAE, and Singapore.
+4. GMT Paradox: The Global Minimum Tax may lead to a transfer of tax revenue from developing countries to developed treaty partners if the former do not implement specific domestic top-up taxes (QDMTTs).
 
 ## Methodology: Network Analysis (Pages 677-687)
 
@@ -49,9 +49,9 @@ Not modelled: "erosion of tax base in source countries that strategic allocation
 
 Three scenarios are compared to estimate revenue loss:
 
-* **NOT (No Treaties):** Assumes standard statutory WHT rates apply; no bilateral reductions.
-* **DIR (Direct Routes):** MNEs use the bilateral treaty between Source and Home but do not use conduit countries.
-* **OPT (Optimal Routes):** MNEs use the full network to minimise taxes, potentially routing through third countries (treaty shopping).
+* NOT (No Treaties): Assumes standard statutory WHT rates apply; no bilateral reductions.
+* DIR (Direct Routes): MNEs use the bilateral treaty between Source and Home but do not use conduit countries.
+* OPT (Optimal Routes): MNEs use the full network to minimise taxes, potentially routing through third countries (treaty shopping).
 
 ### The Data and Weighting
 
@@ -59,15 +59,15 @@ The study covers 118 countries (97% of world GDP) using 2018 tax data. The 18 LM
 
 To aggregate the results, the authors use:
 
-* **Dividends:** Double GDP weights (reflecting the economic size of both source and residence countries).
-* **Interest & Royalties:** Alternative weighting. Weights are only positive if the CIT in the source country is higher than in the destination country (), simulating profit-shifting behaviour where debt and IP are located in low-tax jurisdictions.
+* Dividends: Double GDP weights (reflecting the economic size of both source and residence countries).
+* Interest & Royalties: Alternative weighting. Weights are only positive if the CIT in the source country is higher than in the destination country (), simulating profit-shifting behaviour where debt and IP are located in low-tax jurisdictions.
 
 ### Definition of "Potentially Aggressive Tax Treaty"
 
 A central contribution of the paper is the formal definition of an aggressive treaty. A treaty is classified as potentially aggressive if:
 
 1. It is the first step in a tax-minimising route.
-2. The product of the *share of total potential tax loss* for the source country and the *share of that specific treaty's responsibility* for the loss exceeds **25%**.
+2. The product of the *share of total potential tax loss* for the source country and the *share of that specific treaty's responsibility* for the loss exceeds 25%.
 
 Does not take into account that "tax treaties may attract new investment into a country"
 
@@ -75,8 +75,8 @@ Does not take into account that "tax treaties may attract new investment into a 
 
 Before focusing on developing countries, the paper establishes global baselines.
 
-* **Dividends:** Treaty shopping reduces the tax burden by 5.6 percentage points on average. The main gain comes from converting high standard WHT rates into lower treaty rates via conduits.
-* **Interest and Royalties:** The gains are higher (7.4 and 7.7 percentage points respectively). This is partly because interest and royalty payments are deductible in the source country, meaning the tax avoidance strategy often eliminates source taxation entirely.
+* Dividends: Treaty shopping reduces the tax burden by 5.6 percentage points on average. The main gain comes from converting high standard WHT rates into lower treaty rates via conduits.
+* Interest and Royalties: The gains are higher (7.4 and 7.7 percentage points respectively). This is partly because interest and royalty payments are deductible in the source country, meaning the tax avoidance strategy often eliminates source taxation entirely.
 
 The Netherlands, United Kingdom, Switzerland, Singapore, and Luxembourg consistently rank as the top conduit jurisdictions used to route these flows.
 
@@ -88,24 +88,24 @@ The analysis reveals distinct patterns for the 18 LMICs compared to the global a
 
 ### Dividends (Page 690-696)
 
-* **Average Loss:** LMICs show a potential treaty shopping gain of 3.0 percentage points, which is significantly lower than the global average of 5.6 points.
-* **Reasoning:** LMICs often have lower standard WHT rates to begin with (e.g., India had no dividend WHT in the 2018 data), meaning there is less tax to "save" by shopping.
-* **Extreme Cases:**
-* **Bangladesh:** Potential WHT revenue loss of **63%**.
-* **Egypt:** Potential loss of **100%**. This is due to a preferential double tax relief system where Egypt grants exemptions to treaty partners, which MNEs can exploit.
-* **Kenya:** Potential loss of **99.2%**, primarily through a treaty with Zambia (identified as a conduit in this specific model).
+* Average Loss: LMICs show a potential treaty shopping gain of 3.0 percentage points, which is significantly lower than the global average of 5.6 points.
+* Reasoning: LMICs often have lower standard WHT rates to begin with (e.g., India had no dividend WHT in the 2018 data), meaning there is less tax to "save" by shopping.
+* Extreme Cases:
+* Bangladesh: Potential WHT revenue loss of 63%.
+* Egypt: Potential loss of 100%. This is due to a preferential double tax relief system where Egypt grants exemptions to treaty partners, which MNEs can exploit.
+* Kenya: Potential loss of 99.2%, primarily through a treaty with Zambia (identified as a conduit in this specific model).
 
 ### Interest (Page 696-698)
 
-* **Average Loss:** The treaty shopping gain is 5.4 percentage points for LMICs.
-* **Revenue Impact:** Unlike dividends, interest payments reduce the tax base in the source country. The WHT losses here are substantial for specific nations:
-* **India:** Loses 66.7% of potential WHT revenue. MNEs exploit treaty rates of 10% (via conduits) versus the standard 20%.
-* **Indonesia:** Potential loss of 57.9%.
+* Average Loss: The treaty shopping gain is 5.4 percentage points for LMICs.
+* Revenue Impact: Unlike dividends, interest payments reduce the tax base in the source country. The WHT losses here are substantial for specific nations:
+* India: Loses 66.7% of potential WHT revenue. MNEs exploit treaty rates of 10% (via conduits) versus the standard 20%.
+* Indonesia: Potential loss of 57.9%.
 
 ### Royalties (Page 699-701)
 
-* **Average Loss:** The gain for MNEs is 2.3 percentage points, much lower than the global average of 7.7.
-* **Variance:** Most LMICs (e.g., Angola, Ethiopia, India) show zero potential loss because they have no reduced rates for royalties in their treaties. However, Egypt stands out again with an 85.3% potential loss.
+* Average Loss: The gain for MNEs is 2.3 percentage points, much lower than the global average of 7.7.
+* Variance: Most LMICs (e.g., Angola, Ethiopia, India) show zero potential loss because they have no reduced rates for royalties in their treaties. However, Egypt stands out again with an 85.3% potential loss.
 
 ## Identifying Potentially Aggressive Tax Treaties (Pages 701-706)
 
@@ -113,23 +113,23 @@ The authors apply their 25% threshold definition to identify specific bilateral 
 
 ### Key Aggressive Treaties Identified:
 
-* **Dividends:**
-* **Philippines – Germany:** Germany is the first conduit for 100% of optimal routes due to a unique 5% rate (standard is 30%).
-* **Indonesia – Netherlands:** The Netherlands treaty is responsible for 90% of the loss.
-* **Bangladesh – UAE:** The UAE treaty offers a 5% rate (standard 20%), driving significant diversion.
+* Dividends:
+* Philippines – Germany: Germany is the first conduit for 100% of optimal routes due to a unique 5% rate (standard is 30%).
+* Indonesia – Netherlands: The Netherlands treaty is responsible for 90% of the loss.
+* Bangladesh – UAE: The UAE treaty offers a 5% rate (standard 20%), driving significant diversion.
 
 
-* **Interest:**
-* **India – Switzerland:** Switzerland accounts for 100% of the diversion.
-* **Indonesia – UAE:** The UAE treaty is the first stop for 100% of tax-minimising routes.
-* **Nigeria – South Africa:** Responsible for nearly all potential WHT revenue losses.
+* Interest:
+* India – Switzerland: Switzerland accounts for 100% of the diversion.
+* Indonesia – UAE: The UAE treaty is the first stop for 100% of tax-minimising routes.
+* Nigeria – South Africa: Responsible for nearly all potential WHT revenue losses.
 
 
-* **Royalties:**
-* **Pakistan – USA:** The US treaty offers a 0% rate on royalties (standard 15%), making it the exclusive route for optimisation.
-* **Ghana – Singapore:** Singapore acts as the sole conduit.
+* Royalties:
+* Pakistan – USA: The US treaty offers a 0% rate on royalties (standard 15%), making it the exclusive route for optimisation.
+* Ghana – Singapore: Singapore acts as the sole conduit.
 
-The analysis highlights that a small group of conduit countries—**Netherlands, UAE, Switzerland, Singapore, and Mauritius**—recur frequently as the partners in these aggressive treaties.
+The analysis highlights that a small group of conduit countries—Netherlands, UAE, Switzerland, Singapore, and Mauritius—recur frequently as the partners in these aggressive treaties.
 
 ## Global Minimum Tax (GMT) and Treaty Shopping (Pages 706-711)
 
@@ -137,16 +137,16 @@ Analyse aggresive tax treatis in combination with GMT. Especially relevant for L
 
 Developing countries often offer tax incentives (e.g., tax holidays in Special Economic Zones) to attract investment, which drives the ETR below 15%.
 
-* If the developing country **does not** implement a QDMTT, it cannot collect the top-up tax.
-* The right to tax then shifts to the jurisdiction of the UPE or **IPE**.
-* **Crucial Link:** The "potentially aggressive" treaties identified in the paper often link developing countries to **conduit countries** (Netherlands, Switzerland, Singapore). These conduit countries are typically where IPEs are located.
+* If the developing country does not implement a QDMTT, it cannot collect the top-up tax.
+* The right to tax then shifts to the jurisdiction of the UPE or IPE.
+* Crucial Link: The "potentially aggressive" treaties identified in the paper often link developing countries to conduit countries (Netherlands, Switzerland, Singapore). These conduit countries are typically where IPEs are located.
 * Most conduit countries *have* implemented Pillar Two rules (IIR), while many developing countries have not yet implemented the GMT or QDMTTs.
 
 Consequently, the GMT might not benefit developing countries in the short run. Instead, it could result in a transfer of revenue from the developing country (which gave the incentive) to the developed conduit country (which collects the top-up tax via IIR). The incentive for investment is nullified for the MNE (they pay 15% regardless), but the developing country gets neither the investment benefit nor the tax revenue.
 
-* **Annex 3 (Robustness Checks):**
-* **Brexit:** Treating the UK as a non-EU member (removing Parent-Subsidiary Directive benefits) had minimal impact on global or LMIC averages. The UK remained a highly central conduit.
-* **Weights:** Using additive GDP weights (instead of multiplicative) increased the estimated treaty shopping gains slightly but did not alter the identification of aggressive treaties or the general trends.
+* Annex 3 (Robustness Checks):
+* Brexit: Treating the UK as a non-EU member (removing Parent-Subsidiary Directive benefits) had minimal impact on global or LMIC averages. The UK remained a highly central conduit.
+* Weights: Using additive GDP weights (instead of multiplicative) increased the estimated treaty shopping gains slightly but did not alter the identification of aggressive treaties or the general trends.
 
-* **Annex 4 (Treaty Elimination):**
+* Annex 4 (Treaty Elimination):
 * Simulating the removal of the 8 most aggressive dividend treaties showed mixed results. For Indonesia, traffic shifted from the Netherlands to Hong Kong with similar revenue losses. For Uganda, traffic shifted to Belgium, but with a reduced loss (62% instead of 100%). This confirms that piecemeal renegotiation is difficult and requires a systemic view.
