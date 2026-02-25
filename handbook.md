@@ -24,7 +24,7 @@
 - between 3000-5000 words
 - discuss fraft between 6-14 April, deadline 15 April 
 
-Set-up of document
+Set-up of document of research proposal
 - **Title page**: Proposal for Master Thesis U.S.E., title of research, student name contact, supervisor
 - **Introduction**: where is paper about (first sentence!), what is problem and why relevant (to whom), short literature review, derive and motivate research question (plus sub questions), explain contribution, announce and motivate research question
 - **Literature review and theoretical framework**: 
