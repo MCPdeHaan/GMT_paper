@@ -110,13 +110,21 @@
 
 # Personal goals
 
+- I want my thesis to form the basis to publish in an high standing academic journal, which can form the basis of an Economics PhD trajectory. I will adapt my master thesis then to the requirements of the journal in question. I aim to do a PhD in Economics at Utrecht School of Economics or Tilburg University (or a better place if I find that out later) about the empirical analysis of international business taxation. My thesis should be good enough, in level of analysis, design and interpretation, to be close to submission to a high ranking journal. This requires much from me, but I want to put in the necessary work. 
+- Data analysis in R and Python. Since the data is very scarce and spread out over different sources and formats, I assume that I will also need to use Python to gather and compile data. I am open to this. 
+- With this thesis, I want to show to myself that I can become an expert in international business taxation in Economic perspective. I want to discover that I am indeed fully interested in this and that there lies a nice contribution for me in the future in terms of high level policy development, research and business/advisory. 
+- I am an interdiciplenary person who enjoys combining different topics. In this thesis I want to combine: Economic Policy, International Business Taxation and related fields. 
 - "Each year the top Master’s thesis from every Utrecht University School of Economics 1-year MSc programs is recognized with the U.S.E. Master’s Thesis Award (...) The criteria used to evaluate the theses include societal relevance, academic merit, and particularly integration a ‘real world perspective’ into an economics issue. The authors of the winning theses are awarded with a certificate and prize during their Master’s program Graduation ceremony." - I want to do everything within my capabilities to win this.
 
 # Research style
 - Using sources that are very reliable, prioritise peer-reviewed journals over other (working) papers, be critical in this
+- I aim to work in many intermediate LaTeX documents that lead up to my final thesis. Each document should document one of the steps towards my thesis and bring some clarity. 
+
 
 # Writing style
 
+- British English
+- Very concrete sentences that have meaning
 - Never write more or less than you need to make your point.
 - master thesis should be written in good, active, clean and simple academic English. Be proud of your work and humble about its implications. The reader is always right. If the reader fails to get your brilliant ideas, it is your responsibility to improve your text. You need to decide on what you want to say and convince/seduce the reader to pay attention and read on.
 - Every paragraph starts with a sentence summarizing its content.
@@ -125,9 +133,6 @@
 - avoid plagarism at all costs, in my .md notes I have written many times in the same language as the article or summarised by copying the most important parts of a sentence, including this again is still plagaraism. So avoid this and write in new language. 
 
 # Structure of GMT_thesis repository
-
-
-
 
 UseofAI.md: update each time I use AI with as detailed as possible notes, so that in the end of the thesis, I can reference this and write a good and complete section about use of AI 
 
