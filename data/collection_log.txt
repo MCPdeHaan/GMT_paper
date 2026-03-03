@@ -1,0 +1,296 @@
+2026-02-28 22:29:12,360 [INFO] ╔══════════════════════════════════════════════════════════════╗
+2026-02-28 22:29:12,360 [INFO] ║  GMT THESIS — FULL DATA COLLECTION                         ║
+2026-02-28 22:29:12,360 [INFO] ║  2026-02-28 22:29:12                                    ║
+2026-02-28 22:29:12,360 [INFO] ╚══════════════════════════════════════════════════════════════╝
+
+2026-02-28 22:29:12,361 [INFO] ======================================================================
+2026-02-28 22:29:12,361 [INFO] 1. OECD CbCR Data
+2026-02-28 22:29:12,361 [INFO] ======================================================================
+2026-02-28 22:29:12,361 [INFO]   [1/3] Table I – Aggregate totals by jurisdiction
+2026-02-28 22:29:12,786 [INFO]   ✓ Saved: cbcr_table1_aggregate_totals.csv (107.97 MB)
+2026-02-28 22:29:12,786 [INFO]   [1/3] Table II – Interquartile means by jurisdiction
+2026-02-28 22:29:12,919 [INFO]   ✓ Saved: cbcr_table2_interquartile_means.csv (45.51 MB)
+2026-02-28 22:29:12,919 [INFO]   [1/3] Table III – Aggregate totals by ETR bracket
+2026-02-28 22:29:13,079 [INFO]   ✓ Saved: cbcr_table3_etr_aggregates.csv (72.58 MB)
+2026-02-28 22:29:13,079 [INFO]   [1/3] Table IV – Aggregate totals by ETR bracket (alt)
+2026-02-28 22:29:13,136 [INFO]   ✓ Saved: cbcr_table4_etr_aggregates_alt.csv (10.57 MB)
+2026-02-28 22:29:13,136 [INFO]   [1/3] Table V – Distribution of MNE group size
+2026-02-28 22:29:13,171 [INFO]   ✓ Saved: cbcr_table5_mne_size_distribution.csv (0.39 MB)
+2026-02-28 22:29:13,171 [INFO]   [1/3] Table VI – Aggregates by MNE group size
+2026-02-28 22:29:13,226 [INFO]   ✓ Saved: cbcr_table6_mne_size_aggregates.csv (11.21 MB)
+2026-02-28 22:29:13,226 [INFO] 
+2026-02-28 22:29:13,226 [INFO] ======================================================================
+2026-02-28 22:29:13,226 [INFO] 2. OECD Statutory CIT Rates
+2026-02-28 22:29:13,226 [INFO] ======================================================================
+2026-02-28 22:29:13,227 [INFO]   [1/3] Statutory CIT rates (combined central + sub-central)
+2026-02-28 22:29:13,263 [INFO]   ✓ Saved: oecd_statutory_cit_rates.csv (1.23 MB)
+2026-02-28 22:29:13,263 [INFO]   [1/3] Combined statutory tax rates on dividend income
+2026-02-28 22:29:15,531 [INFO]   ✓ Saved: oecd_combined_dividend_rates.csv (0.81 MB)
+2026-02-28 22:29:15,531 [INFO] 
+2026-02-28 22:29:15,531 [INFO] ======================================================================
+2026-02-28 22:29:15,531 [INFO] 3. OECD Forward-Looking ETRs
+2026-02-28 22:29:15,532 [INFO] ======================================================================
+2026-02-28 22:29:15,532 [INFO]   [1/3] ETR baseline
+2026-02-28 22:29:15,574 [INFO]   ✓ Saved: oecd_etr_baseline.csv (3.13 MB)
+2026-02-28 22:29:15,574 [INFO]   [1/3] ETR with income-based incentives
+2026-02-28 22:29:17,707 [INFO]   ✓ Saved: oecd_etr_income_incentives.csv (0.69 MB)
+2026-02-28 22:29:17,707 [INFO]   [1/3] ETR with expenditure-based incentives
+2026-02-28 22:29:19,885 [INFO]   ✓ Saved: oecd_etr_expenditure_incentives.csv (0.12 MB)
+2026-02-28 22:29:19,885 [INFO] 
+2026-02-28 22:29:19,885 [INFO] ======================================================================
+2026-02-28 22:29:19,885 [INFO] 4. OECD Average Annual Wages
+2026-02-28 22:29:19,885 [INFO] ======================================================================
+2026-02-28 22:29:19,885 [INFO]   [1/3] Average annual wages
+2026-02-28 22:29:19,920 [INFO]   ✓ Saved: oecd_avg_annual_wages.csv (0.36 MB)
+2026-02-28 22:29:19,920 [INFO]   [1/3] Hourly earnings (supplementary)
+2026-02-28 22:29:19,960 [INFO]   ✓ Saved: oecd_hourly_earnings.csv (3.56 MB)
+2026-02-28 22:29:19,960 [INFO] 
+2026-02-28 22:29:19,960 [INFO] ======================================================================
+2026-02-28 22:29:19,960 [INFO] 5. Tax Foundation
+2026-02-28 22:29:19,960 [INFO] ======================================================================
+2026-02-28 22:29:19,961 [INFO]   [1/3] Historical CIT rates (225 jurisdictions)
+2026-02-28 22:29:20,212 [WARNING]     Error: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/TaxFoundation/worldwide-corporate-tax-rates/master/final-data/rates_final.csv
+2026-02-28 22:29:25,215 [INFO]   [2/3] Historical CIT rates (225 jurisdictions)
+2026-02-28 22:29:25,292 [WARNING]     Error: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/TaxFoundation/worldwide-corporate-tax-rates/master/final-data/rates_final.csv
+2026-02-28 22:29:30,296 [INFO]   [3/3] Historical CIT rates (225 jurisdictions)
+2026-02-28 22:29:30,362 [WARNING]     Error: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/TaxFoundation/worldwide-corporate-tax-rates/master/final-data/rates_final.csv
+2026-02-28 22:29:30,362 [ERROR]   ✗ FAILED: Historical CIT rates (225 jurisdictions)
+2026-02-28 22:29:30,363 [INFO]   [1/3] Rate distribution data
+2026-02-28 22:29:30,575 [WARNING]     Error: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/TaxFoundation/worldwide-corporate-tax-rates/master/final-data/distribution_final.csv
+2026-02-28 22:29:35,580 [INFO]   [2/3] Rate distribution data
+2026-02-28 22:29:35,771 [WARNING]     Error: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/TaxFoundation/worldwide-corporate-tax-rates/master/final-data/distribution_final.csv
+2026-02-28 22:29:40,776 [INFO]   [3/3] Rate distribution data
+2026-02-28 22:29:40,852 [WARNING]     Error: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/TaxFoundation/worldwide-corporate-tax-rates/master/final-data/distribution_final.csv
+2026-02-28 22:29:40,852 [ERROR]   ✗ FAILED: Rate distribution data
+2026-02-28 22:29:40,853 [INFO]   [1/3] Country code mappings
+2026-02-28 22:29:41,040 [WARNING]     Error: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/TaxFoundation/worldwide-corporate-tax-rates/master/source-data/country_codes.csv
+2026-02-28 22:29:46,045 [INFO]   [2/3] Country code mappings
+2026-02-28 22:29:46,242 [WARNING]     Error: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/TaxFoundation/worldwide-corporate-tax-rates/master/source-data/country_codes.csv
+2026-02-28 22:29:51,247 [INFO]   [3/3] Country code mappings
+2026-02-28 22:29:51,315 [WARNING]     Error: 404 Client Error: Not Found for url: https://raw.githubusercontent.com/TaxFoundation/worldwide-corporate-tax-rates/master/source-data/country_codes.csv
+2026-02-28 22:29:51,315 [ERROR]   ✗ FAILED: Country code mappings
+2026-02-28 22:29:51,315 [INFO]   [1/3] Pillar Two implementation tracker (Excel)
+2026-02-28 22:29:51,874 [INFO]   ✓ Saved: tf_pillar2_implementation.xlsx (0.02 MB)
+2026-02-28 22:29:51,874 [INFO] 
+2026-02-28 22:29:51,874 [INFO] ======================================================================
+2026-02-28 22:29:51,874 [INFO] 6. World Bank Classifications & GDP
+2026-02-28 22:29:51,874 [INFO] ======================================================================
+2026-02-28 22:29:51,874 [INFO]   Fetching income classifications via API...
+2026-02-28 22:29:52,274 [INFO]   ✓ 296 entries → wb_income_classifications.csv
+2026-02-28 22:29:52,280 [INFO]     High income: 86
+2026-02-28 22:29:52,280 [INFO]     Aggregates: 79
+2026-02-28 22:29:52,280 [INFO]     Upper middle income: 54
+2026-02-28 22:29:52,281 [INFO]     Lower middle income: 50
+2026-02-28 22:29:52,281 [INFO]     Low income: 25
+2026-02-28 22:29:52,281 [INFO]     Not classified: 2
+2026-02-28 22:29:52,281 [INFO]   [1/3] Historical income group classifications
+2026-02-28 22:29:53,211 [INFO]   ✓ Saved: wb_historical_income_groups.xlsx (0.10 MB)
+2026-02-28 22:29:53,211 [INFO]   Fetching GDP per capita (2015-2024)...
+2026-02-28 22:29:53,799 [INFO]   ✓ 2660 obs → wb_gdp_per_capita.csv
+2026-02-28 22:29:53,799 [INFO]   Fetching population (2015-2024)...
+2026-02-28 22:29:54,362 [INFO]   ✓ 2660 obs → wb_population.csv
+2026-02-28 22:29:54,362 [INFO] 
+2026-02-28 22:29:54,363 [INFO] ======================================================================
+2026-02-28 22:29:54,363 [INFO] 7. Eurostat Inward FATS
+2026-02-28 22:29:54,363 [INFO] ======================================================================
+2026-02-28 22:29:54,364 [INFO]   [1/3] Inward FATS main indicators by controlling country (CSV)
+2026-02-28 22:29:55,948 [INFO]   ✓ Saved: fats_g1b_08.csv.gz (6.22 MB)
+2026-02-28 22:29:55,948 [INFO] 
+2026-02-28 22:29:55,948 [INFO] ======================================================================
+2026-02-28 22:29:55,948 [INFO] 8. BEA US Multinational Enterprise Data
+2026-02-28 22:29:55,949 [INFO] ======================================================================
+2026-02-28 22:29:55,949 [INFO]   [1/3] MOFA Selected Data by Country
+2026-02-28 22:29:56,712 [INFO]   ✓ Saved: bea_mofa_selected_by_country.xlsx (0.03 MB)
+2026-02-28 22:29:56,712 [INFO]   [1/3] MOFA Employment by Country & Industry
+2026-02-28 22:29:57,171 [INFO]   ✓ Saved: bea_mofa_employment.xlsx (0.03 MB)
+2026-02-28 22:29:57,171 [INFO]   [1/3] MOFA Assets by Country & Industry
+2026-02-28 22:29:57,285 [INFO]   ✓ Saved: bea_mofa_assets.xlsx (0.03 MB)
+2026-02-28 22:29:57,285 [INFO]   [1/3] MOFA Value Added by Country & Industry
+2026-02-28 22:29:57,396 [INFO]   ✓ Saved: bea_mofa_value_added.xlsx (0.03 MB)
+2026-02-28 22:29:57,397 [INFO]   Tip: Set BEA_API_KEY for more data (free: https://apps.bea.gov/API/signup/)
+2026-02-28 22:29:57,397 [INFO] 
+2026-02-28 22:29:57,397 [INFO] ======================================================================
+2026-02-28 22:29:57,397 [INFO] 9. ILO Global Wage Data
+2026-02-28 22:29:57,397 [INFO] ======================================================================
+2026-02-28 22:29:57,397 [INFO]   [1/3] Mean nominal monthly earnings
+2026-02-28 22:29:58,047 [WARNING]     Error: 404 Client Error: Not Found for url: https://webapps.ilo.org/ilostat-files/data/bulk/EAR_4MTH_SEX_ECO_CUR_NB.csv.gz
+2026-02-28 22:30:03,052 [INFO]   [2/3] Mean nominal monthly earnings
+2026-02-28 22:30:03,193 [WARNING]     Error: 404 Client Error: Not Found for url: https://webapps.ilo.org/ilostat-files/data/bulk/EAR_4MTH_SEX_ECO_CUR_NB.csv.gz
+2026-02-28 22:30:08,197 [INFO]   [3/3] Mean nominal monthly earnings
+2026-02-28 22:30:08,335 [WARNING]     Error: 404 Client Error: Not Found for url: https://webapps.ilo.org/ilostat-files/data/bulk/EAR_4MTH_SEX_ECO_CUR_NB.csv.gz
+2026-02-28 22:30:08,335 [ERROR]   ✗ FAILED: Mean nominal monthly earnings
+2026-02-28 22:30:08,336 [INFO]   [1/3] Mean nominal hourly earnings
+2026-02-28 22:30:08,698 [WARNING]     Error: 404 Client Error: Not Found for url: https://webapps.ilo.org/ilostat-files/data/bulk/EAR_HEES_SEX_ECO_CUR_NB.csv.gz
+2026-02-28 22:30:13,704 [INFO]   [2/3] Mean nominal hourly earnings
+2026-02-28 22:30:14,150 [WARNING]     Error: 404 Client Error: Not Found for url: https://webapps.ilo.org/ilostat-files/data/bulk/EAR_HEES_SEX_ECO_CUR_NB.csv.gz
+2026-02-28 22:30:19,156 [INFO]   [3/3] Mean nominal hourly earnings
+2026-02-28 22:30:19,267 [WARNING]     Error: 404 Client Error: Not Found for url: https://webapps.ilo.org/ilostat-files/data/bulk/EAR_HEES_SEX_ECO_CUR_NB.csv.gz
+2026-02-28 22:30:19,267 [ERROR]   ✗ FAILED: Mean nominal hourly earnings
+2026-02-28 22:30:19,268 [INFO] 
+2026-02-28 22:30:19,268 [INFO] ======================================================================
+2026-02-28 22:30:19,268 [INFO] 10. OECD BEPS & Pillar Two Implementation
+2026-02-28 22:30:19,268 [INFO] ======================================================================
+2026-02-28 22:30:19,268 [INFO]   [1/3] CbCR implementation requirements
+2026-02-28 22:30:19,300 [INFO]   ✓ Saved: oecd_cbcr_requirements.csv (0.04 MB)
+2026-02-28 22:30:19,300 [INFO]   [1/3] Controlled foreign company rules
+2026-02-28 22:30:19,333 [INFO]   ✓ Saved: oecd_cfc_rules.csv (0.40 MB)
+2026-02-28 22:30:19,333 [INFO]   [1/3] Interest limitation rules
+2026-02-28 22:30:19,364 [INFO]   ✓ Saved: oecd_interest_limitation.csv (0.35 MB)
+2026-02-28 22:30:19,364 [INFO]   [1/3] Intellectual property regimes
+2026-02-28 22:30:19,397 [INFO]   ✓ Saved: oecd_ip_regimes.csv (0.34 MB)
+2026-02-28 22:30:19,397 [INFO]   [1/3] Hybrid mismatch arrangements
+2026-02-28 22:30:20,636 [INFO]   ✓ Saved: oecd_hybrid_mismatch.csv (0.12 MB)
+2026-02-28 22:30:20,636 [INFO]   [1/3] Mandatory disclosure rules
+2026-02-28 22:30:22,422 [INFO]   ✓ Saved: oecd_mandatory_disclosure.csv (0.11 MB)
+2026-02-28 22:30:22,422 [INFO] 
+2026-02-28 22:30:22,422 [INFO] ======================================================================
+2026-02-28 22:30:22,422 [INFO] 11. OECD Additional CTS
+2026-02-28 22:30:22,422 [INFO] ======================================================================
+2026-02-28 22:30:22,423 [INFO]   [1/3] CIT revenue as % of GDP
+2026-02-28 22:30:22,512 [WARNING]     Error: 404 Client Error: Not Found for url: https://sdmx.oecd.org/public/rest/data/OECD.CTP.TPS,DSD_CTS_CIT@DF_CITREV,1.0/all?format=csv
+2026-02-28 22:30:27,512 [INFO]   [2/3] CIT revenue as % of GDP
+2026-02-28 22:30:27,598 [WARNING]     Error: 404 Client Error: Not Found for url: https://sdmx.oecd.org/public/rest/data/OECD.CTP.TPS,DSD_CTS_CIT@DF_CITREV,1.0/all?format=csv
+2026-02-28 22:30:32,603 [INFO]   [3/3] CIT revenue as % of GDP
+2026-02-28 22:30:32,691 [WARNING]     Error: 404 Client Error: Not Found for url: https://sdmx.oecd.org/public/rest/data/OECD.CTP.TPS,DSD_CTS_CIT@DF_CITREV,1.0/all?format=csv
+2026-02-28 22:30:32,691 [ERROR]   ✗ FAILED: CIT revenue as % of GDP
+2026-02-28 22:30:32,692 [INFO] 
+2026-02-28 22:30:32,692 [INFO] 
+============================================================
+2026-02-28 22:30:32,692 [INFO] SUMMARY
+2026-02-28 22:30:32,692 [INFO] ============================================================
+2026-02-28 22:30:32,692 [INFO]   ✓  OECD CbCR Tables I–VI
+2026-02-28 22:30:32,692 [INFO]   ✓  OECD Statutory CIT Rates
+2026-02-28 22:30:32,692 [INFO]   ✓  OECD Forward-Looking ETRs
+2026-02-28 22:30:32,692 [INFO]   ✓  OECD Average Annual Wages
+2026-02-28 22:30:32,692 [INFO]   ✓  Tax Foundation Rates & Pillar 2
+2026-02-28 22:30:32,692 [INFO]   ✓  World Bank Classifications
+2026-02-28 22:30:32,692 [INFO]   ✓  Eurostat Inward FATS
+2026-02-28 22:30:32,693 [INFO]   ✓  BEA US MNE Data
+2026-02-28 22:30:32,693 [INFO]   ✓  ILO Global Wage Data
+2026-02-28 22:30:32,693 [INFO]   ✓  OECD BEPS / Pillar Two
+2026-02-28 22:30:32,693 [INFO]   ✓  OECD Additional CTS
+2026-02-28 22:30:32,693 [INFO] 
+Files:
+2026-02-28 22:30:32,693 [INFO]       6.22 MB  eurostat_fats/fats_g1b_08.csv.gz
+2026-02-28 22:30:32,693 [INFO]       0.04 MB  pillar2_beps/oecd_cbcr_requirements.csv
+2026-02-28 22:30:32,693 [INFO]       0.40 MB  pillar2_beps/oecd_cfc_rules.csv
+2026-02-28 22:30:32,693 [INFO]       0.12 MB  pillar2_beps/oecd_hybrid_mismatch.csv
+2026-02-28 22:30:32,693 [INFO]       0.35 MB  pillar2_beps/oecd_interest_limitation.csv
+2026-02-28 22:30:32,694 [INFO]       0.34 MB  pillar2_beps/oecd_ip_regimes.csv
+2026-02-28 22:30:32,694 [INFO]       0.11 MB  pillar2_beps/oecd_mandatory_disclosure.csv
+2026-02-28 22:30:32,694 [INFO]       0.10 MB  world_bank/wb_gdp_per_capita.csv
+2026-02-28 22:30:32,694 [INFO]       0.10 MB  world_bank/wb_historical_income_groups.xlsx
+2026-02-28 22:30:32,694 [INFO]       0.02 MB  world_bank/wb_income_classifications.csv
+2026-02-28 22:30:32,694 [INFO]       0.09 MB  world_bank/wb_population.csv
+2026-02-28 22:30:32,694 [INFO]       0.02 MB  tax_foundation/tf_pillar2_implementation.xlsx
+2026-02-28 22:30:32,694 [INFO]       0.81 MB  oecd_tax_rates/oecd_combined_dividend_rates.csv
+2026-02-28 22:30:32,694 [INFO]       1.23 MB  oecd_tax_rates/oecd_statutory_cit_rates.csv
+2026-02-28 22:30:32,694 [INFO]       0.03 MB  bea_mne/bea_mofa_assets.xlsx
+2026-02-28 22:30:32,694 [INFO]       0.03 MB  bea_mne/bea_mofa_employment.xlsx
+2026-02-28 22:30:32,694 [INFO]       0.03 MB  bea_mne/bea_mofa_selected_by_country.xlsx
+2026-02-28 22:30:32,694 [INFO]       0.03 MB  bea_mne/bea_mofa_value_added.xlsx
+2026-02-28 22:30:32,694 [INFO]       0.36 MB  oecd_wages/oecd_avg_annual_wages.csv
+2026-02-28 22:30:32,695 [INFO]       3.56 MB  oecd_wages/oecd_hourly_earnings.csv
+2026-02-28 22:30:32,695 [INFO]     107.97 MB  oecd_cbcr/cbcr_table1_aggregate_totals.csv
+2026-02-28 22:30:32,695 [INFO]      45.51 MB  oecd_cbcr/cbcr_table2_interquartile_means.csv
+2026-02-28 22:30:32,696 [INFO]      72.58 MB  oecd_cbcr/cbcr_table3_etr_aggregates.csv
+2026-02-28 22:30:32,696 [INFO]      10.57 MB  oecd_cbcr/cbcr_table4_etr_aggregates_alt.csv
+2026-02-28 22:30:32,697 [INFO]       0.39 MB  oecd_cbcr/cbcr_table5_mne_size_distribution.csv
+2026-02-28 22:30:32,697 [INFO]      11.21 MB  oecd_cbcr/cbcr_table6_mne_size_aggregates.csv
+2026-02-28 22:30:32,697 [INFO]       3.13 MB  oecd_etr/oecd_etr_baseline.csv
+2026-02-28 22:30:32,697 [INFO]       0.12 MB  oecd_etr/oecd_etr_expenditure_incentives.csv
+2026-02-28 22:30:32,697 [INFO]       0.69 MB  oecd_etr/oecd_etr_income_incentives.csv
+2026-02-28 22:30:32,697 [INFO] 
+Total: 266.2 MB
+2026-02-28 22:42:19,194 [INFO] Downloading: Tax Foundation Rates & Pillar 2
+2026-02-28 22:42:19,194 [INFO] ======================================================================
+2026-02-28 22:42:19,194 [INFO] 5. Tax Foundation
+2026-02-28 22:42:19,194 [INFO] ======================================================================
+2026-02-28 22:42:19,194 [INFO]   [1/3] Historical CIT rates (225 jurisdictions)
+2026-02-28 22:42:19,394 [INFO]   ✓ Saved: tf_rates_final.csv (0.06 MB)
+2026-02-28 22:42:19,394 [INFO]   [1/3] Rate distribution data
+2026-02-28 22:42:19,530 [INFO]   ✓ Saved: tf_distribution_final.csv (0.00 MB)
+2026-02-28 22:42:19,530 [INFO]   [1/3] Country code mappings
+2026-02-28 22:42:19,704 [INFO]   ✓ Saved: tf_country_codes.csv (0.13 MB)
+2026-02-28 22:42:19,704 [INFO]   ✓ Already exists: tf_pillar2_implementation.xlsx (0.02 MB)
+2026-02-28 22:42:19,704 [INFO] 
+2026-02-28 22:42:36,822 [INFO] Downloading: OECD Additional CTS
+2026-02-28 22:42:36,822 [INFO] ======================================================================
+2026-02-28 22:42:36,822 [INFO] 11. OECD Additional CTS
+2026-02-28 22:42:36,822 [INFO] ======================================================================
+2026-02-28 22:42:36,822 [INFO]   [1/3] Comparative tax revenue statistics (incl. CIT as % of GDP)
+2026-02-28 22:43:22,276 [INFO]   ✓ Saved: oecd_cit_revenue_gdp.csv (359.87 MB)
+2026-02-28 22:43:22,277 [INFO] 
+2026-02-28 22:43:49,298 [INFO] Downloading: ILO Global Wage Data
+2026-02-28 22:43:49,299 [INFO] ======================================================================
+2026-02-28 22:43:49,299 [INFO] 9. ILO Global Wage Data
+2026-02-28 22:43:49,299 [INFO] ======================================================================
+2026-02-28 22:43:49,299 [INFO]   [1/3] Mean nominal monthly earnings
+2026-02-28 22:43:49,749 [WARNING]     Error: 404 Client Error: Not Found for url: https://sdmx.ilo.org/rest/data/ILO,DF_EAR_4MTH_SEX_ECO_CUR_NB_A,1.0/all?format=csv
+2026-02-28 22:43:54,750 [INFO]   [2/3] Mean nominal monthly earnings
+2026-02-28 22:43:55,025 [WARNING]     Error: 404 Client Error: Not Found for url: https://sdmx.ilo.org/rest/data/ILO,DF_EAR_4MTH_SEX_ECO_CUR_NB_A,1.0/all?format=csv
+2026-02-28 22:44:00,026 [INFO]   [3/3] Mean nominal monthly earnings
+2026-02-28 22:44:00,293 [WARNING]     Error: 404 Client Error: Not Found for url: https://sdmx.ilo.org/rest/data/ILO,DF_EAR_4MTH_SEX_ECO_CUR_NB_A,1.0/all?format=csv
+2026-02-28 22:44:00,293 [ERROR]   ✗ FAILED: Mean nominal monthly earnings
+2026-02-28 22:44:00,294 [INFO]   [1/3] Mean nominal hourly earnings
+2026-02-28 22:44:00,571 [WARNING]     Error: 404 Client Error: Not Found for url: https://sdmx.ilo.org/rest/data/ILO,DF_EAR_HEES_SEX_ECO_CUR_NB_A,1.0/all?format=csv
+2026-02-28 22:44:05,574 [INFO]   [2/3] Mean nominal hourly earnings
+2026-02-28 22:44:05,860 [WARNING]     Error: 404 Client Error: Not Found for url: https://sdmx.ilo.org/rest/data/ILO,DF_EAR_HEES_SEX_ECO_CUR_NB_A,1.0/all?format=csv
+2026-02-28 22:44:10,866 [INFO]   [3/3] Mean nominal hourly earnings
+2026-02-28 22:44:11,196 [WARNING]     Error: 404 Client Error: Not Found for url: https://sdmx.ilo.org/rest/data/ILO,DF_EAR_HEES_SEX_ECO_CUR_NB_A,1.0/all?format=csv
+2026-02-28 22:44:11,196 [ERROR]   ✗ FAILED: Mean nominal hourly earnings
+2026-02-28 22:44:11,197 [INFO] 
+2026-02-28 22:46:08,728 [INFO] Downloading: ILO Global Wage Data
+2026-02-28 22:46:08,729 [INFO] ======================================================================
+2026-02-28 22:46:08,729 [INFO] 9. ILO Global Wage Data
+2026-02-28 22:46:08,729 [INFO] ======================================================================
+2026-02-28 22:46:08,729 [INFO]   [1/3] Mean nominal monthly earnings
+2026-02-28 22:48:48,122 [INFO] Downloading: ILO Global Wage Data
+2026-02-28 22:48:48,122 [INFO] ======================================================================
+2026-02-28 22:48:48,122 [INFO] 9. ILO Global Wage Data
+2026-02-28 22:48:48,122 [INFO] ======================================================================
+2026-02-28 22:48:48,122 [INFO]   [1/3] Mean nominal monthly earnings
+2026-02-28 22:54:25,949 [INFO] Downloading: ILO Global Wage Data
+2026-02-28 22:54:25,949 [INFO] ======================================================================
+2026-02-28 22:54:25,949 [INFO] 9. ILO Global Wage Data
+2026-02-28 22:54:25,949 [INFO] ======================================================================
+2026-02-28 22:54:25,949 [INFO]   [1/3] Mean nominal monthly earnings
+2026-02-28 22:59:17,203 [INFO]   ✓ Saved: ilo_monthly_earnings.csv (139.80 MB)
+2026-02-28 22:59:17,205 [INFO]   [1/3] Mean nominal hourly earnings
+2026-02-28 23:02:30,077 [WARNING]     Error: HTTPSConnectionPool(host='sdmx.ilo.org', port=443): Read timed out.
+2026-02-28 23:02:35,083 [INFO]   [2/3] Mean nominal hourly earnings
+2026-02-28 23:03:33,271 [INFO]   ✓ Saved: ilo_hourly_earnings.csv (0.00 MB)
+2026-02-28 23:03:33,271 [INFO] 
+2026-02-28 23:10:56,403 [INFO] Downloading: Tax Foundation Rates & Pillar 2
+2026-02-28 23:10:56,403 [INFO] ======================================================================
+2026-02-28 23:10:56,403 [INFO] 5. Tax Foundation
+2026-02-28 23:10:56,403 [INFO] ======================================================================
+2026-02-28 23:10:56,403 [INFO]   ✓ Already exists: tf_rates_final.csv (0.06 MB)
+2026-02-28 23:10:56,403 [INFO]   ✓ Already exists: tf_distribution_final.csv (0.00 MB)
+2026-02-28 23:10:56,403 [INFO]   ✓ Already exists: tf_country_codes.csv (0.13 MB)
+2026-02-28 23:10:56,403 [INFO]   ✓ Already exists: tf_pillar2_implementation.xlsx (0.02 MB)
+2026-02-28 23:10:56,403 [INFO] 
+2026-02-28 23:10:56,403 [INFO] Downloading: ILO Global Wage Data
+2026-02-28 23:10:56,403 [INFO] ======================================================================
+2026-02-28 23:10:56,403 [INFO] 9. ILO Global Wage Data
+2026-02-28 23:10:56,403 [INFO] ======================================================================
+2026-02-28 23:10:56,403 [INFO]   ✓ Already exists: ilo_monthly_earnings.csv (139.80 MB)
+2026-02-28 23:10:56,403 [INFO]   [1/3] Mean nominal hourly earnings
+2026-02-28 23:12:36,706 [WARNING]     Error: 524 Server Error:  for url: https://sdmx.ilo.org/rest/data/ILO,DF_EAR_EHRA_SEX_ECO_CUR_NB,1.0/all?format=csv
+2026-02-28 23:12:41,708 [INFO]   [2/3] Mean nominal hourly earnings
+2026-02-28 23:14:54,330 [WARNING]     Error: Response ended prematurely
+2026-02-28 23:14:59,341 [INFO]   [3/3] Mean nominal hourly earnings
+2026-02-28 23:24:07,070 [INFO] Downloading: BEA US MNE Data
+2026-02-28 23:24:07,071 [INFO] ======================================================================
+2026-02-28 23:24:07,071 [INFO] 8. BEA US Multinational Enterprise Data
+2026-02-28 23:24:07,071 [INFO] ======================================================================
+2026-02-28 23:24:07,071 [INFO]   [1/3] MOFA Selected Data by Country
+2026-02-28 23:24:08,196 [INFO]   ✓ Saved: bea_mofa_selected_by_country.xls (0.60 MB)
+2026-02-28 23:24:08,196 [INFO]   [1/3] MOFA Employment by Country & Industry
+2026-02-28 23:24:08,392 [INFO]   ✓ Saved: bea_mofa_employment.xls (0.47 MB)
+2026-02-28 23:24:08,392 [INFO]   [1/3] MOFA Assets by Country & Industry
+2026-02-28 23:24:08,640 [INFO]   ✓ Saved: bea_mofa_assets.xls (0.34 MB)
+2026-02-28 23:24:08,641 [INFO]   [1/3] MOFA Value Added by Country & Industry
+2026-02-28 23:24:08,821 [INFO]   ✓ Saved: bea_mofa_value_added.xls (0.42 MB)
+2026-02-28 23:24:08,821 [INFO]   Tip: Set BEA_API_KEY for more data (free: https://apps.bea.gov/API/signup/)
+2026-02-28 23:24:08,821 [INFO] 

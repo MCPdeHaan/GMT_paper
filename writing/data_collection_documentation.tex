@@ -1,0 +1,1313 @@
+\documentclass[12pt,a4paper]{article}
+
+% ── Packages ──────────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[british]{babel}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{setspace}
+\usepackage{parskip}
+\usepackage{enumitem}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{csquotes}
+\usepackage{hyperref}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{tcolorbox}
+\usepackage[style=apa,backend=biber,sortcites=true]{biblatex}
+\addbibresource{bibliography.bib}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!60!black,
+    citecolor=blue!60!black,
+    urlcolor=blue!60!black
+}
+
+\onehalfspacing
+
+% ── Code listing style ────────────────────────────────────────────────────────
+\definecolor{codebg}{HTML}{F7F7F7}
+\definecolor{codeframe}{HTML}{CCCCCC}
+\definecolor{codegreen}{HTML}{228B22}
+\definecolor{codegray}{HTML}{666666}
+\definecolor{codepurple}{HTML}{8B008B}
+\definecolor{codeblue}{HTML}{0000CD}
+
+\lstdefinestyle{pythonstyle}{
+    language=Python,
+    backgroundcolor=\color{codebg},
+    basicstyle=\small\ttfamily,
+    breaklines=true,
+    breakatwhitespace=false,
+    frame=single,
+    rulecolor=\color{codeframe},
+    numbers=left,
+    numberstyle=\tiny\color{codegray},
+    numbersep=8pt,
+    keywordstyle=\color{codeblue}\bfseries,
+    stringstyle=\color{codegreen},
+    commentstyle=\color{codegray}\itshape,
+    showstringspaces=false,
+    tabsize=4,
+    captionpos=b,
+    morekeywords={Path, Session, True, False, None, f},
+    literate={→}{$\rightarrow$}1
+}
+
+\lstdefinestyle{shellstyle}{
+    backgroundcolor=\color{codebg},
+    basicstyle=\small\ttfamily,
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{codeframe},
+    numbers=none,
+    showstringspaces=false,
+    tabsize=4,
+    captionpos=b,
+}
+
+\lstset{style=pythonstyle}
+
+% ── Custom environments ───────────────────────────────────────────────────────
+\newtcolorbox{apibox}[1][]{%
+    colback=blue!3,
+    colframe=blue!40!black,
+    fonttitle=\bfseries,
+    title={#1},
+    arc=2pt,
+    boxrule=0.5pt,
+}
+
+\newtcolorbox{warningbox}[1][]{%
+    colback=orange!5,
+    colframe=orange!60!black,
+    fonttitle=\bfseries,
+    title={#1},
+    arc=2pt,
+    boxrule=0.5pt,
+}
+
+\newtcolorbox{notebox}[1][]{%
+    colback=green!3,
+    colframe=green!40!black,
+    fonttitle=\bfseries,
+    title={#1},
+    arc=2pt,
+    boxrule=0.5pt,
+}
+
+% ── Title ─────────────────────────────────────────────────────────────────────
+\title{%
+  \textbf{Data Collection Script: Full Technical Documentation}\\[0.5em]
+  \large How \texttt{collect\_all\_data.py} Was Built, How It Works,\\
+  and How to Reproduce Every Step%
+}
+\author{%
+  Maurits de Haan\\
+  \small MSc Economic Policy, Utrecht University\\
+  \small Supervisor: dr.\ Peter Gerbrands%
+}
+\date{28 February 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This document provides an exhaustive, step-by-step account of how the automated data collection script \texttt{collect\_all\_data.py} was developed for the GMT revenue simulation thesis.
+It records every decision made during development, how each API endpoint was discovered and verified, the exact URL patterns that work and those that failed, the structure of every downloaded file, and detailed instructions for reproducing the entire data collection from scratch.
+The document serves both as a technical reference and as an appendix demonstrating full replicability of the data pipeline.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Motivation and Approach}\label{sec:motivation}
+% ══════════════════════════════════════════════════════════════════════════════
+
+The GMT revenue simulation requires data from eleven distinct sources spanning five international organisations (OECD, ILO, Eurostat, BEA, World Bank), one think tank (Tax Foundation), and multiple API protocols (SDMX REST, World Bank REST v2, direct HTTP downloads).
+Manual point-and-click downloads from web portals are error-prone, non-reproducible, and time-consuming.
+Therefore, a single Python script was developed that programmatically downloads all required datasets via their respective APIs, with retry logic, caching, and logging.
+
+\subsection{Design principles}
+
+The script was built around five principles:
+
+\begin{enumerate}
+    \item \textbf{Idempotency.} Running the script multiple times does not re-download data that already exists on disk.
+    Each download function checks whether the destination file exists and has a non-zero size before making any HTTP request.
+    \item \textbf{Reproducibility.} Every URL, dataflow identifier, and API parameter is hardcoded in the script.
+    No interactive input or manual steps are required.
+    \item \textbf{Resilience.} All downloads use retry logic (3~attempts, 5-second wait between retries) and stream large files in 64\,KB chunks to avoid memory exhaustion.
+    \item \textbf{Modularity.} Each data source has its own collection function.
+    Sources can be downloaded individually via command-line arguments.
+    \item \textbf{Logging.} All operations are logged to both the terminal and a persistent log file (\texttt{collection\_log.txt}), recording timestamps, file sizes, successes, and failures.
+\end{enumerate}
+
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Environment Setup}\label{sec:environment}
+% ══════════════════════════════════════════════════════════════════════════════
+
+\subsection{Step 1: Create the Python virtual environment}
+
+A virtual environment isolates project dependencies from the system Python.
+The following commands create and activate the environment:
+
+\begin{lstlisting}[style=shellstyle,caption={Creating the virtual environment}]
+cd /Users/mauritsdehaan/Documents/GMT_thesis
+python3 -m venv .venv
+source .venv/bin/activate
+\end{lstlisting}
+
+The environment was created with \textbf{Python~3.14.2} (the version installed via Homebrew on the working machine).
+Any Python~$\geq$3.10 should work, as the only version-specific syntax used is the union type hint \texttt{dict | None} (PEP~604, available from Python~3.10).
+
+\subsection{Step 2: Install dependencies}
+
+Four packages are required:
+
+\begin{lstlisting}[style=shellstyle,caption={Installing dependencies}]
+pip install pandas requests openpyxl xlrd
+\end{lstlisting}
+
+\begin{table}[H]
+\centering
+\caption{Python package dependencies}
+\label{tab:packages}
+\begin{tabular}{lp{8cm}}
+\toprule
+\textbf{Package} & \textbf{Purpose} \\
+\midrule
+\texttt{pandas} & DataFrame operations; reading/writing CSV and Excel; used in the World Bank API handler to structure paginated JSON responses into tabular format \\
+\texttt{requests} & HTTP client; all API calls use a persistent \texttt{requests.Session} for connection pooling and shared headers \\
+\texttt{openpyxl} & Reading \texttt{.xlsx} files (Tax Foundation Pillar~Two tracker, World Bank historical income groups) \\
+\texttt{xlrd} & Reading \texttt{.xls} files (BEA MOFA data, which uses the legacy Excel format) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Step 3: Create directory structure}
+
+The script automatically creates the following directory tree on first run:
+
+\begin{lstlisting}[style=shellstyle,caption={Directory structure}]
+GMT_thesis/
+  data/
+    collect_all_data.py      # The collection script
+    collection_log.txt       # Auto-generated log file
+    raw/                     # All downloaded data (read-only after collection)
+      oecd_cbcr/
+      oecd_tax_rates/
+      oecd_etr/
+      oecd_wages/
+      oecd_cts_additional/
+      tax_foundation/
+      world_bank/
+      eurostat_fats/
+      bea_mne/
+      ilo_wages/
+      pillar2_beps/
+    processed/               # Reserved for cleaned/merged data (later stage)
+\end{lstlisting}
+
+The \texttt{raw/} and \texttt{processed/} directories are created automatically by the script using \texttt{Path.mkdir(parents=True, exist\_ok=True)}.
+
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{API Discovery Process}\label{sec:api_discovery}
+% ══════════════════════════════════════════════════════════════════════════════
+
+This section documents how each API endpoint was identified, tested, and verified.
+Several endpoints required non-trivial discovery because the URLs published in OECD documentation and the Data Collection Guide were outdated or incorrect.
+
+\subsection{The OECD SDMX REST API}\label{sec:oecd_sdmx}
+
+The OECD serves all its statistical data through an SDMX (Statistical Data and Metadata eXchange) REST API.
+The base URL is:
+
+\begin{apibox}[OECD SDMX REST API]
+\texttt{https://sdmx.oecd.org/public/rest/}
+\end{apibox}
+
+\noindent
+SDMX organises data into \emph{dataflows}, each identified by a triple:
+\[
+\texttt{<agency>,<DSD>@<dataflow\_id>,<version>}
+\]
+For example, the CbCR Table~I dataflow is \texttt{OECD.CTP.TPS,DSD\_CBCR@DF\_CBCRI,1.1}, where:
+\begin{itemize}
+    \item \texttt{OECD.CTP.TPS} is the agency (OECD Centre for Tax Policy and Statistics),
+    \item \texttt{DSD\_CBCR@DF\_CBCRI} is the dataflow (Data Structure Definition CBCR, Dataflow CBCR-I),
+    \item \texttt{1.1} is the version.
+\end{itemize}
+
+To download data in CSV format, the full URL pattern is:
+\begin{center}
+\small\texttt{https://sdmx.oecd.org/public/rest/data/<dataflow>/all?format=csv}
+\end{center}
+with the HTTP header \texttt{Accept: application/vnd.sdmx.data+csv;file=true}.
+
+\subsubsection{Problem: Initial dataflow IDs were incorrect}
+
+The Data Collection Guide (written before the script was developed) referenced URL patterns like:
+\begin{quote}
+\small\texttt{OECD.CTP.TPS,DSD\_CBCR@DF\_CBCR,1.0}
+\end{quote}
+This returned \textbf{HTTP~404}.
+The dataflow ID \texttt{DF\_CBCR} does not exist; the OECD uses \texttt{DF\_CBCRI} through \texttt{DF\_CBCRVI} for the six CbCR tables.
+Furthermore, the version is \texttt{1.1}, not \texttt{1.0}.
+
+\subsubsection{Solution: Querying the OECD structure endpoint}
+
+The correct dataflow IDs were discovered by querying the OECD's structure API, which returns all available dataflows in JSON format:
+
+\begin{lstlisting}[style=shellstyle,caption={Discovering OECD dataflows}]
+curl -s -H "Accept: application/vnd.sdmx.structure+json;version=2.0.0" \
+  "https://sdmx.oecd.org/public/rest/dataflow/OECD.CTP.TPS" \
+  | python3 -c "
+import json, sys
+data = json.load(sys.stdin)
+for df in data['data']['dataflows']:
+    print(f\"{df['id']:30s}  v{df['version']}  {df.get('name','')}\")
+"
+\end{lstlisting}
+
+This revealed all available dataflows under the tax statistics agency.
+The relevant results were:
+
+\begin{table}[H]
+\centering
+\caption{Discovered OECD dataflow identifiers (CbCR)}
+\label{tab:oecd_cbcr_flows}
+\small
+\begin{tabular}{llp{6cm}}
+\toprule
+\textbf{Dataflow ID} & \textbf{Version} & \textbf{Description} \\
+\midrule
+\texttt{DSD\_CBCR@DF\_CBCRI} & 1.1 & CbCR Table~I -- Aggregate totals by jurisdiction \\
+\texttt{DSD\_CBCR@DF\_CBCRII} & 1.1 & CbCR Table~II -- Interquartile means by jurisdiction \\
+\texttt{DSD\_CBCR@DF\_CBCRIII} & 1.1 & CbCR Table~III -- Aggregate totals by ETR bracket \\
+\texttt{DSD\_CBCR@DF\_CBCRIV} & 1.1 & CbCR Table~IV -- Aggregate totals by ETR bracket (alt) \\
+\texttt{DSD\_CBCR@DF\_CBCRV} & 1.1 & CbCR Table~V -- Distribution of MNE group size \\
+\texttt{DSD\_CBCR@DF\_CBCRVI} & 1.1 & CbCR Table~VI -- Aggregates by MNE group size \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The same discovery process was applied to other OECD datasets:
+
+\begin{table}[H]
+\centering
+\caption{All OECD dataflow identifiers used in the script}
+\label{tab:oecd_all_flows}
+\small
+\begin{tabular}{lll}
+\toprule
+\textbf{Full dataflow triple} & \textbf{Ver.} & \textbf{Dataset} \\
+\midrule
+\texttt{OECD.CTP.TPS,DSD\_TAX\_CIT@DF\_CIT} & 2.0 & Statutory CIT rates \\
+\texttt{OECD.CTP.TPS,DSD\_TAX\_CIT@DF\_CIT\_DIVD\_INCOME} & 1.0 & Dividend tax rates \\
+\texttt{OECD.CTP.TPS,DSD\_ETR@DF\_ETR\_BASELINE} & 2.0 & Forward-looking ETR (baseline) \\
+\texttt{OECD.CTP.TPS,DSD\_ETR@DF\_ETR\_IBRD} & 2.0 & ETR with income incentives \\
+\texttt{OECD.CTP.TPS,DSD\_ETR@DF\_ETR\_XBRD} & 2.0 & ETR with expenditure incentives \\
+\texttt{OECD.ELS.SAE,DSD\_EARNINGS@AV\_AN\_WAGE} & 1.0 & Average annual wages \\
+\texttt{OECD.SDD.TPS,DSD\_EAR@DF\_HOU\_EAR} & 1.0 & Hourly earnings \\
+\texttt{OECD.CTP.TPS,DSD\_QDD\_CBCREQ@DF\_QDD\_CBCREQ} & 1.0 & CbCR requirements \\
+\texttt{OECD.CTP.TPS,DSD\_QDD\_CFC@DF\_QDD\_CFC} & 2.0 & CFC rules \\
+\texttt{OECD.CTP.TPS,DSD\_QDD\_ILR@DF\_QDD\_ILR} & 2.0 & Interest limitation \\
+\texttt{OECD.CTP.TPS,DSD\_QDD\_IPR@DF\_QDD\_IPR} & 2.1 & IP regimes \\
+\texttt{OECD.CTP.TPS,DSD\_QDD\_ACT2@DF\_QDD\_ACT2} & 1.0 & Hybrid mismatch \\
+\texttt{OECD.CTP.TPS,DSD\_QDD\_ACT12@DF\_QDD\_ACT12} & 1.0 & Mandatory disclosure \\
+\texttt{OECD.CTP.TPS,DSD\_REV\_COMP\_GLOBAL@DF\_RSGLOBAL} & 2.1 & Revenue statistics \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{warningbox}[Important: agency differs for wage data]
+The average annual wages dataflow belongs to agency \texttt{OECD.ELS.SAE} (Employment, Labour, and Social Affairs), \emph{not} \texttt{OECD.CTP.TPS}.
+The hourly earnings dataflow belongs to \texttt{OECD.SDD.TPS} (Statistics and Data Directorate).
+These were discovered by querying the structure endpoint for all OECD agencies:
+\begin{center}
+\small\texttt{https://sdmx.oecd.org/public/rest/dataflow/all?detail=allstubs}
+\end{center}
+and filtering for ``wage'' and ``earning'' in the dataflow names.
+\end{warningbox}
+
+\subsubsection{Verification}
+
+Every dataflow was verified to return HTTP~200 before being included in the script:
+
+\begin{lstlisting}[style=shellstyle,caption={Verifying all OECD endpoints}]
+for flow in "OECD.CTP.TPS,DSD_CBCR@DF_CBCRI,1.1" \
+            "OECD.CTP.TPS,DSD_TAX_CIT@DF_CIT,2.0" \
+            "OECD.ELS.SAE,DSD_EARNINGS@AV_AN_WAGE,1.0"; do
+  code=$(curl -s -o /dev/null -w "%{http_code}" \
+    -H "Accept: application/vnd.sdmx.data+csv;file=true" \
+    "https://sdmx.oecd.org/public/rest/data/${flow}/all?format=csv")
+  echo "$flow -> $code"
+done
+\end{lstlisting}
+
+All returned status~200 (verified 28~February~2026).
+
+
+\subsection{Tax Foundation GitHub repository}\label{sec:tf_discovery}
+
+The Tax Foundation publishes its worldwide corporate tax rate dataset on GitHub:\\
+\url{https://github.com/TaxFoundation/worldwide-corporate-tax-rates}
+
+\subsubsection{Problem: File paths changed}
+
+The Data Collection Guide referenced:
+\begin{quote}
+\small\texttt{.../master/final-data/rates\_final.csv}
+\end{quote}
+This returned \textbf{HTTP~404}.
+
+\subsubsection{Solution: Inspecting the GitHub repository structure}
+
+The current repository structure (as of February~2026) was inspected using the GitHub API:
+
+\begin{lstlisting}[style=shellstyle,caption={Discovering Tax Foundation file paths}]
+curl -s "https://api.github.com/repos/TaxFoundation/\
+worldwide-corporate-tax-rates/git/trees/master?recursive=1" \
+  | python3 -c "
+import json, sys
+tree = json.load(sys.stdin)['tree']
+for item in tree:
+    if item['path'].endswith('.csv') or item['path'].endswith('.xlsx'):
+        print(item['path'])
+"
+\end{lstlisting}
+
+This revealed the following path changes:
+
+\begin{table}[H]
+\centering
+\caption{Tax Foundation URL path changes}
+\label{tab:tf_paths}
+\small
+\begin{tabular}{p{5.5cm}p{5.5cm}}
+\toprule
+\textbf{Old path (no longer exists)} & \textbf{Current path} \\
+\midrule
+\texttt{final-data/rates\_final.csv} & \texttt{intermediate\_outputs/rates\_final.csv} \\
+\texttt{final-data/distribution\_final.csv} & \texttt{final\_outputs/distribution\_all\_decades.csv} \\
+\texttt{source-data/country\_codes.csv} & \texttt{source\_data/country\_codes.csv} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The corrected raw file URLs become:
+\begin{center}
+\small\texttt{https://raw.githubusercontent.com/TaxFoundation/worldwide-corporate-tax-rates/master/<path>}
+\end{center}
+
+
+\subsection{ILO SDMX API}\label{sec:ilo_discovery}
+
+The ILO (International Labour Organization) provides wage data via ILOSTAT.
+
+\subsubsection{Problem: Bulk download URLs defunct}
+
+The Data Collection Guide referenced the old bulk download endpoint:
+\begin{quote}
+\small\texttt{https://www.ilo.org/ilostat-files/data/bulk/EAR\_4MTH\_SEX\_ECO\_CUR\_NB\_A.csv.gz}
+\end{quote}
+This URL redirected to \texttt{webapps.ilo.org}, which returned \textbf{HTTP~404}.
+
+\subsubsection{Solution: Migration to SDMX REST API}
+
+The ILO migrated its data dissemination to an SDMX REST endpoint:
+\begin{apibox}[ILO SDMX REST API]
+\texttt{https://sdmx.ilo.org/rest/data/}
+\end{apibox}
+
+The indicator codes were also renamed:
+\begin{itemize}
+    \item \texttt{EAR\_4MTH} (monthly earnings) $\rightarrow$ \texttt{EAR\_EMTA}
+    \item \texttt{EAR\_HEES} (hourly earnings) $\rightarrow$ \texttt{EAR\_EHRA}
+\end{itemize}
+
+The new dataflow IDs were discovered by listing all ILO dataflows:
+\begin{lstlisting}[style=shellstyle,caption={Discovering ILO dataflow IDs}]
+curl -s "https://sdmx.ilo.org/rest/dataflow/ILO" \
+  | grep -o 'id="DF_EAR[^"]*"'
+\end{lstlisting}
+
+This returned:
+\begin{itemize}
+    \item \texttt{DF\_EAR\_EMTA\_SEX\_ECO\_CUR\_NB} (version~1.0) -- monthly earnings
+    \item \texttt{DF\_EAR\_EHRA\_SEX\_ECO\_CUR\_NB} (version~1.0) -- hourly earnings
+\end{itemize}
+
+The download URL follows the same SDMX CSV pattern as the OECD:
+\begin{center}
+\small\texttt{https://sdmx.ilo.org/rest/data/ILO,DF\_EAR\_EMTA\_SEX\_ECO\_CUR\_NB,1.0/all?format=csv}
+\end{center}
+
+\begin{warningbox}[Known issue: ILO hourly earnings timeout]
+The hourly earnings dataset (\texttt{DF\_EAR\_EHRA\_SEX\_ECO\_CUR\_NB}) consistently returns \textbf{HTTP~524} (Cloudflare timeout) when requesting the full dataset.
+The monthly earnings dataset (133~MB) downloads successfully but takes approximately 2~minutes.
+The hourly earnings dataset is apparently even larger and exceeds the Cloudflare timeout window on the ILO server.
+
+\textbf{Workaround:} Monthly earnings is the primary dataset for SBIE payroll imputation.
+If hourly earnings is additionally needed, download it manually from the ILOSTAT web portal at \url{https://ilostat.ilo.org/data/} using indicator code \texttt{EAR\_EHRA}.
+\end{warningbox}
+
+
+\subsection{BEA direct downloads}\label{sec:bea_discovery}
+
+The Bureau of Economic Analysis provides MOFA (Majority-Owned Foreign Affiliates) data as Excel files.
+
+\subsubsection{Problem: URL scheme changed}
+
+The original URLs followed a deeply nested path structure:
+\begin{quote}
+\small\texttt{https://apps.bea.gov/international/xls/MNE/Activities-of-USMNEs/\\Majority-Owned-Foreign-Affiliates/Selected-Data/selected-mofas-cntry.xlsx}
+\end{quote}
+By February~2026, these URLs redirected to the BEA homepage, returning HTML instead of Excel.
+The downloaded \texttt{.xlsx} files were actually 26\,KB HTML error pages.
+
+\subsubsection{Solution: Updated BEA URL scheme}
+
+BEA restructured its downloads on 22~August~2025.
+The corrected URLs were found by inspecting the BEA international data page:
+\begin{center}
+\url{https://www.bea.gov/international/di1usdop}
+\end{center}
+
+All four MOFA files are now located under a flat date-stamped directory:
+\begin{center}
+\small\texttt{https://www.bea.gov/sites/default/files/2025-08/<filename>.xls}
+\end{center}
+
+\begin{table}[H]
+\centering
+\caption{BEA MOFA file URL changes}
+\label{tab:bea_urls}
+\small
+\begin{tabular}{p{4cm}p{7.5cm}}
+\toprule
+\textbf{File} & \textbf{Current URL} \\
+\midrule
+Selected Data by Country & \texttt{.../2025-08/selected-mofas-cntry.xls} \\
+Employment & \texttt{.../2025-08/mofas-employment.xls} \\
+Assets & \texttt{.../2025-08/mofas-assets.xls} \\
+Value Added & \texttt{.../2025-08/mofas-value-added.xls} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{notebox}[BEA data note]
+The file extension changed from \texttt{.xlsx} (Office Open XML) to \texttt{.xls} (legacy Excel BIFF format).
+The Python package \texttt{xlrd} is required to read the legacy format; \texttt{openpyxl} only reads \texttt{.xlsx}.
+BEA also notes that some MOFA tables were ``discontinued or impacted'' as of 22~August~2025; archived tables are available at \url{https://apps.bea.gov/histdatacore/histChildLevels.html?HMI=4}.
+\end{notebox}
+
+
+\subsection{OECD CIT revenue statistics}\label{sec:oecd_rev_discovery}
+
+\subsubsection{Problem: Dataflow removed}
+
+The script initially attempted:
+\begin{quote}
+\small\texttt{OECD.CTP.TPS,DSD\_CTS\_CIT@DF\_CITREV,1.0}
+\end{quote}
+This returned \textbf{HTTP~404} -- the dataflow had been removed from the OECD API.
+
+\subsubsection{Solution: Replacement dataflow}
+
+By querying the structure endpoint and filtering for ``revenue'', the replacement was identified:
+\begin{center}
+\texttt{OECD.CTP.TPS,DSD\_REV\_COMP\_GLOBAL@DF\_RSGLOBAL,2.1}
+\end{center}
+This comparative global revenue statistics dataset contains CIT revenue as a percentage of GDP (filter for heading code~1200).
+The dataset is large (343~MB) because it includes all tax categories for all reporting jurisdictions and years.
+
+
+\subsection{World Bank REST API v2}\label{sec:wb_api}
+
+The World Bank API is well-documented and stable.
+No discovery problems were encountered.
+The base URL is:
+\begin{apibox}[World Bank API v2]
+\texttt{https://api.worldbank.org/v2/}
+\end{apibox}
+
+Three endpoints are used:
+
+\begin{enumerate}
+    \item \textbf{Country classifications}: \texttt{GET /v2/country?per\_page=300\&format=json}\\
+    Returns all countries with their ISO codes, region, and income level.
+    \item \textbf{GDP per capita (current US\$)}: \texttt{GET /v2/country/all/indicator/NY.GDP.PCAP.CD?date=2015:2024\&format=json}\\
+    World Development Indicator for GDP per capita.
+    \item \textbf{Population}: \texttt{GET /v2/country/all/indicator/SP.POP.TOTL?date=2015:2024\&format=json}\\
+    Total population by country and year.
+\end{enumerate}
+
+All three are paginated.
+The first element of the JSON response is a metadata object containing \texttt{pages} (total pages) and \texttt{total} (total records).
+The script loops through all pages until exhausted.
+
+The World Bank also provides a \textbf{historical income group classification} as an Excel spreadsheet, downloaded directly:
+\begin{center}
+\small\texttt{https://databankfiles.worldbank.org/public/ddpext\_download/site-content/OGHIST.xlsx}
+\end{center}
+
+
+\subsection{Eurostat SDMX API}\label{sec:eurostat_api}
+
+Eurostat offers an SDMX~2.1 API.
+The inward FATS dataset (\texttt{fats\_g1b\_08}) is downloaded as compressed CSV:
+
+\begin{center}
+\small\texttt{https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/fats\_g1b\_08/?format=SDMX-CSV\&compressed=true}
+\end{center}
+
+This returns a \texttt{.csv.gz} file (5.93~MB compressed).
+A TSV fallback URL is also implemented in case the CSV endpoint fails.
+
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Script Architecture}\label{sec:architecture}
+% ══════════════════════════════════════════════════════════════════════════════
+
+\subsection{File location}
+
+The script is located at:
+\begin{center}
+\texttt{data/collect\_all\_data.py}
+\end{center}
+relative to the project root.
+It is 682~lines of Python.
+
+\subsection{Imports and configuration (lines 1--72)}
+
+\begin{lstlisting}[caption={Configuration block},firstnumber=1]
+import argparse, os, sys, time, json, logging
+from pathlib import Path
+from datetime import datetime
+import pandas as pd
+import requests
+
+BASE_DIR   = Path(__file__).parent        # data/
+RAW_DIR    = BASE_DIR / "raw"
+PROCESSED_DIR = BASE_DIR / "processed"
+
+RAW_DIR.mkdir(parents=True, exist_ok=True)
+PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+
+SESSION = requests.Session()
+SESSION.headers.update({
+    "User-Agent": "GMT-Thesis-DataCollector/1.0 (Academic Research)",
+})
+TIMEOUT    = 180    # seconds per HTTP request
+RETRY_WAIT = 5      # seconds between retries
+MAX_RETRIES = 3
+
+OECD_SDMX = "https://sdmx.oecd.org/public/rest/data"
+SDMX_CSV_HEADERS = {
+    "Accept": "application/vnd.sdmx.data+csv;file=true"
+}
+\end{lstlisting}
+
+Key design decisions:
+\begin{itemize}
+    \item \texttt{Path(\_\_file\_\_).parent} ensures the script works regardless of the working directory.
+    \item A persistent \texttt{requests.Session} enables HTTP connection pooling and a consistent \texttt{User-Agent} header.
+    \item The 180-second timeout accommodates large OECD files (the CbCR Table~I download takes 60--90 seconds).
+    \item \texttt{SDMX\_CSV\_HEADERS} is the required HTTP \texttt{Accept} header for SDMX CSV responses.
+    This header is shared between OECD and ILO downloads.
+\end{itemize}
+
+\subsection{Helper functions (lines 76--117)}
+
+Two helper functions handle all HTTP downloads:
+
+\subsubsection{\texttt{download\_file()}}
+
+\begin{lstlisting}[caption={\texttt{download\_file()} function},firstnumber=76]
+def download_file(url, dest, description, headers=None):
+    """Download a file with retry logic."""
+    # Skip if already downloaded
+    if dest.exists() and dest.stat().st_size > 0:
+        log.info(f"  Already exists: {dest.name} ({size} MB)")
+        return True
+
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            resp = SESSION.get(url, timeout=TIMEOUT,
+                               headers=headers or {},
+                               stream=True)
+            resp.raise_for_status()
+            with open(dest, "wb") as f:
+                for chunk in resp.iter_content(chunk_size=65536):
+                    f.write(chunk)
+            return True
+        except requests.exceptions.RequestException as e:
+            if dest.exists():
+                dest.unlink()   # Remove partial file
+            if attempt < MAX_RETRIES:
+                time.sleep(RETRY_WAIT)
+            else:
+                return False
+\end{lstlisting}
+
+Design notes:
+\begin{itemize}
+    \item \textbf{Streaming}: \texttt{stream=True} combined with \texttt{iter\_content(chunk\_size=65536)} means large files (e.g., 343~MB revenue statistics) are written to disk in 64\,KB chunks, never loaded entirely into memory.
+    \item \textbf{Partial file cleanup}: If a download fails partway, the incomplete file is deleted (\texttt{dest.unlink()}) to avoid corrupted files being treated as valid on the next run.
+    \item \textbf{Cache check}: The \texttt{dest.stat().st\_size > 0} check ensures that zero-byte files (from interrupted downloads) are re-downloaded.
+\end{itemize}
+
+\subsubsection{\texttt{download\_oecd()}}
+
+A thin wrapper for OECD SDMX downloads:
+
+\begin{lstlisting}[caption={\texttt{download\_oecd()} function},firstnumber=113]
+def download_oecd(dataflow, dest, description):
+    url = f"{OECD_SDMX}/{dataflow}/all?format=csv"
+    return download_file(url, dest, description,
+                         headers=SDMX_CSV_HEADERS)
+\end{lstlisting}
+
+
+\subsection{Source-specific collection functions (lines 120--618)}
+
+Each data source has a dedicated function.
+Table~\ref{tab:functions} summarises them:
+
+\begin{table}[H]
+\centering
+\caption{Collection functions}
+\label{tab:functions}
+\small
+\begin{tabular}{lp{3.5cm}p{5.5cm}}
+\toprule
+\textbf{Function} & \textbf{Source key} & \textbf{What it downloads} \\
+\midrule
+\texttt{collect\_oecd\_cbcr()} & \texttt{oecd\_cbcr} & CbCR Tables I--VI (6 CSV files via SDMX) \\
+\texttt{collect\_oecd\_cit\_rates()} & \texttt{oecd\_cit\_rates} & Statutory CIT rates + dividend rates (2 CSVs) \\
+\texttt{collect\_oecd\_etr()} & \texttt{oecd\_etr} & Forward-looking ETR baseline + 2 variants (3 CSVs) \\
+\texttt{collect\_oecd\_wages()} & \texttt{oecd\_wages} & Average annual wages + hourly earnings (2 CSVs) \\
+\texttt{collect\_tax\_foundation()} & \texttt{tax\_foundation} & Rates, distribution, country codes, Pillar~Two (4 files) \\
+\texttt{collect\_world\_bank()} & \texttt{world\_bank} & Income classifications, GDP/capita, population, historical groups (4 files) \\
+\texttt{collect\_eurostat\_fats()} & \texttt{eurostat\_fats} & Inward FATS (1 compressed CSV) \\
+\texttt{collect\_bea\_mne()} & \texttt{bea\_mne} & MOFA data: selected, employment, assets, value added (4 XLS files) \\
+\texttt{collect\_ilo\_wages()} & \texttt{ilo\_wages} & Monthly + hourly earnings (2 CSVs via SDMX) \\
+\texttt{collect\_pillar2\_tracker()} & \texttt{pillar2\_tracker} & BEPS implementation: CbCR req., CFC, interest, IP, hybrid, disclosure (6 CSVs) \\
+\texttt{collect\_oecd\_cts\_additional()} & \texttt{oecd\_cts\_additional} & Comparative revenue statistics (1 CSV) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection{Orchestration and CLI (lines 620--682)}
+
+The script uses a \texttt{SOURCES} dictionary that maps short keys to \texttt{(name, function)} tuples:
+
+\begin{lstlisting}[caption={Source registry and CLI},firstnumber=620]
+SOURCES = {
+    "oecd_cbcr":           ("OECD CbCR Tables I-VI",   collect_oecd_cbcr),
+    "oecd_cit_rates":      ("OECD Statutory CIT Rates", collect_oecd_cit_rates),
+    # ... (11 total entries)
+}
+
+# CLI:
+parser.add_argument("--source", action="append",
+                    choices=list(SOURCES.keys()))
+parser.add_argument("--list", action="store_true")
+\end{lstlisting}
+
+Three usage modes:
+
+\begin{lstlisting}[style=shellstyle,caption={Script usage}]
+# Download everything
+python data/collect_all_data.py
+
+# Download specific source(s)
+python data/collect_all_data.py --source oecd_cbcr --source world_bank
+
+# List available sources
+python data/collect_all_data.py --list
+\end{lstlisting}
+
+The \texttt{collect\_all()} function iterates over all sources, wraps each in a \texttt{try/except} block, and prints a summary table with success/failure status and total file sizes.
+
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Detailed Walkthrough of Each Data Source}\label{sec:walkthrough}
+% ══════════════════════════════════════════════════════════════════════════════
+
+\subsection{Source 1: OECD CbCR Tables I--VI}\label{sec:src_cbcr}
+
+\textbf{Purpose.}
+The central dataset for the GMT simulation.
+Table~I provides all five core variables (profits, taxes, tangible assets, employees, revenue) needed for the GloBE ETR computation and SBIE calculation.
+
+\textbf{API protocol.}
+OECD SDMX REST, CSV format.
+
+\textbf{Dataflows.}
+Six dataflows, all under agency \texttt{OECD.CTP.TPS} at version~1.1:
+\begin{itemize}[nosep]
+    \item \texttt{DSD\_CBCR@DF\_CBCRI} -- Aggregate totals by jurisdiction
+    \item \texttt{DSD\_CBCR@DF\_CBCRII} -- Interquartile means by jurisdiction
+    \item \texttt{DSD\_CBCR@DF\_CBCRIII} -- Aggregate totals by ETR bracket
+    \item \texttt{DSD\_CBCR@DF\_CBCRIV} -- Aggregate totals by ETR bracket (alternative)
+    \item \texttt{DSD\_CBCR@DF\_CBCRV} -- Distribution of MNE group size
+    \item \texttt{DSD\_CBCR@DF\_CBCRVI} -- Aggregates by MNE group size
+\end{itemize}
+
+\textbf{CSV column structure} (Table~I):
+\begin{center}
+\small
+\texttt{DATAFLOW, REF\_AREA, COUNTERPART\_AREA, FREQ, MEASURE, UNIT\_MEASURE,}\\
+\texttt{STATISTICAL\_OPERATION, AGGREGATION\_TYPE, PROFIT\_GROUPING,}\\
+\texttt{EFFECTIVE\_TAX\_RATE, MNE\_SIZE, TIME\_PERIOD, OBS\_VALUE, DECIMALS, OBS\_STATUS}
+\end{center}
+
+\noindent
+Where \texttt{REF\_AREA} is the reporting jurisdiction (ISO~3166-1 alpha-3), \texttt{COUNTERPART\_AREA} is the partner jurisdiction, and \texttt{MEASURE} encodes the variable (e.g., \texttt{ETR}, \texttt{PRFT\_BF\_TAX}, \texttt{TAX\_PD\_ACRD}, \texttt{T\_ASSETS}, \texttt{NB\_EMPL}).
+
+\textbf{Files produced:}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lrl}
+\toprule
+\textbf{Filename} & \textbf{Size} & \textbf{Content} \\
+\midrule
+\texttt{cbcr\_table1\_aggregate\_totals.csv} & 102.97 MB & Core dataset \\
+\texttt{cbcr\_table2\_interquartile\_means.csv} & 43.40 MB & Distributional data \\
+\texttt{cbcr\_table3\_etr\_aggregates.csv} & 69.21 MB & ETR brackets \\
+\texttt{cbcr\_table4\_etr\_aggregates\_alt.csv} & 10.08 MB & ETR brackets (alt) \\
+\texttt{cbcr\_table5\_mne\_size\_distribution.csv} & 383.92 KB & Size distribution \\
+\texttt{cbcr\_table6\_mne\_size\_aggregates.csv} & 10.69 MB & Size aggregates \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection{Source 2: OECD Statutory CIT Rates}\label{sec:src_citrates}
+
+\textbf{Purpose.}
+Statutory rates for $\sim$145 Inclusive Framework jurisdictions (2000--2025).
+Used to identify jurisdictions with rates below 15\% and for cross-validation with CbCR-derived ETRs.
+
+\textbf{Dataflows:}
+\begin{itemize}[nosep]
+    \item \texttt{DSD\_TAX\_CIT@DF\_CIT,2.0} -- Combined central + sub-central CIT rate
+    \item \texttt{DSD\_TAX\_CIT@DF\_CIT\_DIVD\_INCOME,1.0} -- Combined statutory rate on dividend income
+\end{itemize}
+
+\textbf{Files:}
+\begin{itemize}[nosep]
+    \item \texttt{oecd\_statutory\_cit\_rates.csv} (1.18~MB)
+    \item \texttt{oecd\_combined\_dividend\_rates.csv} (795.67~KB)
+\end{itemize}
+
+
+\subsection{Source 3: OECD Forward-Looking ETRs}\label{sec:src_etr}
+
+\textbf{Purpose.}
+Forward-looking ETRs computed using the Devereux--Griffith methodology for $\sim$80 jurisdictions.
+Used for cross-validation and understanding how statutory systems translate into effective burdens.
+
+\textbf{Dataflows:}
+\begin{itemize}[nosep]
+    \item \texttt{DSD\_ETR@DF\_ETR\_BASELINE,2.0} -- Baseline ETR
+    \item \texttt{DSD\_ETR@DF\_ETR\_IBRD,2.0} -- With income-based incentives
+    \item \texttt{DSD\_ETR@DF\_ETR\_XBRD,2.0} -- With expenditure-based incentives
+\end{itemize}
+
+\textbf{Files:}
+\begin{itemize}[nosep]
+    \item \texttt{oecd\_etr\_baseline.csv} (2.98~MB)
+    \item \texttt{oecd\_etr\_income\_incentives.csv} (676.62~KB)
+    \item \texttt{oecd\_etr\_expenditure\_incentives.csv} (117.56~KB)
+\end{itemize}
+
+
+\subsection{Source 4: OECD Average Annual Wages}\label{sec:src_wages}
+
+\textbf{Purpose.}
+Average wages for OECD countries, needed to impute the SBIE payroll component:
+\[
+\text{Payroll}_{r,p} \approx \text{Employees}_{r,p} \times \text{AvgWage}_p
+\]
+
+\textbf{Note on agency.}
+This data is published by \texttt{OECD.ELS.SAE} (Employment, Labour and Social Affairs), not the tax statistics agency.
+The hourly earnings supplement comes from \texttt{OECD.SDD.TPS}.
+
+\textbf{Files:}
+\begin{itemize}[nosep]
+    \item \texttt{oecd\_avg\_annual\_wages.csv} (351.79~KB)
+    \item \texttt{oecd\_hourly\_earnings.csv} (3.40~MB)
+\end{itemize}
+
+
+\subsection{Source 5: Tax Foundation}\label{sec:src_tf}
+
+\textbf{Purpose.}
+Broader country coverage (225 jurisdictions vs.\ OECD's 145) for statutory CIT rates, plus historical rates back to 1980 and the Pillar~Two implementation tracker.
+
+\textbf{Download method.}
+Raw GitHub file downloads (no API authentication required).
+
+\textbf{URLs:}
+\begin{enumerate}[nosep]
+    \item \texttt{.../master/intermediate\_outputs/rates\_final.csv} -- Historical rates
+    \item \texttt{.../master/final\_outputs/distribution\_all\_decades.csv} -- Rate distribution by decade
+    \item \texttt{.../master/source\_data/country\_codes.csv} -- ISO code mappings
+    \item Tax Foundation website: Pillar~Two implementation Excel file
+\end{enumerate}
+
+\textbf{Files:}
+\begin{itemize}[nosep]
+    \item \texttt{tf\_rates\_final.csv} (57.52~KB)
+    \item \texttt{tf\_distribution\_final.csv} (0.99~KB)
+    \item \texttt{tf\_country\_codes.csv} (127.00~KB)
+    \item \texttt{tf\_pillar2\_implementation.xlsx} (21.92~KB)
+\end{itemize}
+
+
+\subsection{Source 6: World Bank}\label{sec:src_wb}
+
+\textbf{Purpose.}
+Country income classifications (Low/Lower-middle/Upper-middle/High) for distributional analysis, plus GDP per capita and population for per-capita revenue normalisation.
+
+\textbf{API protocol.}
+World Bank REST API v2 with JSON format.
+Paginated responses (300 records/page for countries; 10,000/page for time-series indicators).
+
+\textbf{Implementation detail.}
+Unlike the other sources which download files directly, the World Bank handler constructs DataFrames from paginated JSON responses:
+
+\begin{lstlisting}[caption={World Bank pagination loop (simplified)}]
+page = 1
+while True:
+    r = SESSION.get(
+        "https://api.worldbank.org/v2/country",
+        params={"per_page": 300, "page": page,
+                "format": "json"},
+        timeout=TIMEOUT)
+    data = r.json()
+    if len(data) < 2 or not data[1]:
+        break
+    for c in data[1]:
+        all_countries.append({
+            "iso3": c["id"],
+            "name": c["name"],
+            "income_level": c["incomeLevel"]["value"],
+            ...
+        })
+    if page >= data[0]["pages"]:
+        break
+    page += 1
+df = pd.DataFrame(all_countries)
+df.to_csv(dest, index=False)
+\end{lstlisting}
+
+\textbf{Files:}
+\begin{itemize}[nosep]
+    \item \texttt{wb\_income\_classifications.csv} (18.43~KB) -- 296 entries
+    \item \texttt{wb\_historical\_income\_groups.xlsx} (100.60~KB) -- Annual classification 1987--2024
+    \item \texttt{wb\_gdp\_per\_capita.csv} (98.95~KB) -- 2015--2024
+    \item \texttt{wb\_population.csv} (83.89~KB) -- 2015--2024
+\end{itemize}
+
+
+\subsection{Source 7: Eurostat Inward FATS}\label{sec:src_eurostat}
+
+\textbf{Purpose.}
+Foreign-controlled enterprises in the EU: turnover, value added, personnel costs, employees.
+Used by \textcite{torslov2022} for profitability benchmarking; provides independent calibration data for SBIE.
+
+\textbf{Dataset code:} \texttt{fats\_g1b\_08} (``Inward FATS main indicators by controlling country'').
+
+\textbf{API protocol.}
+Eurostat SDMX~2.1 API.
+The file is returned as a compressed CSV (\texttt{.csv.gz}):
+\begin{center}
+\small\texttt{https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/fats\_g1b\_08/\\?format=SDMX-CSV\&compressed=true}
+\end{center}
+
+\textbf{Fallback.}
+If CSV fails, a TSV format is attempted:
+\begin{center}
+\small\texttt{...?format=TSV\&compressed=true}
+\end{center}
+
+\textbf{File:} \texttt{fats\_g1b\_08.csv.gz} (5.93~MB compressed).
+
+
+\subsection{Source 8: BEA US MNE Data}\label{sec:src_bea}
+
+\textbf{Purpose.}
+Activities of US-headquartered multinational enterprises (Majority-Owned Foreign Affiliates).
+Provides US-specific data on employment, assets, and value added by host country.
+
+\textbf{Download method.}
+Direct HTTP download of XLS files from BEA website.
+
+\textbf{Base URL:} \texttt{https://www.bea.gov/sites/default/files/2025-08/}
+
+\textbf{Files:}
+\begin{itemize}[nosep]
+    \item \texttt{bea\_mofa\_selected\_by\_country.xls} (581.50~KB) -- 2009--2023 selected data
+    \item \texttt{bea\_mofa\_employment.xls} (456.50~KB) -- Employment by country \& industry
+    \item \texttt{bea\_mofa\_assets.xls} (336.50~KB) -- Assets by country \& industry
+    \item \texttt{bea\_mofa\_value\_added.xls} (405.50~KB) -- Value added by country \& industry
+\end{itemize}
+
+\textbf{Optional BEA API.}
+If the environment variable \texttt{BEA\_API\_KEY} is set (free registration at \url{https://apps.bea.gov/API/signup/}), the script additionally queries the BEA REST API for MNE dataset outward investment data (Series~IDs 5, 6, 8, 22, 25) and saves the result as \texttt{bea\_api\_outward.json}.
+
+
+\subsection{Source 9: ILO Global Wage Data}\label{sec:src_ilo}
+
+\textbf{Purpose.}
+Wage data for non-OECD countries (the OECD average wage dataset covers only OECD members).
+Essential for imputing SBIE payroll in developing-country partner jurisdictions.
+
+\textbf{API protocol.}
+ILO SDMX REST API at \texttt{https://sdmx.ilo.org/rest/data/}, using the same \texttt{Accept} header as OECD SDMX.
+
+\textbf{Dataflows:}
+\begin{itemize}[nosep]
+    \item \texttt{ILO,DF\_EAR\_EMTA\_SEX\_ECO\_CUR\_NB,1.0} -- Mean nominal monthly earnings
+    \item \texttt{ILO,DF\_EAR\_EHRA\_SEX\_ECO\_CUR\_NB,1.0} -- Mean nominal hourly earnings
+\end{itemize}
+
+\textbf{Files:}
+\begin{itemize}[nosep]
+    \item \texttt{ilo\_monthly\_earnings.csv} (133.32~MB) -- Successfully downloaded
+    \item \texttt{ilo\_hourly\_earnings.csv} -- \textbf{Not downloaded} (server 524 timeout; see Section~\ref{sec:ilo_discovery})
+\end{itemize}
+
+
+\subsection{Source 10: OECD BEPS Implementation Data}\label{sec:src_beps}
+
+\textbf{Purpose.}
+Qualitative data on BEPS implementation across Inclusive Framework jurisdictions: CbCR requirements, CFC rules, interest limitation, IP regimes, hybrid mismatch arrangements, and mandatory disclosure rules.
+Used for the Pillar~Two rule allocation simulation.
+
+\textbf{Dataflows} (all under \texttt{OECD.CTP.TPS}):
+\begin{itemize}[nosep]
+    \item \texttt{DSD\_QDD\_CBCREQ@DF\_QDD\_CBCREQ,1.0} -- CbCR requirements
+    \item \texttt{DSD\_QDD\_CFC@DF\_QDD\_CFC,2.0} -- CFC rules
+    \item \texttt{DSD\_QDD\_ILR@DF\_QDD\_ILR,2.0} -- Interest limitation
+    \item \texttt{DSD\_QDD\_IPR@DF\_QDD\_IPR,2.1} -- IP regimes
+    \item \texttt{DSD\_QDD\_ACT2@DF\_QDD\_ACT2,1.0} -- Hybrid mismatch
+    \item \texttt{DSD\_QDD\_ACT12@DF\_QDD\_ACT12,1.0} -- Mandatory disclosure
+\end{itemize}
+
+\textbf{Files:} Six CSV files totalling 1.32~MB.
+
+
+\subsection{Source 11: OECD Additional CTS}\label{sec:src_cts}
+
+\textbf{Purpose.}
+CIT revenue as a percentage of GDP, from the OECD's comparative global revenue statistics.
+Used for analysing the revenue significance of the top-up tax relative to existing CIT collections.
+
+\textbf{Dataflow:} \texttt{DSD\_REV\_COMP\_GLOBAL@DF\_RSGLOBAL,2.1}
+
+\textbf{File:} \texttt{oecd\_cit\_revenue\_gdp.csv} (343.20~MB).
+
+\begin{notebox}[Filtering note]
+This file is very large because it contains \emph{all} revenue headings (personal income tax, VAT, social contributions, etc.) for all jurisdictions and years.
+To extract CIT revenue specifically, filter on heading code~1200 (``Taxes on income, profits, and capital gains of corporates'') during the data processing stage.
+\end{notebox}
+
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Complete File Inventory}\label{sec:inventory}
+% ══════════════════════════════════════════════════════════════════════════════
+
+Table~\ref{tab:inventory} lists every file produced by the collection script, with its exact size as downloaded on 28~February~2026.
+
+\begin{longtable}{p{6.5cm}rp{3cm}}
+\caption{Complete inventory of downloaded data files}\label{tab:inventory}\\
+\toprule
+\textbf{File path} (relative to \texttt{data/raw/}) & \textbf{Size} & \textbf{Format} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{File path} & \textbf{Size} & \textbf{Format} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\multicolumn{3}{l}{\textit{OECD CbCR}} \\
+\texttt{oecd\_cbcr/cbcr\_table1\_aggregate\_totals.csv} & 102.97 MB & SDMX CSV \\
+\texttt{oecd\_cbcr/cbcr\_table2\_interquartile\_means.csv} & 43.40 MB & SDMX CSV \\
+\texttt{oecd\_cbcr/cbcr\_table3\_etr\_aggregates.csv} & 69.21 MB & SDMX CSV \\
+\texttt{oecd\_cbcr/cbcr\_table4\_etr\_aggregates\_alt.csv} & 10.08 MB & SDMX CSV \\
+\texttt{oecd\_cbcr/cbcr\_table5\_mne\_size\_distribution.csv} & 383.92 KB & SDMX CSV \\
+\texttt{oecd\_cbcr/cbcr\_table6\_mne\_size\_aggregates.csv} & 10.69 MB & SDMX CSV \\
+\addlinespace
+\multicolumn{3}{l}{\textit{OECD Tax Rates}} \\
+\texttt{oecd\_tax\_rates/oecd\_statutory\_cit\_rates.csv} & 1.18 MB & SDMX CSV \\
+\texttt{oecd\_tax\_rates/oecd\_combined\_dividend\_rates.csv} & 795.67 KB & SDMX CSV \\
+\addlinespace
+\multicolumn{3}{l}{\textit{OECD ETRs}} \\
+\texttt{oecd\_etr/oecd\_etr\_baseline.csv} & 2.98 MB & SDMX CSV \\
+\texttt{oecd\_etr/oecd\_etr\_income\_incentives.csv} & 676.62 KB & SDMX CSV \\
+\texttt{oecd\_etr/oecd\_etr\_expenditure\_incentives.csv} & 117.56 KB & SDMX CSV \\
+\addlinespace
+\multicolumn{3}{l}{\textit{OECD Wages}} \\
+\texttt{oecd\_wages/oecd\_avg\_annual\_wages.csv} & 351.79 KB & SDMX CSV \\
+\texttt{oecd\_wages/oecd\_hourly\_earnings.csv} & 3.40 MB & SDMX CSV \\
+\addlinespace
+\multicolumn{3}{l}{\textit{OECD CTS Additional}} \\
+\texttt{oecd\_cts\_additional/oecd\_cit\_revenue\_gdp.csv} & 343.20 MB & SDMX CSV \\
+\addlinespace
+\multicolumn{3}{l}{\textit{OECD BEPS}} \\
+\texttt{pillar2\_beps/oecd\_cbcr\_requirements.csv} & 36.14 KB & SDMX CSV \\
+\texttt{pillar2\_beps/oecd\_cfc\_rules.csv} & 392.33 KB & SDMX CSV \\
+\texttt{pillar2\_beps/oecd\_interest\_limitation.csv} & 337.71 KB & SDMX CSV \\
+\texttt{pillar2\_beps/oecd\_ip\_regimes.csv} & 329.27 KB & SDMX CSV \\
+\texttt{pillar2\_beps/oecd\_hybrid\_mismatch.csv} & 115.84 KB & SDMX CSV \\
+\texttt{pillar2\_beps/oecd\_mandatory\_disclosure.csv} & 104.03 KB & SDMX CSV \\
+\addlinespace
+\multicolumn{3}{l}{\textit{Tax Foundation}} \\
+\texttt{tax\_foundation/tf\_rates\_final.csv} & 57.52 KB & CSV \\
+\texttt{tax\_foundation/tf\_distribution\_final.csv} & 0.99 KB & CSV \\
+\texttt{tax\_foundation/tf\_country\_codes.csv} & 127.00 KB & CSV \\
+\texttt{tax\_foundation/tf\_pillar2\_implementation.xlsx} & 21.92 KB & XLSX \\
+\addlinespace
+\multicolumn{3}{l}{\textit{World Bank}} \\
+\texttt{world\_bank/wb\_income\_classifications.csv} & 18.43 KB & CSV (built) \\
+\texttt{world\_bank/wb\_historical\_income\_groups.xlsx} & 100.60 KB & XLSX \\
+\texttt{world\_bank/wb\_gdp\_per\_capita.csv} & 98.95 KB & CSV (built) \\
+\texttt{world\_bank/wb\_population.csv} & 83.89 KB & CSV (built) \\
+\addlinespace
+\multicolumn{3}{l}{\textit{Eurostat}} \\
+\texttt{eurostat\_fats/fats\_g1b\_08.csv.gz} & 5.93 MB & Gzip CSV \\
+\addlinespace
+\multicolumn{3}{l}{\textit{BEA}} \\
+\texttt{bea\_mne/bea\_mofa\_selected\_by\_country.xls} & 581.50 KB & XLS \\
+\texttt{bea\_mne/bea\_mofa\_employment.xls} & 456.50 KB & XLS \\
+\texttt{bea\_mne/bea\_mofa\_assets.xls} & 336.50 KB & XLS \\
+\texttt{bea\_mne/bea\_mofa\_value\_added.xls} & 405.50 KB & XLS \\
+\addlinespace
+\multicolumn{3}{l}{\textit{ILO}} \\
+\texttt{ilo\_wages/ilo\_monthly\_earnings.csv} & 133.32 MB & SDMX CSV \\
+\addlinespace
+\midrule
+\textbf{Total: 34 files} & \textbf{$\sim$753 MB} & \\
+\end{longtable}
+
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{How to Reproduce}\label{sec:reproduce}
+% ══════════════════════════════════════════════════════════════════════════════
+
+\subsection{Minimum requirements}
+
+\begin{itemize}
+    \item Python $\geq$ 3.10
+    \item Internet connection (some downloads exceed 100~MB)
+    \item Approximately 1~GB of free disk space
+    \item Estimated time: 15--30 minutes (depending on connection speed)
+\end{itemize}
+
+\subsection{Step-by-step reproduction}
+
+\begin{enumerate}
+\item \textbf{Clone or copy the project:}
+\begin{lstlisting}[style=shellstyle]
+cd ~/Documents
+git clone <repository-url> GMT_thesis
+cd GMT_thesis
+\end{lstlisting}
+
+\item \textbf{Create and activate virtual environment:}
+\begin{lstlisting}[style=shellstyle]
+python3 -m venv .venv
+source .venv/bin/activate
+\end{lstlisting}
+
+\item \textbf{Install dependencies:}
+\begin{lstlisting}[style=shellstyle]
+pip install pandas requests openpyxl xlrd
+\end{lstlisting}
+
+\item \textbf{Run the full collection:}
+\begin{lstlisting}[style=shellstyle]
+python data/collect_all_data.py
+\end{lstlisting}
+
+\item \textbf{Verify the output:}
+\begin{lstlisting}[style=shellstyle]
+find data/raw -type f | wc -l     # Should be 34
+du -sh data/raw                    # Should be ~753 MB
+\end{lstlisting}
+
+\item \textbf{Check the log:}
+\begin{lstlisting}[style=shellstyle]
+cat data/collection_log.txt
+\end{lstlisting}
+\end{enumerate}
+
+\subsection{Selective re-downloading}
+
+If a specific source needs to be refreshed (e.g., after an OECD data update), delete its directory and re-run:
+
+\begin{lstlisting}[style=shellstyle]
+rm -rf data/raw/oecd_cbcr
+python data/collect_all_data.py --source oecd_cbcr
+\end{lstlisting}
+
+The cache check (file exists \& size $>$ 0) means you only need to delete files that should be re-downloaded.
+
+\subsection{Troubleshooting}
+
+\begin{description}[style=nextline]
+\item[HTTP 404 errors]
+If an OECD dataflow returns 404, the dataflow ID or version may have changed.
+Re-discover available dataflows:
+\begin{lstlisting}[style=shellstyle]
+curl -s -H "Accept: application/vnd.sdmx.structure+json;version=2.0.0" \
+  "https://sdmx.oecd.org/public/rest/dataflow/OECD.CTP.TPS" \
+  | python3 -c "import json,sys; [print(d['id'],d['version']) \
+  for d in json.load(sys.stdin)['data']['dataflows']]"
+\end{lstlisting}
+
+\item[ILO 524 timeout]
+The ILO SDMX server has Cloudflare protection that times out on very large datasets.
+Download manually from \url{https://ilostat.ilo.org/data/}.
+
+\item[BEA files are HTML]
+BEA periodically restructures its download URLs.
+Check the current URLs at \url{https://www.bea.gov/international/di1usdop}.
+
+\item[Tax Foundation 404]
+Check the current repository structure at:\\
+\url{https://github.com/TaxFoundation/worldwide-corporate-tax-rates}
+
+\item[Connection timeouts]
+Increase the \texttt{TIMEOUT} constant in the script (default: 180~seconds).
+For very slow connections, set it to 600.
+\end{description}
+
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Development Timeline}\label{sec:timeline}
+% ══════════════════════════════════════════════════════════════════════════════
+
+The following is the exact chronological sequence of steps taken to produce the final script on 28~February~2026:
+
+\begin{enumerate}
+    \item \textbf{Identified data requirements.}
+    Read through \texttt{gmt\_overview.tex} (776 lines) and \texttt{data\_collection\_guide.tex} (713 lines) to compile a list of all 11~data sources, their URLs, variables, and file formats.
+
+    \item \textbf{Set up the Python environment.}
+    Created \texttt{.venv} with Python~3.14.2; installed \texttt{pandas}, \texttt{requests}, \texttt{openpyxl}, \texttt{xlrd}.
+    Created the \texttt{data/raw/} and \texttt{data/processed/} directory structure.
+
+    \item \textbf{Wrote initial script with URLs from documentation.}
+    Used the OECD SDMX URLs from the Data Collection Guide.
+    These URLs used dataflow ID \texttt{DF\_CBCR} at version~1.0.
+
+    \item \textbf{First test run: all OECD CbCR URLs returned 404.}
+    The dataflow IDs from the documentation were incorrect.
+
+    \item \textbf{Discovered correct dataflow IDs.}
+    Queried the OECD structure API (\texttt{/rest/dataflow/OECD.CTP.TPS}) with header \texttt{Accept: application/vnd.sdmx.structure+json;version=2.0.0}.
+    Found correct IDs: \texttt{DF\_CBCRI} through \texttt{DF\_CBCRVI} at version~1.1.
+    Also discovered the correct agency for wages (\texttt{OECD.ELS.SAE}).
+
+    \item \textbf{Verified all OECD endpoints.}
+    Tested each dataflow URL individually to confirm HTTP~200 responses.
+
+    \item \textbf{Rewrote the script with verified URLs.}
+    Updated all 20 OECD dataflow references.
+
+    \item \textbf{Ran full collection.}
+    Most sources succeeded.
+    Three sources failed:
+    \begin{itemize}
+        \item Tax Foundation GitHub files: 404 (path structure changed)
+        \item ILO wage data: 404 (bulk download endpoint defunct)
+        \item OECD CIT Revenue: 404 (dataflow \texttt{DF\_CITREV} removed)
+    \end{itemize}
+
+    \item \textbf{Fixed Tax Foundation paths.}
+    Inspected the GitHub repository tree via API.
+    Found: \texttt{final-data/} $\rightarrow$ \texttt{intermediate\_outputs/}; \texttt{source-data/} $\rightarrow$ \texttt{source\_data/}.
+
+    \item \textbf{Fixed ILO endpoint.}
+    Discovered the SDMX REST API at \texttt{sdmx.ilo.org/rest/data/}.
+    Found that indicator codes were renamed: \texttt{EAR\_4MTH} $\rightarrow$ \texttt{EAR\_EMTA}, \texttt{EAR\_HEES} $\rightarrow$ \texttt{EAR\_EHRA}.
+
+    \item \textbf{Fixed OECD CIT Revenue.}
+    The old dataflow \texttt{DSD\_CTS\_CIT@DF\_CITREV} was replaced by the comparative global revenue statistics: \texttt{DSD\_REV\_COMP\_GLOBAL@DF\_RSGLOBAL,2.1}.
+
+    \item \textbf{Re-ran the three fixed sources.}
+    Tax Foundation and ILO monthly earnings succeeded.
+    ILO hourly earnings returned server~524 (Cloudflare timeout) -- a persistent server-side issue.
+
+    \item \textbf{Discovered BEA files were HTML.}
+    The \texttt{file} command revealed all four BEA \texttt{.xlsx} files were actually 26~KB HTML error pages (the old BEA URLs redirected to the homepage).
+
+    \item \textbf{Fixed BEA URLs.}
+    Inspected \url{https://www.bea.gov/international/di1usdop} and found the new URL scheme under \texttt{.../sites/default/files/2025-08/}.
+    Extension changed from \texttt{.xlsx} to \texttt{.xls}.
+
+    \item \textbf{Final verification.}
+    Re-downloaded BEA files, verified all 34~files with \texttt{file} and \texttt{stat}, confirmed total size of 753~MB.
+\end{enumerate}
+
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Known Issues and Limitations}\label{sec:issues}
+% ══════════════════════════════════════════════════════════════════════════════
+
+\begin{enumerate}
+    \item \textbf{ILO hourly earnings unavailable.}
+    The ILO SDMX server returns 524 (Cloudflare timeout) for the full hourly earnings dataset.
+    The monthly earnings dataset (133~MB) is the primary source; hourly earnings is supplementary and can be obtained manually if needed.
+
+    \item \textbf{URL stability.}
+    API endpoints, file paths, and dataflow versions change over time.
+    The OECD, BEA, and Tax Foundation all changed their URL structures between the time the Data Collection Guide was written and the script was developed.
+    Section~\ref{sec:reproduce} provides troubleshooting guidance for common failures.
+
+    \item \textbf{OECD revenue statistics file size.}
+    The comparative revenue statistics file (\texttt{oecd\_cit\_revenue\_gdp.csv}) is 343~MB because it contains all tax headings.
+    Only heading~1200 is needed for CIT revenue.
+    Filtering should be applied during the data processing stage.
+
+    \item \textbf{BEA data archival.}
+    BEA notes that some MOFA tables were ``discontinued or impacted'' as of 22~August~2025.
+    Historical archived tables are available at a separate URL.
+
+    \item \textbf{No automatic update detection.}
+    The cache check only examines file existence and non-zero size.
+    If the OECD publishes updated CbCR data (e.g., adding FY2022), the cached file must be manually deleted to trigger a re-download.
+\end{enumerate}
+
+
+% ══════════════════════════════════════════════════════════════════════════════
+\printbibliography
+% ══════════════════════════════════════════════════════════════════════════════
+
+\end{document}
