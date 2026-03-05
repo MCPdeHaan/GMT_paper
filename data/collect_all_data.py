@@ -1,5 +1,4 @@
 # python collect_all_data.py
-# python collect_all_data.py
 
 import argparse
 import os
@@ -9,6 +8,9 @@ import json
 import logging
 from pathlib import Path
 from datetime import datetime
+
+BASE_DIR = Path(__file__).parent  
+RAW_DIR  = BASE_DIR / "raw"
 
 import pandas as pd
 import requests
@@ -23,9 +25,9 @@ logging.basicConfig(
 )
 log = logging.getLogger(__name__)
 
-SESSION = requests.Session() # consistent HTTP connection
+SESSION = requests.Session() 
 SESSION.headers.update({
-    "User-Agent": "GMT-Thesis-DataCollector/1.0 (academic research)", # prevent flag
+    "User-Agent": "GMT-Thesis-DataCollector/1.0 (academic research)",
 })
 TIMEOUT = 180
 RETRY_WAIT = 5
@@ -34,7 +36,6 @@ MAX_RETRIES = 3
 #  OECD SDMX base URL 
 OECD_SDMX = "https://sdmx.oecd.org/public/rest/data"
 SDMX_CSV_HEADERS = {"Accept": "application/vnd.sdmx.data+csv;file=true"}
-
 
 #  Helper Functions 
 def download_file(url: str, dest: Path, description: str,
@@ -131,7 +132,6 @@ def collect_oecd_cit_rates():
     log.info("")
 
 
-
 # 3. OECD Forward-Looking ETRs
 def collect_oecd_etr():
     log.info("=" * 70)
@@ -215,18 +215,19 @@ def collect_world_bank():
                 page += 1
             df = pd.DataFrame(all_c)
             df.to_csv(csv_dest, index=False)
-            log.info(f"  ✓ {len(df)} entries → {csv_dest.name}")
+            log.info(f"{len(df)} entries → {csv_dest.name}")
             for lv, n in df["income_level"].value_counts().items():
                 log.info(f"    {lv}: {n}")
         except Exception as e:
-            log.error(f"  ✗ API error: {e}")
+            log.error(f"API error: {e}")
     else:
-        log.info(f"  ✓ Already exists: {csv_dest.name}")
+        log.info(f"Already exists: {csv_dest.name}")
 
+    # Parse via sheet='Country Analytical History', skiprows=4 to get year columns
     download_file(
         "https://databankfiles.worldbank.org/public/ddpext_download/site-content/OGHIST.xlsx",
         d / "wb_historical_income_groups.xlsx",
-        "Historical income group classifications",
+        "Historical income group classifications (OGHIST.xlsx)",
     )
 
     #  GDP per capita 
@@ -259,11 +260,11 @@ def collect_world_bank():
                 page += 1
             df = pd.DataFrame(all_obs)
             df.to_csv(gdp_dest, index=False)
-            log.info(f"  ✓ {len(df)} obs → {gdp_dest.name}")
+            log.info(f"{len(df)} obs → {gdp_dest.name}")
         except Exception as e:
-            log.error(f"  ✗ GDP error: {e}")
+            log.error(f"GDP error: {e}")
     else:
-        log.info(f"  ✓ Already exists: {gdp_dest.name}")
+        log.info(f"Already exists: {gdp_dest.name}")
 
     #  Population (for per-capita revenue analysis) 
     pop_dest = d / "wb_population.csv"
@@ -295,18 +296,15 @@ def collect_world_bank():
                 page += 1
             df = pd.DataFrame(all_obs)
             df.to_csv(pop_dest, index=False)
-            log.info(f"  ✓ {len(df)} obs → {pop_dest.name}")
+            log.info(f"{len(df)} obs → {pop_dest.name}")
         except Exception as e:
             log.error(f"  ✗ Population error: {e}")
     else:
-        log.info(f"  ✓ Already exists: {pop_dest.name}")
+        log.info(f"Already exists: {pop_dest.name}")
 
     log.info("")
 
-
-
 # Eurostat Inward FATS
-
 def collect_eurostat_fats():
     log.info("=" * 70)
     log.info("Eurostat Inward FATS")
@@ -322,7 +320,7 @@ def collect_eurostat_fats():
 
     if dest_csv.exists() or dest_tsv.exists():
         existing = dest_csv if dest_csv.exists() else dest_tsv
-        log.info(f"  ✓ Already exists: {existing.name}")
+        log.info(f"Already exists: {existing.name}")
     else:
         url_csv = (f"https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/"
                    f"data/{dataset}/?format=SDMX-CSV&compressed=true")
@@ -335,7 +333,6 @@ def collect_eurostat_fats():
     log.info("")
 
 
-
 # BEA US MNE Data
 def collect_bea_mne():
     log.info("=" * 70)
@@ -345,7 +342,6 @@ def collect_bea_mne():
     d = RAW_DIR / "bea_mne"
     d.mkdir(exist_ok=True)
 
-    # As of 2025-08, BEA moved files to new URL scheme (.xls, flat folder).
     base = "https://www.bea.gov/sites/default/files/2025-08"
 
     files = [
@@ -382,7 +378,7 @@ def collect_bea_mne():
             r.raise_for_status()
             with open(d / "bea_api_outward.json", "w") as f:
                 json.dump(r.json(), f, indent=2)
-            log.info("  ✓ BEA API data saved")
+            log.info("BEA API data saved")
         except Exception as e:
             log.warning(f"  BEA API error: {e}")
     else:
@@ -390,7 +386,7 @@ def collect_bea_mne():
 
     log.info("")
 
-# 9. ILO Wage Data
+# ILO Wage Data
 
 def collect_ilo_wages():
     """ILO wage data for non-OECD countries (bulk CSV)."""
@@ -401,13 +397,6 @@ def collect_ilo_wages():
     d = RAW_DIR / "ilo_wages"
     d.mkdir(exist_ok=True)
 
-    # ILO bulk downloads moved from www.ilo.org/ilostat-files/ (defunct) to the
-    # ILOSTAT SDMX REST API.  Docs: https://ilostat.ilo.org/data/sdmx/
-    # Old indicator codes were renamed: EAR_4MTH → EAR_EMTA, EAR_HEES → EAR_EHRA
-    # NOTE: Hourly earnings dataset often causes 524 (Cloudflare timeout) on the
-    # ILO SDMX server due to dataset size.  Monthly earnings is primary; hourly
-    # is supplementary.  If hourly fails, it can be downloaded manually from
-    # https://ilostat.ilo.org/data/ (indicator EAR_EHRA).
     ilo_sdmx = "https://sdmx.ilo.org/rest/data"
     for fname, flow, desc in [
         ("ilo_monthly_earnings.csv",
@@ -423,8 +412,7 @@ def collect_ilo_wages():
     log.info("")
 
 
-
-# 10. OECD BEPS & Pillar Two
+# OECD BEPS & Pillar Two
 def collect_pillar2_tracker():
     """OECD BEPS implementation: CbCR requirements, CFC, interest rules, IP regimes."""
     log.info("=" * 70)
@@ -459,7 +447,6 @@ def collect_pillar2_tracker():
     log.info("")
 
 
-
 # 11. OECD Additional CTS
 def collect_oecd_cts_additional():
     """CIT revenue as % of GDP and other supplementary data."""
@@ -470,14 +457,35 @@ def collect_oecd_cts_additional():
     d = RAW_DIR / "oecd_cts_additional"
     d.mkdir(exist_ok=True)
 
-    # Old DSD_CTS_CIT@DF_CITREV was removed; comparative global revenue
-    # statistics contain CIT revenue as % of GDP (filter heading 1200).
     download_oecd(
         "OECD.CTP.TPS,DSD_REV_COMP_GLOBAL@DF_RSGLOBAL,2.1",
         d / "oecd_cit_revenue_gdp.csv",
         "Comparative tax revenue statistics (incl. CIT as % of GDP)",
     )
     log.info("")
+
+# Pillar Two QDMTT / IIR / UTPR Implementation Status
+def collect_pillar2_qdmtt():
+    """PwC Pillar Two tracker (IIR/UTPR/QDMTT status) + OECD central record."""
+    log.info("=" * 70)
+    log.info("12. Pillar Two QDMTT / IIR / UTPR Implementation Status")
+    log.info("=" * 70)
+
+    d = RAW_DIR / "pillar2_qdmtt"
+    d.mkdir(exist_ok=True)
+
+    download_file(
+        "https://www.pwc.com/content/pwc/script/gx/en/pillar-two/registration-tracker.csv",
+        d / "pwc_pillar2_tracker.csv",
+        "PwC Pillar Two Country Tracker (IIR/UTPR/QDMTT status)",
+    )
+    download_file(
+        "https://www.oecd.org/content/dam/oecd/en/topics/policy-sub-issues/global-minimum-tax/administrative-guidance-globe-rules-pillar-two-central-record-legislation-transitional-qualified-status.pdf",
+        d / "oecd_pillar2_central_record.pdf",
+        "OECD Central Record of Qualified Pillar Two Legislation (PDF)",
+    )
+    log.info("")
+
 
 # ORCHESTRATION
 SOURCES = {
@@ -490,15 +498,12 @@ SOURCES = {
     "bea_mne":            ("BEA US MNE Data",                 collect_bea_mne),
     "ilo_wages":          ("ILO Global Wage Data",            collect_ilo_wages),
     "pillar2_tracker":    ("OECD BEPS / Pillar Two",          collect_pillar2_tracker),
+    "pillar2_qdmtt":      ("Pillar Two QDMTT / IIR Status",  collect_pillar2_qdmtt),
     "oecd_cts_additional":("OECD Additional CTS",             collect_oecd_cts_additional),
 }
 
 
 def collect_all():
-    log.info("╔══════════════════════════════════════════════════════════════╗")
-    log.info("║  GMT THESIS — FULL DATA COLLECTION                         ║")
-    log.info(f"║  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}                                    ║")
-    log.info("╚══════════════════════════════════════════════════════════════╝\n")
 
     results = {}
     for key, (name, func) in SOURCES.items():

@@ -294,3 +294,237 @@ Total: 266.2 MB
 2026-02-28 23:24:08,821 [INFO]   ✓ Saved: bea_mofa_value_added.xls (0.42 MB)
 2026-02-28 23:24:08,821 [INFO]   Tip: Set BEA_API_KEY for more data (free: https://apps.bea.gov/API/signup/)
 2026-02-28 23:24:08,821 [INFO] 
+2026-03-04 14:56:07,390 [INFO] Downloading: Pillar Two QDMTT / IIR Status
+2026-03-04 14:56:07,390 [INFO] ======================================================================
+2026-03-04 14:56:07,390 [INFO] 12. Pillar Two QDMTT / IIR / UTPR Implementation Status
+2026-03-04 14:56:07,390 [INFO] ======================================================================
+2026-03-04 14:56:07,390 [INFO] [1/3] PwC Pillar Two Country Tracker (IIR/UTPR/QDMTT status)
+2026-03-04 14:56:07,733 [INFO] Saved: pwc_pillar2_tracker.csv (0.07 MB)
+2026-03-04 14:56:07,733 [INFO] [1/3] OECD Central Record of Qualified Pillar Two Legislation
+2026-03-04 14:56:08,131 [WARNING] Error: 404 Client Error: Not Found for url: https://www.oecd.org/content/dam/oecd/en/topics/policy-sub-issues/global-minimum-tax/central-record-qualified-legislation.xlsx
+2026-03-04 14:56:13,135 [INFO] [2/3] OECD Central Record of Qualified Pillar Two Legislation
+2026-03-04 14:56:13,347 [WARNING] Error: 404 Client Error: Not Found for url: https://www.oecd.org/content/dam/oecd/en/topics/policy-sub-issues/global-minimum-tax/central-record-qualified-legislation.xlsx
+2026-03-04 14:56:18,351 [INFO] [3/3] OECD Central Record of Qualified Pillar Two Legislation
+2026-03-04 14:56:18,586 [WARNING] Error: 404 Client Error: Not Found for url: https://www.oecd.org/content/dam/oecd/en/topics/policy-sub-issues/global-minimum-tax/central-record-qualified-legislation.xlsx
+2026-03-04 14:56:18,587 [ERROR] FAILED: OECD Central Record of Qualified Pillar Two Legislation
+2026-03-04 14:56:18,589 [INFO] 
+2026-03-04 14:58:20,429 [INFO] Downloading: Pillar Two QDMTT / IIR Status
+2026-03-04 14:58:20,429 [INFO] ======================================================================
+2026-03-04 14:58:20,429 [INFO] 12. Pillar Two QDMTT / IIR / UTPR Implementation Status
+2026-03-04 14:58:20,429 [INFO] ======================================================================
+2026-03-04 14:58:20,430 [INFO] Already exists: pwc_pillar2_tracker.csv (0.07 MB)
+2026-03-04 14:58:20,430 [INFO] [1/3] OECD Central Record of Qualified Pillar Two Legislation (PDF)
+2026-03-04 14:58:20,640 [INFO] Saved: oecd_pillar2_central_record.pdf (0.51 MB)
+2026-03-04 14:58:20,641 [INFO] 
+2026-03-05 08:56:55,506 [INFO] Downloading: World Bank Classifications
+2026-03-05 08:56:55,507 [INFO] ======================================================================
+2026-03-05 08:56:55,507 [INFO] 6. World Bank Classifications & GDP
+2026-03-05 08:56:55,507 [INFO] ======================================================================
+2026-03-05 08:56:55,507 [INFO]   ✓ Already exists: wb_income_classifications.csv
+2026-03-05 08:56:55,507 [INFO] [1/3] Historical income group classifications (CLASS.xlsx)
+2026-03-05 08:56:56,747 [INFO] Saved: wb_historical_income_groups.xlsx (0.07 MB)
+2026-03-05 08:56:56,747 [INFO]   ✓ Already exists: wb_gdp_per_capita.csv
+2026-03-05 08:56:56,747 [INFO]   ✓ Already exists: wb_population.csv
+2026-03-05 08:56:56,747 [INFO] 
+2026-03-05 09:00:47,409 [INFO] Downloading: World Bank Classifications
+2026-03-05 09:00:47,409 [INFO] ======================================================================
+2026-03-05 09:00:47,409 [INFO] 6. World Bank Classifications & GDP
+2026-03-05 09:00:47,409 [INFO] ======================================================================
+2026-03-05 09:00:47,409 [INFO]   ✓ Already exists: wb_income_classifications.csv
+2026-03-05 09:00:47,409 [INFO] [1/3] Historical income group classifications (OGHIST.xlsx)
+2026-03-05 09:00:47,634 [INFO] Saved: wb_historical_income_groups.xlsx (0.10 MB)
+2026-03-05 09:00:47,635 [INFO]   ✓ Already exists: wb_gdp_per_capita.csv
+2026-03-05 09:00:47,635 [INFO]   ✓ Already exists: wb_population.csv
+2026-03-05 09:00:47,635 [INFO] 
+2026-03-05 10:00:02,994 [INFO] ======================================================================
+2026-03-05 10:00:02,995 [INFO] 1. OECD CbCR Data
+2026-03-05 10:00:02,995 [INFO] ======================================================================
+2026-03-05 10:00:02,995 [INFO] Already exists: cbcr_table1_aggregate_totals.csv (107.97 MB)
+2026-03-05 10:00:02,995 [INFO] Already exists: cbcr_table2_interquartile_means.csv (45.51 MB)
+2026-03-05 10:00:02,995 [INFO] Already exists: cbcr_table3_etr_aggregates.csv (72.58 MB)
+2026-03-05 10:00:02,995 [INFO] Already exists: cbcr_table4_etr_aggregates_alt.csv (10.57 MB)
+2026-03-05 10:00:02,995 [INFO] Already exists: cbcr_table5_mne_size_distribution.csv (0.39 MB)
+2026-03-05 10:00:02,995 [INFO] Already exists: cbcr_table6_mne_size_aggregates.csv (11.21 MB)
+2026-03-05 10:00:02,995 [INFO] 
+2026-03-05 10:00:02,995 [INFO] ======================================================================
+2026-03-05 10:00:02,995 [INFO] 2. OECD Statutory CIT Rates
+2026-03-05 10:00:02,995 [INFO] ======================================================================
+2026-03-05 10:00:02,995 [INFO] Already exists: oecd_statutory_cit_rates.csv (1.23 MB)
+2026-03-05 10:00:02,996 [INFO] Already exists: oecd_combined_dividend_rates.csv (0.81 MB)
+2026-03-05 10:00:02,996 [INFO] 
+2026-03-05 10:00:02,996 [INFO] ======================================================================
+2026-03-05 10:00:02,996 [INFO] 3. OECD Forward-Looking ETRs
+2026-03-05 10:00:02,996 [INFO] ======================================================================
+2026-03-05 10:00:02,996 [INFO] Already exists: oecd_etr_baseline.csv (3.13 MB)
+2026-03-05 10:00:02,996 [INFO] Already exists: oecd_etr_income_incentives.csv (0.69 MB)
+2026-03-05 10:00:02,996 [INFO] Already exists: oecd_etr_expenditure_incentives.csv (0.12 MB)
+2026-03-05 10:00:02,996 [INFO] 
+2026-03-05 10:00:02,996 [INFO] ======================================================================
+2026-03-05 10:00:02,996 [INFO] 4. OECD Average Annual Wages
+2026-03-05 10:00:02,996 [INFO] ======================================================================
+2026-03-05 10:00:02,996 [INFO] Already exists: oecd_avg_annual_wages.csv (0.36 MB)
+2026-03-05 10:00:02,996 [INFO] Already exists: oecd_hourly_earnings.csv (3.56 MB)
+2026-03-05 10:00:02,996 [INFO] 
+2026-03-05 10:00:02,996 [INFO] ======================================================================
+2026-03-05 10:00:02,996 [INFO] 6. World Bank Classifications & GDP
+2026-03-05 10:00:02,996 [INFO] ======================================================================
+2026-03-05 10:00:02,996 [INFO] Already exists: wb_income_classifications.csv
+2026-03-05 10:00:02,996 [INFO] Already exists: wb_historical_income_groups.xlsx (0.10 MB)
+2026-03-05 10:00:02,996 [INFO] Already exists: wb_gdp_per_capita.csv
+2026-03-05 10:00:02,996 [INFO] Already exists: wb_population.csv
+2026-03-05 10:00:02,996 [INFO] 
+2026-03-05 10:00:02,996 [INFO] ======================================================================
+2026-03-05 10:00:02,996 [INFO] Eurostat Inward FATS
+2026-03-05 10:00:02,996 [INFO] ======================================================================
+2026-03-05 10:00:02,996 [INFO] Already exists: fats_g1b_08.csv.gz
+2026-03-05 10:00:02,996 [INFO] 
+2026-03-05 10:00:02,996 [INFO] ======================================================================
+2026-03-05 10:00:02,996 [INFO] 8. BEA US Multinational Enterprise Data
+2026-03-05 10:00:02,996 [INFO] ======================================================================
+2026-03-05 10:00:02,996 [INFO] Already exists: bea_mofa_selected_by_country.xls (0.60 MB)
+2026-03-05 10:00:02,996 [INFO] Already exists: bea_mofa_employment.xls (0.47 MB)
+2026-03-05 10:00:02,996 [INFO] Already exists: bea_mofa_assets.xls (0.34 MB)
+2026-03-05 10:00:02,996 [INFO] Already exists: bea_mofa_value_added.xls (0.42 MB)
+2026-03-05 10:00:02,997 [INFO]   Tip: Set BEA_API_KEY for more data (free: https://apps.bea.gov/API/signup/)
+2026-03-05 10:00:02,997 [INFO] 
+2026-03-05 10:00:02,997 [INFO] ======================================================================
+2026-03-05 10:00:02,997 [INFO] 9. ILO Global Wage Data
+2026-03-05 10:00:02,997 [INFO] ======================================================================
+2026-03-05 10:00:02,997 [INFO] Already exists: ilo_monthly_earnings.csv (139.80 MB)
+2026-03-05 10:00:02,997 [INFO] [1/3] Mean nominal hourly earnings
+2026-03-05 10:00:20,528 [INFO] ======================================================================
+2026-03-05 10:00:20,528 [INFO] 1. OECD CbCR Data
+2026-03-05 10:00:20,528 [INFO] ======================================================================
+2026-03-05 10:00:20,528 [INFO] Already exists: cbcr_table1_aggregate_totals.csv (107.97 MB)
+2026-03-05 10:00:20,528 [INFO] Already exists: cbcr_table2_interquartile_means.csv (45.51 MB)
+2026-03-05 10:00:20,528 [INFO] Already exists: cbcr_table3_etr_aggregates.csv (72.58 MB)
+2026-03-05 10:00:20,528 [INFO] Already exists: cbcr_table4_etr_aggregates_alt.csv (10.57 MB)
+2026-03-05 10:00:20,528 [INFO] Already exists: cbcr_table5_mne_size_distribution.csv (0.39 MB)
+2026-03-05 10:00:20,528 [INFO] Already exists: cbcr_table6_mne_size_aggregates.csv (11.21 MB)
+2026-03-05 10:00:20,528 [INFO] 
+2026-03-05 10:00:20,528 [INFO] ======================================================================
+2026-03-05 10:00:20,528 [INFO] 2. OECD Statutory CIT Rates
+2026-03-05 10:00:20,528 [INFO] ======================================================================
+2026-03-05 10:00:20,528 [INFO] Already exists: oecd_statutory_cit_rates.csv (1.23 MB)
+2026-03-05 10:00:20,528 [INFO] Already exists: oecd_combined_dividend_rates.csv (0.81 MB)
+2026-03-05 10:00:20,528 [INFO] 
+2026-03-05 10:00:20,528 [INFO] ======================================================================
+2026-03-05 10:00:20,529 [INFO] 3. OECD Forward-Looking ETRs
+2026-03-05 10:00:20,529 [INFO] ======================================================================
+2026-03-05 10:00:20,529 [INFO] Already exists: oecd_etr_baseline.csv (3.13 MB)
+2026-03-05 10:00:20,529 [INFO] Already exists: oecd_etr_income_incentives.csv (0.69 MB)
+2026-03-05 10:00:20,529 [INFO] Already exists: oecd_etr_expenditure_incentives.csv (0.12 MB)
+2026-03-05 10:00:20,529 [INFO] 
+2026-03-05 10:00:20,529 [INFO] ======================================================================
+2026-03-05 10:00:20,529 [INFO] 4. OECD Average Annual Wages
+2026-03-05 10:00:20,529 [INFO] ======================================================================
+2026-03-05 10:00:20,529 [INFO] Already exists: oecd_avg_annual_wages.csv (0.36 MB)
+2026-03-05 10:00:20,529 [INFO] Already exists: oecd_hourly_earnings.csv (3.56 MB)
+2026-03-05 10:00:20,529 [INFO] 
+2026-03-05 10:00:20,529 [INFO] ======================================================================
+2026-03-05 10:00:20,529 [INFO] 6. World Bank Classifications & GDP
+2026-03-05 10:00:20,529 [INFO] ======================================================================
+2026-03-05 10:00:20,529 [INFO] Already exists: wb_income_classifications.csv
+2026-03-05 10:00:20,529 [INFO] Already exists: wb_historical_income_groups.xlsx (0.10 MB)
+2026-03-05 10:00:20,529 [INFO] Already exists: wb_gdp_per_capita.csv
+2026-03-05 10:00:20,529 [INFO] Already exists: wb_population.csv
+2026-03-05 10:00:20,529 [INFO] 
+2026-03-05 10:00:20,529 [INFO] ======================================================================
+2026-03-05 10:00:20,529 [INFO] Eurostat Inward FATS
+2026-03-05 10:00:20,529 [INFO] ======================================================================
+2026-03-05 10:00:20,529 [INFO] Already exists: fats_g1b_08.csv.gz
+2026-03-05 10:00:20,529 [INFO] 
+2026-03-05 10:00:20,529 [INFO] ======================================================================
+2026-03-05 10:00:20,529 [INFO] 8. BEA US Multinational Enterprise Data
+2026-03-05 10:00:20,529 [INFO] ======================================================================
+2026-03-05 10:00:20,529 [INFO] Already exists: bea_mofa_selected_by_country.xls (0.60 MB)
+2026-03-05 10:00:20,529 [INFO] Already exists: bea_mofa_employment.xls (0.47 MB)
+2026-03-05 10:00:20,530 [INFO] Already exists: bea_mofa_assets.xls (0.34 MB)
+2026-03-05 10:00:20,530 [INFO] Already exists: bea_mofa_value_added.xls (0.42 MB)
+2026-03-05 10:00:20,530 [INFO]   Tip: Set BEA_API_KEY for more data (free: https://apps.bea.gov/API/signup/)
+2026-03-05 10:00:20,530 [INFO] 
+2026-03-05 10:00:20,530 [INFO] ======================================================================
+2026-03-05 10:00:20,530 [INFO] 9. ILO Global Wage Data
+2026-03-05 10:00:20,530 [INFO] ======================================================================
+2026-03-05 10:00:20,530 [INFO] Already exists: ilo_monthly_earnings.csv (139.80 MB)
+2026-03-05 10:00:20,530 [INFO] [1/3] Mean nominal hourly earnings
+2026-03-05 10:00:59,212 [INFO] Saved: ilo_hourly_earnings.csv (52.80 MB)
+2026-03-05 10:00:59,213 [INFO] 
+2026-03-05 10:00:59,213 [INFO] ======================================================================
+2026-03-05 10:00:59,213 [INFO] 10. OECD BEPS & Pillar Two Implementation
+2026-03-05 10:00:59,213 [INFO] ======================================================================
+2026-03-05 10:00:59,213 [INFO] Already exists: oecd_cbcr_requirements.csv (0.04 MB)
+2026-03-05 10:00:59,213 [INFO] Already exists: oecd_cfc_rules.csv (0.40 MB)
+2026-03-05 10:00:59,213 [INFO] Already exists: oecd_interest_limitation.csv (0.35 MB)
+2026-03-05 10:00:59,213 [INFO] Already exists: oecd_ip_regimes.csv (0.34 MB)
+2026-03-05 10:00:59,214 [INFO] Already exists: oecd_hybrid_mismatch.csv (0.12 MB)
+2026-03-05 10:00:59,214 [INFO] Already exists: oecd_mandatory_disclosure.csv (0.11 MB)
+2026-03-05 10:00:59,214 [INFO] 
+2026-03-05 10:00:59,214 [INFO] ======================================================================
+2026-03-05 10:00:59,214 [INFO] 12. Pillar Two QDMTT / IIR / UTPR Implementation Status
+2026-03-05 10:00:59,214 [INFO] ======================================================================
+2026-03-05 10:00:59,215 [INFO] Already exists: pwc_pillar2_tracker.csv (0.07 MB)
+2026-03-05 10:00:59,215 [INFO] Already exists: oecd_pillar2_central_record.pdf (0.51 MB)
+2026-03-05 10:00:59,215 [INFO] 
+2026-03-05 10:00:59,215 [INFO] ======================================================================
+2026-03-05 10:00:59,215 [INFO] 11. OECD Additional CTS
+2026-03-05 10:00:59,215 [INFO] ======================================================================
+2026-03-05 10:00:59,215 [INFO] Already exists: oecd_cit_revenue_gdp.csv (359.87 MB)
+2026-03-05 10:00:59,215 [INFO] 
+2026-03-05 10:00:59,216 [INFO] 
+============================================================
+2026-03-05 10:00:59,216 [INFO] SUMMARY
+2026-03-05 10:00:59,216 [INFO] ============================================================
+2026-03-05 10:00:59,216 [INFO]   ✓  OECD CbCR Tables I–VI
+2026-03-05 10:00:59,216 [INFO]   ✓  OECD Statutory CIT Rates
+2026-03-05 10:00:59,216 [INFO]   ✓  OECD Forward-Looking ETRs
+2026-03-05 10:00:59,216 [INFO]   ✓  OECD Average Annual Wages
+2026-03-05 10:00:59,216 [INFO]   ✓  World Bank Classifications
+2026-03-05 10:00:59,216 [INFO]   ✓  Eurostat Inward FATS
+2026-03-05 10:00:59,216 [INFO]   ✓  BEA US MNE Data
+2026-03-05 10:00:59,216 [INFO]   ✓  ILO Global Wage Data
+2026-03-05 10:00:59,217 [INFO]   ✓  OECD BEPS / Pillar Two
+2026-03-05 10:00:59,217 [INFO]   ✓  Pillar Two QDMTT / IIR Status
+2026-03-05 10:00:59,217 [INFO]   ✓  OECD Additional CTS
+2026-03-05 10:00:59,217 [INFO] 
+Files:
+2026-03-05 10:00:59,217 [INFO]       0.01 MB  .DS_Store
+2026-03-05 10:00:59,218 [INFO]       6.22 MB  eurostat_fats/fats_g1b_08.csv.gz
+2026-03-05 10:00:59,219 [INFO]     359.87 MB  oecd_cts_additional/oecd_cit_revenue_gdp.csv
+2026-03-05 10:00:59,219 [INFO]       0.04 MB  pillar2_beps/oecd_cbcr_requirements.csv
+2026-03-05 10:00:59,219 [INFO]       0.40 MB  pillar2_beps/oecd_cfc_rules.csv
+2026-03-05 10:00:59,220 [INFO]       0.12 MB  pillar2_beps/oecd_hybrid_mismatch.csv
+2026-03-05 10:00:59,220 [INFO]       0.35 MB  pillar2_beps/oecd_interest_limitation.csv
+2026-03-05 10:00:59,220 [INFO]       0.34 MB  pillar2_beps/oecd_ip_regimes.csv
+2026-03-05 10:00:59,221 [INFO]       0.11 MB  pillar2_beps/oecd_mandatory_disclosure.csv
+2026-03-05 10:00:59,224 [INFO]      52.80 MB  ilo_wages/ilo_hourly_earnings.csv
+2026-03-05 10:00:59,224 [INFO]     139.80 MB  ilo_wages/ilo_monthly_earnings.csv
+2026-03-05 10:00:59,225 [INFO]       0.10 MB  world_bank/wb_gdp_per_capita.csv
+2026-03-05 10:00:59,225 [INFO]       0.10 MB  world_bank/wb_historical_income_groups.xlsx
+2026-03-05 10:00:59,225 [INFO]       0.02 MB  world_bank/wb_income_classifications.csv
+2026-03-05 10:00:59,225 [INFO]       0.09 MB  world_bank/wb_population.csv
+2026-03-05 10:00:59,226 [INFO]       0.13 MB  tax_foundation/tf_country_codes.csv
+2026-03-05 10:00:59,226 [INFO]       0.00 MB  tax_foundation/tf_distribution_final.csv
+2026-03-05 10:00:59,226 [INFO]       0.02 MB  tax_foundation/tf_pillar2_implementation.xlsx
+2026-03-05 10:00:59,226 [INFO]       0.06 MB  tax_foundation/tf_rates_final.csv
+2026-03-05 10:00:59,227 [INFO]       0.81 MB  oecd_tax_rates/oecd_combined_dividend_rates.csv
+2026-03-05 10:00:59,227 [INFO]       1.23 MB  oecd_tax_rates/oecd_statutory_cit_rates.csv
+2026-03-05 10:00:59,228 [INFO]       0.51 MB  pillar2_qdmtt/oecd_pillar2_central_record.pdf
+2026-03-05 10:00:59,228 [INFO]       0.07 MB  pillar2_qdmtt/pwc_pillar2_tracker.csv
+2026-03-05 10:00:59,228 [INFO]       0.34 MB  bea_mne/bea_mofa_assets.xls
+2026-03-05 10:00:59,229 [INFO]       0.47 MB  bea_mne/bea_mofa_employment.xls
+2026-03-05 10:00:59,229 [INFO]       0.60 MB  bea_mne/bea_mofa_selected_by_country.xls
+2026-03-05 10:00:59,229 [INFO]       0.42 MB  bea_mne/bea_mofa_value_added.xls
+2026-03-05 10:00:59,229 [INFO]       0.36 MB  oecd_wages/oecd_avg_annual_wages.csv
+2026-03-05 10:00:59,229 [INFO]       3.56 MB  oecd_wages/oecd_hourly_earnings.csv
+2026-03-05 10:00:59,230 [INFO]     107.97 MB  oecd_cbcr/cbcr_table1_aggregate_totals.csv
+2026-03-05 10:00:59,230 [INFO]      45.51 MB  oecd_cbcr/cbcr_table2_interquartile_means.csv
+2026-03-05 10:00:59,231 [INFO]      72.58 MB  oecd_cbcr/cbcr_table3_etr_aggregates.csv
+2026-03-05 10:00:59,231 [INFO]      10.57 MB  oecd_cbcr/cbcr_table4_etr_aggregates_alt.csv
+2026-03-05 10:00:59,231 [INFO]       0.39 MB  oecd_cbcr/cbcr_table5_mne_size_distribution.csv
+2026-03-05 10:00:59,231 [INFO]      11.21 MB  oecd_cbcr/cbcr_table6_mne_size_aggregates.csv
+2026-03-05 10:00:59,231 [INFO]       3.13 MB  oecd_etr/oecd_etr_baseline.csv
+2026-03-05 10:00:59,231 [INFO]       0.12 MB  oecd_etr/oecd_etr_expenditure_incentives.csv
+2026-03-05 10:00:59,231 [INFO]       0.69 MB  oecd_etr/oecd_etr_income_incentives.csv
+2026-03-05 10:00:59,231 [INFO] 
+Total: 821.1 MB
