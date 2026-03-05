@@ -528,3 +528,172 @@ Files:
 2026-03-05 10:00:59,231 [INFO]       0.69 MB  oecd_etr/oecd_etr_income_incentives.csv
 2026-03-05 10:00:59,231 [INFO] 
 Total: 821.1 MB
+2026-03-05 10:46:13,223 [INFO] ======================================================================
+2026-03-05 10:46:13,223 [INFO] 1. OECD CbCR Data
+2026-03-05 10:46:13,223 [INFO] ======================================================================
+2026-03-05 10:46:13,223 [INFO] [1/3] Table I – Aggregate totals by jurisdiction
+2026-03-05 10:46:23,637 [INFO] Saved: cbcr_table1_aggregate_totals.csv (107.97 MB)
+2026-03-05 10:46:23,637 [INFO] [1/3] Table II – Interquartile means by jurisdiction
+2026-03-05 10:46:28,536 [INFO] Saved: cbcr_table2_interquartile_means.csv (45.51 MB)
+2026-03-05 10:46:28,536 [INFO] [1/3] Table III – Aggregate totals by ETR bracket
+2026-03-05 10:47:00,047 [INFO] Saved: cbcr_table3_etr_aggregates.csv (72.58 MB)
+2026-03-05 10:47:00,048 [INFO] [1/3] Table IV – Aggregate totals by ETR bracket (alt)
+2026-03-05 10:47:02,239 [INFO] Saved: cbcr_table4_etr_aggregates_alt.csv (10.57 MB)
+2026-03-05 10:47:02,239 [INFO] [1/3] Table V – Distribution of MNE group size
+2026-03-05 10:47:05,222 [INFO] Saved: cbcr_table5_mne_size_distribution.csv (0.39 MB)
+2026-03-05 10:47:05,223 [INFO] [1/3] Table VI – Aggregates by MNE group size
+2026-03-05 10:47:07,296 [INFO] Saved: cbcr_table6_mne_size_aggregates.csv (11.21 MB)
+2026-03-05 10:47:07,297 [INFO] 
+2026-03-05 10:47:07,297 [INFO] ======================================================================
+2026-03-05 10:47:07,297 [INFO] 2. OECD Statutory CIT Rates
+2026-03-05 10:47:07,297 [INFO] ======================================================================
+2026-03-05 10:47:07,297 [INFO] [1/3] Statutory CIT rates (combined central + sub-central)
+2026-03-05 10:47:11,222 [INFO] Saved: oecd_statutory_cit_rates.csv (1.23 MB)
+2026-03-05 10:47:11,222 [INFO] [1/3] Combined statutory tax rates on dividend income
+2026-03-05 10:47:15,295 [INFO] Saved: oecd_combined_dividend_rates.csv (0.81 MB)
+2026-03-05 10:47:15,295 [INFO] 
+2026-03-05 10:47:15,295 [INFO] ======================================================================
+2026-03-05 10:47:15,295 [INFO] 3. OECD Forward-Looking ETRs
+2026-03-05 10:47:15,295 [INFO] ======================================================================
+2026-03-05 10:47:15,296 [INFO] [1/3] ETR baseline
+2026-03-05 10:47:16,937 [INFO] Saved: oecd_etr_baseline.csv (3.13 MB)
+2026-03-05 10:47:16,938 [INFO] [1/3] ETR with income-based incentives
+2026-03-05 10:47:20,380 [INFO] Saved: oecd_etr_income_incentives.csv (0.69 MB)
+2026-03-05 10:47:20,380 [INFO] [1/3] ETR with expenditure-based incentives
+2026-03-05 10:47:24,151 [INFO] Saved: oecd_etr_expenditure_incentives.csv (0.12 MB)
+2026-03-05 10:47:24,151 [INFO] 
+2026-03-05 10:47:24,151 [INFO] ======================================================================
+2026-03-05 10:47:24,151 [INFO] 4. OECD Average Annual Wages
+2026-03-05 10:47:24,151 [INFO] ======================================================================
+2026-03-05 10:47:24,151 [INFO] [1/3] Average annual wages
+2026-03-05 10:47:25,463 [INFO] Saved: oecd_avg_annual_wages.csv (0.36 MB)
+2026-03-05 10:47:25,464 [INFO] [1/3] Hourly earnings (supplementary)
+2026-03-05 10:47:29,556 [INFO] Saved: oecd_hourly_earnings.csv (3.56 MB)
+2026-03-05 10:47:29,557 [INFO] 
+2026-03-05 10:47:29,557 [INFO] ======================================================================
+2026-03-05 10:47:29,557 [INFO] 6. World Bank Classifications & GDP
+2026-03-05 10:47:29,557 [INFO] ======================================================================
+2026-03-05 10:47:29,557 [INFO]   Fetching income classifications via API...
+2026-03-05 10:47:29,971 [INFO] 296 entries → wb_income_classifications.csv
+2026-03-05 10:47:29,975 [INFO]     High income: 86
+2026-03-05 10:47:29,975 [INFO]     Aggregates: 79
+2026-03-05 10:47:29,975 [INFO]     Upper middle income: 54
+2026-03-05 10:47:29,975 [INFO]     Lower middle income: 50
+2026-03-05 10:47:29,975 [INFO]     Low income: 25
+2026-03-05 10:47:29,975 [INFO]     Not classified: 2
+2026-03-05 10:47:29,975 [INFO] [1/3] Historical income group classifications (OGHIST.xlsx)
+2026-03-05 10:47:30,735 [INFO] Saved: wb_historical_income_groups.xlsx (0.10 MB)
+2026-03-05 10:47:30,736 [INFO]   Fetching GDP per capita (2015-2024)...
+2026-03-05 10:47:31,318 [INFO] 2660 obs → wb_gdp_per_capita.csv
+2026-03-05 10:47:31,318 [INFO]   Fetching population (2015-2024)...
+2026-03-05 10:47:31,882 [INFO] 2660 obs → wb_population.csv
+2026-03-05 10:47:31,883 [INFO] 
+2026-03-05 10:47:31,883 [INFO] ======================================================================
+2026-03-05 10:47:31,883 [INFO] Eurostat Inward FATS
+2026-03-05 10:47:31,883 [INFO] ======================================================================
+2026-03-05 10:47:31,883 [INFO] [1/3] Inward FATS main indicators by controlling country (CSV)
+2026-03-05 10:47:35,891 [INFO] Saved: fats_g1b_08.csv.gz (6.22 MB)
+2026-03-05 10:47:35,891 [INFO] 
+2026-03-05 10:47:35,891 [INFO] ======================================================================
+2026-03-05 10:47:35,891 [INFO] 8. BEA US Multinational Enterprise Data
+2026-03-05 10:47:35,891 [INFO] ======================================================================
+2026-03-05 10:47:35,892 [INFO] [1/3] MOFA Selected Data by Country
+2026-03-05 10:47:37,068 [INFO] Saved: bea_mofa_selected_by_country.xls (0.60 MB)
+2026-03-05 10:47:37,069 [INFO] [1/3] MOFA Employment by Country & Industry
+2026-03-05 10:47:37,219 [INFO] Saved: bea_mofa_employment.xls (0.47 MB)
+2026-03-05 10:47:37,219 [INFO] [1/3] MOFA Assets by Country & Industry
+2026-03-05 10:47:37,357 [INFO] Saved: bea_mofa_assets.xls (0.34 MB)
+2026-03-05 10:47:37,357 [INFO] [1/3] MOFA Value Added by Country & Industry
+2026-03-05 10:47:37,502 [INFO] Saved: bea_mofa_value_added.xls (0.42 MB)
+2026-03-05 10:47:37,502 [INFO]   Tip: Set BEA_API_KEY for more data (free: https://apps.bea.gov/API/signup/)
+2026-03-05 10:47:37,503 [INFO] 
+2026-03-05 10:47:37,503 [INFO] ======================================================================
+2026-03-05 10:47:37,503 [INFO] 9. ILO Global Wage Data
+2026-03-05 10:47:37,503 [INFO] ======================================================================
+2026-03-05 10:47:37,503 [INFO] [1/3] Mean nominal monthly earnings
+2026-03-05 10:53:07,269 [INFO] Saved: ilo_monthly_earnings.csv (139.86 MB)
+2026-03-05 10:53:07,271 [INFO] [1/3] Mean nominal hourly earnings
+2026-03-05 10:53:58,382 [INFO] Saved: ilo_hourly_earnings.csv (52.80 MB)
+2026-03-05 10:53:58,384 [INFO] 
+2026-03-05 10:53:58,384 [INFO] ======================================================================
+2026-03-05 10:53:58,384 [INFO] 10. OECD BEPS & Pillar Two Implementation
+2026-03-05 10:53:58,384 [INFO] ======================================================================
+2026-03-05 10:53:58,384 [INFO] [1/3] CbCR implementation requirements
+2026-03-05 10:53:59,390 [INFO] Saved: oecd_cbcr_requirements.csv (0.04 MB)
+2026-03-05 10:53:59,391 [INFO] [1/3] Controlled foreign company rules
+2026-03-05 10:54:03,217 [INFO] Saved: oecd_cfc_rules.csv (0.40 MB)
+2026-03-05 10:54:03,217 [INFO] [1/3] Interest limitation rules
+2026-03-05 10:54:04,410 [INFO] Saved: oecd_interest_limitation.csv (0.35 MB)
+2026-03-05 10:54:04,410 [INFO] [1/3] Intellectual property regimes
+2026-03-05 10:54:06,637 [INFO] Saved: oecd_ip_regimes.csv (0.34 MB)
+2026-03-05 10:54:06,637 [INFO] [1/3] Hybrid mismatch arrangements
+2026-03-05 10:54:09,160 [INFO] Saved: oecd_hybrid_mismatch.csv (0.12 MB)
+2026-03-05 10:54:09,160 [INFO] [1/3] Mandatory disclosure rules
+2026-03-05 10:54:12,667 [INFO] Saved: oecd_mandatory_disclosure.csv (0.11 MB)
+2026-03-05 10:54:12,667 [INFO] 
+2026-03-05 10:54:12,667 [INFO] ======================================================================
+2026-03-05 10:54:12,667 [INFO] 12. Pillar Two QDMTT / IIR / UTPR Implementation Status
+2026-03-05 10:54:12,667 [INFO] ======================================================================
+2026-03-05 10:54:12,667 [INFO] [1/3] PwC Pillar Two Country Tracker (IIR/UTPR/QDMTT status)
+2026-03-05 10:54:13,023 [INFO] Saved: pwc_pillar2_tracker.csv (0.07 MB)
+2026-03-05 10:54:13,024 [INFO] [1/3] OECD Central Record of Qualified Pillar Two Legislation (PDF)
+2026-03-05 10:54:13,198 [INFO] Saved: oecd_pillar2_central_record.pdf (0.51 MB)
+2026-03-05 10:54:13,199 [INFO] 
+2026-03-05 10:54:13,199 [INFO] ======================================================================
+2026-03-05 10:54:13,199 [INFO] 11. OECD Additional CTS
+2026-03-05 10:54:13,199 [INFO] ======================================================================
+2026-03-05 10:54:13,199 [INFO] [1/3] Comparative tax revenue statistics (incl. CIT as % of GDP)
+2026-03-05 10:55:12,463 [INFO] Saved: oecd_cit_revenue_gdp.csv (359.87 MB)
+2026-03-05 10:55:12,465 [INFO] 
+2026-03-05 10:55:12,465 [INFO] 
+============================================================
+2026-03-05 10:55:12,465 [INFO] SUMMARY
+2026-03-05 10:55:12,465 [INFO] ============================================================
+2026-03-05 10:55:12,465 [INFO]   ✓  OECD CbCR Tables I–VI
+2026-03-05 10:55:12,465 [INFO]   ✓  OECD Statutory CIT Rates
+2026-03-05 10:55:12,466 [INFO]   ✓  OECD Forward-Looking ETRs
+2026-03-05 10:55:12,466 [INFO]   ✓  OECD Average Annual Wages
+2026-03-05 10:55:12,466 [INFO]   ✓  World Bank Classifications
+2026-03-05 10:55:12,466 [INFO]   ✓  Eurostat Inward FATS
+2026-03-05 10:55:12,466 [INFO]   ✓  BEA US MNE Data
+2026-03-05 10:55:12,466 [INFO]   ✓  ILO Global Wage Data
+2026-03-05 10:55:12,466 [INFO]   ✓  OECD BEPS / Pillar Two
+2026-03-05 10:55:12,466 [INFO]   ✓  Pillar Two QDMTT / IIR Status
+2026-03-05 10:55:12,466 [INFO]   ✓  OECD Additional CTS
+2026-03-05 10:55:12,466 [INFO] 
+Files:
+2026-03-05 10:55:12,468 [INFO]       6.22 MB  eurostat_fats/fats_g1b_08.csv.gz
+2026-03-05 10:55:12,469 [INFO]     359.87 MB  oecd_cts_additional/oecd_cit_revenue_gdp.csv
+2026-03-05 10:55:12,469 [INFO]       0.04 MB  pillar2_beps/oecd_cbcr_requirements.csv
+2026-03-05 10:55:12,469 [INFO]       0.40 MB  pillar2_beps/oecd_cfc_rules.csv
+2026-03-05 10:55:12,469 [INFO]       0.12 MB  pillar2_beps/oecd_hybrid_mismatch.csv
+2026-03-05 10:55:12,469 [INFO]       0.35 MB  pillar2_beps/oecd_interest_limitation.csv
+2026-03-05 10:55:12,469 [INFO]       0.34 MB  pillar2_beps/oecd_ip_regimes.csv
+2026-03-05 10:55:12,469 [INFO]       0.11 MB  pillar2_beps/oecd_mandatory_disclosure.csv
+2026-03-05 10:55:12,469 [INFO]      52.80 MB  ilo_wages/ilo_hourly_earnings.csv
+2026-03-05 10:55:12,469 [INFO]     139.86 MB  ilo_wages/ilo_monthly_earnings.csv
+2026-03-05 10:55:12,470 [INFO]       0.10 MB  world_bank/wb_gdp_per_capita.csv
+2026-03-05 10:55:12,470 [INFO]       0.10 MB  world_bank/wb_historical_income_groups.xlsx
+2026-03-05 10:55:12,470 [INFO]       0.02 MB  world_bank/wb_income_classifications.csv
+2026-03-05 10:55:12,470 [INFO]       0.09 MB  world_bank/wb_population.csv
+2026-03-05 10:55:12,470 [INFO]       0.81 MB  oecd_tax_rates/oecd_combined_dividend_rates.csv
+2026-03-05 10:55:12,470 [INFO]       1.23 MB  oecd_tax_rates/oecd_statutory_cit_rates.csv
+2026-03-05 10:55:12,471 [INFO]       0.51 MB  pillar2_qdmtt/oecd_pillar2_central_record.pdf
+2026-03-05 10:55:12,471 [INFO]       0.07 MB  pillar2_qdmtt/pwc_pillar2_tracker.csv
+2026-03-05 10:55:12,471 [INFO]       0.34 MB  bea_mne/bea_mofa_assets.xls
+2026-03-05 10:55:12,471 [INFO]       0.47 MB  bea_mne/bea_mofa_employment.xls
+2026-03-05 10:55:12,471 [INFO]       0.60 MB  bea_mne/bea_mofa_selected_by_country.xls
+2026-03-05 10:55:12,471 [INFO]       0.42 MB  bea_mne/bea_mofa_value_added.xls
+2026-03-05 10:55:12,472 [INFO]       0.36 MB  oecd_wages/oecd_avg_annual_wages.csv
+2026-03-05 10:55:12,472 [INFO]       3.56 MB  oecd_wages/oecd_hourly_earnings.csv
+2026-03-05 10:55:12,472 [INFO]     107.97 MB  oecd_cbcr/cbcr_table1_aggregate_totals.csv
+2026-03-05 10:55:12,472 [INFO]      45.51 MB  oecd_cbcr/cbcr_table2_interquartile_means.csv
+2026-03-05 10:55:12,473 [INFO]      72.58 MB  oecd_cbcr/cbcr_table3_etr_aggregates.csv
+2026-03-05 10:55:12,473 [INFO]      10.57 MB  oecd_cbcr/cbcr_table4_etr_aggregates_alt.csv
+2026-03-05 10:55:12,473 [INFO]       0.39 MB  oecd_cbcr/cbcr_table5_mne_size_distribution.csv
+2026-03-05 10:55:12,473 [INFO]      11.21 MB  oecd_cbcr/cbcr_table6_mne_size_aggregates.csv
+2026-03-05 10:55:12,473 [INFO]       3.13 MB  oecd_etr/oecd_etr_baseline.csv
+2026-03-05 10:55:12,473 [INFO]       0.12 MB  oecd_etr/oecd_etr_expenditure_incentives.csv
+2026-03-05 10:55:12,474 [INFO]       0.69 MB  oecd_etr/oecd_etr_income_incentives.csv
+2026-03-05 10:55:12,474 [INFO] 
+Total: 821.0 MB
