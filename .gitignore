@@ -1,6 +1,11 @@
 # Virtual environment
 .venv/
 
+data/raw/ilo_wages/ilo_monthly_earnings.csv
+data/raw/oecd_cbcr/cbcr_table1_aggregate_totals.csv 
+data/raw/oecd_cbcr/cbcr_table3_etr_aggregates.csv
+data/raw/oecd_cts_additional/oecd_cit_revenue_gdp.csv
+
 # LaTeX intermediate files
 *.aux
 *.bbl
