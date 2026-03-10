@@ -1,6 +1,8 @@
 # python collect_all_data.py
 
 import argparse
+import csv
+import gzip
 import os
 import sys
 import time
@@ -14,7 +16,7 @@ BASE_DIR = Path(__file__).parent
 RAW_DIR  = BASE_DIR / "raw"
 
 import pandas as pd
-import requestspip3 install pandas requests
+import requests
 
 logging.basicConfig(
     level=logging.INFO,
@@ -36,6 +38,7 @@ MAX_RETRIES = 3
 
 #  OECD SDMX base URL 
 OECD_SDMX = "https://sdmx.oecd.org/public/rest/data"
+EUROSTAT_SDMX = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data"
 SDMX_CSV_HEADERS = {"Accept": "application/vnd.sdmx.data+csv;file=true"}
 
 #  Helper Functions 
@@ -77,6 +80,152 @@ def download_file(url: str, dest: Path, description: str,
 def download_oecd(dataflow: str, dest: Path, description: str) -> bool:
     url = f"{OECD_SDMX}/{dataflow}/all?format=csv"
     return download_file(url, dest, description, headers=SDMX_CSV_HEADERS)
+
+
+def download_eurostat(dataset: str, dest: Path, description: str) -> bool:
+    url = f"{EUROSTAT_SDMX}/{dataset}/?format=SDMX-CSV&compressed=true"
+    return download_file(url, dest, description)
+
+
+def build_eurostat_fats_combined(sources, dest: Path) -> None:
+    fieldnames = [
+        "source_dataset",
+        "dataflow",
+        "last_update",
+        "freq",
+        "nace_r2",
+        "indicator_scheme",
+        "indicator_code",
+        "c_ctrl",
+        "geo",
+        "time_period",
+        "obs_value",
+        "obs_flag",
+        "conf_status",
+    ]
+
+    if dest.exists():
+        dest.unlink()
+
+    total_rows = 0
+    all_years = set()
+
+    with gzip.open(dest, "wt", newline="") as out_f:
+        writer = csv.DictWriter(out_f, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for dataset, path, indicator_column in sources:
+            log.info(f"  Combining {path.name}")
+            with gzip.open(path, "rt", newline="") as in_f:
+                reader = csv.DictReader(in_f)
+                required = {
+                    "DATAFLOW",
+                    "LAST UPDATE",
+                    "freq",
+                    "nace_r2",
+                    indicator_column,
+                    "c_ctrl",
+                    "geo",
+                    "TIME_PERIOD",
+                    "OBS_VALUE",
+                    "OBS_FLAG",
+                    "CONF_STATUS",
+                }
+                missing = required - set(reader.fieldnames or [])
+                if missing:
+                    raise ValueError(
+                        f"{path.name} is missing required columns: {sorted(missing)}"
+                    )
+
+                source_rows = 0
+                source_years = set()
+                for row in reader:
+                    time_period = row["TIME_PERIOD"]
+                    writer.writerow({
+                        "source_dataset": dataset,
+                        "dataflow": row["DATAFLOW"],
+                        "last_update": row["LAST UPDATE"],
+                        "freq": row["freq"],
+                        "nace_r2": row["nace_r2"],
+                        "indicator_scheme": indicator_column,
+                        "indicator_code": row[indicator_column],
+                        "c_ctrl": row["c_ctrl"],
+                        "geo": row["geo"],
+                        "time_period": time_period,
+                        "obs_value": row["OBS_VALUE"],
+                        "obs_flag": row["OBS_FLAG"],
+                        "conf_status": row["CONF_STATUS"],
+                    })
+                    source_rows += 1
+                    total_rows += 1
+                    if time_period:
+                        source_years.add(int(time_period))
+                        all_years.add(int(time_period))
+
+                if source_years:
+                    log.info(
+                        "    %s rows across %s-%s",
+                        f"{source_rows:,}",
+                        min(source_years),
+                        max(source_years),
+                    )
+
+    if not all_years:
+        raise RuntimeError("Combined Eurostat FATS file is empty")
+
+    size_mb = dest.stat().st_size / 1e6
+    log.info(
+        "  Built %s (%s rows, %s-%s, %.2f MB)",
+        dest.name,
+        f"{total_rows:,}",
+        min(all_years),
+        max(all_years),
+        size_mb,
+    )
+
+
+def verify_eurostat_fats_coverage(dest: Path, minimum_year: int = 2022) -> None:
+    expected_sources = {"fats_g1b_08", "fats_activ"}
+    seen_sources = set()
+    years = set()
+    row_count = 0
+
+    with gzip.open(dest, "rt", newline="") as f:
+        reader = csv.DictReader(f)
+        required = {"source_dataset", "time_period"}
+        missing = required - set(reader.fieldnames or [])
+        if missing:
+            raise ValueError(
+                f"{dest.name} is missing required columns: {sorted(missing)}"
+            )
+
+        for row in reader:
+            row_count += 1
+            seen_sources.add(row["source_dataset"])
+            if row["time_period"]:
+                years.add(int(row["time_period"]))
+
+    if not years:
+        raise RuntimeError(f"{dest.name} contains no year values")
+
+    latest_year = max(years)
+    if latest_year < minimum_year:
+        raise RuntimeError(
+            f"{dest.name} ends in {latest_year}, below required minimum {minimum_year}"
+        )
+    if not expected_sources.issubset(seen_sources):
+        missing_sources = sorted(expected_sources - seen_sources)
+        raise RuntimeError(
+            f"{dest.name} is missing expected source datasets: {missing_sources}"
+        )
+
+    log.info(
+        "  Verified %s rows across %s-%s with source datasets %s",
+        f"{row_count:,}",
+        min(years),
+        latest_year,
+        ", ".join(sorted(seen_sources)),
+    )
 
 # 1. OECD Country-by-Country Reporting (CbCR)
 def collect_oecd_cbcr():
@@ -314,22 +463,30 @@ def collect_eurostat_fats():
     d = RAW_DIR / "eurostat_fats"
     d.mkdir(exist_ok=True)
 
-    dataset = "fats_g1b_08"
-    desc = "Inward FATS main indicators by controlling country"
-    dest_csv = d / f"{dataset}.csv.gz"
-    dest_tsv = d / f"{dataset}.tsv.gz"
+    datasets = [
+        (
+            "fats_g1b_08",
+            "Legacy inward FATS by controlling country (2008-2020)",
+            "indic_sb",
+        ),
+        (
+            "fats_activ",
+            "Current inward FATS by activity and country of control (2021 onward)",
+            "indic_sbs",
+        ),
+    ]
 
-    if dest_csv.exists() or dest_tsv.exists():
-        existing = dest_csv if dest_csv.exists() else dest_tsv
-        log.info(f"Already exists: {existing.name}")
-    else:
-        url_csv = (f"https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/"
-                   f"data/{dataset}/?format=SDMX-CSV&compressed=true")
-        ok = download_file(url_csv, dest_csv, f"{desc} (CSV)")
+    sources = []
+    for dataset, desc, indicator_column in datasets:
+        dest = d / f"{dataset}.csv.gz"
+        ok = download_eurostat(dataset, dest, desc)
         if not ok:
-            url_tsv = (f"https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/"
-                       f"data/{dataset}/?format=TSV&compressed=true")
-            download_file(url_tsv, dest_tsv, f"{desc} (TSV fallback)")
+            raise RuntimeError(f"Failed to download Eurostat dataset {dataset}")
+        sources.append((dataset, dest, indicator_column))
+
+    combined_dest = d / "fats_inward_eu_full.csv.gz"
+    build_eurostat_fats_combined(sources, combined_dest)
+    verify_eurostat_fats_coverage(combined_dest, minimum_year=2022)
 
     log.info("")
 
