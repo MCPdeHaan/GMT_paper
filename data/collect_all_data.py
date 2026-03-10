@@ -8,12 +8,13 @@ import json
 import logging
 from pathlib import Path
 from datetime import datetime
+from typing import Optional
 
 BASE_DIR = Path(__file__).parent  
 RAW_DIR  = BASE_DIR / "raw"
 
 import pandas as pd
-import requests
+import requestspip3 install pandas requests
 
 logging.basicConfig(
     level=logging.INFO,
@@ -39,7 +40,7 @@ SDMX_CSV_HEADERS = {"Accept": "application/vnd.sdmx.data+csv;file=true"}
 
 #  Helper Functions 
 def download_file(url: str, dest: Path, description: str,
-                  headers: dict | None = None) -> bool:
+                  headers: Optional[dict] = None) -> bool:
     """Download a file with retry logic."""
     if dest.exists() and dest.stat().st_size > 0:
         size_mb = dest.stat().st_size / 1e6
