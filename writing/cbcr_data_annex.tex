@@ -58,9 +58,8 @@
 \renewcommand{\thefigure}{A.\arabic{figure}}
 
 % Title
-\title{\textbf{Data Annex: OECD Country-by-Country Reporting Statistics}\\[0.5em]
-\large A Diagnostic Overview of Tables I--VI\\
-MSc Economic Policy Thesis -- Utrecht University School of Economics}
+\title{\textbf{Appendix 1:\\  Data sources for Global Minimum Tax thesis}\\[0.5em]
+\large MSc Economic Policy Thesis\\Utrecht University School of Economics}
 \author{Maurits de Haan\\[0.3em]
 \small Supervisor: dr.\ Peter Gerbrands}
 \date{March 2026}
@@ -69,38 +68,21 @@ MSc Economic Policy Thesis -- Utrecht University School of Economics}
 
 \maketitle
 
-\begin{abstract}
-\noindent
-This annex provides a systematic diagnostic overview of the six tables contained in
-the OECD Country-by-Country Reporting (CbCR) Statistics database, downloaded via
-the OECD SDMX API (version 1.1). The annex documents the data architecture, all
-dimension codes with their substantive interpretations, coverage by year and
-jurisdiction, missing-data patterns, and one significant data quality anomaly. It
-is intended as a reference document for the methodology of the thesis and for any
-replication exercise.
-\end{abstract}
-
 \newpage
 \tableofcontents
 \newpage
 
-%% ============================================================
-\section{Data Architecture and SDMX Structure}\label{sec:architecture}
-%% ============================================================
+\section{OECD CbCR data}
 
-\subsection{Overview}
+Under the OECD/G20 Base Erosion and Profit Shifting (BEPS) Action~13, large multinational enterprise (MNE) groups with consolidated revenue exceeding EUR~750~million are required to file Country-by-Country Reports (CbCRs) detailing their economic activity and tax payments in each jurisdiction where they operate.  The OECD aggregates and anonymises these reports into jurisdiction-level statistics published in the \emph{OECD Corporate Tax Statistics} (CTS) database.
 
-The OECD publishes Country-by-Country Reporting statistics through its SDMX REST
-API under the endpoint \url{https://sdmx.oecd.org/public/rest/data}. All six CbCR
-tables share an identical column structure and differ only in which combinations of
-dimension values are populated. Each row of each file represents one observation
-uniquely identified by the combination of its dimension values; the quantity of
-interest is stored in the \code{OBS\_VALUE} column.
+The CbCR statistics are uniquely valuable because they capture tax-planning behaviour at the MNE level across \emph{all} jurisdictions, including low-tax locations typically absent from firm-level datasets.  Key measures include pre-tax profits, taxes accrued and paid, employees, total revenue, and assets, all disaggregated by \emph{parent jurisdiction} (REF\_AREA) and \emph{partner jurisdiction} (COUNTERPART\_AREA).
 
-The data are structured according to the Statistical Data and Metadata eXchange
-(SDMX 2.1) standard. Every dataset is identified by a \emph{dataflow} code of the
-form \code{OECD.CTP.TPS,DSD\_CBCR@DF\_CBCR[I--VI],1.1}. The tables were retrieved
-on 10 March 2026 and cover fiscal years 2016--2022.
+\subsection{Data architecture and SDMX structure}\label{sec:architecture}
+
+The OECD publishes Country-by-Country Reporting statistics through its SDMX REST API under the endpoint \url{https://sdmx.oecd.org/public/rest/data}. All six CbCR tables share an identical column structure and differ only in the combinations of dimension values. Each row of each file represents one observation uniquely identified by the combination of its dimension values; the quantity of interest is stored in the \code{OBS\_VALUE} column.
+
+The data are structured according to the Statistical Data and Metadata eXchange (SDMX 2.1) standard. Every dataset is identified by a \emph{dataflow} code of the form \code{OECD.CTP.TPS,DSD\_CBCR@DF\_CBCR[I--VI],1.1}. The tables cover fiscal years 2016-2022.
 
 \subsection{Common column structure}
 
@@ -135,7 +117,7 @@ Column name & Description \\
 
 \subsection{Missing-data convention}
 
-A critical distinction applies to the interpretation of \code{OBS\_VALUE}:
+In the analysis to find how the missing-data was handled in the dataset, I found out that the difference lies in how \code{OBS\_VALUE} looks:
 
 \begin{itemize}
     \item \code{OBS\_VALUE} = \textit{numerical value} (including zero) combined with
@@ -148,21 +130,11 @@ A critical distinction applies to the interpretation of \code{OBS\_VALUE}:
           not yet finalised, or has been withheld for confidentiality reasons.
 \end{itemize}
 
-This convention means that the true missing rate (NaN entries) is
-substantially lower than one might expect given the SDMX ``sparse'' storage
-format. Across the six tables, the NaN rate ranges from 1.1\% (Table~V) to 6.5\%
-(Table~IV); see Table~\ref{tab:crosssummary} for details.
+This convention means that the true missing rate (NaN entries) is substantially lower than one might expect given the SDMX ``sparse'' storage format. Across the six tables, the NaN rate ranges from 1.1\% (Table~V) to 6.5\% (Table~IV); see Table~\ref{tab:crosssummary} for details.
 
-%% ============================================================
-\section{Dimension Code Reference}\label{sec:dimensions}
-%% ============================================================
+\subsection{Dimension code reference}\label{sec:dimensions}
 
-\subsection{Measure codes (\texttt{MEASURE})}
-
-Table~\ref{tab:measures} lists all MEASURE codes that appear across the six CbCR
-tables, together with their substantive interpretation and the unit in which they
-are reported. Not all measures appear in all tables; the column \emph{Tables}
-indicates where each measure is available.
+Table~\ref{tab:measures} lists all \code{MEASURE} codes that appear across the six CbCR tables, together with their substantive interpretation and the unit in which they are reported. Not all measures appear in all tables; the column \emph{Tables} indicates where each measure is available.
 
 \begin{longtable}{@{}lp{6cm}lp{2.5cm}@{}}
 \caption{MEASURE codes in the OECD CbCR database}\label{tab:measures}\\
@@ -262,7 +234,7 @@ Code & Label & Description \\
 \subsection{Aggregation type codes (\texttt{AGGREGATION\_TYPE})}
 
 The aggregation type defines the unit of observation at which the CbCR data are
-compiled, which has important implications for their use in revenue simulation.
+compiled. 
 
 \begin{table}[H]
 \centering
@@ -307,8 +279,6 @@ Code & Description \\
 \code{RATE\_10-20}                 & ETR between 10\% and 20\% \\
 \code{RATE\_20-30}                 & ETR between 20\% and 30\% \\
 \code{RATE\_30}                    & ETR above 30\% \\
-\midrule
-\multicolumn{2}{l}{\small\textit{Note: The bracket \code{RATE\_0-15} directly identifies the GMT base; brackets \code{RATE\_0-10} and \code{RATE\_10} subdivide it.}} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -355,9 +325,7 @@ Code & Revenue range & Description \\
 \end{tabular}
 \end{table}
 
-%% ============================================================
-\section{Cross-Table Overview}\label{sec:crossoverview}
-%% ============================================================
+\subsection{Cross-Table Overview}\label{sec:crossoverview}
 
 Table~\ref{tab:crosssummary} summarises the six CbCR tables along the key
 structural dimensions. The database as a whole contains approximately 2.47 million
@@ -397,10 +365,7 @@ MNE size classes & No & No & No & No & No & Yes (6) \\
 
 \subsection{Year-by-year expansion of coverage}
 
-The CbCR data exhibits a notable expansion of reporting coverage over time, as more
-jurisdictions adopted the BEPS Action 13 CbCR requirement. Table~\ref{tab:yearcoverage}
-documents the number of parent (reporting) jurisdictions and the count of positive
-observations in Table~I for each fiscal year.
+The CbCR data shwos an expansion of reporting coverage over time, as more jurisdictions adopted the BEPS Action 13 CbCR requirement. Table~\ref{tab:yearcoverage} documents the number of parent (reporting) jurisdictions and the count of positive observations in Table~I for each fiscal year.
 
 \begin{table}[H]
 \centering
@@ -418,43 +383,19 @@ Year & Parent & Total  & Positive & Zero & NaN & Positive \\
 2020 & 52 & 171,924 & 128,725 &  43,199 &      0 & 74.9 \\
 2021 & 52 & 236,288 & 137,721 &  68,149 & 30,418 & 58.3 \\
 2022 & 54 & 199,399 & 143,140 &  52,749 &  3,510 & 71.8 \\
-\midrule
-\multicolumn{7}{l}{\small\textit{Notes: ``Parent jurisdictions'' = number of unique REF\_AREA values with}} \\
-\multicolumn{7}{l}{\small\textit{at least one positive observation. The spike in NaN for 2021}} \\
-\multicolumn{7}{l}{\small\textit{reflects a temporary increase in confidentiality suppressions, resolved by 2022.}} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The most recent release (fiscal year 2022) reports data from 54 parent
-jurisdictions, representing approximately 98\% of all CbCR filings globally
-\citep{oecd2025corptaxstats}. The 2016 release (the first year) covered only 26
-jurisdictions, and the dataset grew substantially in 2017--2018 as BEPS Action 13
-legislation was enacted across OECD and G20 members. The 2021 vintage shows an
-anomalous spike in NaN observations (30,418 rows), which largely disappeared in
+The most recent release (fiscal year 2022) reports data from 54 parent jurisdictions, representing approximately 98\% of all CbCR filings globally \citep{oecd2025corptaxstats}. The 2016 release (the first year) covered only 26 jurisdictions, and the dataset grew substantially in 2017-2018 as BEPS Action 13 legislation was enacted across OECD and G20 members. The 2021 vintage shows a spike in NaN observations (30,418 rows), which largely disappeared in
 2022; this likely reflects a transitional period in OECD data processing after the
 redesign of the CbCR publication framework.\footnote{The 2021 vintage was the
 first published under the new disaggregated SDMX format; some jurisdictions
 submitted incomplete data during this transition.}
 
-\subsection{Jurisdiction coverage in 2022}
 
-In the most recent year, 54 parent jurisdictions report data in Table~I. All key
-financial measures (PROFIT, TAX\_ACCRUED, TAX\_PAID, ASSETS, EMPLOYEES,
-TOT\_REV, UPR, RPR, STATED\_CAPITAL) are available for 53--54 parent
-jurisdictions. EARNINGS (payroll costs) has the lowest coverage at 53 jurisdictions,
-meaning that the SBIE payroll proxy is available for all but one parent
-jurisdiction (requiring imputation for the missing case).
-
-Table~IV, which is critical for the GMT revenue simulation (it provides the
-ETR-bracket breakdown), covers 45 parent jurisdictions in 2022 --- nine fewer than
-Table~I. This difference is significant for the EU analysis: the missing
-jurisdictions are primarily non-EU and non-OECD countries whose MNEs have limited
-EU presence, so the analytical focus on EU Member States is not materially affected.
-
-%% ============================================================
 \section{Table-by-Table Description}\label{sec:tables}
-%% ============================================================
+
 
 \subsection{Table I: Aggregate Totals by Jurisdiction}\label{sec:table1}
 
@@ -635,9 +576,9 @@ ratios separately for large and medium MNE groups, testing the prediction of
 \citet{schjelderup2024} that the production subsidy effect is more pronounced
 among the largest, most capital-intensive groups.
 
-%% ============================================================
+
 \section{Data Quality Findings}\label{sec:quality}
-%% ============================================================
+
 
 \subsection{Missing and suppressed observations}
 
@@ -703,9 +644,9 @@ mid-2026. The methodology is therefore necessarily backward-looking: it estimate
 GMT exposure using pre-implementation data (2022) and applies the GMT rules
 prospectively.
 
-%% ============================================================
+
 \section{Summary: Implications for the Methodology of Option A}\label{sec:implications}
-%% ============================================================
+
 
 The diagnostic analysis confirms that the CbCR data are suitable for the three-stage
 methodology outlined in Section~4.1 of the main thesis overview, subject to the
