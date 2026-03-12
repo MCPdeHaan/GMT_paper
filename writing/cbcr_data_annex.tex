@@ -393,116 +393,49 @@ redesign of the CbCR publication framework.\footnote{The 2021 vintage was the
 first published under the new disaggregated SDMX format; some jurisdictions
 submitted incomplete data during this transition.}
 
-
-\section{Table-by-Table Description}\label{sec:tables}
-
-
 \subsection{Table I: Aggregate Totals by Jurisdiction}\label{sec:table1}
 
-\paragraph{Purpose and structure.}
-Table~I is the primary CbCR table and the starting point for all revenue
-simulations. It reports jurisdiction-level financial aggregates, broken down by
-parent jurisdiction (REF\_AREA), affiliate jurisdiction (COUNTERPART\_AREA), profit
-panel (PANELAI / PANELAII), and statistical operation (aggregate, P5, P25, P50,
-P75, P95). The combination of parent and affiliate jurisdiction creates a
-bilateral dataset analogous to a trade matrix: each cell represents the total
-activity of all MNEs headquartered in country $i$ that have constituent entities
-in country $j$.
+\paragraph{Purpose and structure}
+Table~I is the primary CbCR table and the starting point for all revenue simulations. It reports jurisdiction-level financial aggregates, broken down by parent jurisdiction (REF\_AREA), affiliate jurisdiction (COUNTERPART\_AREA), profit panel (PANELAI / PANELAII), and statistical operation (aggregate, P5, P25, P50, P75, P95). The combination of parent and affiliate jurisdiction creates a bilateral dataset analogous to a trade matrix: each cell represents the total activity of all MNEs headquartered in country $i$ that have constituent entities in country $j$.
 
-\paragraph{Key features.}
-With 1,124,211 rows and 28 MEASURE codes, Table~I is the largest of the six tables.
-It is the only table that contains the \code{ETR} measure (effective tax rate,
-expressed as a percentage of profit before tax) and the only table that provides
-full distributional percentiles (P5 through P95) for all measures. The
-\code{STATISTICAL\_OPERATION = \_Z} rows provide the aggregate totals used in
-\citet{barake2022}; the percentile rows enable the within-jurisdiction ETR
-heterogeneity analysis following \citet{hugger2025}.
+\paragraph{Key features}
+With 1,124,211 rows and 28 MEASURE codes, Table~I is the largest of the six tables. It is the only table that contains the \code{ETR} measure (effective tax rate, expressed as a percentage of profit before tax) and the only table that provides full distributional percentiles (P5 through P95) for all measures. The \code{STATISTICAL\_OPERATION = \_Z} rows provide the aggregate totals used in \citet{barake2022}; the percentile rows enable the within-jurisdiction ETR heterogeneity analysis following \citet{hugger2025}.
 
-\paragraph{Coverage.}
-In 2022, 54 parent jurisdictions report data, with 143,140 positive observations.
-The main bilateral region aggregates available as \code{COUNTERPART\_AREA} values
-include: individual ISO country codes (154 countries), \code{WXD} (world excluding
-domestic), \code{W} (world total), \code{STLS} (stateless entities), and several
-regional aggregates (\code{A}, \code{A\_O}, \code{E}, \code{E\_O}, \code{F},
-\code{F\_O}, \code{S}, \code{S\_O} representing Americas, Europe, Africa, and
-similar groupings excluding the parent's own region).
+\paragraph{Coverage}
+In 2022, 54 parent jurisdictions report data, with 143,140 positive observations. The main bilateral region aggregates available as \code{COUNTERPART\_AREA} values include: individual ISO country codes (154 countries), \code{WXD} (world excluding domestic), \code{W} (world total), \code{STLS} (stateless entities), and several regional aggregates (\code{A}, \code{A\_O}, \code{E}, \code{E\_O}, \code{F}, \code{F\_O}, \code{S}, \code{S\_O} representing Americas, Europe, Africa, and similar groupings excluding the parent's own region).
 
-\paragraph{Limitations.}
-The aggregate totals are vulnerable to the double-counting problem identified by
-\citet{blouin2023}: when a German parent owns a Dutch holding company which owns an
-Irish operating subsidiary, the Irish subsidiary's profits may be attributed to
-both Germany (through the CbCR filing) and the Netherlands (as an intermediate
-parent). The \code{PROFIT\_ADJ} measure is the OECD's attempt to correct for
-intra-company dividends, but it is available only for 2021--2022 and for a subset
-of parent jurisdictions.
+\paragraph{Limitations}
+The aggregate totals are vulnerable to the double-counting problem identified by \citet{blouin2023}: when a German parent owns a Dutch holding company which owns an Irish operating subsidiary, the Irish subsidiary's profits may be attributed to both Germany (through the CbCR filing) and the Netherlands (as an intermediate parent). The \code{PROFIT\_ADJ} measure is the OECD's attempt to correct for intra-company dividends, but it is available only for 2021--2022 and for a subset of parent jurisdictions.
 
 \subsection{Table II: Interquartile Means by Jurisdiction}\label{sec:table2}
 
-\paragraph{Purpose and structure.}
-Table~II provides the interquartile mean (IQM) of financial variables: the
-arithmetic mean computed after excluding the bottom and top quartiles of MNE
-groups within each parent-affiliate jurisdiction pair. This is a robust central
-tendency estimator, less sensitive to the extremely large MNE groups (e.g.\ Apple,
-ExxonMobil) that can dominate simple averages.
+\paragraph{Purpose and structure}
+Table~II provides the interquartile mean (IQM) of financial variables: the arithmetic mean computed after excluding the bottom and top quartiles of MNE groups within each parent-affiliate jurisdiction pair. This is a robust central tendency estimator, less sensitive to the extremely large MNE groups (e.g.\ Apple, ExxonMobil) that can dominate simple averages.
 
-\paragraph{Key features.}
-Table~II contains 14 MEASURE codes --- all financial aggregates from Table~I
-except activity shares and the ETR measure itself. It has a higher positive
-observation rate (84.6\%) than Table~I because the IQM is only computed where
-there are at least four MNE groups, reducing the number of zero cells. The data
-starts from 2017 (one year later than Table~I) because computing a robust mean
-requires a minimum number of observations.
+\paragraph{Key features}
+Table~II contains 14 MEASURE codes, all financial aggregates from Table~I except activity shares and the ETR measure itself. It has a higher positive observation rate (84.6\%) than Table~I because the IQM is only computed where there are at least four MNE groups, reducing the number of zero cells. The data starts from 2017 (one year later than Table~I) because computing a robust mean requires a minimum number of observations.
 
-\paragraph{Use for methodology.}
-The IQM is useful for characterising the ``typical'' MNE group in a given
-jurisdiction pair, as distinct from the aggregate total driven by outlier firms.
-For the SBIE computation, the IQM of EARNINGS and ASSETS per MNE group provides
-a cross-check on the aggregate totals in Table~I.
+\paragraph{Use for methodology}
+The IQM is useful for characterising the ``typical'' MNE group in a given jurisdiction pair, as distinct from the aggregate total driven by outlier firms. For the SBIE computation, the IQM of EARNINGS and ASSETS per MNE group provides a cross-check on the aggregate totals in Table~I. 
 
 \subsection{Table III: Entity Counts by ETR Bracket (MNE Level)}\label{sec:table3}
 
-\paragraph{Purpose and structure.}
-Table~III disaggregates constituent entities by effective tax rate bracket at the
-\emph{MNE group} level (AGGREGATION\_TYPE = TRMNE). This means that an entity is
-assigned to the ETR bracket of its parent group, not its own individual ETR. Table~III
-covers 12 ETR brackets (including two negative-profit categories) and reports
-entity counts and activity-share distributions within each bracket.
+\paragraph{Purpose and structure}
+Table~III disaggregates constituent entities by effective tax rate bracket at the \emph{MNE group} level (AGGREGATION\_TYPE = TRMNE). This means that an entity is assigned to the ETR bracket of its parent group, not its own individual ETR.  able~III covers 12 ETR brackets (including two negative-profit categories) and reports entity counts and activity-share distributions within each bracket.
 
-\paragraph{Key features.}
-Importantly, Table~III does \emph{not} contain financial aggregates (PROFIT,
-TAX\_ACCRUED, ASSETS, etc.) --- only entity counts (\code{ENTITIES\_COUNT}) and
-activity shares (\code{ACT\_*}). This makes it useful for understanding the
-composition of entities in each ETR range (e.g.\ the prevalence of IP-holding
-entities among very low-taxed MNE groups) but not for the direct revenue
-computation, which requires Table~IV.
+\paragraph{Key features}
+Importantly, Table~III does \emph{not} contain financial aggregates (PROFIT, TAX\_ACCRUED, ASSETS, etc.), only entity counts (\code{ENTITIES\_COUNT}) and activity shares (\code{ACT\_*}). This makes it useful for understanding the composition of entities in each ETR range (e.g.\ the prevalence of IP-holding entities among very low-taxed MNE groups) but not for the direct revenue computation, which requires Table~IV.
 
-\paragraph{Limitation.}
-The MNE-group ETR (used in Table~III) differs from the subsidiary-level ETR
-(used in Table~IV). As \citet{hugger2025} demonstrate, 53.2\% of all low-taxed
-profit (below 15\%) is located in jurisdictions where the average ETR exceeds
-15\% at the MNE-group level. Table~III therefore significantly understates the
-share of entities facing low effective rates because it averages across the
-group's entire global portfolio.
+\paragraph{Limitation}
+The MNE-group ETR (used in Table~III) differs from the subsidiary-level ETR (used in Table~IV). As \citet{hugger2025} demonstrate, 53.2\% of all low-taxed profit (below 15\%) is located in jurisdictions where the average ETR exceeds 15\% at the MNE-group level. Table~III therefore significantly understates the share of entities facing low effective rates because it averages across the group's entire global portfolio.
 
 \subsection{Table IV: Aggregate Totals by ETR Bracket (Subsidiary Level)}\label{sec:table4}
 
-\paragraph{Purpose and structure.}
-Table~IV is the most policy-relevant table for GMT revenue simulation. It reports
-all financial aggregates disaggregated by 11 ETR brackets at the
-\emph{subsidiary} (TRSUB) level. The unit of analysis is the individual constituent
-entity, not the MNE group, so the ETR assigned to each row reflects the entity's
-own jurisdictional effective tax rate. This is the data dimension that
-\citet{hugger2025} exploit to demonstrate within-jurisdiction ETR heterogeneity.
+\paragraph{Purpose and structure}
+Table~IV is the most policy-relevant table for GMT revenue simulation. It reports all financial aggregates disaggregated by 11 ETR brackets at the \emph{subsidiary} (TRSUB) level. The unit of analysis is the individual constituent entity, not the MNE group, so the ETR assigned to each row reflects the entity's own jurisdictional effective tax rate. This is the data dimension that \citet{hugger2025} exploit to demonstrate within-jurisdiction ETR heterogeneity.
 
-\paragraph{Key features.}
-The \code{RATE\_0-15} bracket directly identifies all profit, assets, payroll and
-tax reported by entities facing an ETR below 15\% --- the GMT top-up base. In
-2022, Table~IV reports 49 parent jurisdictions with data, of which 45 have positive
-observations in the \code{RATE\_0-15} bracket. Table~IV has 27 MEASURE codes ---
-the full set of financial and activity variables, matching Table~I --- but with
-fewer affiliate jurisdictions (154) because the ETR disaggregation is only reported
-for affiliates with sufficient MNE groups to pass the OECD's confidentiality
-threshold.
+\paragraph{Key features}
+The \code{RATE\_0-15} bracket directly identifies all profit, assets, payroll and tax reported by entities facing an ETR below 15\%: the GMT top-up base. In 2022, Table~IV reports 49 parent jurisdictions with data, of which 45 have positive observations in the \code{RATE\_0-15} bracket. Table~IV has 27 MEASURE codes, the full set of financial and activity variables, matching Table~I, but with fewer affiliate jurisdictions (154) because the ETR disaggregation is only reported for affiliates with sufficient MNE groups to pass the OECD's confidentiality threshold.
 
 \paragraph{Coverage by year.}
 \begin{table}[H]
@@ -529,88 +462,17 @@ Year & Parent & Total  & Positive & Zero & NaN & Positive \\
 \end{tabular}
 \end{table}
 
-\subsection{Table V: MNE Group Size Distribution}\label{sec:table5}
-
-\paragraph{Purpose and structure.}
-Table~V reports the size distribution of MNE groups within each parent jurisdiction,
-measured by consolidated unrelated-party revenue (UPR), total assets, and employment.
-Unlike all other tables, Table~V has no \code{COUNTERPART\_AREA} dimension (it is
-set to \code{\_Z}): the size distribution is computed across all MNE groups
-headquartered in the parent jurisdiction, irrespective of where their affiliates are
-located.
-
-\paragraph{Key features.}
-Table~V is the smallest table (4,195 rows) and has the highest positive observation
-rate (98.4\%), as percentile statistics are always defined where there are MNE
-groups. It provides seven percentile points (P5, P10, P25, P50, P75, P90, P95),
-enabling full characterisation of the within-jurisdiction MNE size distribution.
-The 40 parent jurisdictions covered is lower than in Table~I because the OECD
-requires a minimum number of MNE groups to compute meaningful percentiles.
-
-\paragraph{Implications.}
-The UPR size distribution from Table~V provides the empirical basis for
-characterising the MNE groups at the borderline of the EUR~750~million threshold
---- those in the \code{SIZE\_LESS\_2\_5} class in Table~VI. For EU Member States,
-the P10 and P25 of UPR indicate how many MNE groups are within, say, two to three
-times the threshold, which determines the sensitivity of coverage to threshold
-changes.
-
-\subsection{Table VI: Aggregate Totals by MNE Group Size Class}\label{sec:table6}
-
-\paragraph{Purpose and structure.}
-Table~VI reports all financial and activity variables broken down by five MNE group
-revenue size classes (see Table~\ref{tab:mnesize}). It is the most recently added
-dimension of the CbCR database and currently covers fiscal year 2022 only.
-
-\paragraph{Key features.}
-Table~VI covers 39 parent jurisdictions and 215 affiliate jurisdictions, with 27
-MEASURE codes (the full set of financial and activity variables, minus
-\code{PROFIT\_ADJ} which is not available by size class). With 105,753 rows and a
-positive observation rate of 72.1\%, Table~VI provides reasonable coverage for the
-major MNE-hosting jurisdictions.
-
-\paragraph{Use for methodology.}
-The size breakdown enables analysis of how the GMT's impact differs across the
-size distribution of MNE groups. In particular, it allows computation of SBIE
-ratios separately for large and medium MNE groups, testing the prediction of
-\citet{schjelderup2024} that the production subsidy effect is more pronounced
-among the largest, most capital-intensive groups.
-
-
-\section{Data Quality Findings}\label{sec:quality}
-
-
-\subsection{Missing and suppressed observations}
-
-The NaN rate is low across all tables (1.1--6.5\%), indicating that the OECD
-publishes most jurisdiction--measure combinations without confidentiality
-suppression. Zero observations are more prevalent (7.6--24.9\% of rows) and
-represent genuine absences of bilateral activity, not suppressed values. The
-analyst should therefore treat NaN and zero values differently: zero means no
-activity was reported, whereas NaN means the observation is unavailable.
-
-The highest NaN rate is in Table~IV (6.5\%), concentrated in 2021. Examination
-of the data reveals that the 2021 spike is largely driven by a small number of
-parent jurisdictions (primarily Singapore, SGP) that submitted preliminary data
-in 2021 with \code{OBS\_STATUS = Q} and missing \code{OBS\_VALUE}; these are
-resolved in the 2022 vintage.
-
-\subsection{The Switzerland anomaly in Table IV}
-
-A significant data quality issue affects Switzerland (CHE) in Table~IV for fiscal
-years 2017, 2020, and 2022. The reported profit values for Switzerland in these
-years are approximately 8,000--10,000 times larger than the corresponding Table~I
-aggregate totals. Specifically:
+A data quality issue affects Switzerland (CHE) in Table~IV for fiscal years 2017, 2020, and 2022. The reported profit values for Switzerland in these years are approximately 8,000-10,000 times larger than the corresponding Table~I aggregate totals. Specifically:
 
 \begin{itemize}
     \item In 2022, CHE reports \code{PROFIT} in the \code{RATE\_0-15} bracket
           equal to USD~944 trillion (Table~IV), compared to a total worldwide
-          profit of USD~109 billion in Table~I for 2022 --- a discrepancy of a
+          profit of USD~109 billion in Table~I for 2022, a discrepancy of a
           factor of approximately 8,600.
     \item The anomaly is present in 2017 (factor $\approx$~10,000$\times$)
           and 2020 (factor $\approx$~9,000$\times$), but \emph{not} in
           2018 or 2021, where CHE Table~IV values are consistent with Table~I.
-    \item The years 2018 and 2021 show CHE Table~IV profit in the 0--15\%
+    \item The years 2018 and 2021 show CHE Table~IV profit in the 0-15\%
           bracket of approximately USD~60 billion and USD~92 billion
           respectively, both consistent with Switzerland's profile in Table~I
           as a medium-sized parent jurisdiction.
@@ -622,6 +484,28 @@ total global GDP by orders of magnitude and are clearly erroneous. \textbf{For a
 analysis using Table~IV, Switzerland should be excluded from ETR bracket
 computations for fiscal years 2017, 2020, and 2022}, and its Table~I aggregate
 totals should be used instead with an imputed ETR distribution.
+
+\subsection{Table V: MNE Group Size Distribution}\label{sec:table5}
+
+\paragraph{Purpose and structure}
+Table~V reports the size distribution of MNE groups within each parent jurisdiction, measured by consolidated unrelated-party revenue (UPR), total assets, and employment. Unlike all other tables, Table~V has no \code{COUNTERPART\_AREA} dimension (it is set to \code{\_Z}): the size distribution is computed across all MNE groups headquartered in the parent jurisdiction, irrespective of where their affiliates are located.
+
+\paragraph{Key features}
+Table~V is the smallest table (4,195 rows) and has the highest positive observation rate (98.4\%), as percentile statistics are always defined where there are MNE groups. It provides seven percentile points (P5, P10, P25, P50, P75, P90, P95), enabling full characterisation of the within-jurisdiction MNE size distribution. The 40 parent jurisdictions covered is lower than in Table~I because the OECD requires a minimum number of MNE groups to compute meaningful percentiles.
+
+\paragraph{Implications}
+The UPR size distribution from Table~V provides the empirical basis for characterising the MNE groups at the borderline of the EUR~750~million threshold; those in the \code{SIZE\_LESS\_2\_5} class in Table~VI. For EU Member States, the P10 and P25 of UPR indicate how many MNE groups are within, say, two to three times the threshold, which determines the sensitivity of coverage to threshold changes.
+
+\subsection{Table VI: Aggregate Totals by MNE Group Size Class}\label{sec:table6}
+
+\paragraph{Purpose and structure}
+Table~VI reports all financial and activity variables broken down by five MNE group revenue size classes (see Table~\ref{tab:mnesize}). It is the most recently added dimension of the CbCR database and currently covers fiscal year 2022 only.
+
+\paragraph{Key features}
+Table~VI covers 39 parent jurisdictions and 215 affiliate jurisdictions, with 27 MEASURE codes (the full set of financial and activity variables, minus \code{PROFIT\_ADJ} which is not available by size class). With 105,753 rows and a positive observation rate of 72.1\%, Table~VI provides reasonable coverage for the major MNE-hosting jurisdictions.
+
+\paragraph{Use for methodology}
+The size breakdown enables analysis of how the GMT's impact differs across the size distribution of MNE groups. In particular, it allows computation of SBIE ratios separately for large and medium MNE groups, testing the prediction of \citet{schjelderup2024} that the production subsidy effect is more pronounced among the largest, most capital-intensive groups.
 
 \subsection{Reduced affiliate jurisdiction coverage in Table IV}
 
