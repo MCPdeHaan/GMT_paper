@@ -6,52 +6,51 @@
 \usepackage{textcomp}
 \usepackage{lmodern}
 
-% Layout 
+% Layout
 \usepackage[margin=2.5cm]{geometry}
 \usepackage{setspace}
-\IfFileExists{parskip.sty}{%
-  \usepackage{parskip}
-}{%
-  \setlength{\parindent}{0pt}
-  \setlength{\parskip}{0.7em plus 0.2em minus 0.1em}
-}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.7em plus 0.2em minus 0.1em}
 \onehalfspacing
 
-% Language 
+% Language
 \usepackage{babel}
-\babelprovide[main]{english}
-\selectlanguage{english}
-\setlocalecaption{english}{contents}{Contents}
-\setlocalecaption{english}{table}{Table}
-\newcommand{\datasetoverviewapalanguage}{english}
+\babelprovide[main,import]{british}
 
-% Bibliography (APA 7th edition) 
+% Bibliography (APA 7th edition)
 \usepackage{csquotes}
 \usepackage[backend=biber,style=apa,sorting=nyt,natbib=true]{biblatex}
-\DeclareLanguageMapping{\datasetoverviewapalanguage}{\datasetoverviewapalanguage-apa}
+\DeclareLanguageMapping{british}{british-apa}
 \addbibresource{bibliography.bib}
 
-% Mathematics 
+% Mathematics
 \usepackage{amsmath,amssymb}
 
-% Tables and figures 
+% Tables and figures
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{enumitem}
 
-% Hyperlinks 
+% Hyperlinks
 \usepackage{xcolor}
 \usepackage[colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
 
-% other
+% Captions
+\usepackage[font=small,labelfont=bf]{caption}
+
+% Section formatting
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\itshape}{\thesubsubsection}{1em}{}
+
+% Other
 \usepackage{array}
 \usepackage{multirow}
 \usepackage{tabularx}
-\usepackage{float}
 \usepackage{pdflscape}
-\usepackage{caption}
 \usepackage{rotating}
 
 \definecolor{sourceblue}{HTML}{D6E4F0}
@@ -73,25 +72,9 @@
 
 \section{Introduction} \label{sec:intro}
 
-This document provides a complete overview of every dataset collected for the
-GMT thesis project.  All data were downloaded programmatically via the Python
-script \texttt{data/collect\_all\_data.py}.  
+This document provides a complete overview of every dataset collected for the GMT thesis project.  All data were downloaded via the Python script \texttt{data/collect\_all\_data.py}.  
 
-The data are organised into eight thematic groups:
-(1)~OECD Country-by-Country Reporting (CbCR);
-(2)~OECD statutory corporate income-tax rates and dividend taxation;
-(3)~OECD forward-looking effective tax rates;
-(4)~wage and earnings data (OECD and ILO);
-(5)~World Bank macroeconomic controls;
-(6)~OECD BEPS implementation indicators;
-(7)~Pillar Two implementation status; and
-(8)~auxiliary/supplementary sources (BEA US MNE; Eurostat FATS).
-
-All OECD data use SDMX identifiers in their DATAFLOW column; country codes
-follow ISO~3166-1 alpha-3.
-
-\section{OECD Country-by-Country Reporting (CbCR)}
-\label{sec:cbcr}
+\section{OECD Country-by-Country Reporting (CbCR)} \label{sec:cbcr}
 
 \subsection{Background}
 \label{subsec:cbcr_background}
@@ -111,10 +94,7 @@ include pre-tax profits, taxes accrued and paid, employees, total revenue,
 and assets, all disaggregated by \emph{parent jurisdiction} (REF\_AREA) and
 \emph{partner jurisdiction} (COUNTERPART\_AREA).
 
-The OECD publishes six tables of CbCR statistics; the collection script
-downloads four of them (Tables~II, IV, V, VI).  Table~I (aggregate totals) and
-Table~III (ETR bracket totals) were excluded at collection time but can be added
-if needed.
+The OECD publishes six tables of CbCR statistics. 
 
 \subsection{Table II --- Interquartile Means by Jurisdiction}
 \label{subsec:cbcr_t2}
