@@ -1,0 +1,2403 @@
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
+  <Author>Ludvig Wier</Author>
+  <LastAuthor>Ludvig Wier</LastAuthor>
+  <Created>2021-08-04T19:40:56Z</Created>
+  <LastSaved>2021-08-04T20:02:30Z</LastSaved>
+  <Version>16.00</Version>
+ </DocumentProperties>
+ <OfficeDocumentSettings xmlns="urn:schemas-microsoft-com:office:office">
+  <AllowPNG/>
+ </OfficeDocumentSettings>
+ <ExcelWorkbook xmlns="urn:schemas-microsoft-com:office:excel">
+  <WindowHeight>9870</WindowHeight>
+  <WindowWidth>21600</WindowWidth>
+  <WindowTopX>32767</WindowTopX>
+  <WindowTopY>32767</WindowTopY>
+  <ProtectStructure>False</ProtectStructure>
+  <ProtectWindows>False</ProtectWindows>
+ </ExcelWorkbook>
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Bottom"/>
+   <Borders/>
+   <Font ss:FontName="Calibri"/>
+   <Interior/>
+   <NumberFormat/>
+   <Protection/>
+  </Style>
+  <Style ss:ID="s62">
+   <Borders>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+   <Font ss:FontName="Calibri"/>
+  </Style>
+  <Style ss:ID="s63">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Bottom"/>
+   <Borders>
+    <Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+   <Font ss:FontName="Calibri"/>
+   <NumberFormat/>
+  </Style>
+  <Style ss:ID="s64">
+   <Borders/>
+   <Font ss:FontName="Calibri"/>
+  </Style>
+  <Style ss:ID="s65">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Bottom"/>
+   <Font ss:FontName="Calibri"/>
+   <NumberFormat/>
+  </Style>
+  <Style ss:ID="s66">
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+   <Font ss:FontName="Calibri"/>
+  </Style>
+  <Style ss:ID="s67">
+   <Alignment ss:Horizontal="Center" ss:Vertical="Bottom"/>
+   <Borders>
+    <Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/>
+   </Borders>
+   <Font ss:FontName="Calibri"/>
+   <NumberFormat/>
+  </Style>
+  <Style ss:ID="s69">
+   <NumberFormat ss:Format="Percent"/>
+  </Style>
+ </Styles>
+ <Worksheet ss:Name="Sheet1">
+  <Table ss:ExpandedColumnCount="12" ss:ExpandedRowCount="244" x:FullColumns="1"
+   x:FullRows="1" ss:DefaultColumnWidth="44" ss:DefaultRowHeight="13">
+   <Column ss:AutoFitWidth="0" ss:Width="156"/>
+   <Column ss:Width="100.5"/>
+   <Column ss:Width="111.5"/>
+   <Column ss:Width="100"/>
+   <Column ss:Width="53.5"/>
+   <Column ss:Width="95"/>
+   <Column ss:Width="90.5"/>
+   <Column ss:Index="9" ss:Width="91.5"/>
+   <Column ss:Width="68.5"/>
+   <Column ss:Width="80.5"/>
+   <Column ss:Width="50"/>
+   <Row ss:Index="2">
+    <Cell ss:StyleID="s62"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">(1)</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">(2)</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">(3)</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">(4)</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">(5)</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String">(6)</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">VARIABLES</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">non-haven no controls</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">Allindustries - nocontrols</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">Allindustries - controls</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">Year_Ind FE</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">Year_IND FE and RND</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">Year_Ind Country FE</Data></Cell>
+    <Cell ss:Index="9" ss:StyleID="s65"><Data ss:Type="String">Haven Basic controls</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">Haven Year-Ind</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">Year-IND and RND</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">Country FE</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s62"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1983b.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65" ss:Formula="=+R[1]C"><Data ss:Type="Number">0.75800000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.54700000000000004</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.216</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">0.97399999999999998</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1984.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.75800000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.56299999999999994</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.34699999999999998</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">1.105</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1985.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.73299999999999998</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.59399999999999997</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.40699999999999997</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">1.1399999999999999</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1986.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.58099999999999996</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.53400000000000003</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.50900000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">1.0899999999999999</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1987.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.60099999999999998</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.86699999999999999</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.94599999999999995</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">1.5469999999999999</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1988.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.623</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.70899999999999996</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.77600000000000002</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">1.399</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1989.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.65100000000000002</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.3029999999999999</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.3140000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">1.9650000000000001</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1990.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.48</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.77700000000000002</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.69099999999999995</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">1.1709999999999998</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1991.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.38500000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.68700000000000006</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.65100000000000002</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">1.036</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1992.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.35099999999999998</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.56000000000000005</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.50700000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">0.85799999999999998</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1993.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.38200000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.53</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.59499999999999997</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">0.97699999999999998</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1994.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.40400000000000003</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.66800000000000004</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.61699999999999999</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.67400000000000004</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.65200000000000002</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">1.0209999999999999</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">1.0780000000000001</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-9]"><Data ss:Type="Number">1.056</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1995o.Year#co.haven</Data></Cell>
+    <Cell ss:Index="3" ss:StyleID="s65"/>
+    <Cell ss:StyleID="s65"/>
+    <Cell ss:StyleID="s65"/>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+AVERAGE(R[-1]C,R[1]C)"><Data ss:Type="Number">1.208</Data></Cell>
+    <Cell ss:Formula="=+AVERAGE(R[-1]C,R[1]C)"><Data ss:Type="Number">1.2505000000000002</Data></Cell>
+    <Cell ss:Formula="=+R[-1]C+(R21C11-R16C11)/5"><Data ss:Type="Number">1.1496</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1996.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.52900000000000003</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.92900000000000005</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.86599999999999999</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.89400000000000002</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">-1.57</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">1.395</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">1.423</Data></Cell>
+    <Cell ss:Formula="=+R[-1]C+(R21C11-R16C11)/5"><Data ss:Type="Number">1.2431999999999999</Data></Cell>
+    <Cell ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data ss:Type="Number">1.45</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1997.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.54400000000000004</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.3</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.206</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.004</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">-1.4850000000000001</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">1.75</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">1.548</Data></Cell>
+    <Cell ss:Formula="=+R[-1]C+(R21C11-R16C11)/5"><Data ss:Type="Number">1.3367999999999998</Data></Cell>
+    <Cell ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data ss:Type="Number">1.5349999999999999</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1998.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.438</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.4179999999999999</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.2949999999999999</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.99099999999999999</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">-1.5880000000000001</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">1.7329999999999999</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">1.429</Data></Cell>
+    <Cell ss:Formula="=+R[-1]C+(R21C11-R16C11)/5"><Data ss:Type="Number">1.4303999999999997</Data></Cell>
+    <Cell ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data ss:Type="Number">1.4319999999999999</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1999.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.44800000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.2729999999999999</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.1259999999999999</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.0840000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.0760000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">-1.5189999999999999</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">1.5739999999999998</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">1.532</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-9]"><Data ss:Type="Number">1.524</Data></Cell>
+    <Cell ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data ss:Type="Number">1.5010000000000001</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2000.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.53800000000000003</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.1599999999999999</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.97</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.069</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">-1.611</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">1.508</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">1.607</Data></Cell>
+    <Cell ss:Formula="=+R[-1]C+(R26C11-R21C11)/5"><Data ss:Type="Number">1.6372</Data></Cell>
+    <Cell ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data ss:Type="Number">1.409</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2001.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.42499999999999999</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.109</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.90200000000000002</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.871</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">-1.8149999999999999</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">1.327</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">1.296</Data></Cell>
+    <Cell ss:Formula="=+R[-1]C+(R26C11-R21C11)/5"><Data ss:Type="Number">1.7504</Data></Cell>
+    <Cell ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data ss:Type="Number">1.2050000000000001</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2002.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.42299999999999999</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.5469999999999999</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.27</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.365</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">-1.26</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">1.6930000000000001</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">1.788</Data></Cell>
+    <Cell ss:Formula="=+R[-1]C+(R26C11-R21C11)/5"><Data ss:Type="Number">1.8635999999999999</Data></Cell>
+    <Cell ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data ss:Type="Number">1.76</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2003.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.53600000000000003</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.786</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.5640000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.49</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">-1.1599999999999999</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">2.1</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">2.0259999999999998</Data></Cell>
+    <Cell ss:Formula="=+R[-1]C+(R26C11-R21C11)/5"><Data ss:Type="Number">1.9767999999999999</Data></Cell>
+    <Cell ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data ss:Type="Number">1.86</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2004.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.56899999999999995</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">2.1110000000000002</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.8520000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.5760000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.5209999999999999</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">-1.145</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">2.4210000000000003</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">2.145</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-9]"><Data ss:Type="Number">2.09</Data></Cell>
+    <Cell ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data ss:Type="Number">1.875</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2005.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.68300000000000005</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.9750000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.75</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.554</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">-1.0900000000000001</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">2.4329999999999998</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">2.2370000000000001</Data></Cell>
+    <Cell ss:Formula="=+R[-1]C+(R31C11-R26C11)/5"><Data ss:Type="Number">2.1126</Data></Cell>
+    <Cell ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data ss:Type="Number">1.93</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2006.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.68100000000000005</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">2.2040000000000002</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.861</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.56</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">-1.1399999999999999</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">2.5419999999999998</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">2.2410000000000001</Data></Cell>
+    <Cell ss:Formula="=+R[-1]C+(R31C11-R26C11)/5"><Data ss:Type="Number">2.1352000000000002</Data></Cell>
+    <Cell ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data ss:Type="Number">1.8800000000000001</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2007.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.65800000000000003</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">2.4020000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.9279999999999999</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.663</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">-1.101</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">2.5859999999999999</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">2.3210000000000002</Data></Cell>
+    <Cell ss:Formula="=+R[-1]C+(R31C11-R26C11)/5"><Data ss:Type="Number">2.1578000000000004</Data></Cell>
+    <Cell ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data ss:Type="Number">1.919</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2008.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.75</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.863</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.357</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.1930000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">-1.5</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">2.1070000000000002</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">1.9430000000000001</Data></Cell>
+    <Cell ss:Formula="=+R[-1]C+(R31C11-R26C11)/5"><Data ss:Type="Number">2.1804000000000006</Data></Cell>
+    <Cell ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data ss:Type="Number">1.52</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2009.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.58199999999999996</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">2.2080000000000002</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.8620000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.6060000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.621</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">-1.0960000000000001</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">2.444</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">2.1880000000000002</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-9]"><Data ss:Type="Number">2.2029999999999998</Data></Cell>
+    <Cell ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data ss:Type="Number">1.9239999999999999</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2010.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.67600000000000005</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">2.0910000000000002</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.6919999999999999</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.333</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">-1.2949999999999999</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">2.3679999999999999</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">2.0089999999999999</Data></Cell>
+    <Cell ss:Formula="=+R[-1]C+(R36C11-R31C11)/5"><Data ss:Type="Number">2.2338</Data></Cell>
+    <Cell ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data ss:Type="Number">1.7250000000000001</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2011.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.74399999999999999</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">2.4660000000000002</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">2.0550000000000002</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.867</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">-0.77500000000000002</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">2.7990000000000004</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">2.6109999999999998</Data></Cell>
+    <Cell ss:Formula="=+R[-1]C+(R36C11-R31C11)/5"><Data ss:Type="Number">2.2646000000000002</Data></Cell>
+    <Cell ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data ss:Type="Number">2.2450000000000001</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2012.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.67100000000000004</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">2.5830000000000002</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">2.1760000000000002</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.9039999999999999</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">-0.76400000000000001</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">2.8470000000000004</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">2.5750000000000002</Data></Cell>
+    <Cell ss:Formula="=+R[-1]C+(R36C11-R31C11)/5"><Data ss:Type="Number">2.2954000000000003</Data></Cell>
+    <Cell ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data ss:Type="Number">2.2560000000000002</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2013.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.624</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">2.2669999999999999</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.867</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.5660000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">-1.056</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">2.4910000000000001</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">2.19</Data></Cell>
+    <Cell ss:Formula="=+R[-1]C+(R36C11-R31C11)/5"><Data ss:Type="Number">2.3262000000000005</Data></Cell>
+    <Cell ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data ss:Type="Number">1.964</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2014.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.56899999999999995</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">2.48</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">2.165</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.8069999999999999</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">1.788</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">-0.88700000000000001</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">2.734</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">2.3759999999999999</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-9]"><Data ss:Type="Number">2.3570000000000002</Data></Cell>
+    <Cell ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data ss:Type="Number">2.133</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2015.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.45900000000000002</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">2.9990000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">2.8239999999999998</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">2.2959999999999998</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">-0.45200000000000001</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">3.2829999999999999</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">2.7549999999999999</Data></Cell>
+    <Cell ss:Index="12" ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data
+      ss:Type="Number">2.5680000000000001</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2016.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.41699999999999998</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">3.0750000000000002</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">3.0510000000000002</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">2.6509999999999998</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">-0.13300000000000001</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">3.468</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">3.0679999999999996</Data></Cell>
+    <Cell ss:Index="12" ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data
+      ss:Type="Number">2.887</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2017.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.53600000000000003</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">3.4140000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">3.2749999999999999</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">2.879</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">6.9099999999999995E-2</Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">3.8109999999999999</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">3.415</Data></Cell>
+    <Cell ss:Index="12" ss:StyleID="s69" ss:Formula="=+RC[-5]-R18C7+145%"><Data
+      ss:Type="Number">3.0891000000000002</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2018.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">0.52200000000000002</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">3.4980000000000002</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">3.335</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="Number">2.8460000000000001</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:Index="9" ss:Formula="=+RC[-5]+RC[-7]"><Data ss:Type="Number">3.8570000000000002</Data></Cell>
+    <Cell ss:Formula="=+RC[-5]+RC[-8]"><Data ss:Type="Number">3.3680000000000003</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1983b.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.135</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1984.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.191</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1985.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.183</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1986.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0120</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1987.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0409</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1988.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0333</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1989.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0339</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1990.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0643</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1991.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0861</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1992.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0747</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1993.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.00162</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1994.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0301</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0234</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1995o.Year#co.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1996.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0272</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0254</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.151</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1997.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0876</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0749</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.177</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1998.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0499</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0737</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.151</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1999.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0751</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.136</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.139</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.200</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2000.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.164</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.176</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.257</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2001.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0614</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0622</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.122</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2002.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0230</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.126</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.194</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2003.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0931</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.121</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.171</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2004.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.221</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.169</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.145</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.200</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2005.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.286</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.142</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.158</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2006.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.378</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.138</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.163</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2007.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.364</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.178</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.183</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2008.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.498</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.273</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.235</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2009.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.324</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.178</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.272</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.183</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2010.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.497</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.260</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.259</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2011.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.432</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.247</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.248</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2012.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.383</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.244</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.237</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2013.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.323</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.301</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.291</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2014.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.225</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.206</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.188</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.215</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2015.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.234</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.161</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.193</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2016.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.114</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.157</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.201</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2017.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.212</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.202</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.237</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2018.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.258</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.288</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.290</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1983b.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.762</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1984.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.870</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1985.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.882</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1986.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.412</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1987.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.526</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1988.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.395</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1989.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.484</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1990.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.421</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1991.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.409</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1992.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.460</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1993.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.513</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1994.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.415</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.248</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1995o.Year#co.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1996.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.525</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.264</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.185</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1997.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.610</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.304</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.180</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1998.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.405</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.235</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0827</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1999.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.358</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.231</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.188</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0924</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2000.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.568</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.308</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.181</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2001.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.420</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.185</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0409</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2002.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.327</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.290</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.160</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2003.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.553</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.347</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.201</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2004.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.839</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.513</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.468</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.328</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2005.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.952</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.399</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.174</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2006.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-1.299</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.514</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.274</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2007.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-1.148</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.635</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.365</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2008.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-1.592</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.722</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.387</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2009.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-1.094</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.546</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.420</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.242</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2010.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-1.376</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.612</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.285</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2011.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-1.318</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.585</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.264</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2012.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-1.143</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.540</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.226</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2013.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-1.010</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.589</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.266</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2014.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.699</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.449</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.537</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.146</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2015.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.523</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.272</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0492</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2016.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.294</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.285</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0856</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2017.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.593</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.350</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.150</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2018.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.708</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.464</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.257</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1983b.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.461</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1984.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.424</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1985.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.377</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1986.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.103</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1987.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0812</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1988.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0505</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1989.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0823</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1990.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0597</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1991.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0102</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1992.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0407</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1993.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0467</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1994.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0666</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0555</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1995o.Year#co.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1996.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.146</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.103</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.166</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1997.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.214</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.169</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.130</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1998.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.175</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.183</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.138</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1999.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.184</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.224</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.219</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0804</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2000.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.288</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.281</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.00815</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2001.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.217</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.193</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.109</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2002.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.225</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.293</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.000668</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2003.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.291</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.287</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0279</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2004.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.451</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.385</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.375</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0568</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2005.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.483</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.300</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0413</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2006.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.681</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.351</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0214</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2007.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.738</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.378</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0304</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2008.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.938</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.426</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0266</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2009.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.657</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.384</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.279</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0337</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2010.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.807</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.439</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0876</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2011.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.783</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.432</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0933</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2012.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.675</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.404</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0751</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2013.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.625</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.439</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.105</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2014.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.431</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.317</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.363</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0192</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2015.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.318</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.211</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0320</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2016.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.137</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.196</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0380</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2017.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.324</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.256</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0266</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2018.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.391</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.345</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.100</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1984.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.758</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1985.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.733</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1986.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.581</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1987.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.601</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1988.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.623</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1989.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.651</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1990.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.480</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1991.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.385</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1992.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.351</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1993.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.382</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1994.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.404</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1996.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.529</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1997.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.544</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1998.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.438</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1999.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.448</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2000.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.538</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2001.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.425</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2002.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.423</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2003.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.536</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2004.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.569</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2005.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.683</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2006.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.681</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2007.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.658</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2008.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.750</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2009.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.582</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2010.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.676</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2011.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.744</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2012.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.671</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2013.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.624</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2014.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.569</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2015.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.459</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2016.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.417</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2017.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.536</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2018.Year</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.522</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1983b.Year#co.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1984o.Year#co.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1985o.Year#co.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1986o.Year#co.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1987o.Year#co.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1988o.Year#co.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1989o.Year#co.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1990o.Year#co.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1991o.Year#co.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1992o.Year#co.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1993o.Year#co.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1983b.Year#co.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1984o.Year#co.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1985o.Year#co.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1986o.Year#co.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1987o.Year#co.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1988o.Year#co.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1989o.Year#co.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1990o.Year#co.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1991o.Year#co.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1992o.Year#co.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1993o.Year#co.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1983b.Year#co.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1984o.Year#co.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1985o.Year#co.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1986o.Year#co.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1987o.Year#co.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1988o.Year#co.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1989o.Year#co.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1990o.Year#co.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1991o.Year#co.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1992o.Year#co.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1993o.Year#co.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1983b.Year#co.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1984o.Year#co.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1985o.Year#co.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1986o.Year#co.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1987o.Year#co.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1988o.Year#co.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1989o.Year#co.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1990o.Year#co.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1991o.Year#co.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1992o.Year#co.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1993o.Year#co.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1994b.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.653</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1994b.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0433</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1994b.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.277</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1994b.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0755</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1994b.Year#c.logRanD_total</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0222</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1999.Year#c.logRanD_total</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.0169</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2004.Year#c.logRanD_total</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.00791</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2009.Year#c.logRanD_total</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.141</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2014.Year#c.logRanD_total</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0680</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1994bn.Year#c.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-1.727</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">2018o.Year#co.haven</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1994bn.Year#c.logK</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.0867</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1994bn.Year#c.logGDP</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">-0.196</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">1994bn.Year#c.logPop</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.224</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">Constant</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">0.567</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">13.88</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">9.024</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">8.637</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">1.253</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String"></Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s64"><Data ss:Type="String">Observations</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">1,677</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">1,887</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">1,831</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">13,017</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">2,474</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">13,017</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s66"><Data ss:Type="String">R-squared</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">0.341</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">0.262</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">0.405</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">0.267</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">0.334</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">0.420</Data></Cell>
+   </Row>
+  </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <Selected/>
+   <Panes>
+    <Pane>
+     <Number>3</Number>
+     <ActiveRow>17</ActiveRow>
+     <ActiveCol>11</ActiveCol>
+    </Pane>
+   </Panes>
+   <ProtectObjects>False</ProtectObjects>
+   <ProtectScenarios>False</ProtectScenarios>
+   <x:ProtectedObjects>False</x:ProtectedObjects>
+   <x:ProtectedScenarios>False</x:ProtectedScenarios>
+  </WorksheetOptions>
+ </Worksheet>
+</Workbook>
