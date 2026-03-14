@@ -17,7 +17,7 @@ import pandas as pd
 warnings.filterwarnings("ignore")
 
 BASE_DIR = Path(__file__).parent
-RAW_DIR  = BASE_DIR / "raw" / "oecd_cbcr"
+RAW_DIR  = BASE_DIR.parent / "data" / "raw" / "oecd_cbcr"
 OUT_JSON = BASE_DIR / "inspect_cbcr_results.json"
 
 # ---------------------------------------------------------------------------
@@ -39,26 +39,26 @@ MEASURE_LABELS = {
     "TAX_PAID":       "Income Tax Paid (cash basis)",
     "TOT_REV":        "Total Revenue (unrelated + related)",
     "UPR":            "Unrelated-Party Revenue",
-    "ACT_ADMIN":      "Share: Administrative / Management services",
-    "ACT_DOR":        "Share: Dormant",
-    "ACT_FIN":        "Share: Finance / Insurance (internal)",
-    "ACT_HOLDING":    "Share: Holding",
-    "ACT_IGF":        "Share: Intra-group Finance",
-    "ACT_INS":        "Share: Insurance",
-    "ACT_IP":         "Share: Intellectual Property holding",
-    "ACT_MAN":        "Share: Manufacturing / Production",
-    "ACT_OTHER":      "Share: Other activities",
-    "ACT_PUR":        "Share: Purchasing / Procurement",
-    "ACT_RD":         "Share: Research \\& Development",
-    "ACT_SALES":      "Share: Sales / Marketing / Distribution",
-    "ACT_SER":        "Share: Services (excl. IP / R\\&D)",
+    "ACT_ADMIN":      "Count: Administrative / Management / Support",
+    "ACT_DOR":        "Count: Dormant",
+    "ACT_FIN":        "Count: Regulated Financial Services",
+    "ACT_HOLDING":    "Count: Holding Shares / Equity Instruments",
+    "ACT_IGF":        "Count: Internal Group Finance",
+    "ACT_INS":        "Count: Insurance",
+    "ACT_IP":         "Count: IP Holding / Management",
+    "ACT_MAN":        "Count: Manufacturing / Production",
+    "ACT_OTHER":      "Count: Other Business Activity",
+    "ACT_PUR":        "Count: Purchasing / Procurement",
+    "ACT_RD":         "Count: Research \\& Development",
+    "ACT_SALES":      "Count: Sales / Marketing / Distribution",
+    "ACT_SER":        "Count: Services to Unrelated Parties",
 }
 
 UNIT_LABELS = {
     "USD":            "USD (millions, unless otherwise stated)",
     "PS":             "Number of persons",
-    "EST":            "Number of entities / percentage share",
-    "ENT_MULT":       "Number of entity-multiples",
+    "EST":            "Establishments (used for entity/activity counts in CbCR)",
+    "ENT_MULT":       "MNE-group count unit (OECD code ENT_MULT)",
     "PT_PRFT_BF_TAX": "Percentage of profit before tax",
 }
 
@@ -138,31 +138,30 @@ TABLE_META = {
             "Reports the interquartile mean (IQM) of financial variables -- "
             "the mean calculated after excluding the bottom and top quartile of "
             "MNE groups. Provides a robust central-tendency measure less sensitive "
-            "to outlier MNEs. Activity-share measures (ACT\\_*) are excluded. "
+            "to outlier MNEs. Business-activity count measures (ACT\\_*) are excluded. "
             "Covers fiscal years 2017--2022."
         ),
     },
     3: {
         "file": "cbcr_table3_etr_aggregates.csv",
-        "title": "Table III -- Entity Counts by ETR Bracket (MNE Level)",
+        "title": "Table III -- Aggregate Totals by ETR Bracket (MNE Level)",
         "desc": (
-            "Reports the count of constituent entities and activity-share "
-            "distributions by effective tax rate bracket, aggregated at the "
-            "MNE-group level (TRMNE). This table captures how many entities "
-            "are active in each ETR range, broken down by activity type. "
-            "Financial totals (profit, assets, etc.) are not available in "
-            "this table. Covers fiscal years 2017--2022."
+            "Reports financial aggregates, entity counts and business-activity "
+            "entity counts by effective tax rate bracket of the MNE group, "
+            "aggregated at the MNE-group level (TRMNE). Covers fiscal years "
+            "2017--2022."
         ),
     },
     4: {
         "file": "cbcr_table4_etr_aggregates_alt.csv",
         "title": "Table IV -- Aggregate Totals by ETR Bracket (Subsidiary Level)",
         "desc": (
-            "The most policy-relevant ETR breakdown. Reports all financial "
-            "aggregates and activity-share variables disaggregated by eleven "
-            "ETR brackets, at the subsidiary (TRSUB) level. Critical for GMT "
-            "revenue simulation: allows direct computation of the volume of "
-            "profit, assets, payroll and tax accrued below the 15\\%\\@ threshold. "
+            "The most policy-relevant ETR breakdown. Reports financial "
+            "aggregates, entity counts and business-activity entity counts "
+            "disaggregated by eleven ETR brackets, at the subsidiary (TRSUB) "
+            "level. Critical for GMT revenue simulation: allows direct "
+            "computation of the volume of profit, assets, payroll and tax "
+            "accrued below the 15\\%\\@ threshold. "
             "Covers fiscal years 2016--2022."
         ),
     },
@@ -181,11 +180,12 @@ TABLE_META = {
         "file": "cbcr_table6_mne_size_aggregates.csv",
         "title": "Table VI -- Aggregate Totals by MNE Group Size Class",
         "desc": (
-            "Reports all financial and activity-share variables disaggregated "
-            "by five consolidated revenue size classes of MNE groups. Allows "
-            "analysis of how tax behaviour varies across the size spectrum -- "
-            "particularly relevant for understanding the EUR~750~million revenue "
-            "threshold behaviour. Currently covers fiscal year 2022 only."
+            "Reports financial aggregates, entity counts and business-activity "
+            "entity counts disaggregated by five consolidated revenue size "
+            "classes of MNE groups. Allows analysis of how tax behaviour varies "
+            "across the size spectrum -- particularly relevant for understanding "
+            "the EUR~750~million revenue threshold behaviour. Currently covers "
+            "fiscal year 2022 only."
         ),
     },
 }

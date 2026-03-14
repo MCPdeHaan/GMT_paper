@@ -406,55 +406,55 @@
     "dimensions": {
       "MEASURE": {
         "ACT_ADMIN": {
-          "label": "Share: Administrative / Management services",
+          "label": "Count: Administrative / Management / Support",
           "n_rows": 39159
         },
         "ACT_DOR": {
-          "label": "Share: Dormant",
+          "label": "Count: Dormant",
           "n_rows": 38734
         },
         "ACT_FIN": {
-          "label": "Share: Finance / Insurance (internal)",
+          "label": "Count: Regulated Financial Services",
           "n_rows": 36408
         },
         "ACT_HOLDING": {
-          "label": "Share: Holding",
+          "label": "Count: Holding Shares / Equity Instruments",
           "n_rows": 37731
         },
         "ACT_IGF": {
-          "label": "Share: Intra-group Finance",
+          "label": "Count: Internal Group Finance",
           "n_rows": 35594
         },
         "ACT_INS": {
-          "label": "Share: Insurance",
+          "label": "Count: Insurance",
           "n_rows": 35547
         },
         "ACT_IP": {
-          "label": "Share: Intellectual Property holding",
+          "label": "Count: IP Holding / Management",
           "n_rows": 35793
         },
         "ACT_MAN": {
-          "label": "Share: Manufacturing / Production",
+          "label": "Count: Manufacturing / Production",
           "n_rows": 39204
         },
         "ACT_OTHER": {
-          "label": "Share: Other activities",
+          "label": "Count: Other Business Activity",
           "n_rows": 38762
         },
         "ACT_PUR": {
-          "label": "Share: Purchasing / Procurement",
+          "label": "Count: Purchasing / Procurement",
           "n_rows": 37772
         },
         "ACT_RD": {
-          "label": "Share: Research \\& Development",
+          "label": "Count: Research \\& Development",
           "n_rows": 36024
         },
         "ACT_SALES": {
-          "label": "Share: Sales / Marketing / Distribution",
+          "label": "Count: Sales / Marketing / Distribution",
           "n_rows": 40579
         },
         "ACT_SER": {
-          "label": "Share: Services (excl. IP / R\\&D)",
+          "label": "Count: Services to Unrelated Parties",
           "n_rows": 39642
         },
         "ASSETS": {
@@ -520,11 +520,11 @@
       },
       "UNIT_MEASURE": {
         "ENT_MULT": {
-          "label": "Number of entity-multiples",
+          "label": "MNE-group count unit (OECD code ENT_MULT)",
           "n_rows": 89526
         },
         "EST": {
-          "label": "Number of entities / percentage share",
+          "label": "Establishments (used for entity/activity counts in CbCR)",
           "n_rows": 533905
         },
         "PS": {
@@ -611,8 +611,8 @@
     },
     "measure_coverage": {
       "ACT_ADMIN": {
-        "label": "Share: Administrative / Management services",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Administrative / Management / Support",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 39159,
         "n_positive": 27121,
         "pct_positive": 69.3,
@@ -657,8 +657,8 @@
         }
       },
       "ACT_DOR": {
-        "label": "Share: Dormant",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Dormant",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 38734,
         "n_positive": 26468,
         "pct_positive": 68.3,
@@ -703,8 +703,8 @@
         }
       },
       "ACT_FIN": {
-        "label": "Share: Finance / Insurance (internal)",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Regulated Financial Services",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 36408,
         "n_positive": 14862,
         "pct_positive": 40.8,
@@ -749,8 +749,8 @@
         }
       },
       "ACT_HOLDING": {
-        "label": "Share: Holding",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Holding Shares / Equity Instruments",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 37731,
         "n_positive": 22279,
         "pct_positive": 59.0,
@@ -795,8 +795,8 @@
         }
       },
       "ACT_IGF": {
-        "label": "Share: Intra-group Finance",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Internal Group Finance",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 35594,
         "n_positive": 12829,
         "pct_positive": 36.0,
@@ -841,8 +841,8 @@
         }
       },
       "ACT_INS": {
-        "label": "Share: Insurance",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Insurance",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 35547,
         "n_positive": 11121,
         "pct_positive": 31.3,
@@ -887,8 +887,8 @@
         }
       },
       "ACT_IP": {
-        "label": "Share: Intellectual Property holding",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: IP Holding / Management",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 35793,
         "n_positive": 14364,
         "pct_positive": 40.1,
@@ -933,8 +933,8 @@
         }
       },
       "ACT_MAN": {
-        "label": "Share: Manufacturing / Production",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Manufacturing / Production",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 39204,
         "n_positive": 27288,
         "pct_positive": 69.6,
@@ -979,8 +979,8 @@
         }
       },
       "ACT_OTHER": {
-        "label": "Share: Other activities",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Other Business Activity",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 38762,
         "n_positive": 27197,
         "pct_positive": 70.2,
@@ -1025,8 +1025,8 @@
         }
       },
       "ACT_PUR": {
-        "label": "Share: Purchasing / Procurement",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Purchasing / Procurement",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 37772,
         "n_positive": 22184,
         "pct_positive": 58.7,
@@ -1071,8 +1071,8 @@
         }
       },
       "ACT_RD": {
-        "label": "Share: Research \\& Development",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Research \\& Development",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 36024,
         "n_positive": 15224,
         "pct_positive": 42.3,
@@ -1117,8 +1117,8 @@
         }
       },
       "ACT_SALES": {
-        "label": "Share: Sales / Marketing / Distribution",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Sales / Marketing / Distribution",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 40579,
         "n_positive": 33644,
         "pct_positive": 82.9,
@@ -1163,8 +1163,8 @@
         }
       },
       "ACT_SER": {
-        "label": "Share: Services (excl. IP / R\\&D)",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Services to Unrelated Parties",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 39642,
         "n_positive": 30952,
         "pct_positive": 78.1,
@@ -1256,7 +1256,7 @@
       },
       "CBCR_COUNT": {
         "label": "Number of CbCR filings",
-        "unit": "Number of entity-multiples",
+        "unit": "MNE-group count unit (OECD code ENT_MULT)",
         "total_rows": 44738,
         "n_positive": 44395,
         "pct_positive": 99.2,
@@ -1394,7 +1394,7 @@
       },
       "ENTITIES_COUNT": {
         "label": "Number of Constituent Entities",
-        "unit": "Number of entities / percentage share",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 43170,
         "n_positive": 42649,
         "pct_positive": 98.8,
@@ -1640,7 +1640,7 @@
       },
       "SUBGROUPS_COUNT": {
         "label": "Number of MNE Subgroups",
-        "unit": "Number of entity-multiples",
+        "unit": "MNE-group count unit (OECD code ENT_MULT)",
         "total_rows": 44574,
         "n_positive": 43943,
         "pct_positive": 98.6,
@@ -2578,7 +2578,7 @@
   },
   "table2": {
     "title": "Table II -- Interquartile Means by Jurisdiction",
-    "description": "Reports the interquartile mean (IQM) of financial variables -- the mean calculated after excluding the bottom and top quartile of MNE groups. Provides a robust central-tendency measure less sensitive to outlier MNEs. Activity-share measures (ACT\\_*) are excluded. Covers fiscal years 2017--2022.",
+    "description": "Reports the interquartile mean (IQM) of financial variables -- the mean calculated after excluding the bottom and top quartile of MNE groups. Provides a robust central-tendency measure less sensitive to outlier MNEs. Business-activity count measures (ACT\\_*) are excluded. Covers fiscal years 2017--2022.",
     "file": "cbcr_table2_interquartile_means.csv",
     "shape": {
       "rows": 437129,
@@ -3027,11 +3027,11 @@
       },
       "UNIT_MEASURE": {
         "ENT_MULT": {
-          "label": "Number of entity-multiples",
+          "label": "MNE-group count unit (OECD code ENT_MULT)",
           "n_rows": 66694
         },
         "EST": {
-          "label": "Number of entities / percentage share",
+          "label": "Establishments (used for entity/activity counts in CbCR)",
           "n_rows": 33317
         },
         "PS": {
@@ -3141,7 +3141,7 @@
       },
       "CBCR_COUNT": {
         "label": "Number of CbCR filings",
-        "unit": "Number of entity-multiples",
+        "unit": "MNE-group count unit (OECD code ENT_MULT)",
         "total_rows": 33157,
         "n_positive": 32828,
         "pct_positive": 99.0,
@@ -3279,7 +3279,7 @@
       },
       "ENTITIES_COUNT": {
         "label": "Number of Constituent Entities",
-        "unit": "Number of entities / percentage share",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 33531,
         "n_positive": 33223,
         "pct_positive": 99.1,
@@ -3479,7 +3479,7 @@
       },
       "SUBGROUPS_COUNT": {
         "label": "Number of MNE Subgroups",
-        "unit": "Number of entity-multiples",
+        "unit": "MNE-group count unit (OECD code ENT_MULT)",
         "total_rows": 33323,
         "n_positive": 33000,
         "pct_positive": 99.0,
@@ -3767,8 +3767,8 @@
     }
   },
   "table3": {
-    "title": "Table III -- Entity Counts by ETR Bracket (MNE Level)",
-    "description": "Reports the count of constituent entities and activity-share distributions by effective tax rate bracket, aggregated at the MNE-group level (TRMNE). This table captures how many entities are active in each ETR range, broken down by activity type. Financial totals (profit, assets, etc.) are not available in this table. Covers fiscal years 2017--2022.",
+    "title": "Table III -- Aggregate Totals by ETR Bracket (MNE Level)",
+    "description": "Reports financial aggregates, entity counts and business-activity entity counts by effective tax rate bracket of the MNE group, aggregated at the MNE-group level (TRMNE). Covers fiscal years 2017--2022.",
     "file": "cbcr_table3_etr_aggregates.csv",
     "shape": {
       "rows": 699246,
@@ -4159,55 +4159,55 @@
     "dimensions": {
       "MEASURE": {
         "ACT_ADMIN": {
-          "label": "Share: Administrative / Management services",
+          "label": "Count: Administrative / Management / Support",
           "n_rows": 25494
         },
         "ACT_DOR": {
-          "label": "Share: Dormant",
+          "label": "Count: Dormant",
           "n_rows": 25345
         },
         "ACT_FIN": {
-          "label": "Share: Finance / Insurance (internal)",
+          "label": "Count: Regulated Financial Services",
           "n_rows": 23879
         },
         "ACT_HOLDING": {
-          "label": "Share: Holding",
+          "label": "Count: Holding Shares / Equity Instruments",
           "n_rows": 24903
         },
         "ACT_IGF": {
-          "label": "Share: Intra-group Finance",
+          "label": "Count: Internal Group Finance",
           "n_rows": 23753
         },
         "ACT_INS": {
-          "label": "Share: Insurance",
+          "label": "Count: Insurance",
           "n_rows": 23510
         },
         "ACT_IP": {
-          "label": "Share: Intellectual Property holding",
+          "label": "Count: IP Holding / Management",
           "n_rows": 23927
         },
         "ACT_MAN": {
-          "label": "Share: Manufacturing / Production",
+          "label": "Count: Manufacturing / Production",
           "n_rows": 25771
         },
         "ACT_OTHER": {
-          "label": "Share: Other activities",
+          "label": "Count: Other Business Activity",
           "n_rows": 25565
         },
         "ACT_PUR": {
-          "label": "Share: Purchasing / Procurement",
+          "label": "Count: Purchasing / Procurement",
           "n_rows": 24746
         },
         "ACT_RD": {
-          "label": "Share: Research \\& Development",
+          "label": "Count: Research \\& Development",
           "n_rows": 24119
         },
         "ACT_SALES": {
-          "label": "Share: Sales / Marketing / Distribution",
+          "label": "Count: Sales / Marketing / Distribution",
           "n_rows": 26677
         },
         "ACT_SER": {
-          "label": "Share: Services (excl. IP / R\\&D)",
+          "label": "Count: Services to Unrelated Parties",
           "n_rows": 26015
         },
         "ASSETS": {
@@ -4269,11 +4269,11 @@
       },
       "UNIT_MEASURE": {
         "ENT_MULT": {
-          "label": "Number of entity-multiples",
+          "label": "MNE-group count unit (OECD code ENT_MULT)",
           "n_rows": 58252
         },
         "EST": {
-          "label": "Number of entities / percentage share",
+          "label": "Establishments (used for entity/activity counts in CbCR)",
           "n_rows": 353038
         },
         "PS": {
@@ -4372,8 +4372,8 @@
     },
     "measure_coverage": {
       "ACT_ADMIN": {
-        "label": "Share: Administrative / Management services",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Administrative / Management / Support",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 25494,
         "n_positive": 15618,
         "pct_positive": 61.3,
@@ -4418,8 +4418,8 @@
         }
       },
       "ACT_DOR": {
-        "label": "Share: Dormant",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Dormant",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 25345,
         "n_positive": 14922,
         "pct_positive": 58.9,
@@ -4464,8 +4464,8 @@
         }
       },
       "ACT_FIN": {
-        "label": "Share: Finance / Insurance (internal)",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Regulated Financial Services",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 23879,
         "n_positive": 7439,
         "pct_positive": 31.2,
@@ -4510,8 +4510,8 @@
         }
       },
       "ACT_HOLDING": {
-        "label": "Share: Holding",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Holding Shares / Equity Instruments",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 24903,
         "n_positive": 13149,
         "pct_positive": 52.8,
@@ -4556,8 +4556,8 @@
         }
       },
       "ACT_IGF": {
-        "label": "Share: Intra-group Finance",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Internal Group Finance",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 23753,
         "n_positive": 7319,
         "pct_positive": 30.8,
@@ -4602,8 +4602,8 @@
         }
       },
       "ACT_INS": {
-        "label": "Share: Insurance",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Insurance",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 23510,
         "n_positive": 5900,
         "pct_positive": 25.1,
@@ -4648,8 +4648,8 @@
         }
       },
       "ACT_IP": {
-        "label": "Share: Intellectual Property holding",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: IP Holding / Management",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 23927,
         "n_positive": 8388,
         "pct_positive": 35.1,
@@ -4694,8 +4694,8 @@
         }
       },
       "ACT_MAN": {
-        "label": "Share: Manufacturing / Production",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Manufacturing / Production",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 25771,
         "n_positive": 15691,
         "pct_positive": 60.9,
@@ -4740,8 +4740,8 @@
         }
       },
       "ACT_OTHER": {
-        "label": "Share: Other activities",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Other Business Activity",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 25565,
         "n_positive": 15589,
         "pct_positive": 61.0,
@@ -4786,8 +4786,8 @@
         }
       },
       "ACT_PUR": {
-        "label": "Share: Purchasing / Procurement",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Purchasing / Procurement",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 24746,
         "n_positive": 12239,
         "pct_positive": 49.5,
@@ -4832,8 +4832,8 @@
         }
       },
       "ACT_RD": {
-        "label": "Share: Research \\& Development",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Research \\& Development",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 24119,
         "n_positive": 8986,
         "pct_positive": 37.3,
@@ -4878,8 +4878,8 @@
         }
       },
       "ACT_SALES": {
-        "label": "Share: Sales / Marketing / Distribution",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Sales / Marketing / Distribution",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 26677,
         "n_positive": 20278,
         "pct_positive": 76.0,
@@ -4924,8 +4924,8 @@
         }
       },
       "ACT_SER": {
-        "label": "Share: Services (excl. IP / R\\&D)",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Services to Unrelated Parties",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 26015,
         "n_positive": 17652,
         "pct_positive": 67.9,
@@ -5017,7 +5017,7 @@
       },
       "CBCR_COUNT": {
         "label": "Number of CbCR filings",
-        "unit": "Number of entity-multiples",
+        "unit": "MNE-group count unit (OECD code ENT_MULT)",
         "total_rows": 29082,
         "n_positive": 28556,
         "pct_positive": 98.2,
@@ -5155,7 +5155,7 @@
       },
       "ENTITIES_COUNT": {
         "label": "Number of Constituent Entities",
-        "unit": "Number of entities / percentage share",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 29414,
         "n_positive": 28952,
         "pct_positive": 98.4,
@@ -5360,7 +5360,7 @@
       },
       "SUBGROUPS_COUNT": {
         "label": "Number of MNE Subgroups",
-        "unit": "Number of entity-multiples",
+        "unit": "MNE-group count unit (OECD code ENT_MULT)",
         "total_rows": 29090,
         "n_positive": 28575,
         "pct_positive": 98.2,
@@ -6158,7 +6158,7 @@
   },
   "table4": {
     "title": "Table IV -- Aggregate Totals by ETR Bracket (Subsidiary Level)",
-    "description": "The most policy-relevant ETR breakdown. Reports all financial aggregates and activity-share variables disaggregated by eleven ETR brackets, at the subsidiary (TRSUB) level. Critical for GMT revenue simulation: allows direct computation of the volume of profit, assets, payroll and tax accrued below the 15\\%\\@ threshold. Covers fiscal years 2016--2022.",
+    "description": "The most policy-relevant ETR breakdown. Reports financial aggregates, entity counts and business-activity entity counts disaggregated by eleven ETR brackets, at the subsidiary (TRSUB) level. Critical for GMT revenue simulation: allows direct computation of the volume of profit, assets, payroll and tax accrued below the 15\\%\\@ threshold. Covers fiscal years 2016--2022.",
     "file": "cbcr_table4_etr_aggregates_alt.csv",
     "shape": {
       "rows": 101399,
@@ -6468,55 +6468,55 @@
     "dimensions": {
       "MEASURE": {
         "ACT_ADMIN": {
-          "label": "Share: Administrative / Management services",
+          "label": "Count: Administrative / Management / Support",
           "n_rows": 3366
         },
         "ACT_DOR": {
-          "label": "Share: Dormant",
+          "label": "Count: Dormant",
           "n_rows": 3344
         },
         "ACT_FIN": {
-          "label": "Share: Finance / Insurance (internal)",
+          "label": "Count: Regulated Financial Services",
           "n_rows": 3194
         },
         "ACT_HOLDING": {
-          "label": "Share: Holding",
+          "label": "Count: Holding Shares / Equity Instruments",
           "n_rows": 3330
         },
         "ACT_IGF": {
-          "label": "Share: Intra-group Finance",
+          "label": "Count: Internal Group Finance",
           "n_rows": 3227
         },
         "ACT_INS": {
-          "label": "Share: Insurance",
+          "label": "Count: Insurance",
           "n_rows": 3135
         },
         "ACT_IP": {
-          "label": "Share: Intellectual Property holding",
+          "label": "Count: IP Holding / Management",
           "n_rows": 3208
         },
         "ACT_MAN": {
-          "label": "Share: Manufacturing / Production",
+          "label": "Count: Manufacturing / Production",
           "n_rows": 3351
         },
         "ACT_OTHER": {
-          "label": "Share: Other activities",
+          "label": "Count: Other Business Activity",
           "n_rows": 3377
         },
         "ACT_PUR": {
-          "label": "Share: Purchasing / Procurement",
+          "label": "Count: Purchasing / Procurement",
           "n_rows": 3284
         },
         "ACT_RD": {
-          "label": "Share: Research \\& Development",
+          "label": "Count: Research \\& Development",
           "n_rows": 3216
         },
         "ACT_SALES": {
-          "label": "Share: Sales / Marketing / Distribution",
+          "label": "Count: Sales / Marketing / Distribution",
           "n_rows": 3393
         },
         "ACT_SER": {
-          "label": "Share: Services (excl. IP / R\\&D)",
+          "label": "Count: Services to Unrelated Parties",
           "n_rows": 3389
         },
         "ASSETS": {
@@ -6578,11 +6578,11 @@
       },
       "UNIT_MEASURE": {
         "ENT_MULT": {
-          "label": "Number of entity-multiples",
+          "label": "MNE-group count unit (OECD code ENT_MULT)",
           "n_rows": 8949
         },
         "EST": {
-          "label": "Number of entities / percentage share",
+          "label": "Establishments (used for entity/activity counts in CbCR)",
           "n_rows": 46245
         },
         "PS": {
@@ -6673,8 +6673,8 @@
     },
     "measure_coverage": {
       "ACT_ADMIN": {
-        "label": "Share: Administrative / Management services",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Administrative / Management / Support",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3366,
         "n_positive": 2373,
         "pct_positive": 70.5,
@@ -6719,8 +6719,8 @@
         }
       },
       "ACT_DOR": {
-        "label": "Share: Dormant",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Dormant",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3344,
         "n_positive": 2290,
         "pct_positive": 68.5,
@@ -6765,8 +6765,8 @@
         }
       },
       "ACT_FIN": {
-        "label": "Share: Finance / Insurance (internal)",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Regulated Financial Services",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3194,
         "n_positive": 1665,
         "pct_positive": 52.1,
@@ -6811,8 +6811,8 @@
         }
       },
       "ACT_HOLDING": {
-        "label": "Share: Holding",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Holding Shares / Equity Instruments",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3330,
         "n_positive": 2196,
         "pct_positive": 65.9,
@@ -6857,8 +6857,8 @@
         }
       },
       "ACT_IGF": {
-        "label": "Share: Intra-group Finance",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Internal Group Finance",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3227,
         "n_positive": 1656,
         "pct_positive": 51.3,
@@ -6903,8 +6903,8 @@
         }
       },
       "ACT_INS": {
-        "label": "Share: Insurance",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Insurance",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3135,
         "n_positive": 1539,
         "pct_positive": 49.1,
@@ -6949,8 +6949,8 @@
         }
       },
       "ACT_IP": {
-        "label": "Share: Intellectual Property holding",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: IP Holding / Management",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3208,
         "n_positive": 1569,
         "pct_positive": 48.9,
@@ -6995,8 +6995,8 @@
         }
       },
       "ACT_MAN": {
-        "label": "Share: Manufacturing / Production",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Manufacturing / Production",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3351,
         "n_positive": 2500,
         "pct_positive": 74.6,
@@ -7041,8 +7041,8 @@
         }
       },
       "ACT_OTHER": {
-        "label": "Share: Other activities",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Other Business Activity",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3377,
         "n_positive": 2557,
         "pct_positive": 75.7,
@@ -7087,8 +7087,8 @@
         }
       },
       "ACT_PUR": {
-        "label": "Share: Purchasing / Procurement",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Purchasing / Procurement",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3284,
         "n_positive": 2056,
         "pct_positive": 62.6,
@@ -7133,8 +7133,8 @@
         }
       },
       "ACT_RD": {
-        "label": "Share: Research \\& Development",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Research \\& Development",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3216,
         "n_positive": 1604,
         "pct_positive": 49.9,
@@ -7179,8 +7179,8 @@
         }
       },
       "ACT_SALES": {
-        "label": "Share: Sales / Marketing / Distribution",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Sales / Marketing / Distribution",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3393,
         "n_positive": 2633,
         "pct_positive": 77.6,
@@ -7225,8 +7225,8 @@
         }
       },
       "ACT_SER": {
-        "label": "Share: Services (excl. IP / R\\&D)",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Services to Unrelated Parties",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3389,
         "n_positive": 2420,
         "pct_positive": 71.4,
@@ -7318,7 +7318,7 @@
       },
       "CBCR_COUNT": {
         "label": "Number of CbCR filings",
-        "unit": "Number of entity-multiples",
+        "unit": "MNE-group count unit (OECD code ENT_MULT)",
         "total_rows": 4417,
         "n_positive": 4361,
         "pct_positive": 98.7,
@@ -7456,7 +7456,7 @@
       },
       "ENTITIES_COUNT": {
         "label": "Number of Constituent Entities",
-        "unit": "Number of entities / percentage share",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3443,
         "n_positive": 3075,
         "pct_positive": 89.3,
@@ -7671,7 +7671,7 @@
       },
       "SUBGROUPS_COUNT": {
         "label": "Number of MNE Subgroups",
-        "unit": "Number of entity-multiples",
+        "unit": "MNE-group count unit (OECD code ENT_MULT)",
         "total_rows": 4520,
         "n_positive": 4507,
         "pct_positive": 99.7,
@@ -8917,7 +8917,7 @@
   },
   "table6": {
     "title": "Table VI -- Aggregate Totals by MNE Group Size Class",
-    "description": "Reports all financial and activity-share variables disaggregated by five consolidated revenue size classes of MNE groups. Allows analysis of how tax behaviour varies across the size spectrum -- particularly relevant for understanding the EUR~750~million revenue threshold behaviour. Currently covers fiscal year 2022 only.",
+    "description": "Reports financial aggregates, entity counts and business-activity entity counts disaggregated by five consolidated revenue size classes of MNE groups. Allows analysis of how tax behaviour varies across the size spectrum -- particularly relevant for understanding the EUR~750~million revenue threshold behaviour. Currently covers fiscal year 2022 only.",
     "file": "cbcr_table6_mne_size_aggregates.csv",
     "shape": {
       "rows": 105753,
@@ -9230,55 +9230,55 @@
     "dimensions": {
       "MEASURE": {
         "ACT_ADMIN": {
-          "label": "Share: Administrative / Management services",
+          "label": "Count: Administrative / Management / Support",
           "n_rows": 3596
         },
         "ACT_DOR": {
-          "label": "Share: Dormant",
+          "label": "Count: Dormant",
           "n_rows": 3631
         },
         "ACT_FIN": {
-          "label": "Share: Finance / Insurance (internal)",
+          "label": "Count: Regulated Financial Services",
           "n_rows": 3245
         },
         "ACT_HOLDING": {
-          "label": "Share: Holding",
+          "label": "Count: Holding Shares / Equity Instruments",
           "n_rows": 3453
         },
         "ACT_IGF": {
-          "label": "Share: Intra-group Finance",
+          "label": "Count: Internal Group Finance",
           "n_rows": 3209
         },
         "ACT_INS": {
-          "label": "Share: Insurance",
+          "label": "Count: Insurance",
           "n_rows": 3169
         },
         "ACT_IP": {
-          "label": "Share: Intellectual Property holding",
+          "label": "Count: IP Holding / Management",
           "n_rows": 3233
         },
         "ACT_MAN": {
-          "label": "Share: Manufacturing / Production",
+          "label": "Count: Manufacturing / Production",
           "n_rows": 3622
         },
         "ACT_OTHER": {
-          "label": "Share: Other activities",
+          "label": "Count: Other Business Activity",
           "n_rows": 3741
         },
         "ACT_PUR": {
-          "label": "Share: Purchasing / Procurement",
+          "label": "Count: Purchasing / Procurement",
           "n_rows": 3428
         },
         "ACT_RD": {
-          "label": "Share: Research \\& Development",
+          "label": "Count: Research \\& Development",
           "n_rows": 3322
         },
         "ACT_SALES": {
-          "label": "Share: Sales / Marketing / Distribution",
+          "label": "Count: Sales / Marketing / Distribution",
           "n_rows": 3859
         },
         "ACT_SER": {
-          "label": "Share: Services (excl. IP / R\\&D)",
+          "label": "Count: Services to Unrelated Parties",
           "n_rows": 3794
         },
         "ASSETS": {
@@ -9336,11 +9336,11 @@
       },
       "UNIT_MEASURE": {
         "ENT_MULT": {
-          "label": "Number of entity-multiples",
+          "label": "MNE-group count unit (OECD code ENT_MULT)",
           "n_rows": 9279
         },
         "EST": {
-          "label": "Number of entities / percentage share",
+          "label": "Establishments (used for entity/activity counts in CbCR)",
           "n_rows": 49954
         },
         "PS": {
@@ -9415,8 +9415,8 @@
     },
     "measure_coverage": {
       "ACT_ADMIN": {
-        "label": "Share: Administrative / Management services",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Administrative / Management / Support",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3596,
         "n_positive": 2459,
         "pct_positive": 68.4,
@@ -9431,8 +9431,8 @@
         }
       },
       "ACT_DOR": {
-        "label": "Share: Dormant",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Dormant",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3631,
         "n_positive": 2243,
         "pct_positive": 61.8,
@@ -9447,8 +9447,8 @@
         }
       },
       "ACT_FIN": {
-        "label": "Share: Finance / Insurance (internal)",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Regulated Financial Services",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3245,
         "n_positive": 1099,
         "pct_positive": 33.9,
@@ -9463,8 +9463,8 @@
         }
       },
       "ACT_HOLDING": {
-        "label": "Share: Holding",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Holding Shares / Equity Instruments",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3453,
         "n_positive": 2044,
         "pct_positive": 59.2,
@@ -9479,8 +9479,8 @@
         }
       },
       "ACT_IGF": {
-        "label": "Share: Intra-group Finance",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Internal Group Finance",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3209,
         "n_positive": 1100,
         "pct_positive": 34.3,
@@ -9495,8 +9495,8 @@
         }
       },
       "ACT_INS": {
-        "label": "Share: Insurance",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Insurance",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3169,
         "n_positive": 807,
         "pct_positive": 25.5,
@@ -9511,8 +9511,8 @@
         }
       },
       "ACT_IP": {
-        "label": "Share: Intellectual Property holding",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: IP Holding / Management",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3233,
         "n_positive": 1282,
         "pct_positive": 39.7,
@@ -9527,8 +9527,8 @@
         }
       },
       "ACT_MAN": {
-        "label": "Share: Manufacturing / Production",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Manufacturing / Production",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3622,
         "n_positive": 2406,
         "pct_positive": 66.4,
@@ -9543,8 +9543,8 @@
         }
       },
       "ACT_OTHER": {
-        "label": "Share: Other activities",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Other Business Activity",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3741,
         "n_positive": 2469,
         "pct_positive": 66.0,
@@ -9559,8 +9559,8 @@
         }
       },
       "ACT_PUR": {
-        "label": "Share: Purchasing / Procurement",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Purchasing / Procurement",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3428,
         "n_positive": 1951,
         "pct_positive": 56.9,
@@ -9575,8 +9575,8 @@
         }
       },
       "ACT_RD": {
-        "label": "Share: Research \\& Development",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Research \\& Development",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3322,
         "n_positive": 1490,
         "pct_positive": 44.9,
@@ -9591,8 +9591,8 @@
         }
       },
       "ACT_SALES": {
-        "label": "Share: Sales / Marketing / Distribution",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Sales / Marketing / Distribution",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3859,
         "n_positive": 3083,
         "pct_positive": 79.9,
@@ -9607,8 +9607,8 @@
         }
       },
       "ACT_SER": {
-        "label": "Share: Services (excl. IP / R\\&D)",
-        "unit": "Number of entities / percentage share",
+        "label": "Count: Services to Unrelated Parties",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 3794,
         "n_positive": 2629,
         "pct_positive": 69.3,
@@ -9640,7 +9640,7 @@
       },
       "CBCR_COUNT": {
         "label": "Number of CbCR filings",
-        "unit": "Number of entity-multiples",
+        "unit": "MNE-group count unit (OECD code ENT_MULT)",
         "total_rows": 4627,
         "n_positive": 4627,
         "pct_positive": 100.0,
@@ -9688,7 +9688,7 @@
       },
       "ENTITIES_COUNT": {
         "label": "Number of Constituent Entities",
-        "unit": "Number of entities / percentage share",
+        "unit": "Establishments (used for entity/activity counts in CbCR)",
         "total_rows": 4652,
         "n_positive": 4632,
         "pct_positive": 99.6,
@@ -9752,7 +9752,7 @@
       },
       "SUBGROUPS_COUNT": {
         "label": "Number of MNE Subgroups",
-        "unit": "Number of entity-multiples",
+        "unit": "MNE-group count unit (OECD code ENT_MULT)",
         "total_rows": 4652,
         "n_positive": 4627,
         "pct_positive": 99.5,
@@ -10514,7 +10514,7 @@
       ]
     },
     "table3": {
-      "title": "Table III -- Entity Counts by ETR Bracket (MNE Level)",
+      "title": "Table III -- Aggregate Totals by ETR Bracket (MNE Level)",
       "rows": 699246,
       "pct_positive_obs": 68.27,
       "pct_missing_nan": 3.64,
