@@ -9,11 +9,13 @@
 % Layout
 \usepackage[margin=2.5cm]{geometry}
 \usepackage{setspace}
-\usepackage{parskip}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.7em plus 0.2em minus 0.1em}
 \onehalfspacing
 
 % Language
-\usepackage[british]{babel}
+\usepackage{babel}
+\babelprovide[main,import]{british}
 
 % Bibliography (APA 7th edition)
 \usepackage{csquotes}
@@ -33,6 +35,10 @@
 \usepackage{multirow}
 \usepackage{tabularx}
 \usepackage{pdflscape}
+\usepackage{enumitem}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 
 % Hyperlinks
 \usepackage{xcolor}
@@ -46,6 +52,13 @@
 \titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
 \titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
 \titleformat{\subsubsection}{\normalsize\itshape}{\thesubsubsection}{1em}{}
+
+% TOC: widen number columns to prevent A.10, A.1.10 etc. from overlapping titles
+\makeatletter
+\renewcommand{\l@section}{\@dottedtocline{1}{0em}{2.8em}}
+\renewcommand{\l@subsection}{\@dottedtocline{2}{2.8em}{3.6em}}
+\renewcommand{\l@subsubsection}{\@dottedtocline{3}{6.4em}{4.2em}}
+\makeatother
 
 % Custom commands
 \newcommand{\pp}{\text{pp}}
@@ -63,6 +76,9 @@
 \author{Maurits de Haan\\[0.3em]
 \small Supervisor: dr.\ Peter Gerbrands}
 \date{March 2026}
+
+% COMPILE ORDER: pdflatex → biber → pdflatex → pdflatex
+% (or: latexmk -pdf -bibtex cbcr_data_annex)
 
 \begin{document}
 
@@ -529,54 +545,508 @@ GMT exposure using pre-implementation data (2022) and applies the GMT rules
 prospectively.
 
 
-\section{Summary: Implications for the Methodology of Option A}\label{sec:implications}
+
+%----------------------------------------------------------------------
+\section{OECD Statutory Corporate Income Tax Rates}\label{sec:cit}
+%----------------------------------------------------------------------
+
+The OECD \emph{Tax Database} provides harmonised time series of statutory
+corporate income tax (CIT) rates, compiled from legislation and administrative
+sources.  The statutory rate is the headline rate applied to corporate profits
+before allowances and credits; it differs from the effective rates documented
+in Section~\ref{sec:etr}.  Statutory rates are the primary instrument of tax
+competition because they are the publicly visible signal to potential investors.
+
+\subsection{Statutory CIT rates}
+
+\textbf{File:} \texttt{raw/oecd\_tax\_rates/oecd\_statutory\_cit\_rates.csv}\\
+\textbf{OECD dataflow:} \texttt{OECD.CTP.TPS,DSD\_TAX\_CIT@DF\_CIT,2.0}\\
+\textbf{Rows:} 13{,}273 \quad \textbf{Size:} 1.2~MB\\
+\textbf{Years:} 2000--2025 \quad \textbf{Countries:} 144
+
+\begin{longtable}{@{}L{2.8cm} L{6.0cm} C{1.8cm} C{2.5cm}@{}}
+\caption{Statutory CIT rates --- variable codes}\label{tab:cit_rates}\\
+\toprule
+\textbf{Code (MEASURE)} & \textbf{Description} & \textbf{Unit} & \textbf{Coverage} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Code} & \textbf{Description} & \textbf{Unit} & \textbf{Coverage} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+\code{CIT}       & Combined (central + sub-central) statutory CIT rate & \% of income & 2000--2025 \\
+\code{CIT\_C}    & Central government CIT rate only & \% of income & 2000--2025 \\
+\code{CIT\_SCG}  & Sub-central government CIT rate (e.g.\ canton, state) & \% of income & 2000--2025 \\
+\code{CIT\_EX\_ST} & Surtax or extra statutory charges & \% of income & 2000--2025 \\
+\code{CIT\_LSN}  & Local surtax / net wealth tax equivalent included in CIT & \% of income & 2000--2025 \\
+\end{longtable}
+
+\noindent\textbf{Dimension notes:}
+\begin{itemize}[noitemsep]
+    \item \texttt{TARGETING}: \texttt{ST} = standard rate; \texttt{RED} = reduced rate; \texttt{INC} = increased rate.
+    \item \texttt{SECTOR}: \texttt{S1311} = general government; \texttt{\_Z} = all.
+    \item \texttt{DIV\_TREATMENT}: how intra-group dividends are treated.
+\end{itemize}
+
+The 144~countries include all OECD members plus a large number of non-OECD jurisdictions tracked by the OECD CTS programme, covering tax havens, Caribbean territories, and major emerging markets.  For analytical purposes the standard combined rate (\texttt{CIT}, \texttt{TARGETING=ST}) is typically the relevant measure.
+
+\subsection{Combined statutory tax rates on dividend income}
+
+\textbf{File:} \texttt{raw/oecd\_tax\_rates/oecd\_combined\_dividend\_rates.csv}\\
+\textbf{OECD dataflow:} \texttt{OECD.CTP.TPS,DSD\_TAX\_CIT@DF\_CIT\_DIVD\_INCOME,1.0}\\
+\textbf{Rows:} 7{,}915 \quad \textbf{Size:} 0.8~MB\\
+\textbf{Years:} 2000--2025 \quad \textbf{Countries:} 38 (OECD members)
+
+These data capture the combined burden of corporate, personal, and withholding taxes on dividend income, capturing the overall tax wedge on equity returns.
+
+\begin{longtable}{@{}L{2.8cm} L{6.5cm} C{1.8cm} C{2.5cm}@{}}
+\caption{Combined dividend tax rates --- variable codes}\label{tab:div_rates}\\
+\toprule
+\textbf{Code (MEASURE)} & \textbf{Description} & \textbf{Unit} & \textbf{Coverage} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Code} & \textbf{Description} & \textbf{Unit} & \textbf{Coverage} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+\code{CITPITCIT}  & Integrated CIT + PIT rate on grossed-up dividend (classical system) & \% & 2000--2025 \\
+\code{CPITCIT}    & Combined CIT + PIT rate (with integration relief) & \% & 2000--2025 \\
+\code{CIT\_DP}    & CIT rate applied to dividend payment & \% & 2000--2025 \\
+\code{DP}         & Dividend payment (per unit of pre-tax profit) & ratio & 2000--2025 \\
+\code{FWHT}       & Final withholding tax rate on dividends & \% & 2000--2025 \\
+\code{GUD}        & Grossed-up dividend (per unit of after-tax profit) & ratio & 2000--2025 \\
+\code{IDTC}       & Imputation/dividend tax credit & \% & 2000--2025 \\
+\code{IR}         & Imputation rate under partial imputation systems & \% & 2000--2025 \\
+\code{NPT}        & Net personal tax on dividend income & \% & 2000--2025 \\
+\code{PITGUD}     & Personal income tax on grossed-up dividend & \% & 2000--2025 \\
+\code{PTDP}       & Personal tax on dividend payment & \% & 2000--2025 \\
+\end{longtable}
 
 
-The diagnostic analysis confirms that the CbCR data are suitable for the three-stage
-methodology outlined in Section~4.1 of the main thesis overview, subject to the
-following constraints and choices:
+%----------------------------------------------------------------------
+\section{OECD Forward-Looking Effective Tax Rates}\label{sec:etr}
+%----------------------------------------------------------------------
 
-\paragraph{Stage 1 (Baseline replication).}
-Table~I provides the necessary data for replicating the \citet{barake2022} revenue
-estimate: jurisdiction-level aggregates of PROFIT (\code{PANELAI, \_Z}),
-TAX\_ACCRUED (\code{PANELAI, \_Z}), EARNINGS (\code{PANELAI, \_Z}), and ASSETS
-(\code{PANELAI, \_Z}) for 54 parent jurisdictions in 2022. The \code{ETR} measure
-is available directly in Table~I (as a pre-computed ratio); alternatively, the ETR
-can be constructed as \code{TAX\_ACCRUED / PROFIT}. For the SBIE computation, the
-EARNINGS variable (payroll costs) and ASSETS (tangible assets) are available for
-all 27 EU Member States; where EARNINGS is missing, the ILO wage data can be
-multiplied by the EMPLOYEES count as in \citet{barake2022}.
+Forward-looking effective tax rates (ETRs) measure the tax burden on a
+\emph{hypothetical marginal or average investment project}, incorporating not
+only the statutory rate but also all relevant reliefs: capital allowances,
+depreciation rules, interest deductibility, and targeted incentives such as
+IP~boxes and R\&D tax provisions.  The OECD \emph{Corporate Tax Statistics ---
+Forward-Looking Effective Tax Rates} dataset provides two complementary measures:
 
-\paragraph{Stage 2 (Within-jurisdiction ETR heterogeneity).}
-Table~I also provides distributional percentiles (P5, P25, P50, P75, P95) of the
-ETR measure for each parent-affiliate jurisdiction pair, under
-\code{STATISTICAL\_OPERATION} $\in$ \{\code{P5, P25, P50, P75, P95}\}. These five
-points allow fitting a parametric distribution (e.g.\ log-normal or beta,
-consistent with the bounded [0,1] support) to characterise the full
-within-jurisdiction ETR distribution, following the approach suggested by
-\citet{hugger2025}. The imputed distribution replaces the single jurisdiction
-average used in Stage~1, substantially increasing the estimated volume of
-low-taxed profit in high-average-ETR jurisdictions such as Germany and France.
+\begin{itemize}[noitemsep]
+    \item \textbf{EMTR} (\emph{effective marginal tax rate}): the proportional tax
+    wedge between the pre-tax and after-tax rate of return on the last unit of a
+    break-even (zero-NPV) investment.
+    \item \textbf{EATR} (\emph{effective average tax rate}): the ratio of the
+    present value of taxes to the present value of pre-tax profit for a
+    fixed-return investment.  Captures the margin relevant for location choice.
+\end{itemize}
 
-\paragraph{Stage 3 (Nonlinear behavioural response).}
-The \code{RATE\_0-15} bracket in Table~IV provides a direct count of the profit
-currently earning an ETR below 15\% at the subsidiary level. This supplements the
-parametric distribution fitted in Stage~2 and provides a consistency check on the
-behavioural response simulation. For jurisdictions where Table~IV data are available,
-the bracket-level data can anchor the behavioural simulation; for the 13 jurisdictions
-absent from Table~IV, the parametric distribution from Stage~2 must be used
-exclusively. Switzerland must be treated with the imputation strategy noted in
-Section~\ref{sec:quality}.
+Three files are collected: a baseline (no incentives), a set incorporating
+\emph{income-based} incentives (IP~boxes, patent boxes), and a set incorporating
+\emph{expenditure-based} incentives (R\&D credits, enhanced allowances).
 
-\paragraph{SBIE computation.}
-The availability of EARNINGS (payroll) and ASSETS (tangible assets) in Table~I
-for all 27 EU Member States in 2022 makes the SBIE computation feasible at the
-jurisdiction level. The transition path (carve-out rates declining from 10\%/8\%
-in 2024 to 5\%/5\% in 2033) can be applied to the 2022 base to project how the
-effective minimum rate evolves over time, directly testing the
-\citeauthor{schjelderup2024} production subsidy prediction.
+\subsection{ETR baseline}
+
+\textbf{File:} \texttt{raw/oecd\_etr/oecd\_etr\_baseline.csv}\\
+\textbf{OECD dataflow:} \texttt{OECD.CTP.TPS,DSD\_ETR@DF\_ETR\_BASELINE,2.0}\\
+\textbf{Rows:} 29{,}489 \quad \textbf{Size:} 3.0~MB\\
+\textbf{Years:} 2017--2024 \quad \textbf{Countries:} 103
+
+\begin{longtable}{@{}L{3.2cm} L{6.0cm} C{2.0cm} C{2.5cm}@{}}
+\caption{ETR baseline --- variable codes}\label{tab:etr_baseline}\\
+\toprule
+\textbf{Code (MEASURE)} & \textbf{Description} & \textbf{Unit} & \textbf{Coverage} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Code} & \textbf{Description} & \textbf{Unit} & \textbf{Coverage} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+\code{EATR}               & Effective average tax rate (no incentives) & \% of income & 2017--2024 \\
+\code{EMTR}               & Effective marginal tax rate (no incentives) & \% of income & 2017--2024 \\
+\code{PBAR}               & $\bar{p}$: pre-tax rate of return on break-even investment & \% & 2017--2024 \\
+\code{CAPITAL\_ALLOWANCES}& Present value of capital allowances (NPV of depreciation deductions) & \% of cost & 2017--2024 \\
+\end{longtable}
+
+\noindent\textbf{Dimension notes:}
+\begin{itemize}[noitemsep]
+    \item \texttt{ETR\_TAX\_BASIS}: \texttt{BASELINE} = no incentives; distinguishes \texttt{CORPORATE} from \texttt{SHAREHOLDER}-level.
+    \item \texttt{ETR\_TAX\_TYPE}: \texttt{CS} = consolidated CIT; \texttt{FIXED} = fixed-rate assumption; \texttt{AWS} = actual weighted-average.
+    \item \texttt{UNIT\_MEASURE}: \texttt{PT\_INC\_TAX} = as \% of income tax; \texttt{PT\_P5L} = as \% of initial cost.
+\end{itemize}
+
+\subsection{ETR with income-based incentives (IP~boxes)}
+
+\textbf{File:} \texttt{raw/oecd\_etr/oecd\_etr\_income\_incentives.csv}\\
+\textbf{OECD dataflow:} \texttt{OECD.CTP.TPS,DSD\_ETR@DF\_ETR\_IBRD,2.0}\\
+\textbf{Rows:} 5{,}784 \quad \textbf{Size:} 0.7~MB\\
+\textbf{Years:} 2000--2024 \quad \textbf{Countries:} 55 (with active IP regimes)
+
+\begin{longtable}{@{}L{3.2cm} L{6.0cm} C{2.0cm} C{2.5cm}@{}}
+\caption{ETR with income-based incentives --- variable codes}\label{tab:etr_income}\\
+\toprule
+\textbf{Code (MEASURE)} & \textbf{Description} & \textbf{Unit} & \textbf{Coverage} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Code} & \textbf{Description} & \textbf{Unit} & \textbf{Coverage} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+\code{EATR}       & EATR \emph{without} income-based incentive applied & \% & 2000--2024 \\
+\code{EATR\_ENH}  & EATR \emph{with} income-based incentive (e.g.\ IP~box rate) & \% & 2000--2024 \\
+\code{PBAR}       & Pre-tax break-even rate \emph{without} incentive & \% & 2000--2024 \\
+\code{PBAR\_ENH}  & Pre-tax break-even rate \emph{with} income-based incentive & \% & 2000--2024 \\
+\end{longtable}
+
+Each combination is reported per \texttt{REGIME}: \texttt{REGIME1} through \texttt{REGIME8} label specific IP~box or patent~box regimes in a given country-year; \texttt{\_N} indicates the standard (non-incentive) regime.
+
+\subsection{ETR with expenditure-based incentives (R\&D)}
+
+\textbf{File:} \texttt{raw/oecd\_etr/oecd\_etr\_expenditure\_incentives.csv}\\
+\textbf{OECD dataflow:} \texttt{OECD.CTP.TPS,DSD\_ETR@DF\_ETR\_XBRD,2.0}\\
+\textbf{Rows:} 1{,}224 \quad \textbf{Size:} 0.1~MB\\
+\textbf{Years:} 2019--2024 \quad \textbf{Countries:} 51
+
+Variable codes are identical to Table~\ref{tab:etr_income}, but the \texttt{ENH} variants incorporate expenditure-based R\&D tax credits or enhanced capital allowances rather than preferential income rates.  This dataset enables comparison of the incentive value of volume credits versus IP~box regimes.
+
+
+%----------------------------------------------------------------------
+\section{Wage and Earnings Data}\label{sec:wages}
+%----------------------------------------------------------------------
+
+Labour cost data are collected from three sources to maximise country coverage.
+OECD average annual wages provide high-quality, internationally comparable data
+for OECD member countries; the OECD hourly earnings index provides a longer
+time series; and ILO hourly and monthly earnings extend coverage to a wider set
+of developing countries.  These data serve as control variables in
+profit-shifting regressions (wages proxy for labour market conditions) and as
+inputs for constructing wage-to-profit ratios and SBIE payroll components.
+
+\subsection{OECD average annual wages}
+
+\textbf{File:} \texttt{raw/oecd\_wages/oecd\_avg\_annual\_wages.csv}\\
+\textbf{OECD dataflow:} \texttt{OECD.ELS.SAE,DSD\_EARNINGS@AV\_AN\_WAGE,1.0}\\
+\textbf{Rows:} 3{,}924 \quad \textbf{Size:} 0.4~MB\\
+\textbf{Years:} 1990--2024 \quad \textbf{Countries:} 41 (OECD members + OECD aggregate)
+
+\noindent\textbf{Key variable:} \code{WG} --- average annual wages of full-time dependent employees, denominated in national currency and in USD PPP (2024 constant).
+
+\noindent\textbf{Dimension notes:}
+\begin{itemize}[noitemsep]
+    \item \texttt{UNIT\_MEASURE}: \texttt{USD\_PPP} (2024 constant PPP USD) is the primary cross-country comparator.
+    \item \texttt{PRICE\_BASE}: \texttt{Q} = current prices; \texttt{R} = constant (real) prices.
+    \item \texttt{SEX}: total (\texttt{\_Z}), male, or female.
+\end{itemize}
+
+\subsection{OECD hourly earnings index}
+
+\textbf{File:} \texttt{raw/oecd\_wages/oecd\_hourly\_earnings.csv}\\
+\textbf{OECD dataflow:} \texttt{OECD.SDD.TPS,DSD\_EAR@DF\_HOU\_EAR,1.0}\\
+\textbf{Rows:} 41{,}421 \quad \textbf{Size:} 3.4~MB\\
+\textbf{Years:} 1955--2026 \quad \textbf{Countries/groups:} 41
+
+\noindent\textbf{Key variable:} \code{EAR} --- index of hourly earnings for employees (base year 2015 = 100).  This series is an \emph{index} rather than a level; for cross-country wage comparisons the OECD average annual wages dataset is more appropriate.  Coverage includes area aggregates: \texttt{EA19} (euro area), \texttt{EU27\_2020} (EU~27), \texttt{G7}, \texttt{OECD}.
+
+\subsection{ILO global hourly earnings}
+
+\textbf{File:} \texttt{raw/ilo\_wages/ilo\_hourly\_earnings.csv}\\
+\textbf{ILO dataflow:} \texttt{ILO,DF\_EAR\_EHRA\_SEX\_ECO\_CUR\_NB,1.0}\\
+\textbf{Rows:} 227{,}317 \quad \textbf{Size:} 50.4~MB\\
+\textbf{Years:} 1990--2025 \quad \textbf{Countries:} 105
+
+\noindent\textbf{Key variable:} \code{EAR\_EHRA\_NB} --- mean nominal hourly earnings of employees, denominated in local currency (\texttt{CUR\_TYPE\_LCU}) or PPP USD (\texttt{CUR\_TYPE\_PPP}).  Data are compiled from national household surveys, enterprise surveys, and administrative records reported to the ILO; methodological notes are stored in \texttt{NOTE\_SOURCE} and \texttt{NOTE\_INDICATOR} columns.
+
+\noindent\textbf{Dimension notes:}
+\begin{itemize}[noitemsep]
+    \item \texttt{SEX}: \texttt{SEX\_T} = total; also male and female breakdowns.
+    \item \texttt{ECO}: economic sector (\texttt{ECO\_SECTOR\_TOTAL} = economy-wide).
+    \item \texttt{OBS\_STATUS}: \texttt{B} = break in series; \texttt{E} = estimated.
+    \item Confidence bounds reported in \texttt{UPPER\_BOUND} / \texttt{LOWER\_BOUND} where available.
+\end{itemize}
+
+\subsection{ILO global monthly earnings}
+
+\textbf{File:} \texttt{raw/ilo\_wages/ilo\_monthly\_earnings.csv}\\
+\textbf{ILO dataflow:} \texttt{ILO,DF\_EAR\_EMTA\_SEX\_ECO\_CUR\_NB,1.0}\\
+\textbf{Rows:} 529{,}234 \quad \textbf{Size:} 134~MB\\
+\textbf{Years:} 1990--2025 \quad \textbf{Countries:} $\sim$140
+
+\noindent\textbf{Key variable:} \code{EAR\_EMTA\_NB} --- mean nominal monthly earnings of employees.  Column structure is identical to the hourly earnings file.  Monthly earnings data exist for a wider set of countries than hourly earnings, making this file useful for non-OECD economies where hourly data are sparse.  The ILO \texttt{CUR\_TYPE\_PPP} observations provide PPP-adjusted values for cross-country analysis.
+
+\noindent\textbf{Coverage note:} Coverage is uneven across countries and years; many non-OECD observations are spaced several years apart.  The OECD wage data should be preferred for OECD countries; ILO data fill the gap for non-OECD members.
+
+
+%----------------------------------------------------------------------
+\section{World Bank Macroeconomic Controls}\label{sec:worldbank}
+%----------------------------------------------------------------------
+
+World Bank data provide three types of country-level controls commonly included
+in cross-country tax regressions: GDP per capita (economic development and
+market size), population (country size), and income group classification (for
+sub-group and heterogeneity analyses).
+
+\subsection{GDP per capita}
+
+\textbf{File:} \texttt{raw/world\_bank/wb\_gdp\_per\_capita.csv}\\
+\textbf{Indicator:} \texttt{NY.GDP.PCAP.CD} (GDP per capita, current USD)\\
+\textbf{Rows:} $\approx$2{,}660 \quad \textbf{Size:} $<$0.1~MB\\
+\textbf{Years:} 2015--2024 \quad \textbf{Countries/groups:} $\approx$217
+
+\noindent Columns: \texttt{iso3}, \texttt{country}, \texttt{year}, \texttt{gdp\_pc\_usd}.  The file includes World Bank regional and income-group aggregates (e.g.\ \texttt{ZH}: Africa Eastern and Southern), which should be filtered when merging with country-level data.
+
+\subsection{Population}
+
+\textbf{File:} \texttt{raw/world\_bank/wb\_population.csv}\\
+\textbf{Indicator:} \texttt{SP.POP.TOTL} (total population)\\
+\textbf{Rows:} $\approx$2{,}660 \quad \textbf{Size:} $<$0.1~MB\\
+\textbf{Years:} 2015--2024 \quad \textbf{Countries/groups:} $\approx$217
+
+\noindent Columns: \texttt{iso3}, \texttt{country}, \texttt{year}, \texttt{population}.
+
+\subsection{Income group classifications}
+
+\textbf{File:} \texttt{raw/world\_bank/wb\_income\_classifications.csv}\\
+\textbf{Source:} World Bank country metadata API (\texttt{/v2/country})\\
+\textbf{Rows:} 296 \quad \textbf{Type:} cross-section (current classification as of download)
+
+\noindent Columns: \texttt{iso3}, \texttt{iso2}, \texttt{name}, \texttt{region}, \texttt{income\_level} (High / Upper-middle / Lower-middle / Low / Aggregates), \texttt{income\_id} (\texttt{HIC} / \texttt{UMC} / \texttt{LMC} / \texttt{LIC} / \texttt{NA}).
+
+For analyses requiring time-varying income classifications, the \texttt{wb\_historical\_income\_groups.xlsx} file contains the full historical series from the OGHIST spreadsheet.
+
+
+%----------------------------------------------------------------------
+\section{OECD BEPS Implementation Indicators}\label{sec:beps}
+%----------------------------------------------------------------------
+
+The OECD BEPS project produced 15 Actions to curb aggressive tax planning.
+The OECD's Questionnaire on Quality and Distribution of Data (QDD) programme
+tracks countries' implementation of several key Actions: Action~2 (hybrid
+mismatches), Action~4 (interest limitation), Action~5 (IP~regimes),
+Action~12 (mandatory disclosure), and Action~13 (CbCR requirements), as well
+as Controlled Foreign Company (CFC) rules.  These datasets provide
+\emph{policy indicator} variables coding whether specific laws are in place,
+their thresholds, and when they were introduced.
+
+\noindent\textbf{Note on row counts:} Row counts below reflect the March~2026
+download.  Several BEPS datasets have been materially expanded since earlier
+versions (e.g.\ CFC rules grew from $\approx$1{,}400 to $\approx$1{,}900 rows
+as additional years and countries were added); always verify against the actual
+file when replicating.
+
+\subsection{CbCR requirements (Action~13)}
+
+\textbf{File:} \texttt{raw/pillar2\_beps/oecd\_cbcr\_requirements.csv}\\
+\textbf{OECD dataflow:} \texttt{OECD.CTP.TPS,DSD\_QDD\_CBCREQ@DF\_QDD\_CBCREQ,1.0}\\
+\textbf{Rows:} 493 \quad \textbf{Countries:} 119
+
+Key variables: \code{CBCR\_LAW} (whether country has enacted domestic CbCR law, Yes/No), \code{THRESHOLD} (revenue threshold, EUR millions), \code{DEADLINE} (filing deadline, months after fiscal year-end), \code{UPE} (ultimate parent entity jurisdiction indicator).
+
+\subsection{CFC rules}
+
+\textbf{File:} \texttt{raw/pillar2\_beps/oecd\_cfc\_rules.csv}\\
+\textbf{OECD dataflow:} \texttt{OECD.CTP.TPS,DSD\_QDD\_CFC@DF\_QDD\_CFC,2.0}\\
+\textbf{Rows:} 1{,}901 \quad \textbf{Years:} 2019, 2024, 2025 \quad \textbf{Countries:} 146
+
+CFC rules tax the passive income of foreign subsidiaries at the parent level when the subsidiary pays little or no tax.  Key variables: \code{CFC} (Yes/No), \code{TRIGGER\_RATE} (low-tax threshold rate triggering CFC charge, \%), \code{YEAR} (year of first introduction), \code{SUB} (substance exclusions).
+
+\subsection{Hybrid mismatch rules (Action~2)}
+
+\textbf{File:} \texttt{raw/pillar2\_beps/oecd\_hybrid\_mismatch.csv}\\
+\textbf{OECD dataflow:} \texttt{OECD.CTP.TPS,DSD\_QDD\_ACT2@DF\_QDD\_ACT2,1.0}\\
+\textbf{Rows:} 1{,}171 \quad \textbf{Year:} 2025 \quad \textbf{Countries:} 145
+
+Key variables: \code{ACT2} (whether Action~2 rules are in place), \code{BR\_REC1}--\code{BR\_REC5} (implementation of each primary branch rule), \code{REC1}--\code{REC15} (implementation of specific OECD recommendations), \code{YEAR} (year of legislative enactment).
+
+\subsection{Interest limitation rules (Action~4)}
+
+\textbf{File:} \texttt{raw/pillar2\_beps/oecd\_interest\_limitation.csv}\\
+\textbf{OECD dataflow:} \texttt{OECD.CTP.TPS,DSD\_QDD\_ILR@DF\_QDD\_ILR,2.0}\\
+\textbf{Rows:} 3{,}879 \quad \textbf{Years:} 2019, 2024, 2025 \quad \textbf{Countries:} 146
+
+Interest limitation rules cap deductible interest expense, typically to a fraction of EBITDA, curtailing debt-shifting.  Key variables: \code{ILR} (Yes/No), \code{GR} (general ratio threshold, e.g.\ 30\% of EBITDA), \code{TR} (safe harbour threshold, EUR), \code{FAM} (group ratio/equity escape, Yes/No), \code{CF} (carry-forward of disallowed interest, Yes/No), \code{CF\_YEARS} (maximum carry-forward years).
+
+\subsection{Intellectual property regimes (Action~5)}
+
+\textbf{File:} \texttt{raw/pillar2\_beps/oecd\_ip\_regimes.csv}\\
+\textbf{OECD dataflow:} \texttt{OECD.CTP.TPS,DSD\_QDD\_IPR@DF\_QDD\_IPR,2.1}\\
+\textbf{Rows:} 2{,}305 \quad \textbf{Years:} 2018--2025 \quad \textbf{Countries:} 64
+
+IP~box (patent box) regimes tax qualifying IP income at a preferential rate.  BEPS Action~5 introduced the \emph{modified nexus approach}, linking relief to genuine R\&D expenditure.  Each regime is identified by \code{REGIME} (REGIME1, REGIME2, \ldots).  Key variables: \code{NAME} (regime name), \code{RATE} (preferential rate, \%), \code{ELI\_IP} (eligible IP assets), \code{NEXUS} (whether modified nexus approach adopted), \code{YEAR\_START}, \code{YEAR\_END}.
+
+\subsection{Mandatory disclosure rules (Action~12)}
+
+\textbf{File:} \texttt{raw/pillar2\_beps/oecd\_mandatory\_disclosure.csv}\\
+\textbf{OECD dataflow:} \texttt{OECD.CTP.TPS,DSD\_QDD\_ACT12@DF\_QDD\_ACT12,1.0}\\
+\textbf{Rows:} 711 \quad \textbf{Year:} 2025 \quad \textbf{Countries:} 145
+
+Mandatory disclosure rules require intermediaries or taxpayers to proactively disclose potentially aggressive tax arrangements.  Key variables: \code{ACT12} (Yes/No), \code{RULE\_DESC} (description), \code{YEAR} (year of introduction).
+
+
+%----------------------------------------------------------------------
+\section{Pillar Two Implementation Status}\label{sec:pillar2}
+%----------------------------------------------------------------------
+
+BEPS Pillar Two introduces a global minimum effective tax rate of 15\% for
+large MNE groups (consolidated revenue $\geq$ EUR~750~million) through
+the Income Inclusion Rule (IIR), the Undertaxed Payments Rule (UTPR), and
+the Qualified Domestic Minimum Top-up Tax (QDMTT).
+
+\subsection{PwC Pillar Two country tracker}
+
+\textbf{File:} \texttt{raw/pillar2\_qdmtt/pwc\_pillar2\_tracker.csv}\\
+\textbf{Source:} PricewaterhouseCoopers global Pillar Two tracker\\
+\textbf{Rows:} 1{,}190 \quad \textbf{Type:} panel (requirement $\times$ effective-date level)
+
+Key columns: \texttt{Territory}, \texttt{Requirement} (\texttt{GIR}, \texttt{IIR}, \texttt{UTPR}, \texttt{QDMTT}), \texttt{P2 Start} (effective start date), \texttt{Status} (\texttt{Enacted}, \texttt{Consultation}, etc.), \texttt{Caveat} (qualitative notes on transition rules).
+
+\noindent\textbf{Coverage note:} Only countries that have taken legislative steps appear in the tracker; non-adopters are absent.  Cross-referencing against the OECD Central Record of Qualified Domestic Minimum Taxes (PDF stored at \texttt{raw/pillar2\_qdmtt/oecd\_pillar2\_central\_record.pdf}) is advisable for publications.
+
+\subsection{OECD central record (PDF)}
+
+\textbf{File:} \texttt{raw/pillar2\_qdmtt/oecd\_pillar2\_central\_record.pdf}\\
+\textbf{Source:} OECD Central Record of Qualified Domestic Minimum Taxes (transitional qualified status)
+
+The PDF document records the official OECD assessment of which domestic minimum taxes and top-up tax rules qualify under the GloBE framework, providing an authoritative cross-check on the PwC tracker.
+
+
+%----------------------------------------------------------------------
+\section{OECD Comparative Tax Revenue Statistics}\label{sec:cts}
+%----------------------------------------------------------------------
+
+\textbf{File:} \texttt{raw/oecd\_cts\_additional/oecd\_cit\_revenue\_gdp.csv}\\
+\textbf{OECD dataflow:} \texttt{OECD.CTP.TPS,DSD\_REV\_COMP\_GLOBAL@DF\_RSGLOBAL,2.1}\\
+\textbf{Rows:} 3{,}217{,}432 \quad \textbf{Size:} 342~MB\\
+\textbf{Years:} 1990--2024 \quad \textbf{Countries:} 143
+
+This is the OECD \emph{Revenue Statistics --- Comparative tables} dataset, providing harmonised time series of tax revenue by type of tax, level of government, and country.  It is the primary source for CIT revenue as a share of GDP, total tax, and national accounts.
+
+\noindent\textbf{Column structure:} \texttt{DATAFLOW}, \texttt{REF\_AREA} (ISO 3-letter), \texttt{MEASURE} (\code{TAX\_REV} for all rows), \texttt{SECTOR} (level of government: \texttt{S13}~=~general government, \texttt{S1311}~=~central, \texttt{S1312}~=~state/regional, \texttt{S1313}~=~local, \texttt{S1314}~=~social security), \texttt{STANDARD\_REVENUE} (OECD revenue classification code, e.g.\ \texttt{T\_2000} = corporate income taxes, \texttt{T\_1000} = total income taxes), \texttt{CTRY\_SPECIFIC\_REVENUE} (country-specific sub-classifications), \texttt{UNIT\_MEASURE} (\texttt{PT\_OTR\_SECTOR} = \% of GDP; \texttt{PC\_TAXREV} = \% of total tax revenue; \texttt{USD\_PPP} = PPP USD billions), \texttt{TIME\_PERIOD}, \texttt{OBS\_VALUE}, \texttt{REVENUE\_CODE}.
+
+\noindent\textbf{Use in methodology:} The \texttt{T\_2000} series (\% of GDP) provides the empirical baseline for assessing how much of current CIT revenue is at risk from GMT implementation and how GMT top-up revenues compare with existing CIT receipts.  The \texttt{S13}/\texttt{S1311} distinction matters for federal states where corporate taxes are levied at both central and sub-national levels.
+
+\noindent\textbf{File size note:} At 342~MB and 3.2~million rows, this is the largest single file in the collection.  The large size reflects the cross-product of 143 countries $\times$ 35 years $\times$ multiple revenue codes $\times$ government levels.  For most analyses, filtering to \texttt{UNIT\_MEASURE = PT\_OTR\_SECTOR} and \texttt{STANDARD\_REVENUE IN (T\_2000, T\_0000)} reduces the working set to manageable size.
+
+
+%----------------------------------------------------------------------
+\section{BEA US Multinational Enterprise Data}\label{sec:bea}
+%----------------------------------------------------------------------
+
+\textbf{Files:} \texttt{raw/bea\_mne/bea\_mofa\_*.xls} (four Excel workbooks)\\
+\textbf{Source:} US Bureau of Economic Analysis (BEA), Survey of US Direct Investment Abroad\\
+\textbf{Status:} Downloaded; four Excel workbooks present (March~2026)
+
+The BEA provides detailed data on US-headquartered majority-owned foreign affiliates (MOFAs), including employment, assets, sales, and value added by country and industry.  These data complement the OECD CbCR statistics by providing a longer time series (back to the 1980s) for the US parent population, as well as industry-level decompositions not available in the CbCR.
+
+\begin{table}[H]
+\centering
+\caption{BEA MOFA files downloaded}\label{tab:bea_files}
+\begin{tabular}{@{}L{5.5cm} L{6.5cm} C{1.5cm}@{}}
+\toprule
+\textbf{File} & \textbf{Content} & \textbf{Size} \\
+\midrule
+\texttt{bea\_mofa\_selected\_by\_country.xls}  & Selected financial and activity data by country & 0.6~MB \\
+\texttt{bea\_mofa\_employment.xls}             & Employment by country and industry & 0.5~MB \\
+\texttt{bea\_mofa\_assets.xls}                 & Total assets by country and industry & 0.3~MB \\
+\texttt{bea\_mofa\_value\_added.xls}           & Value added by country and industry & 0.4~MB \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\textbf{Limitations:} BEA MOFA data cover only US-parented MNEs.  They are not directly comparable to the OECD CbCR aggregates, which cover all reporting parent jurisdictions.  For EU-focused GMT analysis, the BEA data are most useful as an external validation of profit and employment levels in specific host countries.  An optional API path is also coded in \texttt{collect\_all\_data.py} (Series~IDs 5, 6, 8, 22, 25); this requires a free \texttt{BEA\_API\_KEY}.
+
+
+%----------------------------------------------------------------------
+\section{Eurostat Inward Foreign Affiliate Statistics (FATS)}\label{sec:fats}
+%----------------------------------------------------------------------
+
+\textbf{Canonical file:} \texttt{raw/eurostat\_fats/fats\_inward\_eu\_full.csv}\\
+\textbf{Supporting raw files:} \texttt{raw/eurostat\_fats/fats\_g1b\_08.csv};\quad
+\texttt{raw/eurostat\_fats/fats\_activ.csv}\\
+\textbf{Eurostat datasets:} \texttt{fats\_g1b\_08} (2008--2020) and \texttt{fats\_activ} (2021 onward)\\
+\textbf{Combined rows:} 4{,}623{,}851 \quad \textbf{Combined size:} 442~MB\\
+\textbf{Years:} 2008--2023 \quad \textbf{Downloaded:} March~2026 from the live Eurostat API
+
+Eurostat inward FATS provide information on foreign-controlled enterprises
+operating inside European reporting economies.  The data are useful for
+descriptive validation, sectoral context, and external checks on the location
+of real activity.  They are not a substitute for the OECD CbCR data, because
+they do not contain tax liabilities or effective tax rates.
+
+\subsection{Source files and rebuild procedure}
+
+The canonical file required a documented rebuild.  The repository initially
+contained only \texttt{fats\_g1b\_08.csv}, which ended in 2020.  The live
+Eurostat metadata showed that the public inward FATS series is split into two
+official datasets: the legacy series \texttt{fats\_g1b\_08}
+(\emph{Foreign control of enterprises by controlling countries, 2008--2020})
+and the newer series \texttt{fats\_activ}
+(\emph{Foreign controlled EU enterprises by NACE Rev.2 activity and country of
+control, from 2021 onwards}).
+
+The collection script \texttt{collect\_all\_data.py} was updated to download
+both datasets through the Eurostat SDMX~2.1 API, preserve both raw files, and
+build one canonical project file by vertically appending the two
+non-overlapping year ranges.  Provenance columns were added to the canonical
+file: \texttt{source\_dataset}, \texttt{indicator\_scheme}, and
+\texttt{indicator\_code}, so the series break remains visible in any later
+analysis.
+
+\begin{table}[H]
+\centering
+\caption{Eurostat inward FATS raw files}\label{tab:fats_files}
+\begin{tabular}{@{}L{5.5cm} C{1.8cm} C{2.0cm} C{2.0cm}@{}}
+\toprule
+\textbf{File} & \textbf{Rows} & \textbf{Years} & \textbf{Size} \\
+\midrule
+\texttt{fats\_g1b\_08.csv}          & 1{,}421{,}600 & 2008--2020 & 109~MB \\
+\texttt{fats\_activ.csv}            & 3{,}202{,}251 & 2021--2023 & 241~MB \\
+\texttt{fats\_inward\_eu\_full.csv} & 4{,}623{,}851 & 2008--2023 & 442~MB \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Series break at 2021}
+
+The merge was intentionally conservative.  The two source files do not overlap
+in years, so the merge is a clean stacked append.  However, the two halves are
+\emph{not} directly comparable across the 2021 break:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Activity dimension:} the old file has one broad aggregate
+    (\texttt{B-N\_S95\_X\_K}), while the new file has 48 NACE-based activity
+    categories plus a different top aggregate (\texttt{B-S\_X\_O\_S94}).
+    \item \textbf{Indicator system:} the old file uses 23 legacy
+    \texttt{indic\_sb} codes (e.g.\ \texttt{V12110}, \texttt{V12150}); the new
+    file uses 19 \texttt{indic\_sbs} codes (e.g.\ \texttt{NETTUR\_MEUR},
+    \texttt{AV\_MEUR}).
+    \item \textbf{Country-of-control:} the old file has 255 control-country
+    categories; the new file has 50.
+    \item \textbf{Concept differences:} turnover becomes \emph{net} turnover;
+    personnel costs become \emph{employee benefits expense}; the investment
+    concept is narrowed to tangible non-current assets.
+\end{itemize}
+
+\noindent\textbf{Practical implications:} Eurostat FATS are best treated as a
+supporting EU dataset.  Any figure spanning both sides of the 2021 break must
+either restrict to clearly harmonised concepts or mark the break explicitly.  A
+pre/post econometric design requires a separate harmonisation step mapping only
+clearly comparable indicators across the break.  For the GMT thesis, the safest
+use is to draw on the post-2021 \texttt{fats\_activ} structure for recent EU
+sectoral evidence and use the longer combined file mainly for descriptive
+background.
+
 
 \newpage
-\printbibliography
+\printbibliography % chktex 1
 
 \end{document}
