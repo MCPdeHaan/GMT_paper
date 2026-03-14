@@ -8,6 +8,9 @@ data/raw/oecd_cts_additional/oecd_cit_revenue_gdp.csv
 literature/data of papers/TWZ2022/Eurostat/Services/bop_its6_det.dta
 literature/data of papers/TWZ2022/IMF data/Flows/BOP since 1948 small.dta
 literature/data of papers/TWZ2022/Eurostat/FDI income/basic.dta
+data/raw/eurostat_fats/fats_activ.csv
+data/raw/eurostat_fats/fats_g1b_08.csv
+data/raw/eurostat_fats/fats_inward_eu_full.csv
 
 # LaTeX intermediate files
 *.aux
