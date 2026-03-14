@@ -1,5 +1,6 @@
 # Virtual environment
 .venv/
+.DS_Store
 
 data/raw/ilo_wages/ilo_monthly_earnings.csv
 data/raw/oecd_cbcr/cbcr_table1_aggregate_totals.csv 
