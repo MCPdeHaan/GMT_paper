@@ -130,7 +130,47 @@
 - Every paragraph starts with a sentence summarizing its content.
 - mix short and long sentences
 -  Avoid sentences with sub-clauses, Avoid comma if you can use period, Avoid auxillary words, Avoid repetition of the same or similar terms, Avoid fill words that do not affect the content, Avoid technical jargon of the discipline
-- avoid plagarism at all costs, in my .md notes I have written many times in the same language as the article or summarised by copying the most important parts of a sentence, including this again is still plagaraism. So avoid this and write in new language. 
+- avoid plagarism at all costs, in my .md notes I have written many times in the same language as the article or summarised by copying the most important parts of a sentence, including this again is still plagaraism. So avoid this and write in new language.
+
+## Supervisor feedback (March 2026)
+
+### Active and confident language
+- Avoid hedging constructions: "this thesis aims to", "can be seen as", "it would appear that", "may suggest". Replace with direct, declarative statements.
+- Be confident. "The GMT is the most consequential reform..." not "The GMT can be seen as one of the most ambitious...".
+- Contributions should be stated actively with strong verbs: "This thesis delivers / provides / demonstrates / cross-validates..." not "it is the first..." (lowercase bullet).
+- Structure contributions as numbered bold paragraphs (\textbf{First}, \textbf{Second}, \textbf{Third}) rather than bullets, using an active verb at the start of each.
+
+### Avoiding AI-sounding prose
+- Watch for formulaic sentence patterns: topic sentence → supporting evidence → transition. Vary the structure.
+- Flag phrases like "In this thesis I...", "The goal is to...", "This approach allows...", "It is worth noting that..." — these are common AI filler constructions.
+- Read each paragraph aloud. If it sounds like a template, rewrite it.
+
+### Begin with the conclusion
+- State the main finding in the introduction and abstract first. The reader should know the answer before reading the argument. They can stop reading if uninterested; they should want to read on because the argument is interesting, not because the answer is hidden.
+- In the discussion/conclusion section: state the answer to the research question in the first paragraph, then explain and nuance.
+
+### Footnotes for limitations and contrasting views
+- When a claim in the main text carries a known limitation or a dissenting view in the literature, add a footnote rather than cluttering the main argument.
+- Format: main text states the position you take; footnote notes the contrasting evidence and why you take your position despite it. E.g.: main text says jurisdiction-average ETRs understate the GMT base; footnote cites Barake (2022) who uses them anyway and explains the data constraint that justified it.
+- This shows the reader that you have thought carefully about the evidence and have made a deliberate choice, rather than overlooking the alternative.
+
+### Critical reflection in the literature review
+- For each paper discussed: state what it contributes, but also state what it cannot do or where it falls short. One sentence of critique per paper is the minimum.
+- Identify which limitations of prior work your thesis addresses. Make this connection explicit rather than leaving the reader to infer it.
+- Position papers against each other where they disagree. Do not just list; argue.
+
+### Marking original contributions
+- Whenever you introduce a new formula, notation, or framework that the literature has not used, state this explicitly: "The $\rho$ notation is introduced in this thesis..." or "The application of a $2^5$ factorial design to GMT estimation is original to this thesis."
+- Help the reader see where to cite you in future work.
+- Before submitting, go through the thesis and check: for every non-trivial element, is it clearly attributed to a prior source, or clearly marked as your own contribution? Nothing should be ambiguous.
+
+### Data sources: URLs in footnotes
+- Any named dataset or database should have a URL in a footnote on first reference in the appendix (and optionally in the main text). The reader should be able to locate the data without further searching.
+- Include the access date if the dataset is regularly updated.
+
+### Attribution hygiene
+- When using another author's formula or notation with minor modification, note explicitly what you changed and why. E.g.: "Following \citet{hugger2026}, but replacing their absolute SBIE with the ratio $\rho$..."
+- Check original sources for claims about new concepts (e.g., SBIE-to-profit ratio: is this from Devereux, Schjelderup, or is the analytical use of the ratio original to you?). Verify before submitting.
 
 # Structure of GMT_thesis repository
 
