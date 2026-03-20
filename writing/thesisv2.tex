@@ -422,32 +422,20 @@ $\rho_{p,j}$ & SBIE-to-profit ratio $= \text{SBIE}_{p,j} / \pi_{p,j}$ \\
 
 
 
-\subsection{Baseline GMT revenue computation}\label{sec:baseline}
+\subsection{ETR calculation}\label{sec:baseline}
 
+Baseline GMT revenue computation based on \citet{clausing2021} and \citet{barake2022}: for each jurisdiction where MNEs face an ETR below the minimum rate, the deficit between the minimum and the actual rate is applied to the excess profit base. 
 
-\subsection{ETR}\label{sec:ETR}
-
-Under Pillar Two, the total tax on a low-taxed subsidiary ($\tau_{p,j} < T$) with positive excess profit is:
-\begin{equation}\label{eq:total_tax}
-\text{Tax} = \underbrace{\tau_{p,j} \cdot \pi_{p,j}}_{\text{local CIT}} + \underbrace{(T - \tau_{p,j}) \cdot (\pi_{p,j} - \text{SBIE}_{p,j})}_{\text{top-up tax}}
+The effective tax rate for each bilateral triple $(p, j, t)$ is computed from CbCR Table~I, restricting to profit-making entities:
+\begin{equation}\label{eq:etr}
+\tau_{p,j,t} = \frac{\theta_{p,j,t}}{\pi_{p,j,t}}, \quad \text{where } \pi_{p,j,t} > 0
 \end{equation}
 
-Expanding and simplifying:
-\begin{equation}\label{eq:total_tax_simplified}
-\text{Tax} = T \cdot \pi_{p,j} - (T - \tau_{p,j}) \cdot \text{SBIE}_{p,j}
-\end{equation}
+Tax accrued (\code{TAX\_ACCRUED}) is used as the ETR numerator. This follows \citet{hugger2026}: accrued taxes reflect the current-year charge, unlike taxes paid (cash basis) which include timing differences. The GloBE ETR uses ``covered taxes'' which differ from both accrued and paid taxes in CbCR, it requires at least 22 adjustments from the financial accounting starting point \citep{hanlon2023}, but accrued taxes are the closest available proxy. Also, only profit-making entities enter the ETR calculation. Including loss-making entities would depress the aggregate ETR mechanically. \citet{hugger2026} apply a loss adjustment that reduces positive profits by the typical loss share; this is followed where feasible and tested for robustness using unadjusted panel~AI estimates.
 
-The effective tax rate under Pillar Two is therefore:
-\begin{equation}\label{eq:etr_pillar2}
-\tau_{p,j}^{\text{P2}} = \frac{\text{Tax}}{\pi_{p,j}} = T - (T - \tau_{p,j}) \cdot \frac{\text{SBIE}_{p,j}}{\pi_{p,j}} = T - \delta_{p,j}^{\text{top}} \cdot \rho_{p,j}
-\end{equation}
-
-where $\rho_{p,j} \equiv \text{SBIE}_{p,j} / \pi_{p,j}$ is the SBIE-to-profit ratio.\footnote{The effective floor formula (equation~\eqref{eq:etr_pillar2}) is derived by \citet{schjelderup2024}. \citet{devereux2023} are the first to measure $\rho$ empirically, reporting an average of 57\% and a median of 52\% across EU subsidiaries in scope. The compact $\rho$ notation is introduced in this thesis to make the decomposition in Section~\ref{sec:decomposition} tractable; neither \citet{schjelderup2024} nor \citet{devereux2023} use it as an analytical device. Its analytical role in the revenue pipeline (equation~\eqref{eq:pipeline}) and factorial decomposition is original to this thesis.}
-
-\textbf{Proposition~1.} \emph{The effective tax rate under Pillar Two is strictly below $T$ whenever $\text{SBIE}_{p,j} > 0$. The gap $T - \tau_{p,j}^{\text{P2}}$ is increasing in both the top-up rate $\delta_{p,j}^{\text{top}}$ and the SBIE-to-profit ratio $\rho_{p,j}$.} This follows directly from equation~\eqref{eq:etr_pillar2}: since $\delta_{p,j}^{\text{top}} > 0$ for any low-taxed entity and $\rho_{p,j} > 0$ whenever tangible assets or payroll are positive, the product $\delta_{p,j}^{\text{top}} \cdot \rho_{p,j}$ is strictly positive. The partial derivatives $\partial(T - \tau^{\text{P2}})/\partial \delta^{\text{top}} = \rho > 0$ and $\partial(T - \tau^{\text{P2}})/\partial \rho = \delta^{\text{top}} > 0$ confirm the monotonicity. Also, this connects to the revenue pipeline in equation~\eqref{eq:pipeline}, since the top-up tax on a single bilateral pair is equal to $\delta_{p,j}^{\text{top}} \times E_{p,j}$, where excess profit $E_{p,j} = \pi_{p,j} - \text{SBIE}_{p,j} = \pi_{p,j}(1 - \rho_{p,j})$. This is exactly Stage~2 of the pipeline: the SBIE filter transforms the gross top-up base $\delta^{\text{top}} \cdot \pi$ into the net base $\delta^{\text{top}} \cdot \pi \cdot (1 - \rho)$. The effective floor is 8.5\%, not 15\%. \citet{devereux2023} find an average SBIE-to-profit ratio of 57\% (52\% median) across EU subsidiaries in scope, with the average minimum tax on GloBE income only 6.45\% in the first transition year, rising to 8.85\% at long-run rates.
+For bilateral pairs where $\theta_{p,j,t} < 0$ (negative accrued taxes, approximately 5\% of observations), the ETR is set to zero. For pairs where $\tau_{p,j,t} > 1$, the ETR is winsorised at the statutory rate plus the loss-adjustment correction, following \citet{hugger2026}.
 
 \subsection{SBIE}\label{sec:SBIE}
-
 
 Since the CbCR data covers 2016-2022 (pre-implementation), the SBIE rates are applied counterfactually to each year's data under three rate regimes: the initial rates (10\%/8\%), the 2026 rates (7.5\%/6.2\%), and the long-run rates (5\%/5\%).
 \begin{equation}\label{eq:sbie_rates_W}
@@ -457,6 +445,88 @@ Since the CbCR data covers 2016-2022 (pre-implementation), the SBIE rates are ap
 \sigma_A(t) = \begin{cases} 0.08 & t = 2024 \\ 0.08 - 0.003 \cdot (t - 2024) & 2024 < t < 2033 \\ 0.05 & t \geq 2033 \end{cases}
 \end{equation}
 
+The SBIE for each bilateral pair is:
+\begin{equation}\label{eq:sbie}
+\text{SBIE}_{p,j,t} = \sigma_W \cdot \hat{W}_{p,j,t} + \sigma_A \cdot A_{p,j,t}
+\end{equation}
+where the payroll component $\hat{W}_{p,j,t}$ is:
+\begin{equation}\label{eq:payroll}
+\hat{W}_{p,j,t} = \begin{cases}
+W_{p,j,t} & \text{if } W_{p,j,t} \text{ is observed (\code{EARNINGS} in Table~I)} \\
+N_{p,j,t} \times \bar{w}_{j,t} & \text{if } W_{p,j,t} \text{ is missing but } N_{p,j,t} \text{ is observed}
+\end{cases}
+\end{equation}
+
+\textbf{Proposition~2.} \emph{For jurisdictions where the ETR distribution straddles $T$, the aggregate SBIE-to-profit ratio $\rho_j$ overstates the effective shielding of the GMT base. The SBIE reduces the top-up tax only on the low-taxed portion of profit, not on entities already taxed above $T$.} To see this, decompose total profit into a low-taxed segment ($\pi_j^{<T} = s_j^{<T} \cdot \pi_j$) and a segment above $T$. The SBIE is a physical quantity---it depends on tangible assets and payroll, not on the ETR. If the SBIE is allocated proportionally across segments (Assumption~A11 in Section~\ref{sec:approach_b}), the effective SBIE-to-profit ratio for the low-taxed segment equals the aggregate $\rho_j$. But if the SBIE is disproportionately concentrated in the above-$T$ segment (because high-ETR entities tend to be in capital-intensive activities with large tangible asset bases), the effective $\rho$ for the low-taxed segment is \emph{lower} than the aggregate---and the top-up tax is correspondingly \emph{higher}. Conversely, if low-taxed entities are disproportionately capital-intensive (as in Ireland's pharmaceutical sector), the effective $\rho$ exceeds the aggregate. This ambiguity motivates the sensitivity analysis in Section~\ref{sec:approach_b}, which tests the extreme cases where all SBIE is allocated to the low-taxed segment (maximum shielding) and where none is (minimum shielding).
+
+\subsection{Top-up tax}
+
+For each bilateral pair where the ETR falls below the minimum rate, the top-up tax rate is:
+\begin{equation}\label{eq:topup_rate}
+\delta_{p,j,t}^{\text{top}} = \max\!\left(0,\; T - \tau_{p,j,t}\right)
+\end{equation}
+The excess profit is GloBE income minus the SBIE, floored at zero:
+\begin{equation}\label{eq:excess}
+E_{p,j,t} = \max\!\left(0,\; \pi_{p,j,t} - \text{SBIE}_{p,j,t}\right)
+\end{equation}
+The top-up tax liability is:
+\begin{equation}\label{eq:topup_tax}
+\text{TopUp}_{p,j,t} = \delta_{p,j,t}^{\text{top}} \times E_{p,j,t}
+\end{equation}
+
+The top-up tax is zero whenever (a)~$\tau_{p,j,t} \geq T$, or (b)~$\text{SBIE}_{p,j,t} \geq \pi_{p,j,t}$. Condition~(b) means that even jurisdictions with ETRs below 15\% may generate no top-up tax if the SBIE is sufficiently large relative to profit. This is the mechanism through which the SBIE functions as a production subsidy \citep{schjelderup2024}. \citet{devereux2023} find that approximately 30\% of foreign-owned EU subsidiaries in scope have SBIE exceeding pre-tax profit, facing zero top-up tax regardless of their ETR.
+
+\subsection{Revenue effects GMT}
+
+The Pillar Two rule order determines which jurisdiction collects the top-up tax: (1)~QDMTT, (2)~IIR, (3)~UTPR.
+\begin{align}
+R_{j,t}^{\text{QDMTT}} &= \sum_p \text{TopUp}_{p,j,t} \times \mathbb{1}_j^{\text{Q}} \label{eq:qdmtt} \\
+R_{p,t}^{\text{IIR}} &= \sum_j \text{TopUp}_{p,j,t} \times (1 - \mathbb{1}_j^{\text{Q}}) \label{eq:iir}
+\end{align}
+
+The net fiscal effect for jurisdiction $s$ is:
+\begin{equation}\label{eq:net}
+R_{s,t}^{\text{net}} = R_{s,t}^{\text{IIR}} + R_{s,t}^{\text{QDMTT}}
+\end{equation}
+
+
+
+\subsection{Sectoral variation in effective tax rate floor}\label{sec:floor_sectoral}
+
+The SBIE-to-profit ratio depends on the composition of economic activity. Decompose affiliates in jurisdiction $j$ into sectors $s \in \{1, \ldots, S\}$:
+\begin{equation}\label{eq:rho_sectoral}
+\rho_j = \frac{\text{SBIE}_j}{\pi_j} = \sum_s \omega_{j,s} \cdot \rho_{j,s}
+\end{equation}
+where $\omega_{j,s} = \pi_{j,s} / \pi_j$ is the profit share of sector $s$, and the sector-specific ratio is:
+\begin{equation}\label{eq:rho_sector}
+\rho_{j,s} = \sigma_W \cdot \frac{W_{j,s}}{\pi_{j,s}} + \sigma_A \cdot \frac{A_{j,s}}{\pi_{j,s}}
+\end{equation}
+The effective tax floor for sector $s$ in jurisdiction $j$ is:
+\begin{equation}\label{eq:floor_sector}
+\tau_{j,s}^{\text{floor}} = T - (T - \tau_j) \cdot \rho_{j,s}
+\end{equation}
+
+Assumption: Capital-intensive manufacturing (high $A_{j,s}/\pi_{j,s}$) and labour-intensive services (high $W_{j,s}/\pi_{j,s}$) face lower floors than asset-light, high-profit activities (IP licensing, financial intermediation). \citet{schjelderup2024} show that the SBIE creates an asymmetric production subsidy: the effective reduction in the rental cost of capital (0.50--0.96\%) exceeds the reduction in the effective wage rate (up to 0.88\%), implying that the SBIE \emph{favours capital-intensive industries}.
+
+Table~\ref{tab:sector_predictions} summarises the predicted direction of the SBIE effect by broad sector type. 
+\begin{table}[H]
+\centering
+\caption{Predicted SBIE-to-profit ratios and effective floors by sector type}
+\label{tab:sector_predictions}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Sector type & $A/\pi$ & $W/\pi$ & $\rho$ prediction & Floor prediction \\
+\midrule
+Capital-intensive manufacturing & High & Moderate & High & Low \\
+Labour-intensive services & Low & High & Moderate--High & Low--Moderate \\
+IP licensing / holding & Very low & Very low & Very low & Close to $T$ \\
+Financial intermediation & Moderate & Moderate & Moderate & Moderate \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\citet{devereux2023} provide corroborating evidence: the average SBIE-to-profit ratio is lowest for retail and financial services and highest for manufacturing, consistent with the capital-intensity channel. They also find that the ratio increases substantially with a firm's debt ratio, because interest deductions reduce pre-tax profit while leaving payroll and tangible assets unchanged. \citet{bilicka2023} extend this by showing that 42\% of patent applications from MNEs meeting the Pillar Two threshold are filed by entities constituting only 2.6\% of affiliates. This concentration of IP in a small number of asset-light entities implies that the within-jurisdiction distribution of $\rho$ is strongly bimodal: a majority of entities with high $\rho$ (real operations) and a tail of entities with very low $\rho$ (IP and holding activities).
 
 \newpage
 \printbibliography[heading=bibintoc]
@@ -936,8 +1006,7 @@ Eurostat inward FATS provide information on foreign-controlled enterprises opera
 \end{tabular}
 \end{table}
 
-\section{Theory and methodlogy}
-
+\section{Theory and methodology}
 
 \subsection{The revenue pipeline}\label{sec:pipeline}
 
@@ -956,5 +1025,33 @@ where $\pi_{j,t}$ is total MNE profit in jurisdiction $j$; $s_{j,t}^{<T}$ is the
 \textbf{Stage~3 (behavioural filter)} captures the prediction that MNEs reallocate reported profit in response to the higher effective rate. The semi-elasticity literature provides three functional forms: linear \citep{heckemeyer2017}, quadratic \citep{dowd2017}, and logarithmic \citep{garcia-bernardo2024}. All three predict that the response is concentrated at the lowest ETRs, but they disagree on its magnitude: at a 5\% ETR, the predicted profit reduction ranges from 8\% (linear) to 32\% (quadratic).
 
 The set-up of equation~\eqref{eq:pipeline} means that revenue uncertainty compounds across stages. If Stage~1 doubles the measured base (distributional vs.\ average ETR) and Stage~2 shields 57\% of it, the combined effect is $2 \times 0.43 = 0.86$, which means that doubling the base yields only leads to a modest net increase once the SBIE is applied. The interactions between the factors have an economic meaning. If Stage~1 reveals a large volume of low-taxed profit that happens to be concentrated in capital-intensive sectors with high $\rho$, the Stage~1 $\times$ Stage~2 interaction is negative: the ETR distribution increases the base, but the SBIE shields most of the increment. Next to that, this set-up makes it possible to show which variables and scenarios matter most for revenue forecasting. If Stage~1 dominates, the priority is within-jurisdiction ETR data. If Stage~2 dominates (i.e., $\bar{\rho}$ is the main source of variation), then improving CbCR data on tangible assets and payroll is more valuable than refining ETR distributions. \workingnote{I am still doubting about this sentence, since I think it makes it more confusing than not.} 
+
+\subsection{Hypotheses}\label{sec:hypotheses}
+
+The revenue pipeline and effective floor derivations generate five testable hypotheses, each linked to a specific pipeline stage.
+
+\textbf{H1 (ETR measurement dominance).} The choice between jurisdiction-average and distributional ETR measurement is the single largest source of variation in GMT revenue estimates.
+
+The theoretical basis is straightforward. Under Approach~A (jurisdiction-average ETR), $s_{j}^{<T}$ in the pipeline is binary: either zero (if $\bar{\tau}_j \geq T$) or one (if $\bar{\tau}_j < T$). Under Approach~B (within-jurisdiction distribution), $s_{j}^{<T}$ is continuous. For any jurisdiction where the average ETR exceeds $T$ but the ETR distribution has mass below $T$, switching from Approach~A to Approach~B creates a discrete jump in the measured GMT base from zero to $s_j^{<T} \cdot \pi_j > 0$. \citet{hugger2026} show that 53.2\% of global low-taxed profit lies in such jurisdictions, implying that Approach~B approximately doubles the GMT base.\footnote{This hypothesis is partially tautological for high-average-ETR jurisdictions, where Approach~A yields zero revenue by construction. It is non-trivial, however, for jurisdictions near the 15\% threshold (e.g., Hong Kong, Cyprus), where the sign and magnitude of the difference between approaches depends on the shape of the ETR distribution below $T$.}
+
+\textbf{H2 (SBIE sectoral asymmetry).} The effective tax floor is lower for capital-intensive sectors (manufacturing, pharmaceuticals) than for asset-light sectors (financial services, IP licensing), with a spread of at least 3--4 percentage points between the highest and lowest sectoral floors.
+
+This follows from equation~\eqref{eq:floor_sector} and the \citet{schjelderup2024} production-subsidy prediction. The predicted magnitude is calibrated from \citet{devereux2023}, who find SBIE-to-profit ratios ranging from below 30\% (financial services) to above 70\% (manufacturing) at initial carve-out rates. At a pre-reform ETR of 10\% and $T = 15\%$, a difference of 40 percentage points in $\rho$ translates to a floor spread of $0.05 \times 0.40 = 2.0$ pp---and the spread is wider for jurisdictions with lower pre-reform ETRs (Table~\ref{tab:sector_predictions}).
+
+\textbf{H3 (Ireland--Netherlands divergence).} As an application of H2: Ireland's effective tax floor is substantially lower than the Netherlands', despite both jurisdictions being classified as low-tax, because Ireland's MNE presence is concentrated in capital-intensive pharmaceutical manufacturing while the Netherlands is concentrated in holding and IP-licensing activities.
+
+\begin{equation}\label{eq:irl_nld_hypothesis}
+\bar{\rho}_{\text{IRL}}^{\text{mfg}} > \bar{\rho}_{\text{NLD}}^{\text{hold/IP}} \quad \Longrightarrow \quad \tau_{\text{IRL}}^{\text{floor}} < \tau_{\text{NLD}}^{\text{floor}}
+\end{equation}
+
+Ireland hosts substantial pharmaceutical manufacturing with large tangible asset bases (high $A/\pi$) and significant payroll (moderate $W/\pi$), generating a high aggregate $\rho$. The Netherlands functions primarily as a holding and IP-licensing jurisdiction, where tangible assets and payroll per unit of profit are minimal (low $\rho$). The consequence is that Ireland's MNE subsidiaries are more effectively shielded from the GMT by the SBIE, even though both jurisdictions face similar pre-reform ETRs.\footnote{This comparison also illustrates Proposition~2: if the SBIE is disproportionately concentrated in Ireland's high-$\rho$ manufacturing entities, the effective shielding of the low-taxed segment exceeds what the aggregate ratio implies.}
+
+\textbf{H4 (Nonlinear behavioural response).} The behavioural response to the GMT is concentrated in the lowest-ETR jurisdictions and has a bounded aggregate effect on revenue.
+
+The quadratic specification of \citet{dowd2017} predicts a semi-elasticity of 4.64 at a 5\% ETR but only 0.59 at a 30\% ETR. The logarithmic specification of \citet{garcia-bernardo2024} produces even steeper nonlinearity at the lowest rates. At a 5\% ETR, the predicted profit reduction exceeds 32\%; at a 15\% ETR, it falls below 8\%. Since the GMT raises the effective rate to at most 15\% (and less when the SBIE applies), the behavioural response is bounded by the distance between the pre-reform ETR and the effective floor---which is itself bounded by Proposition~1.\footnote{The welfare implication is noteworthy. \citet{johannesen2022} shows that the GMT is unambiguously welfare-improving for non-haven countries only when the semi-elasticity exceeds approximately~4. The consensus aggregate estimate of 0.8 falls well below this threshold, but the Dowd quadratic specification yields semi-elasticities above~4 for all jurisdictions with ETRs below approximately 7.7\%. The share of low-taxed profit in this range determines whether the GMT passes the Johannesen welfare test at the margin.}
+
+\textbf{H5 (Cross-validation divergence).} The Table~IV direct measurement of low-taxed profit exceeds the Table~I distribution-implied estimate for conduit jurisdictions (Netherlands, Luxembourg, United Kingdom), because the piecewise-uniform distributional assumption smooths away the concentration of profit at very low ETRs that characterises holding and IP-licensing activities.
+
+The rationale is that conduit jurisdictions have bimodal ETR distributions: a mass of holding entities at or near zero ETR and a mass of operating entities near the statutory rate. The piecewise-uniform assumption (Assumption~A9) replaces this bimodality with a smooth density that underestimates the share of profit at the extreme low end. Table~IV, which directly classifies profit into ETR brackets at the subsidiary level, captures this concentration. The predicted direction is therefore $\pi_{j}^{<T,\text{IV}} / \pi_{j}^{<T,\text{I}} > 1$ for conduit jurisdictions and $\approx 1$ for jurisdictions with unimodal ETR distributions.
 
 \end{document}
