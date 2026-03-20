@@ -1,0 +1,598 @@
+%% Compile pdflatex > biber > pdflatex > pdflatex, or: latexmk -pdf thesis
+%% Set \workingdocfalse before final submission to hide 
+\newif\ifworkingdoc
+\workingdoctrue
+
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage{lmodern}
+\usepackage{babel}
+
+\babelprovide[main,import]{british}
+
+\usepackage[
+  a4paper,
+  top    = 2.5cm,
+  bottom = 2.5cm,
+  left   = 3.0cm,
+  right  = 2.5cm,
+]{geometry}
+
+\usepackage{setspace}
+\onehalfspacing
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+
+\usepackage{csquotes}
+\usepackage[
+  backend = biber,
+  style   = apa,
+  sorting = nyt,
+  natbib  = true,
+]{biblatex}
+\DeclareLanguageMapping{british}{british-apa}
+\addbibresource{bibliography.bib}
+
+\usepackage{amsmath,amssymb}
+\usepackage{bm}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{rotating}
+\usepackage{pdflscape}
+\usepackage{enumitem}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+\usepackage[font=small, labelfont=bf, skip=4pt]{caption}
+
+\usepackage{xcolor}
+
+\usepackage[
+  colorlinks        = true,
+  linkcolor         = blue!60!black,
+  citecolor         = blue!60!black,
+  urlcolor          = blue!60!black,
+  pdftitle          = {Revenue Implications of the Global Minimum Tax},
+  pdfauthor         = {Maurits de Haan},
+  pdfsubject        = {MSc Economic Policy Thesis - Utrecht University},
+  pdfkeywords       = {global minimum tax; Pillar Two; CbCR; revenue estimation; ETR; profit shifting; BEPS},
+  pdfstartview      = FitH,
+  bookmarksopen     = true,
+  bookmarksnumbered = true,
+]{hyperref}
+
+\usepackage[colorinlistoftodos]{todonotes}
+
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\itshape}{\thesubsubsection}{1em}{}
+
+\makeatletter
+\renewcommand{\l@section}{\@dottedtocline{1}{0em}{2.8em}}
+\renewcommand{\l@subsection}{\@dottedtocline{2}{2.8em}{3.6em}}
+\renewcommand{\l@subsubsection}{\@dottedtocline{3}{6.4em}{4.2em}}
+\makeatother
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\itshape\leftmark}
+\fancyhead[R]{\small\itshape de Haan (\the\year)}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\fancypagestyle{plain}{%
+  \fancyhf{}
+  \fancyfoot[C]{\small\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+}
+
+%% Toggle: \workingdoctrue / \workingdocfalse (set at top of file)
+%% When false, \workingnote{...} produces no output.
+\newcommand{\workingnote}[1]{\ifworkingdoc\par\noindent\textcolor{red}{\textit{[Working note: #1]}}\par\fi}
+
+\newcommand{\GMT}{GMT}
+\newcommand{\GloBE}{GloBE}
+\newcommand{\ETR}{ETR}
+\newcommand{\SBIE}{SBIE}
+\newcommand{\IIR}{IIR}
+\newcommand{\UTPR}{UTPR}
+\newcommand{\STTR}{STTR}
+\newcommand{\CbCR}{CbCR}
+\newcommand{\MNE}{MNE}
+\newcommand{\pp}{\text{pp}}
+\newcommand{\EUR}{\texteuro}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\assumption}[2]{\noindent\textbf{Assumption #1.} \textit{#2}\medskip}
+
+\begin{document}
+
+\begin{titlepage}
+  \thispagestyle{empty}
+  \begin{center}
+
+    \vspace*{1.5em}
+    {\large\bfseries Utrecht University School of Economics}\\[0.3em]
+    {\normalsize MSc Economic Policy}\\[3em]
+
+    \rule{\textwidth}{1pt}\\[1.2em]
+
+    {\LARGE\bfseries
+      Decomposing Global Minimum Tax\\[0.3em]
+      Revenue Uncertainty:\\[0.5em]
+      \large\bfseries
+      Evidence from Country-by-Country Reporting Data%
+      \footnote{The copyright of this thesis rests with the author. The author is responsible for its contents and opinions expressed in the thesis. U.S.E.\ is only responsible for the academic coaching and supervision and cannot be held liable for the content. I am grateful to dr. Peter Gerbrands for valuable comments and discussions. \workingnote{check that this is complient with UU rules}}}%
+    \\[1.2em]
+
+    \rule{\textwidth}{1pt}\\[2.5em]
+
+    {\large Maurits de Haan}\\[0.3em]
+    {\normalsize\href{mailto:m.c.p.dehaan@students.uu.nl}
+      {m.c.p.dehaan@students.uu.nl}}\\
+    {\normalsize\href{mailto:maurits.cpdehaan@gmail.com}
+      {maurits.cpdehaan@gmail.com}}\\[2.5em]
+
+    \begin{tabular}{@{}rl@{}}
+      \textbf{Supervisor:} & dr.\ Peter Gerbrands \\[0.4em]
+      \textbf{Second reader:} & dr.\ Adriaan Kalwij \\[0.4em]
+      \textbf{Programme:} & MSc Economic Policy \\[0.4em]
+      \textbf{University:} & Utrecht University \\[0.4em]
+      \textbf{Academic year:} & 2025--2026 \\[0.4em]
+      \textbf{Date last updated:} & \today \\
+    \end{tabular}
+
+    \vfill
+
+    \begin{tabular}{@{}ll@{}}
+      \textbf{JEL codes:} &
+        H25, H26, F23, H87 \\[0.5em]
+      \textbf{Keywords:} &
+        \parbox[t]{0.75\textwidth}{global minimum tax, Pillar Two,
+        country-by-country reporting,\\
+        revenue estimation, effective tax rate, profit shifting, BEPS}
+    \end{tabular}
+
+  \end{center}
+\end{titlepage}
+
+\newpage
+\thispagestyle{plain}
+\setcounter{page}{1}
+
+\phantomsection
+\addcontentsline{toc}{section}{Abstract}
+\begin{center}
+  {\large\bfseries Abstract}
+\end{center}
+
+\noindent
+
+\workingnote{Need to write in last phrase}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+\listoftables
+\listoffigures
+
+\newpage
+\phantomsection
+\addcontentsline{toc}{section}{List of Abbreviations}
+\section*{List of Abbreviations}
+
+\begin{tabular}{@{}ll@{}}
+  \toprule
+  \textbf{Abbreviation} & \textbf{Definition} \\
+  \midrule
+  BEA & Bureau of Economic Analysis (US) \\
+  BEPS & Base Erosion and Profit Shifting \\
+  CbCR & Country-by-Country Reporting \\
+  CFC & Controlled Foreign Corporation \\
+  CIT & Corporate Income Tax \\
+  EATR & Effective Average Tax Rate \\
+  EMTR & Effective Marginal Tax Rate \\
+  ETR & Effective Tax Rate \\
+  EU & European Union \\
+  FATS & Foreign Affiliates Statistics \\
+  FDI & Foreign Direct Investment \\
+  GloBE & Global Anti-Base Erosion (Rules) \\
+  GMT & Global Minimum Tax \\
+  IIR & Income Inclusion Rule \\
+  IP & Intellectual Property \\
+  MNE & Multinational Enterprise \\
+  NACE & Statistical Classification of Economic Activities (EU) \\
+  OECD & Organisation for Economic Co-operation and Development \\
+  QDMTT & Qualified Domestic Minimum Top-up Tax \\
+  QRTC & Qualified Refundable Tax Credit \\
+  SBIE & Substance-Based Income Exclusion \\
+  SbS & Side-by-Side (package) \\
+  STTR & Subject-to-Tax Rule \\
+  TCJA & Tax Cuts and Jobs Act (US, 2017) \\
+  UPE & Ultimate Parent Entity \\
+  UTPR & Undertaxed Profits Rule \\
+  \bottomrule
+\end{tabular}
+
+\newpage
+
+\section{Introduction}\label{sec:introduction}
+
+The Global Minimum Tax (GMT) is the most consequential reform of international corporate taxation in decades.\workingnote{will reader really understand ALP, not fiscal reader? maybe put it in a more political perspective} Agreed upon in October 2021 by 137 jurisdictions under the OECD/G20 Inclusive Framework on Base Erosion and Profit Shifting (BEPS), the GMT introduces a minimum effective tax rate (ETR) of 15\% on the profits of multinational enterprises (MNEs) with consolidated revenues exceeding \EUR 750 million. The reform was motivated by decades of intensifying profit shifting, with estimates ranging from \$310 billion to \$850 billion annually being shifted to low-tax jurisdictions \citep{torslov2023, garcia-bernardo2024, blouin2023}. Implementation of the Global Minimum Tax started in January 2024 with the European Union (EU), the United Kingdom, Japan, South Korea and several other jurisdictions. Others followed in 2025.\workingnote{show somewhere who implemented and who did not, to mosly show the status and why this research is the only thing that is possible now}
+
+Despite the GMT's scope, its economic effects remain largely uncertain. Theoretical analyses reach different conclusions depending on the form of tax competition assumed \parencite{janeba2023}, the endogeneity of tax-haven responses \parencite{johannesen2022}, and the role of enforcement cooperation \parencite{jean2026}. Empirical revenue estimates span a wide range, from roughly \EUR100 to \EUR180~billion globally, depending on assumptions about carve-out utilisation and behavioural responses \parencite{barake2022}. The substance-based income exclusion (SBIE), which shelters returns to tangible assets and payroll from the top-up tax, may transform the minimum tax into an effective production subsidy for jurisdictions with real economic activity \parencite{schjelderup2024}.
+
+\workingnote{GMT, tax base, torslov how muc shifted, SBIE devereux}
+
+This thesis addresses three research questions:
+
+\begin{enumerate}
+\item How large is the GMT tax base when the volume of low-taxed profit, distribution of effective tax rates and SBIE-to-profit ratios are taken into account and how has it evolved over the 2016-2022 CbCR panel?
+\item Which modelling assumptions drive the largest variation in GMT revenue estimates, and which jurisdiction characteristics predict the dominant source of uncertainty?
+\item How does the SBIE effective tax floor vary across EU sectors and Member States, and does the cross-sectional pattern confirm the production-subsidy prediction of \citet{schjelderup2024}?
+\end{enumerate}
+
+This thesis makes three contributions.
+
+First, it delivers the first systematic decomposition of GMT revenue uncertainty using the full 2016--2022 CbCR panel. Existing estimates, \citet{barake2022}, \citet{hugger2026}, and the OECD's own projections, each present a headline number without options in the modelling choices to see how certain policy and parameter choices impact the final number. By computing revenue under all combinations of five binary factors, this thesis makes the variance exactly decomposable into main effects and interactions, identifying which assumptions drive the largest uncertainty. A regression of effective floor determinants complements the decomposition by identifying which jurisdiction characteristics predict the dominant source of uncertainty.
+\workingnote{look at that last sentence, since the normal regression is not what I aim to do, there is namely a deeper thought line behind this, work this out further}
+
+Second, it provides the first empirical quantification of the SBIE's differential impact across EU sectors, computing effective tax floors and testing the \citet{schjelderup2024} prediction that the SBIE functions as a production subsidy favouring capital-intensive industries. \citet{devereux2023} compute firm-level SBIE effects but do not disaggregate by sector; this thesis fills that gap by combining CbCR aggregates with Eurostat FATS sectoral shares. The Ireland-Netherlands comparison offers a concrete test of whether the SBIE systematically advantages real-activity jurisdictions over IP-booking jurisdictions.
+
+\workingnote{check and discuss to which extent I also include the cross validation of CbCR Tab I agains Tab IV to show the difference between implied estimate of low-taxed profits of the former agains direct measurement of the latter. Systematic comparison could namely also be an interesting comparison, since it provides a calibration estimate for the unreliable data that can be used during the GMT evaluation papers that will come from Nov 2027 onwards}
+
+Third, it introduces a revenue pipeline framework that connects the \citet{schjelderup2024} effective floor, the \citet{hugger2026} within-jurisdiction ETR distribution, and the profit-shifting semi-elasticity literature into a single multiplicative equation. This framework makes explicit why GMT revenue estimates diverge and provides a durable structure for future research that extends beyond the specific data used here.
+
+The thesis is organised as follows. Section~\ref{sec:literature} reviews the literature on profit shifting and the GMT. Section~\ref{sec:theory} develops the theoretical framework and hypotheses. Section~\ref{sec:methodology} presents the methodology: data, notation, the baseline revenue computation, the SBIE decomposition, the counterfactual decomposition, and the behavioural sensitivity analysis. Section~\ref{sec:results} presents the results. Section~\ref{sec:discussion} discusses the findings, implications, limitations, and concludes.
+
+\newpage
+\section{Literature review}\label{sec:literature}
+
+\workingnote{add intro of the literature review}
+
+\subsection{The empirical measurement of base erosion and profit shifting}\label{sec:beps}
+
+The Global Minimum Tax was designed around the premise that MNEs shift substantial volumes of profit to low-tax jurisdictions, eroding the tax base of countries where real economic activity occurs. Quantifying the magnitude of this shifting has been a central concern of the literature for over three decades.
+
+\subsubsection{Methodological foundations}
+
+The foundational approach to estimating profit shifting is surveyed by \citet{heckemeyer2017}, who identify a consensus tax semi-elasticity of reported profits of approximately 0.8. This estimate, derived from a meta-regression of 27 studies, implies that a one percentage point reduction in the tax rate differential is associated with a 0.8\% increase in reported pre-tax profits. They also conclude that debt shifting accounts for roughly 30\% of observed BEPS while transfer pricing and strategic location of intellectual property account for the remaining 70\%. \citet{dharmapala2014} reaches the same conclusion based on a reveiw of 25 papers, based on the \emph{Hines-Rice approach} that regresses the logarithm of reported profits on the tax rate, controlling for real economic activity through labour and capital inputs. \citet{riedel2018} provides a subsequent review that largely confirms this consensus, noting that channel-specific studies (examining debt shifting and transfer pricing separately) tend to produce the most credible estimates.
+
+\subsubsection{Nonlinear profit shifting}
+
+An insight for the GMT is that profit-shifting behaviour is highly nonlinear across the tax rate distribution. \citet{dowd2017} demonstrate this using US Internal Revenue Service administrative tax return data on Controlled Foreign Corporations covering 2002--2012. Their quadratic specification reveals that the semi-elasticity at a 5\% effective tax rate is approximately 4.7, compared to only 0.7 at a 30\% ETR. This implies that a one percentage point reduction in the tax rate at the very bottom of the distribution induces nearly seven times more profit shifting than the same reduction at moderate rates. The practical consequence is: simulating an increase in all tax haven rates from 5\% to 29\% yields a \$116 billion reduction in shifted profits under the nonlinear model, roughly double the \$55--76 billion predicted by the linear model. \citet{garcia-bernardo2024} formalise this insight by developing a \emph{logarithmic} specification for the relationship between reported profits and effective tax rates. Their methodology, applied to OECD CbCR data for 2017, yields an estimate of \$850~billion in shifted profits, higher than the \$616~billion estimated by \citet{torslov2023} for 2015, partly because the log specification better captures the concentration of shifting at very low rates. Furthermore, \citet{garcia-bernardo2024} find that lower-income countries lose a larger share of total tax revenue to profit shifting than high-income countries, a finding with direct implications for the distributional assessment of the GMT.
+
+\subsubsection{Aggregate estimates of profit shifting}
+
+The aggregate scale of profit shifting has been estimated through two broad approaches: micro-level firm data and macro-level national accounts. The most influential macro-level study is by \citet{torslov2023}, who use Foreign Affiliates Statistics to compare the profitability of foreign-owned and locally-owned firms within each jurisdiction. Their preferred estimate is that 36\% of multinational profits (approximately \$616 billion in 2015) were shifted to tax havens, with US MNEs shifting roughly twice as much as their European counterparts. The European Union is the biggest loser of tax revenue, with domestic profits reduced by an estimated 20\% for non-haven countries. Tax haven affiliates display profit-to-wage ratios that are an order of magnitude higher than those of local firms in the same jurisdiction.
+
+\citet{garcia-bernardo2024} produce a complementary estimate using OECD CbCR data, finding that MNEs shifted over \$850 billion in 2017. Their logarithmic specification captures the extreme concentration of shifted profits at very low ETRs and identifies the Cayman Islands, Luxembourg, Singapore, the Netherlands, Switzerland, Hong Kong, Bermuda, Puerto Rico and Ireland as the primary destinations.
+
+\subsubsection{The double-counting critique}
+
+A challenge to these estimates comes from \citet{blouin2023}, who demonstrate that standard data sources (US Bureau of Economic Analysis data, US IRS Form 5471, and Orbis/Bureau Van Dijk) suffer from systematic double counting and misattribution of foreign affiliate income. The equity method of accounting causes the same dollar of profit to be counted multiple times when ownership is structured through intermediate holding companies, a practice that expanded dramatically after the 1997 US ``check-the-box'' regulations. When \citet{blouin2023} replicate the revenue loss estimate of \citet{clausing2016} using the corrected measure ``Net Income Excluding Equity Income'', the estimate falls from \$77--111 billion to approximately \$11 billion, a reduction of roughly 90\%. Their reanalysis of \citet{torslov2023} suggests that the bilateral imputation of \$306 billion in shifted profits contains substantial equity income, and that removing this component reduces the total estimate by approximately half.
+
+
+\subsubsection{Firm-level evidence}
+
+\citet{johansson2017} provide large-scale firm-level evidence using the Orbis database, with 1.2 million observations across multiple countries. They find that the largest MNEs reduce their effective tax rates by 4--8.5 percentage points through a combination of profit shifting and the exploitation of tax mismatches. The estimated global corporate income tax revenue loss ranges from 4\% to 10\%. 
+
+The representativeness of firm-level databases is itself a methodological concern. \citet{kalemli-ozcan2015} provide critical guidance on constructing nationally representative samples from Orbis. \citet{torslov2023} also shows that Orbis lacks data in low-tax jurisdictions, since publishing data is often not mandetory there. For countries like the US, Ireland and Switzerland there is no income data. They state that in 2012 only 17\% global profits can found in Orbis and that over 80\% of subsidiaries were unknown to Orbis. 
+
+\subsection{GMT design, revenue mechanics and implementation}\label{sec:design}
+
+\subsubsection{Revenue estimates}
+
+\citet{barake2022} provide the first systematic estimate of GMT revenue effects under Pillar Two. Using a combination of CbCR and FATS data, they calculate that a 15\% minimum effective tax rate would generate approximately \EUR 179 billion globally\footnote{This figure assumes that all profit within a jurisdiction faces the jurisdiction-average ETR, either fully above or fully below 15\%. As \citet{hugger2026} demonstrate, 53.2\% of globally low-taxed profit lies in jurisdictions with above-15\% average ETRs, so the true GMT base is substantially larger than Barake's estimate implies. \citet{barake2022} acknowledge this limitation but lack the within-jurisdiction ETR data needed to correct it.} and \EUR 55 billion within the EU, under an IIR-first scenario. These are first-stage estimates that assume no behavioural response by MNEs. The actual revenue depends critically on whether the top-up tax is collected by the jurisdiction of the ultimate parent entity through the IIR, or by the source country through a QDMTT.
+
+\citet{janeba2023} develop a strategic tax competition model that produces a more nuanced picture. Their finding is that the revenue effect of the GMT depends on whether governments use distortionary or lump-sum instruments to compete for real economic activity. When instruments are distortionary, the GMT reduces profit shifting but may intensify competition among non-haven countries for real investment, potentially offsetting a portion of the revenue gains.
+
+\subsubsection{The substance-based income exclusion}
+
+A feature of the GMT is the SBIE, which excludes from the top-up tax calculation an amount equal to a percentage of eligible payroll costs and tangible assets located in each jurisdiction. During the transition period (2024--2033), the carve-out starts at 10\% of payroll and 8\% of tangible assets, declining to 5\% of each. \citet{devereux2023} provide the first empirical assessment of the SBIE using CbCR data, finding that the average ratio of SBIE to pre-tax profit is 57\% (52\% median), declining to 41\% after the ten-year transition. This implies that the average minimum tax on GloBE income is only 6.45\% in the first transition year, rising to 8.85\% at long-run rates, well below the headline 15\%. Approximately 30\% of foreign-owned EU subsidiaries in scope have SBIE exceeding pre-tax profit, facing zero top-up tax regardless of their ETR.
+
+\citet{schjelderup2024} analyse the economic implications of the SBIE within a formal model. They reach the conclusion that the SBIE functions as a \emph{de facto} production subsidy in low-tax jurisdictions. By tying the exclusion to tangible assets and payroll, the GMT inadvertently incentivises MNEs to increase their real economic presence in low-tax locations, thereby expanding the exclusion and reducing the top-up tax. This creates a capital demand distortion that partially offsets the reduction in transfer pricing distortions that the GMT otherwise achieves. Quantitatively, the effective reduction in the rental cost of capital (0.50--0.96\%) exceeds the reduction in the effective wage rate (up to 0.88\%), implying that the SBIE \emph{favours capital-intensive industries}.
+
+\subsubsection{Within-jurisdiction heterogeneity}
+
+\citet{hugger2026} provide what is the most important empirical finding for understanding the actual reach of the GMT. Using confidential ETR data at the MNE-jurisdiction level, they demonstrate that 53.2\% of all low-taxed profit (below 15\% ETR) is located in jurisdictions where the \textit{average} ETR exceeds 15\%. The within-jurisdiction dispersion in ETRs is often larger than the cross-jurisdiction dispersion. This finding implies that jurisdiction-level analyses (which use average ETRs) substantially underestimate the amount of low-taxed profit and, correspondingly, the potential revenue from the GMT.
+
+\subsubsection{Tax incentives under Pillar Two}
+
+\citet{ferreiraliotti2022} examine how existing tax incentives interact with the GMT. The impact varies dramatically by type: accelerated depreciation provisions have a low impact because they primarily affect timing rather than the level of taxation, whereas tax holidays and IP box regimes have a significant impact because they reduce the ETR below 15\%. The QDMTT serves as a safety valve that allows countries to retain the top-up tax domestically, but this also means that the incentive offered to the MNE is effectively nullified.
+
+\subsection{Theoretical models of the GMT and tax competition}\label{sec:theory_lit}
+
+\subsubsection{Welfare effects}
+
+\citet{johannesen2022} develops the first formal model specifically designed to analyse the welfare effects of the GMT. The model features a large country (non-haven) and a small country (haven) that compete for mobile profits. The central result is that the welfare effect for the non-haven country is \textit{ambiguous}: it is positive when the profit-shifting response to taxation is strong and when the government places a low weight on the consumption of firm owners relative to public goods. The consensus semi-elasticity of 0.8 falls well below the threshold of approximately~4 required for the GMT to be unambiguously welfare-improving under Johannesen's parameterisation, though the quadratic specification of \citet{dowd2017} yields semi-elasticities above~4 for the lowest-taxed jurisdictions.
+
+\citet{hebous2023} contribute to this debate by identifying conditions under which a minimum corporate tax can be Pareto-improving: all countries, including havens, can be made better off if the minimum tax is combined with appropriate transfers.
+
+\subsubsection{Tax competition under the GMT}
+
+\citet{janeba2023} model the strategic interaction between countries after GMT implementation. Their model distinguishes between profit-shifting channels (which the GMT constrains) and real-activity channels (which it does not). The GMT eliminates the incentive for havens to set rates below 15\%, but it simultaneously increases the incentive for non-havens to compete for real economic activity through subsidies, infrastructure investment, and regulatory competition.
+
+\citet{schjelderup2024} extend this analysis by incorporating the SBIE into a two-country model. They show that the SBIE transforms the GMT from a pure anti-avoidance instrument into a hybrid policy that simultaneously discourages profit shifting (through the minimum tax) and encourages real investment in low-tax jurisdictions (through the substance exclusion). The net effect on the allocation of capital is theoretically ambiguous and depends on the elasticity of transfer pricing relative to the elasticity of real capital demand.
+
+\subsubsection{The enforcement dilemma}
+
+\citet{jean2026} introduce a fundamentally different concern: the GMT may undermine the international cooperation that is necessary for effective tax enforcement. In their game-theory model, two countries (high-tax and low-tax) choose both tax rates and enforcement effort. The GMT reduces the incentive for the low-tax country to cooperate on enforcement, because the top-up tax is collected by the high-tax country. When the minimum rate exceeds a critical threshold, the low-tax country prefers to withdraw from enforcement cooperation entirely. This creates a paradox: the GMT reduces profit shifting in the short run but may increase it in the long run by destroying the cooperative enforcement equilibrium.
+
+\newpage
+
+\section{Data and descriptive statistics}
+
+
+
+\subsection{OECD CbCR data}\label{CbCR}
+
+Under the OECD/G20 Base Erosion and Profit Shifting (BEPS) Action 13, large multinational enterprise (MNE) groups with consolidated revenue exceeding EUR~750~million are required to file Country-by-Country Reports (CbCRs) detailing their economic activity and tax payments in each jurisdiction where they operate. The OECD aggregates and anonymises these reports into jurisdiction-level statistics. The advantage of this data is that tax-planning behaviour at the MNE level across most jurisdictions is captured, instead of the missing data problem with firm-level data. Currently data of fiscal years 2016-2022 is availiable. In Appendix~\ref{app:CbCR} more information can be found about the structure of this data. 
+
+
+Table~\ref{tab:crosssummary} summarises the six CbCR tables along the key structural dimensions. The database as a whole contains approximately 2.47 million rows across all tables. 
+
+
+\begin{table}[H]
+\centering
+\caption{Cross-table summary of OECD CbCR Tables I--VI}
+\label{tab:crosssummary}
+\footnotesize
+\begin{tabular}{@{}lrrrrrrr@{}}
+\toprule
+ & \textbf{Table I} & \textbf{Table II} & \textbf{Table III} & \textbf{Table IV} & \textbf{Table V} & \textbf{Table VI} \\
+ & Agg.\ Totals & IQ Means & ETR (MNE) & ETR (Sub.) & Size Dist.\ & Size Agg.\ \\
+\midrule
+Rows (total) & 1,124,211 & 437,129 & 699,246 & 101,399 & 4,195 & 105,753 \\
+Positive obs (\%) & 71.5 & 84.6 & 68.3 & 77.3 & 98.4 & 72.1 \\
+Zero obs (\%) & 21.7 & 7.6 & 24.9 & 12.1 & 0.4 & 22.9 \\
+NaN / missing (\%) & 3.0 & 1.9 & 3.6 & 6.5 & 1.1 & 2.4 \\
+\addlinespace
+Fiscal years covered & 2016--2022 & 2017--2022 & 2017--2022 & 2016--2022 & 2016--2022 & 2022 only \\
+Parent jurisdictions & 58 & 46 & 46 & 49 & 40 & 39 \\
+Affiliate jurisdictions & 240 & 238 & 238 & 154 & --- & 215 \\
+Number of MEASURE codes & 28 & 14 & 27 & 27 & 3 & 26 \\
+\addlinespace
+Aggregation type & \code{TOTAL} & \code{TOTAL} & \code{TRMNE} & \code{TRSUB} & \code{TRMNE} & \code{MNESIZE} \\
+ETR brackets & No & No & Yes (12) & Yes (11) & No & No \\
+Profit panels & A-I, A-II & A-I, A-II & --- & --- & --- & --- \\
+Statistical operations & Pct., Agg & IQmean & Agg & Agg & Pctiles & Agg \\
+MNE size classes & No & No & No & No & No & Yes (6) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\newpage 
+\section{Methodology}\label{sec:methodology}
+
+\workingnote{Now I have integrated the methodology and the theoretical framework in one. The reasoning is that the set-up is basic methodology with calulcations of ETR ect., then the theoretical framework and then the ``real'' methodology. In all parts, I have made the assumptions explicit by noting them down literally. In the next version, I will integrate this more into the text.}
+
+\subsection{Notation and variable definition}\label{sec:notation}
+
+Subscript $p$ denotes the parent (ultimate parent entity, UPE) jurisdiction, $j$ denotes the affiliate jurisdiction, and $t$ denotes the fiscal year ($t \in \{2016, \ldots, 2022\}$). All monetary values are in USD unless stated otherwise, this is due to most of the data being in USD. 
+\workingnote{Check for the data well whether we need adjustment for PPP and if currency conversion was needed, forgot that in my bachelor thesis in the first code test.}
+
+\begin{table}[H]
+\centering
+\caption{Variable notation}
+\label{tab:notation}
+\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+Symbol & Definition \\
+\midrule
+$\pi_{p,j,t}$ & Profit before income tax (CbCR \code{PROFIT}) \\
+$\theta_{p,j,t}$ & Income tax accrued (CbCR \code{TAX\_ACCRUED}) \\
+$A_{p,j,t}$ & Tangible assets excl.\ cash and equivalents (CbCR \code{ASSETS}) \\
+$W_{p,j,t}$ & Total payroll / compensation of employees (CbCR \code{EARNINGS}) \\
+$N_{p,j,t}$ & Number of employees, FTE (CbCR \code{EMPLOYEES}) \\
+$\bar{w}_{j,t}$ & Average annual wage in jurisdiction $j$ (OECD/ILO) \\
+$\tau_{p,j,t}$ & Effective tax rate $= \theta_{p,j,t} / \pi_{p,j,t}$ \\
+$T$ & Global minimum tax rate $= 0.15$ \\
+$\sigma_W(t)$ & SBIE payroll carve-out rate in year $t$ \\
+$\sigma_A(t)$ & SBIE tangible assets carve-out rate in year $t$ \\
+$\text{SBIE}_{p,j,t}$ & Substance-based income exclusion \\
+$E_{p,j,t}$ & Excess profit (GloBE income minus SBIE) \\
+$\delta_{p,j,t}^{\text{top}}$ & Top-up tax rate $= \max(0,\; T - \tau_{p,j,t})$ \\
+$\mathbb{1}_j^{\text{Q}}$ & Indicator: $=1$ if jurisdiction $j$ has implemented a QDMTT \\
+$\tau_{p,j,t}^{(k)}$ & $k$-th percentile of the ETR distribution (from Table~I) \\
+$s_{j,t}^{<T}$ & Share of profit with ETR below $T$ in jurisdiction $j$ \\
+$\rho_{p,j}$ & SBIE-to-profit ratio $= \text{SBIE}_{p,j} / \pi_{p,j}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+
+\subsection{Baseline GMT revenue computation}\label{sec:baseline}
+
+
+
+\newpage
+\printbibliography[heading=bibintoc]
+
+\newpage
+\appendix
+\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\thetable}{\Alph{section}.\arabic{table}}
+\renewcommand{\thefigure}{\Alph{section}.\arabic{figure}}
+\renewcommand{\theequation}{\Alph{section}.\arabic{equation}}
+\setcounter{table}{0}
+\setcounter{figure}{0}
+\setcounter{equation}{0}
+
+\section{Data appendix}\label{app:data}
+
+\subsection{CbCR data}\label{app:CbCR}
+
+The CbCR data is split into six ``Tables''. 
+
+Each table shares the following fiveteen collumns: 
+
+\begin{table}[H]
+\centering
+\caption{Column structure common to all six CbCR SDMX files}
+\label{tab:columns}
+\begin{tabular}{@{}lp{9.5cm}@{}}
+\toprule
+Column name & Description \\
+\midrule
+\code{DATAFLOW} & Identifier of the SDMX dataflow and version \\
+\code{REF\_AREA} & ISO 3166-1 alpha-3 code of the \emph{reporting (parent) jurisdiction}: the country whose tax authority collected and submitted the CbCR data \\
+\code{COUNTERPART\_AREA} & ISO 3166-1 alpha-3 code of the \emph{affiliate jurisdiction}: the country where the constituent entity is resident; \code{\_Z} if not applicable; regional aggregates such as \code{WXD} (world excl.\ domestic), \code{W} (world total), and continent codes also appear \\
+\code{FREQ} & Frequency; always \code{A} (annual) \\
+\code{MEASURE} & The variable being measured (see Table~\ref{tab:measures}) \\
+\code{UNIT\_MEASURE} & Unit of the observation (see Table~\ref{tab:units}) \\
+\code{STATISTICAL\_OPERATION} & Statistical transformation applied, if any (see Table~\ref{tab:statops}) \\
+\code{AGGREGATION\_TYPE} & Unit of observation and aggregation level (see Table~\ref{tab:aggtypes}) \\
+\code{PROFIT\_GROUPING} & Panel filter (all MNEs, profit-makers only, all incl.\ loss-makers) \\
+\code{EFFECTIVE\_TAX\_RATE} & ETR bracket classification; \code{\_Z} if not disaggregated by ETR \\
+\code{MNE\_SIZE} & Revenue-based size class of the MNE group; \code{\_Z} if not disaggregated \\
+\code{TIME\_PERIOD} & Fiscal year of the reported data \\
+\code{OBS\_VALUE} & The observation value in the unit specified by \code{UNIT\_MEASURE}; monetary values are denominated in USD \\
+\code{DECIMALS} & Number of decimal places used to express the value \\
+\code{OBS\_STATUS} & \code{A} = actual/normal value; \code{Q} = provisional or preliminary value \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+Table~\ref{tab:measures} lists all \code{MEASURE} codes that appear across the six CbCR tables, together with the description of the code and the unit in which they are reported. Not all measures appear in all tables; the column \emph{Tables} indicates where each measure is available.
+
+\begin{longtable}{@{}lp{6cm}lp{2.5cm}@{}}
+\caption{MEASURE codes in the OECD CbCR database}\label{tab:measures}\\
+\toprule
+Code & Description & Unit & Tables \\
+\midrule
+\endfirsthead
+\multicolumn{4}{c}{\textit{Table~\ref{tab:measures} continued}}\\
+\toprule
+Code & Description & Unit & Tables \\
+\midrule
+\endhead
+\midrule
+\multicolumn{4}{r}{\textit{Continued on next page}}\\
+\endfoot
+\bottomrule
+\endlastfoot
+\multicolumn{4}{l}{\textit{Financial aggregates}}\\
+\code{PROFIT} & Profit before income tax. The primary measure of taxable profit used in CbCR; susceptible to profit shifting and earnings management & USD & I--IV, VI \\
+\code{PROFIT\_ADJ} & Adjusted profit before tax (corrected for intra-group dividends and equity income to reduce double-counting) & USD & I--IV \\
+\code{TAX\_ACCRUED} & Income tax accrued (current year charge); the numerator of the CbCR effective tax rate & USD & I--IV, VI \\
+\code{TAX\_PAID}  & Income tax paid on a cash basis; may differ from accrued due to timing of payments & USD & I--IV, VI \\
+\code{TOT\_REV}  & Total revenue: the sum of unrelated-party and related-party revenues & USD & I--IV, VI \\
+\code{UPR}   & Unrelated-party revenue; excludes intra-group transactions & USD & I--VI \\
+\code{RPR}   & Related-party revenue; intra-group revenues between constituent entities & USD & I--IV, VI \\
+\code{ASSETS}   & Tangible assets, excluding cash and cash equivalents; the denominator of the substance-based income exclusion (payroll component) & USD & I--VI \\
+\code{EARNINGS}  & Total payroll costs (compensation of employees); the second component of the SBIE denominator & USD & I--IV, VI \\
+\code{STATED\_CAPITAL}& Stated capital and accumulated retained earnings & USD & I--IV, VI \\
+\addlinespace
+\multicolumn{4}{l}{\textit{Count variables}}\\
+\code{EMPLOYEES}  & Number of employees (full-time equivalent); an alternative substance proxy & Persons & I--VI \\
+\code{ENTITIES\_COUNT}& Number of constituent entities reporting in that jurisdiction & Entities & I--IV \\
+\code{CBCR\_COUNT} & Number of CbCR filings (MNE groups) contributing to the aggregate & MNE groups & I--IV, VI \\
+\code{SUBGROUPS\_COUNT}& Number of MNE subgroups & Subgroups & I--IV, VI \\
+\addlinespace
+\multicolumn{4}{l}{\textit{Derived tax rate}}\\
+\code{ETR}   & Effective tax rate computed as \code{TAX\_ACCRUED} / \code{PROFIT} at the jurisdiction level; expressed as a percentage of profit before tax & \% of PBT & I \\
+\addlinespace
+\multicolumn{4}{l}{\textit{Business-activity count variables (all in Table I, III, IV, VI)}}\\
+\code{ACT\_ADMIN} & Number of constituent entities reporting administrative, management or support services as a business activity & EST & I, III, IV, VI \\
+\code{ACT\_DOR}  & Number of constituent entities reporting dormant status as a business activity & EST & I, III, IV, VI \\
+\code{ACT\_FIN}  & Number of constituent entities reporting regulated financial services as a business activity & EST & I, III, IV, VI \\
+\code{ACT\_HOLDING} & Number of constituent entities reporting holding shares or other equity instruments as a business activity & EST & I, III, IV, VI \\
+\code{ACT\_IGF}  & Number of constituent entities reporting internal group finance as a business activity & EST & I, III, IV, VI \\
+\code{ACT\_INS}  & Number of constituent entities reporting insurance as a business activity & EST & I, III, IV, VI \\
+\code{ACT\_IP}  & Number of constituent entities reporting holding or managing intellectual property as a business activity & EST & I, III, IV, VI \\
+\code{ACT\_MAN}  & Number of constituent entities reporting manufacturing or production as a business activity & EST & I, III, IV, VI \\
+\code{ACT\_OTHER} & Number of constituent entities reporting other business activity & EST & I, III, IV, VI \\
+\code{ACT\_PUR}  & Number of constituent entities reporting purchasing or procurement as a business activity & EST & I, III, IV, VI \\
+\code{ACT\_RD}  & Number of constituent entities reporting research and development as a business activity & EST & I, III, IV, VI \\
+\code{ACT\_SALES} & Number of constituent entities reporting sales, marketing or distribution as a business activity & EST & I, III, IV, VI \\
+\code{ACT\_SER}  & Number of constituent entities reporting provision of services to unrelated parties as a business activity & EST & I, III, IV, VI \\
+\end{longtable}
+
+The aggregation type defines the unit of observation at which the CbCR data are compiled. 
+
+\begin{table}[H]
+\centering
+\caption{AGGREGATION\_TYPE codes}
+\label{tab:aggtypes}
+\begin{tabular}{@{}llp{8cm}@{}}
+\toprule
+Code & Label & Description \\
+\midrule
+\code{TOTAL} & Jurisdiction total & Financial variables summed across all MNE groups reporting to the parent jurisdiction's tax authority; the standard aggregate used in \citet{barake2022} \\
+\code{TRMNE} & MNE-group level & Variables computed at the level of the individual MNE group and then cross-tabulated by the reporting (parent) jurisdiction; used in Table III to distribute entities across ETR brackets by MNE group \\
+\code{TRSUB} & Subsidiary level & Variables computed at the level of the individual constituent entity (subsidiary) and aggregated by its location jurisdiction; used in Table IV to identify where low-taxed profit is booked \\
+\code{MNESIZE} & Size class & Variables aggregated within each of five revenue-based size classes of MNE groups; used exclusively in Table VI \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+The ETR brackets are the central dimension of Tables III and IV. Table~\ref{tab:etr} documents all codes. 
+
+\begin{table}[H]
+\centering
+\caption{EFFECTIVE\_TAX\_RATE bracket codes}
+\label{tab:etr}
+\begin{tabular}{@{}lp{11cm}@{}}
+\toprule
+Code & Description \\
+\midrule
+\code{\_Z} & Not applicable; the observation is not disaggregated by ETR \\
+\code{NEGATIVE\_PROFIT} & Entities (or groups) with negative profit before tax (loss-makers) \\
+\code{NEGATIVE\_PROFIT\_TAX\_ACCRUED} & Entities with both negative profit and negative tax accrued \\
+\code{NEGATIVE\_TAX\_ACCRUED} & Entities with positive profit but negative tax accrued (i.e.\ a tax credit or refund) \\
+\code{RATE\_0-10} & ETR strictly below 10\%; the most aggressive avoidance bracket \\
+\code{RATE\_0-15} & ETR below 15\%; the \textbf{GMT-critical bracket}: all profit in this range triggers the Pillar Two top-up tax \\
+\code{RATE\_10} & ETR between 10\% and 15\% (paid-tax basis) \\
+\code{RATE\_10\_ACCRUED} & ETR between 10\% and 15\% (accrued-tax basis) \\
+\code{RATE\_15} & ETR between 15\% and 20\% \\
+\code{RATE\_20} & ETR between 20\% and 30\% (summary bracket) \\
+\code{RATE\_10-20} & ETR between 10\% and 20\% \\
+\code{RATE\_20-30} & ETR between 20\% and 30\% \\
+\code{RATE\_30} & ETR above 30\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The size classes are defined by consolidated total revenue (not profit) of the ultimate parent entity's MNE group. 
+
+\begin{table}[H]
+\centering
+\caption{MNE\_SIZE codes (Table VI only)}
+\label{tab:mnesize}
+\begin{tabular}{@{}llp{8cm}@{}}
+\toprule
+Code & Revenue range & Description \\
+\midrule
+\code{SIZE\_LESS\_2\_5} & $<$ USD 2.5 bn & Smallest MNE groups above the CbCR threshold (EUR 750M $\approx$ USD 800M) \\
+\code{SIZE\_2\_5-5} & USD 2.5--5 bn & Medium-small MNE groups \\
+\code{SIZE\_5-10} & USD 5--10 bn & Medium MNE groups \\
+\code{SIZE\_GREATER\_10} & $>$ USD 10 bn & Largest MNE groups; account for the majority of global shifted profits \\
+\code{SIZE\_LESS\_5} & $<$ USD 5 bn & Summary: combines \code{SIZE\_LESS\_2\_5} and \code{SIZE\_2\_5-5} \\
+\code{SIZE\_GREATER\_5} & $>$ USD 5 bn & Summary: combines \code{SIZE\_5-10} and \code{SIZE\_GREATER\_10} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{document}
