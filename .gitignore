@@ -25,5 +25,7 @@ data/raw/eurostat_fats/fats_inward_eu_full.csv
 *.run.xml
 *.synctex.gz
 *.toc
+*.lof
+*.lot
 
 
