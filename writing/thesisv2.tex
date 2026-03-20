@@ -257,8 +257,7 @@ Second, it provides the first empirical quantification of the SBIE's differentia
 
 Third, it introduces a revenue pipeline framework that connects the \citet{schjelderup2024} effective floor, the \citet{hugger2026} within-jurisdiction ETR distribution, and the profit-shifting semi-elasticity literature into a single multiplicative equation. This framework makes explicit why GMT revenue estimates diverge and provides a durable structure for future research that extends beyond the specific data used here.
 
-The thesis is organised as follows. Section~\ref{sec:literature} reviews the literature on profit shifting and the GMT. Section~\ref{sec:theory} develops the theoretical framework and hypotheses. Section~\ref{sec:methodology} presents the methodology: data, notation, the baseline revenue computation, the SBIE decomposition, the counterfactual decomposition, and the behavioural sensitivity analysis. Section~\ref{sec:results} presents the results. Section~\ref{sec:discussion} discusses the findings, implications, limitations, and concludes.
-
+The thesis is organised as follows. \workingnote{add}
 \newpage
 \section{Literature review}\label{sec:literature}
 
@@ -343,6 +342,8 @@ A feature of the GMT is the SBIE, which excludes from the top-up tax calculation
 
 Under the OECD/G20 Base Erosion and Profit Shifting (BEPS) Action 13, large multinational enterprise (MNE) groups with consolidated revenue exceeding EUR~750~million are required to file Country-by-Country Reports (CbCRs) detailing their economic activity and tax payments in each jurisdiction where they operate. The OECD aggregates and anonymises these reports into jurisdiction-level statistics. The advantage of this data is that tax-planning behaviour at the MNE level across most jurisdictions is captured, instead of the missing data problem with firm-level data. Currently data of fiscal years 2016-2022 is availiable. In Appendix~\ref{app:CbCR} more information can be found about the structure of this data. 
 
+CbCR data cover MNE groups with consolidated group revenue exceeding \EUR750 million. These large MNEs account for approximately 90\% of global corporate revenue \citep{hugger2026}, but the threshold excludes smaller multinationals that may face systematically different ETRs. Since Pillar Two applies to the same \EUR750 million population, this is not a limitation for revenue estimation but matters for welfare analysis.
+
 
 Table~\ref{tab:crosssummary} summarises the six CbCR tables along the key structural dimensions. The database as a whole contains approximately 2.47 million rows across all tables. 
 
@@ -364,12 +365,12 @@ NaN / missing (\%) & 3.0 & 1.9 & 3.6 & 6.5 & 1.1 & 2.4 \\
 \addlinespace
 Fiscal years covered & 2016--2022 & 2017--2022 & 2017--2022 & 2016--2022 & 2016--2022 & 2022 only \\
 Parent jurisdictions & 58 & 46 & 46 & 49 & 40 & 39 \\
-Affiliate jurisdictions & 240 & 238 & 238 & 154 & --- & 215 \\
+Affiliate jurisdictions & 240 & 238 & 238 & 154 & -- & 215 \\
 Number of MEASURE codes & 28 & 14 & 27 & 27 & 3 & 26 \\
 \addlinespace
 Aggregation type & \code{TOTAL} & \code{TOTAL} & \code{TRMNE} & \code{TRSUB} & \code{TRMNE} & \code{MNESIZE} \\
 ETR brackets & No & No & Yes (12) & Yes (11) & No & No \\
-Profit panels & A-I, A-II & A-I, A-II & --- & --- & --- & --- \\
+Profit panels & A-I, A-II & A-I, A-II & -- & -- & -- & -- \\
 Statistical operations & Pct., Agg & IQmean & Agg & Agg & Pctiles & Agg \\
 MNE size classes & No & No & No & No & No & Yes (6) \\
 \bottomrule
@@ -423,6 +424,38 @@ $\rho_{p,j}$ & SBIE-to-profit ratio $= \text{SBIE}_{p,j} / \pi_{p,j}$ \\
 
 \subsection{Baseline GMT revenue computation}\label{sec:baseline}
 
+
+\subsection{ETR}\label{sec:ETR}
+
+Under Pillar Two, the total tax on a low-taxed subsidiary ($\tau_{p,j} < T$) with positive excess profit is:
+\begin{equation}\label{eq:total_tax}
+\text{Tax} = \underbrace{\tau_{p,j} \cdot \pi_{p,j}}_{\text{local CIT}} + \underbrace{(T - \tau_{p,j}) \cdot (\pi_{p,j} - \text{SBIE}_{p,j})}_{\text{top-up tax}}
+\end{equation}
+
+Expanding and simplifying:
+\begin{equation}\label{eq:total_tax_simplified}
+\text{Tax} = T \cdot \pi_{p,j} - (T - \tau_{p,j}) \cdot \text{SBIE}_{p,j}
+\end{equation}
+
+The effective tax rate under Pillar Two is therefore:
+\begin{equation}\label{eq:etr_pillar2}
+\tau_{p,j}^{\text{P2}} = \frac{\text{Tax}}{\pi_{p,j}} = T - (T - \tau_{p,j}) \cdot \frac{\text{SBIE}_{p,j}}{\pi_{p,j}} = T - \delta_{p,j}^{\text{top}} \cdot \rho_{p,j}
+\end{equation}
+
+where $\rho_{p,j} \equiv \text{SBIE}_{p,j} / \pi_{p,j}$ is the SBIE-to-profit ratio.\footnote{The effective floor formula (equation~\eqref{eq:etr_pillar2}) is derived by \citet{schjelderup2024}. \citet{devereux2023} are the first to measure $\rho$ empirically, reporting an average of 57\% and a median of 52\% across EU subsidiaries in scope. The compact $\rho$ notation is introduced in this thesis to make the decomposition in Section~\ref{sec:decomposition} tractable; neither \citet{schjelderup2024} nor \citet{devereux2023} use it as an analytical device. Its analytical role in the revenue pipeline (equation~\eqref{eq:pipeline}) and factorial decomposition is original to this thesis.}
+
+\textbf{Proposition~1.} \emph{The effective tax rate under Pillar Two is strictly below $T$ whenever $\text{SBIE}_{p,j} > 0$. The gap $T - \tau_{p,j}^{\text{P2}}$ is increasing in both the top-up rate $\delta_{p,j}^{\text{top}}$ and the SBIE-to-profit ratio $\rho_{p,j}$.} This follows directly from equation~\eqref{eq:etr_pillar2}: since $\delta_{p,j}^{\text{top}} > 0$ for any low-taxed entity and $\rho_{p,j} > 0$ whenever tangible assets or payroll are positive, the product $\delta_{p,j}^{\text{top}} \cdot \rho_{p,j}$ is strictly positive. The partial derivatives $\partial(T - \tau^{\text{P2}})/\partial \delta^{\text{top}} = \rho > 0$ and $\partial(T - \tau^{\text{P2}})/\partial \rho = \delta^{\text{top}} > 0$ confirm the monotonicity. Also, this connects to the revenue pipeline in equation~\eqref{eq:pipeline}, since the top-up tax on a single bilateral pair is equal to $\delta_{p,j}^{\text{top}} \times E_{p,j}$, where excess profit $E_{p,j} = \pi_{p,j} - \text{SBIE}_{p,j} = \pi_{p,j}(1 - \rho_{p,j})$. This is exactly Stage~2 of the pipeline: the SBIE filter transforms the gross top-up base $\delta^{\text{top}} \cdot \pi$ into the net base $\delta^{\text{top}} \cdot \pi \cdot (1 - \rho)$. The effective floor is 8.5\%, not 15\%. \citet{devereux2023} find an average SBIE-to-profit ratio of 57\% (52\% median) across EU subsidiaries in scope, with the average minimum tax on GloBE income only 6.45\% in the first transition year, rising to 8.85\% at long-run rates.
+
+\subsection{SBIE}\label{sec:SBIE}
+
+
+Since the CbCR data covers 2016-2022 (pre-implementation), the SBIE rates are applied counterfactually to each year's data under three rate regimes: the initial rates (10\%/8\%), the 2026 rates (7.5\%/6.2\%), and the long-run rates (5\%/5\%).
+\begin{equation}\label{eq:sbie_rates_W}
+\sigma_W(t) = \begin{cases} 0.10 & t = 2024 \\ 0.10 - 0.005 \cdot (t - 2024) & 2024 < t < 2033 \\ 0.05 & t \geq 2033 \end{cases}
+\end{equation}
+\begin{equation}\label{eq:sbie_rates_A}
+\sigma_A(t) = \begin{cases} 0.08 & t = 2024 \\ 0.08 - 0.003 \cdot (t - 2024) & 2024 < t < 2033 \\ 0.05 & t \geq 2033 \end{cases}
+\end{equation}
 
 
 \newpage
@@ -633,10 +666,10 @@ Table~II provides the interquartile mean (IQM) of financial variables: the arith
 \subsubsection{Table III: Aggregate Totals by ETR Bracket (MNE Level)}\label{sec:table3}
 Table~III disaggregates observations by effective tax rate bracket at the \emph{MNE group} level. This means that each constituent entity is assigned to the ETR bracket of its parent group, not to its own individual ETR. Table~III covers 12 ETR brackets (including two negative-profit categories) and reports financial aggregates, entity counts and business-activity counts within each bracket. Table~III includes financial aggregates (\code{PROFIT}, \code{TAX\_ACCRUED}, \code{ASSETS}, etc.) in addition to entity counts (\code{ENTITIES\_COUNT}) and business-activity counts (\code{ACT\_*}). It is therefore informative about both the composition and the scale of activity in each MNE-group ETR range. However, because the ETR grouping is assigned at the MNE-group level rather than the entity level, Table~III is less suitable for direct GMT revenue computation than Table~IV. 
 
-The MNE-group ETR (used in Table~III) differs from the subsidiary-level ETR (used in Table~IV). As \citet{hugger2025} demonstrate, 53.2\% of all low-taxed profit (below 15\%) is located in jurisdictions where the average ETR exceeds 15\% at the MNE-group level. Table~III therefore significantly understates the share of entities facing low effective rates because it averages across the group's entire global portfolio.
+The MNE-group ETR (used in Table~III) differs from the subsidiary-level ETR (used in Table~IV). As \citet{hugger2026} demonstrate, 53.2\% of all low-taxed profit (below 15\%) is located in jurisdictions where the average ETR exceeds 15\% at the MNE-group level. Table~III therefore significantly understates the share of entities facing low effective rates because it averages across the group's entire global portfolio.
 
 \subsubsection{Table IV: Aggregate Totals by ETR Bracket (Subsidiary Level)}\label{sec:table4}
-Table~IV is the most policy-relevant table for GMT revenue simulation. It reports all financial aggregates disaggregated by 11 ETR brackets at the \emph{subsidiary} (TRSUB) level. The unit of analysis is the individual constituent entity, not the MNE group, so the ETR assigned to each row reflects the entity's own jurisdictional effective tax rate. This is the data dimension that \citet{hugger2025} exploit to demonstrate within-jurisdiction ETR heterogeneity.
+Table~IV is the most policy-relevant table for GMT revenue simulation. It reports all financial aggregates disaggregated by 11 ETR brackets at the \emph{subsidiary} (TRSUB) level. The unit of analysis is the individual constituent entity, not the MNE group, so the ETR assigned to each row reflects the entity's own jurisdictional effective tax rate. This is the data dimension that \citet{hugger2026} exploit to demonstrate within-jurisdiction ETR heterogeneity.
 
 \subsubsection{Table V: MNE Group Size Distribution}\label{sec:table5}
 Table~V reports the size distribution of MNE groups within each parent jurisdiction, measured by consolidated unrelated-party revenue (UPR), total assets, and employment. Unlike all other tables, Table~V has no \code{COUNTERPART\_AREA} dimension (it is set to \code{\_Z}): the size distribution is computed across all MNE groups headquartered in the parent jurisdiction, irrespective of where their affiliates are located.
@@ -644,12 +677,11 @@ Table~V reports the size distribution of MNE groups within each parent jurisdict
 \subsubsection{Table VI: Aggregate Totals by MNE Group Size Class}\label{sec:table6}
 Table~VI reports all financial and activity variables broken down by five MNE group revenue size classes (see Table~\ref{tab:mnesize}). It is the most recently added dimension of the CbCR database and currently covers fiscal year 2022 only. The size breakdown enables analysis of how the GMT's impact differs across the size distribution of MNE groups. In particular, it allows computation of SBIE ratios separately for large and medium MNE groups, testing the prediction of \citet{schjelderup2024} that the production subsidy effect is more pronounced among the largest, most capital-intensive groups.
 
-\section{OECD Statutory Corporate Income Tax Rates}\label{sec:cit}
+\subsection{OECD Statutory Corporate Income Tax Rates}\label{sec:cit}
 The OECD \emph{Tax Database} provides harmonised time series of statutory corporate income tax (CIT) rates, compiled from legislation and administrative sources.  The statutory rate is the headline rate applied to corporate profits before allowances and credits.
 
-
 \begin{longtable}{@{}L{2.8cm} L{6.0cm} C{1.8cm} C{2.5cm}@{}}
-\caption{Statutory CIT rates --- variable codes}\label{tab:cit_rates}\\
+\caption{Statutory CIT rates -- variable codes}\label{tab:cit_rates}\\
 \toprule
 \textbf{Code (MEASURE)} & \textbf{Description} & \textbf{Unit} & \textbf{Coverage} \\
 \midrule
@@ -667,7 +699,7 @@ The OECD \emph{Tax Database} provides harmonised time series of statutory corpor
 \code{CIT\_LSN}  & Local surtax / net wealth tax equivalent included in CIT & \% of income & 2000--2025 \\
 \end{longtable}
 
-\subsection{Wage and Earnings Data}\label{sec:wages}
+\subsubsection{Wage and Earnings Data}\label{sec:wages}
 Labour cost data are collected from three sources to maximise country coverage. OECD average annual wages provide high-quality, internationally comparable data for OECD member countries; the OECD hourly earnings index provides a longer time series; and ILO hourly and monthly earnings extend coverage to a wider set of developing countries.  These data serve as control variables in profit-shifting regressions (wages proxy for labour market conditions) and as inputs for constructing wage-to-profit ratios and SBIE payroll components.
 
 \newpage
@@ -701,7 +733,7 @@ Labour cost data are collected from three sources to maximise country coverage. 
 \textbf{Rows:} 3{,}924 \quad \textbf{Size:} 0.4~MB\\
 \textbf{Years:} 1990--2024 \quad \textbf{Countries:} 41 (OECD members + OECD aggregate)
 
-\noindent\textbf{Key variable:} \code{WG} --- average annual wages of full-time dependent employees, denominated in national currency and in USD PPP (2024 constant).
+\noindent\textbf{Key variable:} \code{WG} -- average annual wages of full-time dependent employees, denominated in national currency and in USD PPP (2024 constant).
 
 \noindent\textbf{Dimension notes:}
 \begin{itemize}[noitemsep]
@@ -717,7 +749,7 @@ Labour cost data are collected from three sources to maximise country coverage. 
 \textbf{Rows:} 41{,}421 \quad \textbf{Size:} 3.4~MB\\
 \textbf{Years:} 1955--2026 \quad \textbf{Countries/groups:} 41
 
-\noindent\textbf{Key variable:} \code{EAR} --- index of hourly earnings for employees (base year 2015 = 100).  This series is an \emph{index} rather than a level; for cross-country wage comparisons the OECD average annual wages dataset is more appropriate.  Coverage includes area aggregates: \texttt{EA19} (euro area), \texttt{EU27\_2020} (EU~27), \texttt{G7}, \texttt{OECD}.
+\noindent\textbf{Key variable:} \code{EAR} -- index of hourly earnings for employees (base year 2015 = 100).  This series is an \emph{index} rather than a level; for cross-country wage comparisons the OECD average annual wages dataset is more appropriate.  Coverage includes area aggregates: \texttt{EA19} (euro area), \texttt{EU27\_2020} (EU~27), \texttt{G7}, \texttt{OECD}.
 
 \subsubsection{ILO global hourly earnings}
 
@@ -726,7 +758,7 @@ Labour cost data are collected from three sources to maximise country coverage. 
 \textbf{Rows:} 227{,}317 \quad \textbf{Size:} 50.4~MB\\
 \textbf{Years:} 1990--2025 \quad \textbf{Countries:} 105
 
-\noindent\textbf{Key variable:} \code{EAR\_EHRA\_NB} --- mean nominal hourly earnings of employees, denominated in local currency (\texttt{CUR\_TYPE\_LCU}) or PPP USD (\texttt{CUR\_TYPE\_PPP}).  Data are compiled from national household surveys, enterprise surveys, and administrative records reported to the ILO; methodological notes are stored in \texttt{NOTE\_SOURCE} and \texttt{NOTE\_INDICATOR} columns.
+\noindent\textbf{Key variable:} \code{EAR\_EHRA\_NB} -- mean nominal hourly earnings of employees, denominated in local currency (\texttt{CUR\_TYPE\_LCU}) or PPP USD (\texttt{CUR\_TYPE\_PPP}).  Data are compiled from national household surveys, enterprise surveys, and administrative records reported to the ILO; methodological notes are stored in \texttt{NOTE\_SOURCE} and \texttt{NOTE\_INDICATOR} columns.
 
 \noindent\textbf{Dimension notes:}
 \begin{itemize}[noitemsep]
@@ -743,7 +775,7 @@ Labour cost data are collected from three sources to maximise country coverage. 
 \textbf{Rows:} 529{,}234 \quad \textbf{Size:} 134~MB\\
 \textbf{Years:} 1990--2025 \quad \textbf{Countries:} $\sim$140
 
-\noindent\textbf{Key variable:} \code{EAR\_EMTA\_NB} --- mean nominal monthly earnings of employees.  Column structure is identical to the hourly earnings file.  Monthly earnings data exist for a wider set of countries than hourly earnings, making this file useful for non-OECD economies where hourly data are sparse.  The ILO \texttt{CUR\_TYPE\_PPP} observations provide PPP-adjusted values for cross-country analysis.
+\noindent\textbf{Key variable:} \code{EAR\_EMTA\_NB} -- mean nominal monthly earnings of employees.  Column structure is identical to the hourly earnings file.  Monthly earnings data exist for a wider set of countries than hourly earnings, making this file useful for non-OECD economies where hourly data are sparse.  The ILO \texttt{CUR\_TYPE\_PPP} observations provide PPP-adjusted values for cross-country analysis.
 
 \noindent\textbf{Coverage note:} Coverage is uneven across countries and years; many non-OECD observations are spaced several years apart.  The OECD wage data should be preferred for OECD countries; ILO data fill the gap for non-OECD members.
 
@@ -851,7 +883,7 @@ Key columns: \texttt{Territory}, \texttt{Requirement} (\texttt{GIR}, \texttt{IIR
 \textbf{Rows:} 3{,}217{,}432 \quad \textbf{Size:} 342~MB\\
 \textbf{Years:} 1990--2024 \quad \textbf{Countries:} 143
 
-This is the OECD \emph{Revenue Statistics --- Comparative tables} dataset, providing harmonised time series of tax revenue by type of tax, level of government, and country.  It is the primary source for CIT revenue as a share of GDP, total tax, and national accounts.
+This is the OECD \emph{Revenue Statistics -- Comparative tables} dataset, providing harmonised time series of tax revenue by type of tax, level of government, and country.  It is the primary source for CIT revenue as a share of GDP, total tax, and national accounts.
 
 \noindent\textbf{Column structure:} \texttt{DATAFLOW}, \texttt{REF\_AREA} (ISO 3-letter), \texttt{MEASURE} (\code{TAX\_REV} for all rows), \texttt{SECTOR} (level of government: \texttt{S13}~=~general government, \texttt{S1311}~=~central, \texttt{S1312}~=~state/regional, \texttt{S1313}~=~local, \texttt{S1314}~=~social security), \texttt{STANDARD\_REVENUE} (OECD revenue classification code, e.g.\ \texttt{T\_2000} = corporate income taxes, \texttt{T\_1000} = total income taxes), \texttt{CTRY\_SPECIFIC\_REVENUE} (country-specific sub-classifications), \texttt{UNIT\_MEASURE} (\texttt{PT\_OTR\_SECTOR} = \% of GDP; \texttt{PC\_TAXREV} = \% of total tax revenue; \texttt{USD\_PPP} = PPP USD billions), \texttt{TIME\_PERIOD}, \texttt{OBS\_VALUE}, \texttt{REVENUE\_CODE}.
 
@@ -903,5 +935,26 @@ Eurostat inward FATS provide information on foreign-controlled enterprises opera
 \bottomrule
 \end{tabular}
 \end{table}
+
+\section{Theory and methodlogy}
+
+
+\subsection{The revenue pipeline}\label{sec:pipeline}
+
+The total GMT top-up tax revenue from jurisdiction $j$ in year $t$ can be decomposed into three sequential filters, each of which reduces the gross tax base:\footnote{The revenue pipeline decomposition is introduced in this thesis. The individual components draw on \citet{hugger2026} (Stage~1), \citet{schjelderup2024} and \citet{devereux2023} (Stage~2), and \citet{dowd2017} and \citet{garcia-bernardo2024} (Stage~3). No prior study has combined these into a single multiplicative framework that makes the sources of revenue uncertainty simultaneously visible and exactly decomposable.}
+
+\begin{equation}\label{eq:pipeline}
+R_{j,t} = \underbrace{\pi_{j,t} \cdot s_{j,t}^{<T} \cdot \bar{\delta}_{j,t}^{\text{top}}}_{\text{Stage 1: ETR filter}} \times \underbrace{\left(1 - \bar{\rho}_{j,t}\right)}_{\text{Stage 2: SBIE filter}} \times \underbrace{\left(1 - \beta_{j,t}\right)}_{\text{Stage 3: behavioural filter}}
+\end{equation}
+
+where $\pi_{j,t}$ is total MNE profit in jurisdiction $j$; $s_{j,t}^{<T}$ is the share of profit with ETR below the minimum rate $T$; $\bar{\delta}_{j,t}^{\text{top}}$ is the profit-weighted average top-up rate for the low-taxed portion; $\bar{\rho}_{j,t}$ is the SBIE-to-profit ratio applied to the low-taxed segment; and $\beta_{j,t} \in [0,1)$ is the fraction of low-taxed profit that is reallocated in response to the higher effective rate. Global revenue is $R_t = \sum_j R_{j,t}$.
+
+\textbf{Stage~1 (ETR filter)} determines how much profit falls below the minimum rate and by how much. Two approaches exist: using the jurisdiction-average ETR (Approach~A), which treats $s_{j,t}^{<T}$ as either zero or one, or using the within-jurisdiction ETR distribution (Approach~B), which estimates $s_{j,t}^{<T}$ as a continuous share. \citet{hugger2026} show that 53.2\% of global low-taxed profit lies in jurisdictions where the average ETR exceeds 15\%, implying that Approach~A misses more than half the GMT base. The choice between these approaches is therefore the most consequential modelling decision.
+
+\textbf{Stage~2 (SBIE filter)} determines what fraction of low-taxed profit generates a top-up tax liability. The SBIE shields a proportion $\bar{\rho}_{j,t}$ of profit from the top-up tax by excluding returns to tangible assets and payroll. \citet{devereux2023} find $\bar{\rho} = 0.57$ on average at initial carve-out rates, implying that only 43\% of GloBE income constitutes excess profit subject to the top-up tax. The SBIE-to-profit ratio varies across sectors (Section~\ref{sec:floor_sectoral}) and declines over the ten-year transition period as carve-out rates fall from 10\%/8\% to 5\%/5\%.
+
+\textbf{Stage~3 (behavioural filter)} captures the prediction that MNEs reallocate reported profit in response to the higher effective rate. The semi-elasticity literature provides three functional forms: linear \citep{heckemeyer2017}, quadratic \citep{dowd2017}, and logarithmic \citep{garcia-bernardo2024}. All three predict that the response is concentrated at the lowest ETRs, but they disagree on its magnitude: at a 5\% ETR, the predicted profit reduction ranges from 8\% (linear) to 32\% (quadratic).
+
+The set-up of equation~\eqref{eq:pipeline} means that revenue uncertainty compounds across stages. If Stage~1 doubles the measured base (distributional vs.\ average ETR) and Stage~2 shields 57\% of it, the combined effect is $2 \times 0.43 = 0.86$, which means that doubling the base yields only leads to a modest net increase once the SBIE is applied. The interactions between the factors have an economic meaning. If Stage~1 reveals a large volume of low-taxed profit that happens to be concentrated in capital-intensive sectors with high $\rho$, the Stage~1 $\times$ Stage~2 interaction is negative: the ETR distribution increases the base, but the SBIE shields most of the increment. Next to that, this set-up makes it possible to show which variables and scenarios matter most for revenue forecasting. If Stage~1 dominates, the priority is within-jurisdiction ETR data. If Stage~2 dominates (i.e., $\bar{\rho}$ is the main source of variation), then improving CbCR data on tangible assets and payroll is more valuable than refining ETR distributions. \workingnote{I am still doubting about this sentence, since I think it makes it more confusing than not.} 
 
 \end{document}
