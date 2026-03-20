@@ -298,11 +298,7 @@ Layer~0 produces, for each EU Member State:
 
 Three limitations motivate the subsequent layers.
 
-First, jurisdiction-average ETRs mask within-jurisdiction heterogeneity. \citet{hugger2025} show that 53.2\% of global low-taxed profit lies in jurisdictions with average ETRs above 15\%. Layer~0 misses all of this. For countries like Germany, France, and Spain, Layer~0 reports zero top-up tax because the average ETR exceeds 15\%, even though a fraction of MNE affiliates in these countries face ETRs below the threshold.
 
-Second, the SBIE is computed at the aggregate jurisdiction level. The ratio of SBIE to profit varies dramatically by sector: \citet{devereux2023} find an average of 57\%, but capital-intensive sectors (pharmaceuticals, chemicals) can exceed 100\% while asset-light sectors (financial services, software) may fall below 20\%.
-
-Third, the estimate assumes no behavioural response. If the GMT raises the effective cost of booking profits in low-tax jurisdictions, MNEs will reallocate some profit, reducing the top-up tax base.
 
 As a reasonableness check, the Layer~0 estimate can be benchmarked against the established range of global corporate tax revenue losses from profit shifting. \citet{johansson2017} estimate losses of 4--10\% of corporate tax revenue (USD 100--240 billion annually), with approximately two-thirds attributable to transfer pricing and one-third to debt shifting \citep{riedel2018,torslov2022}. \citet{torslov2022} estimate that 36\% of multinational profits are shifted to tax havens globally, reducing EU corporate tax revenues by approximately 18\%. The Layer~0 estimate should be broadly consistent with these magnitudes when expressed as a share of EU corporate tax revenue.
 
@@ -452,24 +448,19 @@ Layer~2 decomposes the aggregate SBIE into sectoral components and computes the 
 \subsection{Theoretical foundation: the double deduction}\label{sec:double_deduction}
 
 Under Pillar Two, the total tax on an MNE subsidiary in a low-tax jurisdiction ($\tau_{p,j} < T$) with positive excess profit is:
-
 \begin{equation}\label{eq:total_tax}
 \text{Tax} = \underbrace{\tau_{p,j} \cdot \pi_{p,j}}_{\text{local CIT}} + \underbrace{(T - \tau_{p,j}) \cdot (\pi_{p,j} - \text{SBIE}_{p,j})}_{\text{top-up tax}}
 \end{equation}
 
 Expanding:
-
 \begin{align}
 \text{Tax} &= \tau_{p,j} \cdot \pi_{p,j} + T \cdot \pi_{p,j} - T \cdot \text{SBIE}_{p,j} - \tau_{p,j} \cdot \pi_{p,j} + \tau_{p,j} \cdot \text{SBIE}_{p,j} \nonumber \\
 &= T \cdot \pi_{p,j} - (T - \tau_{p,j}) \cdot \text{SBIE}_{p,j} \label{eq:total_tax_simplified}
 \end{align}
-
 The effective tax rate under Pillar Two is therefore:
-
 \begin{equation}\label{eq:etr_pillar2}
 \tau_{p,j}^{\text{P2}} = \frac{\text{Tax}}{\pi_{p,j}} = T - (T - \tau_{p,j}) \cdot \frac{\text{SBIE}_{p,j}}{\pi_{p,j}} = T - \delta_{p,j}^{\text{top}} \cdot \rho_{p,j}
 \end{equation}
-
 where $\rho_{p,j} \equiv \text{SBIE}_{p,j} / \pi_{p,j}$ is the SBIE-to-profit ratio. This is the key result: the effective tax rate under Pillar Two is \emph{strictly below} the headline rate $T = 15\%$ whenever the SBIE is positive. The gap is larger when (a) the pre-reform ETR is further below 15\% (larger $\delta^{\text{top}}$) and (b) the SBIE-to-profit ratio is larger (larger $\rho$).
 
 For the numerical example from \citet{schjelderup2024}: $\pi = 1000$, $\tau = 5\%$, $\text{SBIE} = 650$ (at initial rates), $\delta^{\text{top}} = 10\%$, $\rho = 65\%$:
