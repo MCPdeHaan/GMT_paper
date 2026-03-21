@@ -1,4 +1,4 @@
-%% Compile pdflatex > biber > pdflatex > pdflatex, or: latexmk -pdf thesis
+%% Compile pdflatex > biber > pdflatex > pdflatex, or: latexmk -pdf thesisv2
 %% Set \workingdocfalse before final submission to hide 
 \newif\ifworkingdoc
 \workingdoctrue
@@ -9,9 +9,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{textcomp}
 \usepackage{lmodern}
-\usepackage{babel}
-
-\babelprovide[main,import]{british}
+\usepackage[british]{babel}
 
 \usepackage[
   a4paper,
@@ -101,7 +99,7 @@
 
 %% Toggle: \workingdoctrue / \workingdocfalse (set at top of file)
 %% When false, \workingnote{...} produces no output.
-\newcommand{\workingnote}[1]{\ifworkingdoc\par\noindent\textcolor{red}{\textit{[Working note: #1]}}\par\fi}
+\newcommand{\workingnote}[1]{\ifworkingdoc{\textcolor{red}{\textit{[Working note: #1]}}}\fi}
 
 \newcommand{\GMT}{GMT}
 \newcommand{\GloBE}{GloBE}
@@ -587,7 +585,7 @@ Estimation with FATS
 
 For each EU Member State $j$ and sector $s$, the sectoral SBIE is estimated as:
 
-\begin{equation}\label{eq:sbie_sectoral}
+\begin{equation}\label{eq:sbie_alloc_fats}
 \widehat{\text{SBIE}}_{j,s} = \sigma_W \cdot \left(\frac{\text{PersC}_{j,s}^{\text{FATS}}}{\sum_{s'} \text{PersC}_{j,s'}^{\text{FATS}}}\right) \cdot W_j^{\text{CbCR}} + \sigma_A \cdot \left(\frac{\hat{K}_{j,s}}{\sum_{s'} \hat{K}_{j,s'}}\right) \cdot A_j^{\text{CbCR}}
 \end{equation}
 
@@ -640,6 +638,7 @@ The output is a matrix of effective tax floors: 27 EU Member States $\times$ 15-
 \subsection{Behavioural response scenarios}
 
 Layer~3 incorporates the prediction that MNEs will reallocate some profit in response to the GMT. This is a scenario analysis, not a structural estimation. The semi-elasticity parameters are imported from the literature, and the results are presented as a range bounded by alternative specifications.
+
 
 
 The GMT raises the effective tax rate for MNE affiliates currently below 15\%. This reduces the incentive to shift profits to those locations, since the tax differential between the low-tax jurisdiction and the parent jurisdiction narrows. The predicted response is a reduction in reported profits in low-tax jurisdictions and a corresponding increase in reported profits elsewhere.
@@ -975,7 +974,7 @@ Year & Parent & Total & Positive & Zero & NaN & Positive \\
 \end{tabular}
 \end{table}
 
-The most recent release (fiscal year 2022) reports data from 54 parent jurisdictions, representing approximately 98\% of all CbCR filings globally \citep{oecd2025corptaxstats}. The 2016 release (the first year) covered only 26 jurisdictions, and the dataset grew substantially in 2017-2018 as BEPS Action 13 legislation was enacted across OECD and G20 members. The 2021 vintage shows a spike in NaN observations (30,418 rows), which largely disappeared in 2022; this likely reflects a transitional period in OECD data processing after the redesign of the CbCR publication framework.\footnote{The 2021 vintage was the first published under the new disaggregated SDMX format; some jurisdictions
+The most recent release (fiscal year 2022) reports data from 54 parent jurisdictions, representing approximately 98\% of all CbCR filings globally \citep{oecd2025a}. The 2016 release (the first year) covered only 26 jurisdictions, and the dataset grew substantially in 2017-2018 as BEPS Action 13 legislation was enacted across OECD and G20 members. The 2021 vintage shows a spike in NaN observations (30,418 rows), which largely disappeared in 2022; this likely reflects a transitional period in OECD data processing after the redesign of the CbCR publication framework.\footnote{The 2021 vintage was the first published under the new disaggregated SDMX format; some jurisdictions
 submitted incomplete data during this transition.}
 
 \workingnote{add this citation still}
@@ -1074,7 +1073,7 @@ Labour cost data are collected from three sources to maximise country coverage. 
 
 \section{Additonal data information}\label{sec:add_data}
 
-\subsection{Wage and Earnings Data}\label{sec:wages}
+\subsection{Wage and Earnings Data}\label{sec:wages_appendix}
 
 Labour cost data are collected from three sources to maximise country coverage. OECD average annual wages provide high-quality, internationally comparable data for OECD member countries; the OECD hourly earnings index provides a longer time series; and ILO hourly and monthly earnings extend coverage to a wider set of developing countries.  These data serve as control variables in profit-shifting regressions (wages proxy for labour market conditions) and as inputs for constructing wage-to-profit ratios and SBIE payroll components.
 
@@ -1164,7 +1163,7 @@ World Bank data provide three types of country-level controls commonly included 
 
 For analyses requiring time-varying income classifications, the \texttt{wb\_historical\_income\_groups.xlsx} file contains the full historical series from the OGHIST spreadsheet.
 
-\subsection{OECD BEPS Implementation Indicators}\label{sec:beps}
+\subsection{OECD BEPS Implementation Indicators}\label{sec:beps_appendix}
 
 \subsubsection{CbCR requirements (Action~13)}
 
@@ -1457,7 +1456,7 @@ The marginal contributions $\Delta_i$ and interactions $\Delta_{ik}$ are point e
 
 With $B = 1{,}000$ replications and 32 scenarios per draw, this requires 32,000 revenue computations---each a simple weighted sum over approximately 5,000 bilateral pairs, which is computationally feasible.
 
-As a robustness check, a Shapley-value decomposition is computed alongside the ANOVA decomposition. The Shapley approach averages each factor's marginal contribution over all possible orderings in which factors are introduced, rather than assuming simultaneous variation \citep{huettner2012}. This is relevant because Factors~2 and~3 are partially correlated (both involve the SBIE): changing the SBIE specification (Factor~2) mechanically affects the sensitivity to carve-out rates (Factor~3). If the Shapley ranking differs materially from the ANOVA ranking, the discrepancy indicates that factor correlation is affecting the decomposition. The Shapley share of factor $i$ is:
+As a robustness check, a Shapley-value decomposition is computed alongside the ANOVA decomposition. The Shapley approach averages each factor's marginal contribution over all possible orderings in which factors are introduced, rather than assuming simultaneous variation. This is relevant because Factors~2 and~3 are partially correlated (both involve the SBIE): changing the SBIE specification (Factor~2) mechanically affects the sensitivity to carve-out rates (Factor~3). If the Shapley ranking differs materially from the ANOVA ranking, the discrepancy indicates that factor correlation is affecting the decomposition. The Shapley share of factor $i$ is:
 
 \begin{equation}\label{eq:shapley}
 \phi_i = \sum_{S \subseteq \{1,\ldots,5\} \setminus \{i\}} \frac{|S|!\,(4-|S|)!}{5!} \left[R(S \cup \{i\}) - R(S)\right]
@@ -1545,6 +1544,7 @@ A welfare-relevant threshold is computed from the behavioural specifications. \c
 \assumption{A18}{(No restructuring). The GMT raises the effective rate to exactly $T = 15\%$ for all low-taxed profit. MNEs may restructure to avoid the GMT (splitting into sub-threshold groups, exploiting transition provisions, or utilizing safe harbours that reduce compliance burden \citep{schanz2023}). These responses are not modelled. The estimate is therefore an upper bound on the effective rate increase.}
 
 
+
 \subsection{Descriptive regression of effective floor determinants}\label{sec:floor_regression}
 
 The microsimulation computes the effective tax floor $\tau_j^{\text{floor}}$ for each jurisdiction. A cross-sectional regression summarises which observable jurisdiction characteristics predict this floor and provides a multivariate test of H2 (SBIE sectoral asymmetry). The specification is:\footnote{This regression is descriptive, not causal. The effective floor is a model output, not an observed outcome. The regression summarises the cross-sectional correlates of the pipeline's Stage~2 and tests whether the production-subsidy prediction of \citet{schjelderup2024} holds in a multivariate setting. \citet{hugger2026} run a similar cross-sectional regression predicting average ETR from jurisdiction characteristics (STR, FDI/GDP, zero-tax incentive dummy); this thesis predicts the \emph{effective floor}, which is a novel dependent variable that incorporates the SBIE.}
@@ -1623,5 +1623,7 @@ First, jurisdiction-average ETRs mask within-jurisdiction heterogeneity. \citet{
 Second, the SBIE is computed at the aggregate jurisdiction level. The ratio of SBIE to profit varies dramatically by sector: \citet{devereux2023} find an average of 57\%, but capital-intensive sectors (pharmaceuticals, chemicals) can exceed 100\% while asset-light sectors (financial services, software) may fall below 20\%.
 
 Third, the estimate assumes no behavioural response. If the GMT raises the effective cost of booking profits in low-tax jurisdictions, MNEs will reallocate some profit, reducing the top-up tax base.
+
+\fi
 
 \end{document}
