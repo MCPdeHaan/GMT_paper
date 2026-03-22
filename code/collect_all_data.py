@@ -1,5 +1,5 @@
 # python collect_all_data.py
-
+import pandas as pd
 import argparse
 import csv
 import gzip
@@ -15,7 +15,6 @@ from typing import Optional
 BASE_DIR = Path(__file__).parent  
 RAW_DIR  = BASE_DIR / "raw"
 
-import pandas as pd
 import requests
 
 logging.basicConfig(
