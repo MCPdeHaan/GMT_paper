@@ -133,7 +133,7 @@
       Revenue Uncertainty:\\[0.5em]
       \large\bfseries
       Evidence from Country-by-Country Reporting Data%
-      \footnote{The copyright of this thesis rests with the author. The author is responsible for its contents and opinions expressed in the thesis. U.S.E.\ is only responsible for the academic coaching and supervision and cannot be held liable for the content. I am grateful to dr. Peter Gerbrands for valuable comments and discussions. \workingnote{check that this is complient with UU rules}}}%
+      \footnote{The copyright of this thesis rests with the author. The author is responsible for its contents and opinions expressed in the thesis. U.S.E.\ is only responsible for the academic coaching and supervision and cannot be held liable for the content. I am grateful to dr. Peter Gerbrands for valuable comments and discussions. \workingnote{check that this is compliant with UU rules}}}%
     \\[1.2em]
 
     \rule{\textwidth}{1pt}\\[2.5em]
@@ -179,7 +179,7 @@
 
 \noindent
 
-\workingnote{Need to write in last phrase}
+\workingnote{Need to do, at last.}
 
 \newpage
 
@@ -231,12 +231,12 @@
 
 \section{Introduction}\label{sec:introduction}
 
-The Global Minimum Tax (GMT) is the most consequential reform of international corporate taxation in decades.\workingnote{will reader really understand ALP, not fiscal reader? maybe put it in a more political perspective} Agreed upon in October 2021 by 137 jurisdictions under the OECD/G20 Inclusive Framework on Base Erosion and Profit Shifting (BEPS), the GMT introduces a minimum effective tax rate (ETR) of 15\% on the profits of multinational enterprises (MNEs) with consolidated revenues exceeding \EUR 750 million. The reform was motivated by decades of intensifying profit shifting, with estimates ranging from \$310 billion to \$850 billion annually being shifted to low-tax jurisdictions \citep{torslov2023, garcia-bernardo2024, blouin2023}. Implementation of the Global Minimum Tax started in January 2024 with the European Union (EU), the United Kingdom, Japan, South Korea and several other jurisdictions. Others followed in 2025.\workingnote{show somewhere who implemented and who did not, to mosly show the status and why this research is the only thing that is possible now}
+The Global Minimum Tax (GMT) is the most consequential reform of international corporate taxation in decades.\workingnote{political ocntext? why 137 jurisdictions agreed, positioning for non-specialist} Agreed upon in October 2021 by 137 jurisdictions under the OECD/G20 Inclusive Framework on Base Erosion and Profit Shifting (BEPS), the GMT introduces a minimum effective tax rate (ETR) of 15\% on the profits of multinational enterprises (MNEs) with consolidated revenues exceeding \EUR 750 million. The reform was motivated by decades of intensifying profit shifting, with estimates ranging from \$310 billion to \$850 billion annually being shifted to low-tax jurisdictions \citep{torslov2023, garcia-bernardo2024, blouin2023}. Implementation of the Global Minimum Tax started in January 2024 with the European Union (EU), the United Kingdom, Japan, South Korea and several other jurisdictions. Others followed in 2025.\workingnote{show who have implemented and reasoning why CbCR data is only feaible apporach and no ex-post}
 
-Despite the GMT's scope, its economic effects remain largely uncertain. Theoretical analyses reach different conclusions depending on the form of tax competition assumed \parencite{janeba2023}, the endogeneity of tax-haven responses \parencite{johannesen2022}, and the role of enforcement cooperation \parencite{jean2026}. Empirical revenue estimates span a wide range, from roughly \EUR100 to \EUR180 billion globally, depending on assumptions about carve-out utilisation and behavioural responses \parencite{barake2022}. The substance-based income exclusion (SBIE), which shelters returns to tangible assets and payroll from the top-up tax, may transform the minimum tax into an effective production subsidy for jurisdictions with real economic activity \parencite{schjelderup2024}. The January 2026 OECD Administrative Guidance introduced three safe harbour provisions (the Side-by-Side (SbS) Safe Harbour, the Substance-Based Tax Incentive (SBTI) Safe Harbour, and the Simplified ETR Safe Harbour) that alter revenue allocation, effective tax floors, and compliance incentives \citep{oecd2026}. In particular, the SbS Safe Harbour exempts US-parented MNEs from IIR and UTPR collection. 
+Despite its scope, the GMT's economic effects remain uncertain. Theoretical analyses reach different conclusions depending on the form of tax competition assumed \parencite{janeba2023}, the endogeneity of tax-haven responses \parencite{johannesen2022}, and the role of enforcement cooperation \parencite{jean2026}. Empirical revenue estimates span a wide range, from roughly \EUR100 to \EUR180 billion globally, depending on assumptions about carve-out utilisation and behavioural responses \parencite{barake2022}. The substance-based income exclusion (SBIE), which shelters returns to tangible assets and payroll from the top-up tax, may transform the minimum tax into an effective production subsidy for jurisdictions with real economic activity \parencite{schjelderup2024}. The January 2026 OECD Administrative Guidance introduced three safe harbour provisions (the Side-by-Side (SbS) Safe Harbour, the Substance-Based Tax Incentive (SBTI) Safe Harbour, and the Simplified ETR Safe Harbour) that alter revenue allocation, effective tax floors, and compliance incentives \citep{oecd2026}. In particular, the SbS Safe Harbour exempts US-parented MNEs from IIR and UTPR collection. 
 
 
-The central research question is:
+This thesis addresses the following research question:
 
 \begin{quote}
 \textit{What are the revenue effects of the Global Minimum Tax for EU Member States, and how do these estimates change when within-jurisdiction ETR heterogeneity, sectoral SBIE variation, the January 2026 safe harbour provisions, and behavioural responses are jointly incorporated?}
@@ -250,13 +250,17 @@ Three subquestions structure the analysis:
 \item Does the cross-sectional pattern of the SBIE effective tax floor across EU sectors confirm the production-subsidy prediction of \citet{schjelderup2024}, and how does the SBTI Safe Harbour amplify this asymmetry?
 \end{enumerate}
 
-The thesis contributes by developing a public-data EU sensitivity design for GMT revenue measurement using the full 2016--2022 CbCR panel. Existing estimates, including \citet{barake2022}, \citet{hugger2026}, and the OECD's own projections, focus on a headline number. By computing revenue under all 32 scenario combinations, it shows which assumptions about ETR measurement, substance shielding and rule order drive the largest variation in revenue for each EU Member State. Also, this thesis quantifies how the SBIE and the January 2026 SBTI Safe Harbour jointly reshape the effective tax floor across EU sectors. \citet{devereux2023} compute firm-level SBIE effects but do not provide an EU sectoral mapping based on public macro data. By combining CbCR aggregates with Eurostat FATS sectoral shares, this thesis shows how Pillar Two protection is reallocated toward payroll- and asset-intensive activity, in line with the production-subsidy logic emphasised by \citet{schjelderup2024}. The SBTI-capacity index $\kappa$ operationalises the January 2026 Substance Cap without requiring observation of firm-level qualifying tax incentive claims, and the Ireland-Netherlands comparison provides an illustrative test of whether the SBIE systematically advantages real-activity jurisdictions over IP-booking jurisdictions.
+The thesis makes three contributions. First, it constructs a full factorial sensitivity design for GMT revenue estimation using the complete 2016--2022 CbCR panel. Existing estimates (\citet{barake2022}, \citet{hugger2026}, and the OECD's own projections) report a number. The factorial design computes revenue under all 32 scenario combinations, identifies which assumptions about ETR measurement, substance shielding and rule order drive the largest variation for each EU Member State, and decomposes these sources of variation via an exact ANOVA identity. No prior study makes all factor interactions simultaneously visible and exactly decomposable. Second, it quantifies how the SBIE and the January 2026 SBTI Safe Harbour jointly reshape the effective tax floor across EU sectors. \citet{devereux2023} compute firm-level SBIE effects but do not provide an EU sectoral mapping based on public macro data. By combining CbCR aggregates with Eurostat FATS sectoral shares, this thesis demonstrates that \workingnote{Pillar Two protection is reallocated toward payroll- and asset-intensive activity, confirming the production-subsidy logic of \citet{schjelderup2024}}. The SBTI-capacity index $\kappa$ operationalises the January 2026 Substance Cap without requiring observation of firm-level qualifying tax incentive claims. Third, it cross-validates the percentile-based distributional ETR approach (Table I) against the direct subsidiary-level ETR bracket data (Table IV). The Ireland--Netherlands comparison provides an illustrative test of whether the SBIE systematically advantages real-activity jurisdictions over IP-booking jurisdictions.
 
 The thesis is organised as follows. Section \ref{sec:literature} reviews the literature on profit shifting measurement, GMT revenue mechanics, and theoretical models of tax competition. Section \ref{CbCR} describes the OECD CbCR data. Section \ref{sec:methodology} develops the revenue pipeline framework, the factorial decomposition, and the behavioural response scenarios. Section \ref{sec:results} presents the results. Section \ref{sec:discussion} discusses the findings and their policy implications.
+
 \newpage
 \section{Literature review}\label{sec:literature}
 
-\workingnote{add intro of the literature review}
+This section reviews three strands of literature that inform the estimation framework. Section \ref{sec:beps} covers the empirical measurement of profit shifting, establishing the magnitudes that the GMT targets. Section \ref{sec:design} examines the GMT's design, revenue mechanics and the role of the substance-based income exclusion. Section \ref{sec:theory_lit} reviews theoretical models of tax competition under minimum taxation. Throughout, the review identifies what each contribution delivers and where its limitations create the gaps that this thesis addresses.
+
+\workingnote{still add theoretical framework link if needed, hypothesis more explisit}
+
 
 \subsection{The empirical measurement of base erosion and profit shifting}\label{sec:beps}
 
@@ -326,14 +330,13 @@ A feature of the GMT is the SBIE, which excludes from the top-up tax calculation
 \subsubsection{The enforcement dilemma}
 
 \citet{jean2026} introduce a fundamentally different concern: the GMT may undermine the international cooperation that is necessary for effective tax enforcement. In their game-theory model, two countries (high-tax and low-tax) choose both tax rates and enforcement effort. The GMT reduces the incentive for the low-tax country to cooperate on enforcement, because the top-up tax is collected by the high-tax country. When the minimum rate exceeds a critical threshold, the low-tax country prefers to withdraw from enforcement cooperation entirely. This creates a paradox: the GMT reduces profit shifting in the short run but may increase it in the long run by destroying the cooperative enforcement equilibrium.
-
 \newpage
 
 \section{Data and descriptive statistics}
 
 \subsection{OECD CbCR data}\label{CbCR}
 
-Under the OECD/G20 Base Erosion and Profit Shifting (BEPS) Action 13, large multinational enterprise (MNE) groups with consolidated revenue exceeding EUR 750 million are required to file Country-by-Country Reports (CbCRs) detailing their economic activity and tax payments in each jurisdiction where they operate. The OECD aggregates and anonymises these reports into jurisdiction-level statistics. The advantage of this data is that tax-planning behaviour at the MNE level across most jurisdictions is captured, instead of the missing data problem with firm-level data. Currently data of fiscal years 2016-2022 is availiable. In Appendix \ref{app:CbCR} more information can be found about the structure of this data. 
+Under the OECD/G20 Base Erosion and Profit Shifting (BEPS) Action 13, large multinational enterprise (MNE) groups with consolidated revenue exceeding EUR 750 million are required to file Country-by-Country Reports (CbCRs) detailing their economic activity and tax payments in each jurisdiction where they operate. The OECD aggregates and anonymises these reports into jurisdiction-level statistics. The advantage of this data is that tax-planning behaviour at the MNE level across most jurisdictions is captured, instead of the missing data problem with firm-level data. Currently data of fiscal years 2016--2022 are available. In Appendix \ref{app:CbCR} more information can be found about the structure of this data. 
 
 CbCR data cover MNE groups with consolidated group revenue exceeding \EUR750 million. These large MNEs account for approximately 90\% of global corporate revenue \citep{hugger2026}, but the threshold excludes smaller multinationals that may face systematically different ETRs. Since Pillar Two applies to the same \EUR750 million population, this is not a limitation for revenue estimation but matters for welfare analysis.
 
@@ -347,7 +350,7 @@ Table \ref{tab:crosssummary} summarises the six CbCR tables along the key struct
 \label{tab:crosssummary}
 \footnotesize
 \begin{tabular}{@{}lrrrrrrr@{}}
-\toprule.  
+\toprule
  & \textbf{Table I} & \textbf{Table II} & \textbf{Table III} & \textbf{Table IV} & \textbf{Table V} & \textbf{Table VI} \\
  & Agg.\ Totals & IQ Means & ETR (MNE) & ETR (Sub.) & Size Dist.\ & Size Agg.\ \\
 \midrule
@@ -505,7 +508,7 @@ and the profit-weighted average top-up rate for the low-taxed portion is:
 
 \subsubsection{Beta mixture alternative}\label{sec:beta_mixture}
 
-\workingnote{show this in light of literature, also maybe in other strands, look up the theory about this}
+\workingnote{show in light of literature, theory look up}
 
 The piecewise-uniform assumption compresses the extreme tails. Subgroups with ETRs near zero are assigned the 5th percentile value rather than their true lower rate, suppressing the measurement of ultra-low-tax profit shifting. This compression is particularly damaging for conduit jurisdictions (Ireland, the Netherlands, Luxembourg, Singapore) which exhibit \emph{bimodal} ETR distributions: a distinct mass of holding and IP entities clusters near an ETR of zero, while a separate mass of operating entities clusters near the headline statutory rate.
 
@@ -815,14 +818,17 @@ The revenue pipeline and the January 2026 institutional framework generate six t
 
 \subsection{Descriptive statistics}\label{sec:descriptive}
 
+
 \newpage
 \section{Discussion and conclusion}\label{sec:discussion}
 
 \subsection{Discussion}\label{sec:discussion_main}
 
+
 \subsection{Policy implications}\label{sec:implications}
 
 \subsection{Limitations}\label{sec:limitations}
+
 
 
 \newpage
@@ -842,9 +848,9 @@ The revenue pipeline and the January 2026 institutional framework generate six t
 
 \subsection{CbCR data}\label{app:CbCR}
 
-The CbCR data is split into six ``Tables''. 
+The CbCR data are split into six ``Tables''.
 
-Each table shares the following fiveteen collumns: 
+Each table shares the following fifteen columns: 
 
 \begin{table}[H]
 \centering
@@ -1017,10 +1023,9 @@ Year & Parent & Total & Positive & Zero & NaN & Positive \\
 \end{tabular}
 \end{table}
 
-The most recent release (fiscal year 2022) reports data from 54 parent jurisdictions, representing approximately 98\% of all CbCR filings globally \citep{oecd2025a}. The 2016 release (the first year) covered only 26 jurisdictions, and the dataset grew substantially in 2017-2018 as BEPS Action 13 legislation was enacted across OECD and G20 members. The 2021 vintage shows a spike in NaN observations (30,418 rows), which largely disappeared in 2022; this likely reflects a transitional period in OECD data processing after the redesign of the CbCR publication framework.\footnote{The 2021 vintage was the first published under the new disaggregated SDMX format; some jurisdictions
-submitted incomplete data during this transition.}
+The most recent release (fiscal year 2022) reports data from 54 parent jurisdictions, representing approximately 98\% of all CbCR filings globally \citep{oecd2025a}. The 2016 release (the first year) covered only 26 jurisdictions, and the dataset grew substantially in 2017-2018 as BEPS Action 13 legislation was enacted across OECD and G20 members. The 2021 vintage shows a spike in NaN observations (30,418 rows), which largely disappeared in 2022; this likely reflects a transitional period in OECD data processing after the redesign of the CbCR publication framework.\footnote{The 2021 vintage was the first published under the new disaggregated SDMX format; some jurisdictions submitted incomplete data during this transition.}
 
-\workingnote{add this citation still}
+\workingnote{citation}
 
 \subsubsection{Table I: Aggregate Totals by Jurisdiction}\label{sec:table1}
 Table I reports jurisdiction-level financial aggregates, broken down by parent jurisdiction (REF\_AREA), affiliate jurisdiction (COUNTERPART\_AREA), profit panel (PANELAI / PANELAII), and statistical categories (aggregate, P5, P25, P50, P75, P95). The combination of parent and affiliate jurisdiction creates a bilateral dataset analogous to a trade matrix: each cell represents the total activity of all MNEs headquartered in country $i$ that have constituent entities in country $j$. The main bilateral region aggregates available as \code{COUNTERPART\_AREA} values include: individual ISO country codes (154 countries), \code{WXD} (world excluding domestic), \code{W} (world total), \code{STLS} (stateless entities), and several regional aggregates (\code{A}, \code{A\_O}, \code{E}, \code{E\_O}, \code{F}, \code{F\_O}, \code{S}, \code{S\_O} representing Americas, Europe, Africa, and similar groupings excluding the parent's own region).
@@ -1116,7 +1121,7 @@ Labour cost data are collected from three sources to maximise country coverage. 
 
 \section{Additional data information}\label{sec:add_data}
 
-\workingnote{AI generated based on datasets!!!}
+\workingnote{AI generated based on datasets!!}
 
 \subsection{Wage and Earnings Data}\label{sec:wages_appendix}
 
