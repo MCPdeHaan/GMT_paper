@@ -1,7 +1,7 @@
 %% Compile pdflatex > biber > pdflatex > pdflatex, or: latexmk -pdf thesisv2
 %% Set \workingdocfalse before final submission to hide 
 \newif\ifworkingdoc
-\workingdoctrue
+\workingdocfalse
 
 \documentclass[11pt,a4paper]{article}
 
@@ -60,7 +60,7 @@
   linkcolor         = blue!60!black,
   citecolor         = blue!60!black,
   urlcolor          = blue!60!black,
-  pdftitle          = {Revenue Implications of the Global Minimum Tax},
+  pdftitle          = {Decomposition of Global Minimum Tax Revenue Using CbCR Data},
   pdfauthor         = {Maurits de Haan},
   pdfsubject        = {MSc Economic Policy Thesis - Utrecht University},
   pdfkeywords       = {global minimum tax; Pillar Two; CbCR; revenue estimation; ETR; profit shifting; BEPS},
@@ -124,15 +124,14 @@
 
     \vspace*{1.5em}
     {\large\bfseries Utrecht University School of Economics}\\[0.3em]
-    {\normalsize MSc Economic Policy}\\[3em]
+
+    \includegraphics[height=2.5cm]{UU_logo_2021_EN_RGB.png}\\[0.8em]
 
     \rule{\textwidth}{1pt}\\[1.2em]
 
     {\LARGE\bfseries
-      Decomposing Global Minimum Tax\\[0.3em]
-      Revenue Uncertainty:\\[0.5em]
-      \large\bfseries
-      Evidence from Country-by-Country Reporting Data%
+      Decomposition of Global Minimum Tax\\[0.3em]
+      revenue using CbCR data:%
       \footnote{The copyright of this thesis rests with the author. The author is responsible for its contents and opinions expressed in the thesis. U.S.E.\ is only responsible for the academic coaching and supervision and cannot be held liable for the content. I am grateful to dr. Peter Gerbrands for valuable comments and discussions. \workingnote{check that this is compliant with UU rules}}}%
     \\[1.2em]
 
@@ -529,7 +528,7 @@ Low-taxed profit is measured with a hybrid design. For EU affiliates in years wi
 \begin{equation}\label{eq:share_direct}
 s_{j,t}^{<T,\text{IV}} = \frac{\pi_{j,t}^{<T,\text{IV}}}{\pi_{j,t}^{\text{all,IV}}}
 \end{equation}
-where both numerator and denominator use the corrected profit base $\pi^*$ wherever \code{PROFIT\_ADJ} is observed. For the 2016--2020 panel, and for cells not directly observed in Table IV, the Beta mixture (equation \ref{eq:beta_mixture}) or piecewise-uniform distribution (equation \ref{eq:lowtax_share}) provides the extension. The bilateral low-taxed profit volume is:
+where both numerator and denominator use the corrected profit base $\pi^*$ wherever \code{PROFIT\_ADJ} is observed. For the 2016--2020 panel, and for cells not directly observed in Table IV, the Beta mixture (equation \ref{eq:beta_mixture} \workingnote{placeholder}) or piecewise-uniform distribution (equation \ref{eq:lowtax_share}) provides the extension. The bilateral low-taxed profit volume is:
 \begin{equation}\label{eq:lowtax_profit}
 \ell_{p,j,t} = s_{j,t}^{<T} \cdot \pi_{p,j,t}^{*}
 \end{equation}
@@ -756,10 +755,12 @@ Each factor maps to a pipeline stage. Factor 1 switches $s_j^{<T}$ between binar
 
 Revenue is computed under all $2^5 = 32$ factor combinations.\footnote{The application of a full factorial design to GMT revenue estimation is original to this thesis. \citet{barake2022} and \citet{hugger2026} vary parameters one at a time; neither presents a design that makes all factor interactions simultaneously visible and exactly decomposable via an ANOVA identity.} Let $\mathbf{x} = (x_1, \ldots, x_5) \in \{0, 1\}^5$ denote a configuration. The revenue under configuration $\mathbf{x}$ is $R(\mathbf{x})$.
 
+\workingnote{add later on fully}
+
 
 \subsection{Hypotheses}\label{sec:hypotheses}
 
-The revenue pipeline and the January 2026 institutional framework generate six testable hypotheses.
+The revenue pipeline and the January 2026 institutional framework generate six testable hypotheses. \workingnote{add later on}
 
 \textbf{H1 ETR measurement dominance:} The choice between jurisdiction-average and distributional ETR measurement is the single largest source of variation in GMT revenue estimates. Under the average approach, $s_j^{<T}$ is binary; under the distributional approach, it is continuous. For any jurisdiction where the average ETR exceeds $T$ but the distribution has mass below $T$, switching approaches creates a discrete jump in the measured base. \citet{hugger2026} show that 53.2\% of global low-taxed profit lies in such jurisdictions, implying that the distributional approach approximately doubles the GMT base.
 
