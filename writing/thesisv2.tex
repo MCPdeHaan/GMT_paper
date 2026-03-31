@@ -1,7 +1,7 @@
 %% Compile pdflatex > biber > pdflatex > pdflatex, or: latexmk -pdf thesisv2
 %% Set \workingdocfalse before final submission to hide 
 \newif\ifworkingdoc
-\workingdocfalse
+\workingdoctrue
 
 \documentclass[11pt,a4paper]{article}
 
@@ -230,6 +230,8 @@
 
 \section{Introduction}\label{sec:introduction}
 
+\workingnote{add the relevance more clear and explicit}
+
 The Global Minimum Tax (GMT) is the most consequential reform of international corporate taxation in decades.\workingnote{political ocntext? why 137 jurisdictions agreed, positioning for non-specialist} Agreed upon in October 2021 by 137 jurisdictions under the OECD/G20 Inclusive Framework on Base Erosion and Profit Shifting (BEPS), the GMT introduces a minimum effective tax rate (ETR) of 15\% on the profits of multinational enterprises (MNEs) with consolidated revenues exceeding \EUR 750 million. The reform was motivated by decades of intensifying profit shifting, with estimates ranging from \$310 billion to \$850 billion annually being shifted to low-tax jurisdictions \citep{torslov2023, garcia-bernardo2024, blouin2023}. Implementation of the Global Minimum Tax started in January 2024 with the European Union (EU), the United Kingdom, Japan, South Korea and several other jurisdictions. Others followed in 2025.\workingnote{show who have implemented and reasoning why CbCR data is only feaible apporach and no ex-post}
 
 Despite its scope, the GMT's economic effects remain uncertain. Theoretical analyses reach different conclusions depending on the form of tax competition assumed \parencite{janeba2023}, the endogeneity of tax-haven responses \parencite{johannesen2022}, and the role of enforcement cooperation \parencite{jean2026}. Empirical revenue estimates span a wide range, from roughly \EUR100 to \EUR180 billion globally, depending on assumptions about carve-out utilisation and behavioural responses \parencite{barake2022}. The substance-based income exclusion (SBIE), which shelters returns to tangible assets and payroll from the top-up tax, may transform the minimum tax into an effective production subsidy for jurisdictions with real economic activity \parencite{schjelderup2024}. The January 2026 OECD Administrative Guidance introduced three safe harbour provisions (the Side-by-Side (SbS) Safe Harbour, the Substance-Based Tax Incentive (SBTI) Safe Harbour, and the Simplified ETR Safe Harbour) that alter revenue allocation, effective tax floors, and compliance incentives \citep{oecd2026}. In particular, the SbS Safe Harbour exempts US-parented MNEs from IIR and UTPR collection. 
@@ -410,8 +412,7 @@ $s_{j,t}^{<T}$ & Share of profit with ETR below $T$ in jurisdiction $j$ \\
 $\ell_{p,j,t}$ & Low-taxed profit volume $= s_{j,t}^{<T} \cdot \pi_{p,j,t}^{*}$ \\
 $\bar{\delta}_{j,t}^{\text{top}}$ & Average top-up rate on the low-taxed portion \\
 $\sigma_W(t), \sigma_A(t)$ & SBIE payroll and tangible assets carve-out rates \\
-$\text{SBIE}_{p,j,t}$ & Substance-based income exclusion \\
-$\rho_{p,j,t}$ & SBIE-to-profit ratio $= \text{SBIE}_{p,j,t} / \pi_{p,j,t}^{*}$ \\
+$\ {p,j,t}$ & SBIE-to-profit ratio $= \text{SBIE}_{p,j,t} / \pi_{p,j,t}^{*}$ \\
 $\text{SC}_{p,j,t}$ & Substance Cap under SBTI Safe Harbour \\
 $\kappa_{j,s,t}$ & Sectoral SBTI-capacity proxy (Section \ref{sec:sbti_amplification}) \\
 $\beta_{j,t}$ & Fraction of low-taxed profit reallocated under behavioural response \\
@@ -459,6 +460,9 @@ MNE size classes & No & No & No & No & No & Yes (6) \\
 \newpage 
 
 \section{Methodology}\label{sec:methodology}
+
+\workingnote{add all the statistical methods, now it is very unclear how something is verified (tested)}
+\workingnote{answer more clear how i am going to answer the hypothesises}
 
 GMT revenue depends on five quantities: how much profit falls below the minimum rate, how far below it falls, what fraction the substance exclusion shields, how MNEs adjust their behaviour, and which jurisdiction collects the residual liability. This section builds the estimation framework in sequence. Sections \ref{sec:etr_measurement}-\ref{sec:behavioural} develop the three stages of the revenue pipeline: identifying low-taxed profit, applying the substance-based income exclusion, and modelling behavioural responses. Section \ref{sec:sbs} specifies the revenue allocation rule under the January 2026 Side-by-Side Safe Harbour. Section \ref{sec:pipeline} assembles these stages into a single multiplicative equation. Section \ref{sec:decomposition} decomposes the resulting revenue surface, and Section \ref{sec:hypotheses} derives testable hypotheses.
 
@@ -1300,7 +1304,79 @@ Eurostat inward FATS provide information on foreign-controlled enterprises opera
 
 \section{Methodology working notes}
 
-\workingnote{now all deleted}
+
+
+
+The preferred alternative is a zero-inflated two-component Beta mixture:\footnote{A Gaussian mixture was considered and rejected because ETRs are bounded on $[0,1]$. A normal mixture assigns positive mass outside the feasible support, distorting the low-tax share estimate precisely where it matters most---near zero. The Beta distribution respects the bounded support and naturally accommodates the asymmetric, heavy-tailed shapes observed in conduit jurisdictions. Bimodality is tested using the dip test of \citet{hartigan1985}; jurisdictions with a dip test $p$-value below 0.10 are candidates for the two-component specification.}
+\begin{equation}\label{eq:beta_mixture}
+f_{j,t}(\tau) = \omega_{j,t}\,\delta_0(\tau) + (1 - \omega_{j,t})\Big[\lambda_{j,t}\, b(\tau;\alpha_{1},\beta_{1}) + (1 - \lambda_{j,t})\, b(\tau;\alpha_{2},\beta_{2})\Big]
+\end{equation}
+where $\delta_0$ is a point mass at zero (capturing entities with no tax liability), $b(\cdot;\alpha,\beta)$ is the Beta density, and $\omega_{j,t}$ is the zero-inflation weight. For conduit jurisdictions, the first component ($\alpha_1, \beta_1$) captures the holding-entity mode near zero and the second ($\alpha_2, \beta_2$) captures the operating-entity mode near the statutory rate. Parameters are estimated by minimum distance, matching the five observed Table I percentiles, the jurisdiction-average ETR, and the Table IV low-tax share $s_{j,t}^{<T,\text{IV}}$.\footnote{With seven moment conditions (five percentiles, the mean, and the Table IV share) and six free parameters ($\omega, \lambda, \alpha_1, \beta_1, \alpha_2, \beta_2$), the system is slightly overidentified, allowing a goodness-of-fit diagnostic. Where Table IV is unavailable the system is exactly identified.}
+
+The Beta mixture produces a higher $s_{j,t}^{<T}$ for conduit jurisdictions because it places positive mass at ETRs between zero and the 5th percentile. The piecewise-uniform fit is retained as a robustness check within the factorial design (Factor 1).
+
+
+hybrid approach
+
+For each affiliate jurisdiction $j$ covered by both tables, the validation ratio $\lambda_j = \pi_{j,t}^{<T,\text{IV}} / \pi_{j,t}^{<T,\text{I}}$ compares the direct Table IV measurement against the distribution-implied estimate. Under H5, $\lambda_j > 1$ for conduit jurisdictions (whose bimodal distributions are compressed by the piecewise-uniform assumption) and $\lambda_j \approx 1$ for unimodal jurisdictions. A Wilcoxon signed-rank test assesses whether the median ratio differs from unity. No prior study has compared the percentile-based distributional approach with the direct ETR bracket data from Table IV.\footnote{Table IV covers 49 parent and 154 affiliate jurisdictions; all 27 EU Member States appear as affiliates. The Switzerland anomaly (profit values approximately 8,600$\times$ Table I in 2022) requires excluding CHE from the cross-validation.}
+
+
+welfare implications
+
+\citet{johannesen2022} shows that the GMT is unambiguously welfare-improving for non-haven countries only when the profit-shifting semi-elasticity exceeds approximately 4. The consensus aggregate estimate of 0.8 falls well below this threshold. Under the Dowd quadratic specification, $\varepsilon_Q(\tau) > 4$ when $\tau < 0.077$ (7.7\%), so the welfare test is satisfied only for the most aggressively low-taxed profit.
+
+The January 2026 safe harbours alter this analysis. The SbS Safe Harbour (Section \ref{sec:sbs}) eliminates the IIR and UTPR channels for US-parented MNEs. Under \citeauthor{johannesen2022}'s framework, the welfare gain depends on the revenue captured by the non-haven country; the SbS exemption reduces this revenue for EU Member States, weakening the welfare case unless QDMTTs compensate fully. The SBTI permits continued tax competition through expenditure-based incentives, which \citet{janeba2023} predict will partially offset GMT revenue gains. Competition has not been eliminated; it has shifted from headline rates to opaque subsidies, infrastructure investment, and qualified refundable tax credit, restricted to jurisdictions with physical substance sufficient to generate a large Substance Cap.
+
+The welfare-relevant threshold is computed from the ETR distribution. The share of global low-taxed profit with ETR below 7.7\%-the rate at which $\varepsilon_Q > 4$- provides a lower bound on the fraction for which the GMT passes the Johannesen welfare test. \citet{vantriet2025} provide the first quantitative general-equilibrium assessment using the CORTAX model. Their CIT-rate-adjustment scenario yields welfare gains for nearly all countries and identifies an optimal GMT rate of 16\%, but their model pre-dates the SbS package and does not incorporate the SBTI mechanism.
+
+Stage 3 delivers the behavioural filter $(1 - \beta_{j,t})$: the fraction of low-taxed profit that remains in the jurisdiction after the behavioural response.
+
+
+from factorial design onwards
+
+
+The marginal contribution of factor $i$:
+\begin{equation}\label{eq:marginal}
+\Delta_i = \frac{1}{2^4} \sum_{\mathbf{x}_{-i} \in \{0,1\}^4} \left[R(x_i = 1, \mathbf{x}_{-i}) - R(x_i = 0, \mathbf{x}_{-i})\right]
+\end{equation}
+
+The interaction between factors $i$ and $k$:
+\begin{equation}\label{eq:interaction}
+\Delta_{ik} = \frac{1}{2^3} \sum_{\mathbf{x}_{-ik}} \left[R(1, 1, \mathbf{x}_{-ik}) - R(1, 0, \mathbf{x}_{-ik}) - R(0, 1, \mathbf{x}_{-ik}) + R(0, 0, \mathbf{x}_{-ik})\right]
+\end{equation}
+
+The total variation satisfies the ANOVA identity:
+\begin{equation}\label{eq:anova}
+\text{Var}(R) = \sum_i \text{Var}(\Delta_i) + \sum_{i < k} \text{Var}(\Delta_{ik}) + \text{higher-order interactions}
+\end{equation}
+For $2^5$ with five binary factors, this decomposition is exact (no residual).
+
+The multiplicative pipeline structure makes interactions economically interpretable. A positive $\Delta_{13}$ interaction means that the distributional ETR approach and the long-run SBIE rates jointly amplify revenue beyond the sum of their individual effects: a larger measured base is exposed to less shielding at long-run rates. The interaction between Factor 4 (SbS) and Factor 1 (ETR distribution) is of particular policy interest: if the distributional approach reveals a large volume of US-parented low-taxed profit in EU jurisdictions without QDMTTs, the SbS carve-out eliminates a proportionally larger revenue stream than the jurisdiction-average approach would predict. The $\Delta_{14}$ interaction quantifies this compounding loss.
+
+\subsubsection{Shapley-value robustness}\label{sec:shapley}
+
+Factors 2 and 3 are inherently correlated: changing the SBIE specification from aggregate to sectoral mechanically alters the model's sensitivity to declining carve-out rates. The Shapley-value decomposition averages each factor's marginal contribution over all possible orderings:
+\begin{equation}\label{eq:shapley}
+\phi_i = \sum_{S \subseteq \{1,\ldots,5\} \setminus \{i\}} \frac{|S|!\,(4-|S|)!}{5!} \left[R(S \cup \{i\}) - R(S)\right]
+\end{equation}
+
+The Shapley shares $\phi_i$ are reported alongside the ANOVA marginal contributions $\Delta_i$. If the rank ordering of dominant factors diverges between the two approaches, the divergence traces to the non-orthogonal nature of the physical substance variables. This comparison strengthens the robustness of the decomposition.
+
+\subsubsection{Revenue uncertainty map}\label{sec:uncertainty_map}
+
+The decomposition's output is a \emph{revenue uncertainty map}: for each EU Member State, which factor dominates the variation. The map assigns each jurisdiction $j$ a dominant factor $i^*(j)$ and a dominance ratio:
+\begin{equation}\label{eq:dominant_factor}
+i^*(j) = \arg\max_i \left|\Delta_i(j)\right|, \qquad d(j) = \frac{|\Delta_{i^*}(j)|}{\sum_k |\Delta_k(j)|}
+\end{equation}
+
+Expected heterogeneity across jurisdictions: for low-ETR jurisdictions with substantial real operations (Ireland, Singapore), Factor 2 or 3 dominates. For jurisdictions near the 15\% threshold (Hong Kong, Cyprus), Factor 1 dominates. For jurisdictions with very low ETRs and little substance (Bermuda, Cayman Islands), Factor 5 dominates. Factor 4 (SbS) dominates for affiliates with US-parented MNEs in jurisdictions without a QDMTT.
+
+A nonparametric bootstrap ($B = 1{,}000$ replications) provides 95\% confidence intervals for $\Delta_i$ and $\Delta_{ik}$, resampling bilateral $(p,j)$ pairs with replacement and recomputing all 32 scenarios per draw.
+
+The profit-base correction from equation \eqref{eq:profit_corrected} is evaluated outside the binary factorial in three states (conservative, baseline, aggressive). This preserves the exact $2^5$ ANOVA identity while still showing how sensitive the revenue surface is to double-counting assumptions. If the Shapley and ANOVA rankings are stable across correction states, the factorial decomposition is robust to the profit-base choice.
+
+
+
 \fi
 
 \end{document}
