@@ -1,0 +1,603 @@
+%% Orbis Data Collection Handbook
+%% Companion to thesisv2.tex — step-by-step guide for extracting
+%% firm-level data from Moody's/BvD Orbis for SBIE validation.
+%% Compile: pdflatex orbis_data_handbook.tex
+
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage{lmodern}
+\usepackage[british]{babel}
+
+\usepackage[
+  a4paper,
+  top    = 2.5cm,
+  bottom = 2.5cm,
+  left   = 3.0cm,
+  right  = 2.5cm,
+]{geometry}
+
+\usepackage{setspace}
+\onehalfspacing
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{amsmath,amssymb}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{graphicx}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\usepackage[font=small, labelfont=bf, skip=4pt]{caption}
+
+\usepackage{xcolor}
+\usepackage[
+  colorlinks = true,
+  linkcolor   = blue!60!black,
+  urlcolor    = blue!60!black,
+]{hyperref}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\itshape Orbis Data Collection Handbook}
+\fancyhead[R]{\small\itshape de Haan (\the\year)}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcommand{\field}[1]{\texttt{#1}}
+\newcommand{\menu}[1]{\textsf{#1}}
+\newcommand{\step}[1]{\noindent\textbf{Step #1.}\quad}
+
+\title{\textbf{Orbis Data Collection Handbook}\\[0.5em]
+  \large Companion to: \textit{Decomposition of Global Minimum Tax Revenue Using CbCR Data}}
+\author{Maurits de Haan}
+\date{March 2026}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+%% ============================================================
+\section{Purpose and scope}\label{sec:purpose}
+%% ============================================================
+
+This handbook documents the exact steps for collecting firm-level data from Moody's Orbis (Bureau van Dijk) to serve as an external cross-check on the SBIE-to-profit ratios estimated from OECD CbCR $\times$ Eurostat FATS in the main thesis. Orbis data are \textbf{not} a core input; they enter only as a validation layer (see thesisv2.tex, Section 3.1).
+
+Specifically, the Orbis extract is used to:
+\begin{enumerate}[noitemsep]
+  \item Compute entity-level SBIE-to-profit ratios ($\rho = \sigma_W \cdot W/\pi + \sigma_A \cdot A/\pi$) by NACE sector and jurisdiction.
+  \item Compare Orbis-aggregated payroll/profit and tangible-assets/profit ratios against the CbCR--FATS imputed values.
+  \item Check whether the sectoral composition of MNE subsidiaries in low-tax jurisdictions matches CbCR activity codes (\field{ACT\_HOLDING}, \field{ACT\_IP}, \field{ACT\_MAN}).
+\end{enumerate}
+
+The target population mirrors Pillar Two: subsidiaries of MNE groups with consolidated group revenue $\geq$ EUR~750 million.
+
+%% ============================================================
+\section{Access options}\label{sec:access}
+%% ============================================================
+
+Utrecht University provides Orbis access via the university library. There are two routes:
+
+\begin{enumerate}[noitemsep]
+  \item \textbf{Orbis web interface} (\url{https://orbis.bvdinfo.com}): Available through the UU library proxy. Suitable for small extracts ($\leq$ 500 companies per export batch). You will need multiple batches.
+  \item \textbf{Orbis via WRDS} (Wharton Research Data Services): If UU has a WRDS subscription, the dataset \menu{Orbis Historical} allows bulk SQL-style queries with no per-batch limit. Check with the USE library data specialist.
+\end{enumerate}
+
+The instructions below assume the \textbf{Orbis web interface}. If you use WRDS, the variable names are the same but the extraction method differs (SAS/SQL queries instead of point-and-click).
+
+%% ============================================================
+\section{Variable dictionary}\label{sec:variables}
+%% ============================================================
+
+Table~\ref{tab:orbis_vars} lists every Orbis variable required, its BvD Global Format field name, and its exact meaning. These field names have been stable across Orbis versions since at least 2018. In the web interface, however, Orbis often shows \emph{full-text labels} instead of field codes. For example, \field{GUO50\_TYPE = C} usually appears as \menu{Corporate companies}, and the consolidation preference is often controlled through \menu{Search settings} rather than through the \menu{Standardised legal form} menu.
+
+\begin{longtable}{@{}L{3.2cm} L{2.5cm} L{7.8cm}@{}}
+\caption{Required Orbis variables and definitions}\label{tab:orbis_vars}\\
+\toprule
+\textbf{Concept} & \textbf{Orbis field} & \textbf{Definition and notes} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Concept} & \textbf{Orbis field} & \textbf{Definition and notes} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{3}{r}{\small\itshape continued \ldots}\\
+\endfoot
+\bottomrule
+\endlastfoot
+
+%% --- Identification ---
+\multicolumn{3}{l}{\textit{Identification}} \\
+BvD ID & \field{BVD\_ID\_NUMBER} & Unique entity identifier. Format: 2-letter country code + local register number (e.g.\ \field{NL12345678}). Use this as the primary key. \\
+Company name & \field{NAME} & Legal name as registered. \\
+Country ISO & \field{CTRYCODE} & ISO~3166-1 alpha-2 code of the entity's registered office. This is the \emph{jurisdiction of incorporation}, which may differ from the jurisdiction of tax residence. \\
+\addlinespace
+
+%% --- Ownership ---
+\multicolumn{3}{l}{\textit{Ownership structure}} \\
+GUO BvD ID & \field{GUO50\_BVDID} & BvD ID of the Global Ultimate Owner at the 50.01\% ownership threshold. The ``50'' refers to majority control, which aligns with Pillar Two's ``controlling interest'' criterion. \\
+GUO name & \field{GUO50\_NAME} & Name of the GUO. \\
+GUO country & \field{GUO50\_ISO} & ISO country code of the GUO. This maps to the CbCR ``parent jurisdiction'' ($p$). \\
+GUO type & \field{GUO50\_TYPE} & Entity type of GUO: \field{C} = Corporate, \field{I} = Individual, \field{F} = Fund, etc. In the Orbis web interface, this usually appears as the full-text label \menu{Corporate companies}. Filter to the corporate option only. \\
+Independence indicator & \field{INDEP\_INDIC} & Letter grade A+ to D. \field{A+/A/A-}: no known shareholder $>$25\%. Entities with \field{A} ratings are likely GUOs themselves. \\
+\addlinespace
+
+%% --- Consolidation ---
+\multicolumn{3}{l}{\textit{Consolidation}} \\
+Consolidation code & \field{CONSOL\_CODE} & \textbf{Critical variable.} Values: \field{U1} = unconsolidated, consolidated companion exists; \field{U2} = unconsolidated only; \field{C1} = consolidated, unconsolidated companion exists; \field{C2} = consolidated only; \field{LF} = limited financials only. For subsidiary-level analysis: use \field{U1} or \field{U2}. For screening GUO group revenue: use \field{C1} or \field{C2}. In the current web interface, this preference is often set in \menu{Search settings} rather than exposed as a normal search filter. \\
+\addlinespace
+
+%% --- Financial ---
+\multicolumn{3}{l}{\textit{Financial variables (from profit \& loss / balance sheet)}} \\
+Operating revenue & \field{OPRE} & Operating revenue (= turnover + other operating revenue). Reported in millions of the selected currency in the Orbis interface. This is the broadest top-line revenue measure; closer to CbCR \field{TOT\_REV} than \field{TURN} alone. Used at GUO level to screen for EUR~750M threshold. \\
+Turnover & \field{TURN} & Net sales / turnover. Narrower than \field{OPRE}; excludes other operating income. Use \field{OPRE} as the primary variable; fall back to \field{TURN} only if \field{OPRE} is missing. \\
+Profit before tax & \field{PLBT} & Profit (loss) before taxation. This is the P\&L line item before the income tax charge. Maps directly to CbCR \field{PROFIT}. Can be negative (loss). \\
+Taxation & \field{TAXA} & Income tax charge in the income statement. \textbf{Caution}: this is the \emph{total} tax charge (current + deferred), not cash tax paid. In CbCR, \field{TAX\_ACCRUED} is current-year only. For ETR computation, the Orbis-based ETR = \field{TAXA}/\field{PLBT} will diverge from the CbCR ETR due to deferred tax. Use only as a cross-check, not as a primary ETR source. \\
+Costs of employees & \field{STAF} & Total personnel costs: wages, salaries, social charges, pension contributions. Maps to CbCR \field{EARNINGS} (total payroll / compensation of employees). This is the \textbf{payroll component} of the SBIE: $W$ in $\sigma_W \cdot W$. \\
+Tangible fixed assets & \field{TFAS} & Net book value of tangible fixed assets (property, plant, equipment) after accumulated depreciation, \emph{excluding} cash and cash equivalents. Maps to CbCR \field{ASSETS}. This is the \textbf{tangible assets component} of the SBIE: $A$ in $\sigma_A \cdot A$. \\
+Total assets & \field{TOAS} & Total assets on the balance sheet. Not used in SBIE computation directly but useful for sanity checks (e.g.\ \field{TFAS} should be $\leq$ \field{TOAS}). \\
+Number of employees & \field{EMPL} & Headcount (persons, not FTE). May be end-of-year or average depending on jurisdiction. Maps approximately to CbCR \field{EMPLOYEES}. \textbf{Warning}: this variable has the highest missingness rate in Orbis ($\sim$50--70\% missing depending on jurisdiction). \\
+\addlinespace
+
+%% --- Sector ---
+\multicolumn{3}{l}{\textit{Sector classification}} \\
+NACE Rev.~2 primary & \field{NACE2\_MAIN} & 4-digit NACE Rev.~2 code of the entity's primary activity. This is the link to Eurostat FATS sectoral shares. Orbis assigns NACE codes based on self-reported activity descriptions. \\
+NACE description & \field{NACE2\_LABEL} & Text label for the primary NACE code. \\
+\end{longtable}
+
+\subsection{What the variables do and do not measure}\label{sec:var_caveats}
+
+Several Orbis variables have subtleties that differ from their CbCR counterparts:
+
+\begin{enumerate}[noitemsep]
+  \item \textbf{\field{STAF} vs CbCR \field{EARNINGS}}: Orbis \field{STAF} follows local accounting standards (GAAP) and includes employer social contributions, pension charges, and sometimes share-based compensation. CbCR \field{EARNINGS} is defined as ``eligible payroll costs'' under GloBE rules, which excludes share-based compensation above certain thresholds. The Orbis value is therefore a slight overestimate of the GloBE-eligible payroll, which makes the SBIE validation conservative (overstating substance).
+
+  \item \textbf{\field{TFAS} vs CbCR \field{ASSETS}}: Both measure tangible fixed assets net of depreciation and excluding cash. However, CbCR \field{ASSETS} uses the GloBE definition which includes right-of-use assets under IFRS~16 leases, while Orbis \field{TFAS} under local GAAP in many jurisdictions does \emph{not} capitalise operating leases. This means Orbis \field{TFAS} may understate the CbCR value, particularly for sectors with large lease portfolios (retail, transport, real estate).
+
+  \item \textbf{\field{TAXA} vs CbCR \field{TAX\_ACCRUED}}: Orbis \field{TAXA} includes deferred tax, CbCR \field{TAX\_ACCRUED} does not. The Orbis-based ETR (\field{TAXA}/\field{PLBT}) will be noisier and may diverge systematically from the CbCR ETR. Do \emph{not} use Orbis ETRs as a primary input; they serve only as a plausibility check.
+
+  \item \textbf{\field{EMPL} vs CbCR \field{EMPLOYEES}}: CbCR reports full-time equivalents (FTE); Orbis reports headcount. In jurisdictions with high part-time employment (Netherlands, Germany), Orbis headcount will exceed CbCR FTE.
+
+  \item \textbf{Currency}: Orbis financial variables in the search interface are in \emph{millions} of the selected currency. In data exports, values may be in thousands or units depending on the export settings --- always check the column headers. CbCR data are in USD. You must convert Orbis values using end-of-fiscal-year exchange rates before comparing.
+\end{enumerate}
+
+
+%% ============================================================
+\section{Step-by-step extraction: Orbis web interface}\label{sec:steps}
+%% ============================================================
+
+\subsection{Orbis interface overview}\label{sec:interface}
+
+The Orbis search interface has a left-hand panel listing top-level \textbf{search categories}. Clicking a category reveals specific criteria in the right-hand panel. The exact categories (in order) are:
+
+\begin{center}
+\small
+\begin{tabular}{@{}rll@{}}
+\toprule
+& \textbf{Category} & \textbf{What it contains} \\
+\midrule
+1 & \menu{Favourites} & Saved/bookmarked search criteria \\
+2 & \menu{Company} & Name, \menu{Status} (active/inactive), \menu{Standardised legal form}, year of incorporation, \menu{Number of employees}, \menu{Size classification} \\
+3 & \menu{Identifiers} & BvD ID, national ID numbers, ISIN, LEI \\
+4 & \menu{Location} & World region, \menu{Country}, Region in country, City, Postcode \\
+5 & \menu{Activities and industry} & NACE codes, US SIC, NAICS, trade description, products/services \\
+6 & \menu{Financials} & Sub-criteria including \menu{Key Financials and Employees} (operating revenue, profit, assets, employees, etc.), absolute/growth/ratio filters \\
+7 & \menu{Agency ratings} & S\&P, Moody's, Fitch ratings \\
+8 & \menu{National scores} & Country-specific credit scores \\
+9 & \menu{Directors, managers and advisors} & Board composition, named directors \\
+10 & \menu{Ownership} & See Table~\ref{tab:ownership_menu} below \\
+11 & \menu{Stock and Earnings estimates} & Market data, analyst estimates \\
+12 & \menu{Credit default swaps} & CDS data \\
+13 & \menu{Recent updates} & Recently updated companies \\
+14 & \menu{Notes and custom data} & User-defined tags \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{table}[H]
+\centering
+\caption{Ownership sub-categories in the Orbis search interface}\label{tab:ownership_menu}
+\small
+\begin{tabular}{@{}L{5cm}L{9cm}@{}}
+\toprule
+\textbf{Sub-category (exact label)} & \textbf{What it filters on} \\
+\midrule
+\multicolumn{2}{l}{\textit{Filter by properties of related entities}} \\
+Ultimate Owners with\ldots & Properties of the entity's Global Ultimate Owner (GUO): type, country, name, revenue, etc. \\
+Shareholders with\ldots & Properties of direct/indirect shareholders \\
+Subsidiaries with\ldots & Properties of the entity's subsidiaries \\
+Branches and headquarters & Branch vs.\ HQ status \\
+Affiliates & Related entities via common ownership \\
+\addlinespace
+\multicolumn{2}{l}{\textit{Filter to entities that ARE subsidiaries/shareholders}} \\
+Subsidiaries (by profile) & Find entities that are subsidiaries of a parent matching a profile (e.g.\ parent with OPRE $\geq$ 750M). In some Orbis versions this is labelled \menu{Search subsidiaries by the profile of their Ultimate Owner}. \\
+Subsidiaries (by name) & Find entities that are subsidiaries of a specific named company \\
+Foreign subsidiaries & Subsidiaries incorporated in a different country than their parent \\
+Specific number of subsidiaries & Entities with $n$+ or $n$-- subsidiaries \\
+Shareholders (by profile) & Find entities whose shareholders match a profile \\
+Shareholders (by name) & Find entities with a specific named shareholder \\
+Ultimate Owners (by profile) & Find entities whose GUO matches a profile \\
+Foreign shareholders & Entities with shareholders in a different country \\
+Shareholder also manager & Entities where a shareholder is also a director \\
+Specific number of shareholders & Entities with $n$+ or $n$-- shareholders \\
+\addlinespace
+\multicolumn{2}{l}{\textit{Post-search modifiers (applied after initial results)}} \\
+Add corporate group & Expand results to include full corporate groups \\
+Replace by shareholders & Replace results with their shareholders \\
+Replace by subsidiaries & Replace results with their subsidiaries \\
+Remove subsidiaries & Exclude subsidiaries from results. In the web interface, this option is available only when the current result set contains fewer than 2,500 companies, so it is not usable after a full Phase~2 search. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection{Phase 1: Identify qualifying GUO groups}\label{sec:phase1}
+
+The goal is to find all MNE groups with consolidated operating revenue $\geq$ EUR~750 million in at least 2 of the last 4 fiscal years (the Pillar Two threshold). In practice, screening on 1 year is sufficient for a cross-check.
+
+\step{1} Log in to Orbis via the UU library proxy: \url{https://orbis.bvdinfo.com}. If prompted, select \menu{Orbis -- Bureau van Dijk}.
+
+\step{2} Click \menu{New search} (top-left). This opens the Boolean search builder. The left-hand panel shows the categories listed in Section~\ref{sec:interface}.
+
+\step{3} In the left panel, click \menu{Financials} $\to$ in the right panel select \menu{Key Financials and Employees}:
+\begin{itemize}[noitemsep]
+  \item Select the variable \menu{Operating revenue (Turnover)}.
+  \item Set \menu{min}: \textbf{750} (the interface uses millions; 750 = EUR~750 million = the Pillar Two threshold).
+  \item Set \menu{Period}: Last available year.
+  \item Set \menu{Currency}: EUR (use the currency selector, default may be USD).
+  \item Click \menu{OK} to add this criterion.
+\end{itemize}
+
+\step{4} In the left panel, click \menu{Ownership} and apply the post-search modifier \menu{Remove subsidiaries} (or the equivalent label \menu{Remove any subsidiary of another company from the current set}):
+\begin{itemize}[noitemsep]
+  \item Use the \textbf{UO 50} definition: minimum ownership path of 50.01\%, known or unknown shareholders.
+  \item This is the main operational way to approximate top-level parent entities in the current Orbis interface.
+  \item Do \emph{not} add the \menu{BvD independence indicator} in the main Phase~1 search. In practice it is too restrictive and can remove many valid parent entities. Treat it, at most, as an optional robustness check after you have created the main parent list.
+\end{itemize}
+
+\step{5} If your Orbis version allows it, open \menu{Search settings} (gear icon / top-right of the search page) and set the account type preference to \textbf{Consolidated accounts only}:
+\begin{itemize}[noitemsep]
+  \item In terms of \field{CONSOL\_CODE}, this corresponds to selecting \field{C1} and \field{C2}.
+  \item This ensures you measure group-level revenue, not entity-level.
+  \item In the current Orbis interface, \menu{Standardised legal form} contains only legal entity types (public limited company, private limited company, partnership, etc.), not the consolidation code. If your version does \emph{not} expose a working consolidated-accounts filter, continue anyway and clean on \field{CONSOL\_CODE} after export.
+\end{itemize}
+
+\step{6} Click \menu{Search}. A broad top-level parent-candidate universe of roughly 20,000--30,000 companies is normal:
+\begin{itemize}[noitemsep]
+  \item In one documented run using \menu{Active companies} + \menu{Operating revenue (Turnover)} $\geq$ 750 + \menu{Remove subsidiaries}, Orbis returned \textasciitilde26,700 companies.
+  \item This is a \textbf{raw parent-candidate universe}, not yet the final GUO list. Mixed consolidation codes at this stage are normal if the interface did not let you prefilter to consolidated accounts.
+\end{itemize}
+
+\step{7} In the results view, click \menu{Add/remove columns}. Export the Phase~1 parent-candidate file with the columns in Table~\ref{tab:phase1_columns}. The strict minimum is 9 single-value columns; the recommended version adds \field{TURN}, \field{GUO50\_TYPE}, and \field{INDEP\_INDIC} for post-export checks.
+
+\begin{small}
+\begin{longtable}{@{}L{3.3cm}L{2.8cm}L{2.2cm}L{5.9cm}@{}}
+\caption{Phase~1 export columns: broad parent-candidate list}\label{tab:phase1_columns}\\
+\toprule
+\textbf{Variable to select in Orbis} & \textbf{Field name} & \textbf{Year setting} & \textbf{Why needed / restriction after export} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Variable to select in Orbis} & \textbf{Field name} & \textbf{Year setting} & \textbf{Why needed / restriction after export} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{4}{r}{\small\itshape continued \ldots}\\
+\endfoot
+\bottomrule
+\endlastfoot
+
+BvD ID number & \field{BVD\_ID\_NUMBER} & Single value & Required. Primary key. Deduplicate the combined export on this column. \\
+Company name & \field{NAME} & Single value & Required. Human-readable identifier for checks and manual review. \\
+Country (ISO) & \field{CTRYCODE} & Single value & Required. Parent jurisdiction. Useful for batching exports and later matching. \\
+Operating revenue & \field{OPRE} & Last available year & Required. Main threshold variable. Prefer EUR and keep the threshold at 750. If the interface only gives USD, record that explicitly. \\
+Turnover & \field{TURN} & Last available year & Optional but recommended. Fallback top-line measure when \field{OPRE} is missing. \\
+Consolidation code & \field{CONSOL\_CODE} & Single value & Required. Keep only \field{C1} and \field{C2}. Drop \field{U1}, \field{U2}, and \field{LF}. \\
+NACE Rev.~2 main code & \field{NACE2\_MAIN} & Single value & Required. Useful for fast plausibility checks by sector. \\
+NACE Rev.~2 main description & \field{NACE2\_LABEL} & Single value & Optional. Human-readable version of \field{NACE2\_MAIN}. \\
+GUO -- BvD ID & \field{GUO50\_BVDID} & Single value & Required if available. Confirms the ultimate-parent link and helps with Phase~2 tracking. \\
+GUO -- Name & \field{GUO50\_NAME} & Single value & Required if available. Manual QA on parent identity. \\
+GUO -- Country (ISO) & \field{GUO50\_ISO} & Single value & Required if available. Needed if you later want to distinguish domestic from foreign-owned structures. \\
+GUO -- Type & \field{GUO50\_TYPE} & Single value & Recommended. If available, keep \menu{Corporate companies} only. \\
+Independence indicator & \field{INDEP\_INDIC} & Single value & Optional robustness field only. Do \emph{not} use it to restrict the main Phase~1 search. \\
+\end{longtable}
+\end{small}
+
+In the top-right of the results page, check the currency selector. Switch it to EUR if the interface allows this. If the results remain in USD, record that explicitly and convert later when comparing to EUR- or USD-based thresholds.
+
+\step{8} \textbf{Export the broad parent list and clean it after export.} The results view shows buttons including \menu{Actions}, \menu{Explore}, \menu{Save}, \menu{Excel}, and the currency selector. To create the actual Phase~1 GUO list:
+\begin{itemize}[noitemsep]
+  \item Click the \menu{Excel} button (top-right) to export. Orbis allows up to $\sim$3,000 companies per Excel export.
+  \item If the result set exceeds 3,000, export in batches (e.g.\ by country or by alphabetical company-name ranges). Save these raw exports as \texttt{orbis\_guo\_candidates\_\{batch\}.xlsx}.
+  \item Combine all batches into one raw Phase~1 file. With a 26,709-company search, you need roughly 9 exports of 3,000 rows each.
+  \item Drop exact duplicates on \field{BVD\_ID\_NUMBER}.
+  \item After combining the raw exports, keep only entities with \field{CONSOL\_CODE} $\in \{\field{C1}, \field{C2}\}$. Drop \field{U1}, \field{U2}, and \field{LF}.
+  \item If \field{OPRE} is missing but \field{TURN} is present, retain the row and use \field{TURN} as a fallback revenue proxy for documentation only.
+  \item If \field{GUO50\_TYPE} is available in the export, keep \menu{Corporate companies} only.
+  \item Save the cleaned Phase~1 parent list as \texttt{orbis\_guo\_list.xlsx}. This is the file to use for Phase~2.
+\end{itemize}
+
+\subsection{Phase 2: Extract subsidiary-level financials}\label{sec:phase2}
+
+\step{9} Return to \menu{New search}. Now you search for \textbf{subsidiaries} of the qualifying GUOs.
+
+\step{10} In the left panel, click \menu{Ownership}. You have two approaches --- use whichever is available in your Orbis version:
+
+\textbf{Approach A} (preferred): Select \menu{Subsidiaries (by profile)} in the right panel. In some Orbis versions this appears as \menu{Search subsidiaries by the profile of their Ultimate Owner}.
+\begin{itemize}[noitemsep]
+  \item This lets you define properties of the \emph{parent company} whose subsidiaries you want.
+  \item Set the parent's \menu{Operating revenue (Turnover)}: min = \textbf{750} (millions EUR).
+  \item In the \menu{Type} tab, select \menu{Corporate companies}. In the \menu{Category} tab, leave both \menu{Global} and \menu{Domestic} checked unless you explicitly want to restrict the search to foreign-owned subsidiaries only; in that case, uncheck \menu{Domestic}.
+  \item Set \menu{Ownership percentage}: minimum 50.01\% (to match Pillar Two's controlling interest).
+  \item Orbis will return all entities that are subsidiaries of a company matching this profile.
+\end{itemize}
+
+\textbf{Approach B} (if A is not flexible enough): Select \menu{Ultimate Owners with\ldots} in the right panel.
+\begin{itemize}[noitemsep]
+  \item Set \menu{Operating revenue (Turnover)} of the GUO: min = \textbf{750} (millions EUR).
+  \item In the \menu{Type} tab, select \menu{Corporate companies}. If a \menu{Category} tab is shown, leave \menu{Global} and \menu{Domestic} both checked unless you intentionally want only foreign-owned subsidiaries.
+  \item This filters to all entities whose GUO has group revenue $\geq$ EUR~750M.
+\end{itemize}
+
+\textbf{Approach C} (manual upload): If neither filter gives the expected results, use \menu{Identifiers} in the left panel and upload the BvD IDs from \texttt{orbis\_guo\_list.xlsx}. Then use the post-search modifier \menu{Replace by subsidiaries} (under \menu{Ownership}) to swap the GUOs for their subsidiaries.
+
+\textbf{Important interface constraint:} Do \emph{not} rely on the post-search modifier \menu{Remove subsidiaries} to clean the result set after Phase~2. Orbis only makes that option available when the current result set contains fewer than 2,500 companies, whereas the Phase~2 subsidiary universe is typically 50,000--150,000 entities. The practical workaround is to create the broad Phase~1 top-parent list with \menu{Remove subsidiaries}, export it, clean it offline (keep \field{C1}/\field{C2}; optionally keep \menu{Corporate companies} only), and then use the cleaned BvD ID list for Phase~2. If you specifically need foreign-owned subsidiaries only, apply \field{GUO50\_ISO} $\neq$ \field{CTRYCODE} in post-processing after export. Do not use the \menu{BvD independence indicator} in the main Phase~1 search; in one documented Orbis run it reduced the parent list from about 26,700 companies to about 1,300.
+
+\step{11} Open \menu{Search settings} and set the account type preference to \textbf{Unconsolidated accounts only}:
+\begin{itemize}[noitemsep]
+  \item In terms of \field{CONSOL\_CODE}, this corresponds to \field{U1} and \field{U2}.
+  \item \textbf{This is essential.} Consolidated accounts would aggregate subsidiary financials and double-count, defeating the purpose of entity-level analysis.
+  \item In the current interface, this setting is usually not located under \menu{Standardised legal form}. If your Orbis version does expose \field{CONSOL\_CODE} directly as a search criterion, selecting \field{U1} and \field{U2} is equivalent.
+\end{itemize}
+
+\step{12} In the left panel, click \menu{Location} $\to$ select \menu{Country}:
+\begin{itemize}[noitemsep]
+  \item Select the 27 EU Member States. The sectoral SBIE validation is restricted to the EU-27 because FATS is an EU-specific dataset.
+  \item Optionally also include: Switzerland, United Kingdom, Norway, United States (for broader validation). But prioritise the EU-27.
+\end{itemize}
+
+\step{13} In the left panel, click \menu{Company} $\to$ select \menu{Status}:
+\begin{itemize}[noitemsep]
+  \item Select: \menu{Active} (or \menu{Active companies only}).
+  \item This excludes dissolved, in-liquidation, and dormant entities.
+\end{itemize}
+
+\step{14} Click \menu{Search}. Expected result: 50,000--150,000 entities (subsidiaries of large MNEs in the EU-27).
+
+\step{15} \textbf{Configure the export columns.} In the results view, click \menu{Add/remove columns}. Use the Phase~2 export specification in Table~\ref{tab:phase2_columns}. The core working export is 44 output columns: 9 single-value descriptor columns plus 7 financial variables $\times$ 5 years. If you also add \field{GUO50\_TYPE} and \field{TURN}, the export rises to 50 columns.
+
+\begin{small}
+\begin{longtable}{@{}L{3.2cm}L{2.7cm}L{2.1cm}L{6.0cm}@{}}
+\caption{Phase~2 export columns: subsidiary-level panel}\label{tab:phase2_columns}\\
+\toprule
+\textbf{Variable to select in Orbis} & \textbf{Field name} & \textbf{Year setting} & \textbf{Why needed / restriction after export} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Variable to select in Orbis} & \textbf{Field name} & \textbf{Year setting} & \textbf{Why needed / restriction after export} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{4}{r}{\small\itshape continued \ldots}\\
+\endfoot
+\bottomrule
+\endlastfoot
+
+BvD ID number & \field{BVD\_ID\_NUMBER} & Single value & Required. Primary key at the entity level. \\
+Company name & \field{NAME} & Single value & Required. Manual QA and interpretation. \\
+Country (ISO) & \field{CTRYCODE} & Single value & Required. Subsidiary jurisdiction. Restrict to selected EU-27 countries. \\
+GUO -- BvD ID & \field{GUO50\_BVDID} & Single value & Required. Links each subsidiary back to the Phase~1 parent list. \\
+GUO -- Name & \field{GUO50\_NAME} & Single value & Required. Manual QA on parent identity. \\
+GUO -- Country (ISO) & \field{GUO50\_ISO} & Single value & Required. Needed to distinguish domestic from foreign-owned structures if desired. \\
+GUO -- Type & \field{GUO50\_TYPE} & Single value & Recommended. If available, keep \menu{Corporate companies} only. \\
+Consolidation code & \field{CONSOL\_CODE} & Single value & Required. Keep only \field{U1} and \field{U2}. Drop \field{C1}, \field{C2}, and \field{LF}. \\
+NACE Rev.~2 main code & \field{NACE2\_MAIN} & Single value & Required. Maps entities into the sector aggregation. \\
+NACE Rev.~2 main description & \field{NACE2\_LABEL} & Single value & Required. Human-readable sector label. \\
+Operating revenue & \field{OPRE} & Last 5 available years & Required. General scale variable and consistency check. \\
+Turnover & \field{TURN} & Last 5 available years & Optional but recommended. Fallback if \field{OPRE} is missing in some years. \\
+Profit before tax & \field{PLBT} & Last 5 available years & Required. Keep only observations with \field{PLBT} $> 0$ for SBIE-ratio computation. \\
+Taxation & \field{TAXA} & Last 5 available years & Required. Cross-check variable for plausibility and ETR diagnostics; not a core estimation input. \\
+Costs of employees & \field{STAF} & Last 5 available years & Required. Payroll component of SBIE. Must be non-negative when present. \\
+Number of employees & \field{EMPL} & Last 5 available years & Required. Fallback for wage imputation when \field{STAF} is missing. \\
+Tangible fixed assets & \field{TFAS} & Last 5 available years & Required. Tangible-assets component of SBIE. Must satisfy \field{TFAS} $\leq$ \field{TOAS}. \\
+Total assets & \field{TOAS} & Last 5 available years & Required. Sanity check variable; drop rows with \field{TFAS} $>$ \field{TOAS}. \\
+\end{longtable}
+\end{small}
+
+\step{16} \textbf{Set the time dimension.} For each financial variable, select \menu{Last 5 available years}. This gives you up to 5 annual observations per entity. Non-financial descriptor variables (\field{BVD\_ID\_NUMBER}, \field{NAME}, \field{CTRYCODE}, \field{GUO50\_*}, \field{CONSOL\_CODE}, \field{NACE2\_*}) should be exported as single-value columns only. The ``last available year'' is typically 2022 or 2023 depending on filing delays.
+
+\step{17} \textbf{Export.} Click the \menu{Excel} button in the top-right of the results view. Orbis allows up to $\sim$3,000 companies per Excel export. If your result set exceeds 3,000:
+\begin{itemize}[noitemsep]
+  \item Sort results by country (click the country column header).
+  \item Select batches of companies and export country by country or in groups.
+  \item Save each batch as \texttt{orbis\_subs\_\{country\}.xlsx}.
+  \item The exported Excel file contains two worksheets: the first is called \menu{Search strategy} (documenting the criteria used), the second contains the data.
+\end{itemize}
+
+\textbf{Alternative for large exports:} If your Orbis subscription includes the \menu{Batch search / export} functionality (under \menu{Actions} or \menu{Tools}), you can upload the full list of BvD IDs and download all variables in one request (up to 100,000 rows). Check whether this is available.
+
+\step{18} Combine all country files into a single dataset: \texttt{data/raw/orbis/orbis\_subsidiaries\_eu27.csv}.
+
+\subsection{Phase 3: Quality checks before analysis}\label{sec:phase3}
+
+\step{19} \textbf{Check currency and units.} Verify that all financial values are in the same unit. Orbis uses millions in the search interface, but exports may use thousands or units depending on your export settings. Check the column headers of each export file for the currency and unit label. If you selected EUR as the output currency, values are in EUR; if not, you need exchange rate conversion.
+
+\step{20} \textbf{Check consolidation codes.} Verify that \emph{every} row has \field{CONSOL\_CODE} $\in$ \{\field{U1}, \field{U2}\}. If any \field{C1}, \field{C2}, or \field{LF} entries appear, remove them.
+
+\step{21} \textbf{Check missingness.} For each variable, compute the share of non-missing observations by country. Expected missingness rates:
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Variable} & \textbf{Expected availability} & \textbf{Notes} \\
+\midrule
+\field{OPRE} & 70--90\% & High in EU; lower for small entities \\
+\field{PLBT} & 60--80\% & Some entities only file abbreviated accounts \\
+\field{TAXA} & 50--70\% & Often missing for small/micro entities \\
+\field{STAF} & 40--70\% & Key variable; worst in UK, NL small entities \\
+\field{EMPL} & 30--50\% & Highest missingness; many entities do not report \\
+\field{TFAS} & 60--80\% & Generally available where balance sheets are filed \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+If \field{STAF} or \field{TFAS} availability is below 30\% for a jurisdiction, that jurisdiction cannot reliably contribute to the SBIE validation.
+
+\step{22} \textbf{Remove outliers.} Drop observations where:
+\begin{itemize}[noitemsep]
+  \item \field{PLBT} $= 0$ (no profit base for SBIE ratio).
+  \item \field{PLBT} $< 0$ (loss-making entities are excluded from GloBE top-up).
+  \item \field{STAF}/\field{PLBT} $> 5$ or $< 0$ (implausible payroll-to-profit ratios).
+  \item \field{TFAS}/\field{PLBT} $> 10$ (implausible tangible-assets-to-profit).
+  \item \field{TFAS} $>$ \field{TOAS} (data error: tangible assets exceed total assets).
+\end{itemize}
+
+
+%% ============================================================
+\section{Computing SBIE-to-profit ratios}\label{sec:sbie_compute}
+%% ============================================================
+
+For each entity $i$ in jurisdiction $j$ and NACE sector $s$, compute:
+
+\begin{equation}
+\rho_{i} = \sigma_W \cdot \frac{\field{STAF}_i}{\field{PLBT}_i} + \sigma_A \cdot \frac{\field{TFAS}_i}{\field{PLBT}_i}
+\end{equation}
+
+using the initial carve-out rates $\sigma_W = 0.10$, $\sigma_A = 0.08$ and the long-run rates $\sigma_W = 0.05$, $\sigma_A = 0.05$.
+
+Then aggregate to jurisdiction$\times$sector means:
+
+\begin{equation}
+\bar{\rho}_{j,s} = \frac{\sum_{i \in (j,s)} \field{PLBT}_i \cdot \rho_i}{\sum_{i \in (j,s)} \field{PLBT}_i}
+\end{equation}
+
+This is a profit-weighted average, consistent with the CbCR aggregation method.
+
+Compare $\bar{\rho}_{j,s}^{\text{Orbis}}$ against the CbCR--FATS imputed value $\hat{\rho}_{j,s}^{\text{CbCR} \times \text{FATS}}$ from thesisv2.tex equation~(11).
+
+
+%% ============================================================
+\section{NACE sector mapping}\label{sec:nace}
+%% ============================================================
+
+Map the 4-digit \field{NACE2\_MAIN} codes to the broader sectors used in the FATS analysis. The mapping below aligns with the FATS \texttt{fats\_activ} categories:
+
+\begin{longtable}{@{}llL{6cm}@{}}
+\caption{NACE-to-thesis sector mapping}\label{tab:nace_map}\\
+\toprule
+\textbf{NACE division} & \textbf{Thesis sector label} & \textbf{Expected $\rho$ range} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{NACE division} & \textbf{Thesis sector label} & \textbf{Expected $\rho$ range} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+10--33 & Manufacturing & High (0.5--0.8): large tangible asset base \\
+21 & Pharma (sub-manufacturing) & Very high: capital-intensive + R\&D \\
+35--39 & Utilities & High: infrastructure-heavy \\
+41--43 & Construction & Medium-high \\
+45--47 & Wholesale \& retail trade & Medium (0.3--0.5) \\
+49--53 & Transport \& storage & Medium-high: fleet/infrastructure \\
+55--56 & Accommodation \& food & Medium \\
+58--63 & Information \& communication & Low-medium (0.2--0.4): IP-heavy \\
+64--66 & Financial \& insurance & Low (0.1--0.3): asset-light \\
+68 & Real estate & Variable: depends on owned vs.\ managed \\
+69--75 & Professional \& scientific & Low: consulting/advisory \\
+77--82 & Administrative \& support & Low \\
+64.20 & Holding companies & Very low ($<0.1$): no real substance \\
+\end{longtable}
+
+
+%% ============================================================
+\section{Known limitations and mitigations}\label{sec:limitations}
+%% ============================================================
+
+\begin{enumerate}
+  \item \textbf{Coverage in tax havens.} Orbis has very poor coverage in Caribbean jurisdictions (Cayman Islands, BVI, Bermuda) because there are no financial filing requirements. Coverage is better for EU ``conduit'' jurisdictions (Luxembourg, Netherlands, Ireland) because these require annual accounts. You will not be able to validate SBIE ratios for non-EU low-tax jurisdictions.
+
+  \item \textbf{Missing payroll data.} \field{STAF} is missing for 30--60\% of entities depending on jurisdiction. For entities where \field{STAF} is missing but \field{EMPL} is available, impute: $\hat{W}_i = \field{EMPL}_i \times \bar{w}_{j,s}$, where $\bar{w}_{j,s}$ is the average wage from OECD/ILO data for jurisdiction $j$ and NACE sector $s$. This mirrors the imputation strategy in thesisv2.tex Section~3.3.1.
+
+  \item \textbf{IFRS~16 lease assets.} CbCR \field{ASSETS} includes right-of-use assets capitalised under IFRS~16. Orbis \field{TFAS} under local GAAP may exclude these. This means Orbis understates tangible assets for lease-heavy sectors (retail, transport, airlines). The Orbis SBIE estimate will be a lower bound for these sectors.
+
+  \item \textbf{Deferred tax in \field{TAXA}.} Orbis \field{TAXA} includes deferred tax provisions, while CbCR \field{TAX\_ACCRUED} is current tax only. Do not compute ETRs from Orbis for primary analysis; use them only as a sanity check. If the Orbis ETR deviates by more than 5~pp from the CbCR ETR for a jurisdiction, investigate the discrepancy.
+
+  \item \textbf{FTE vs.\ headcount.} CbCR reports FTE; Orbis reports headcount. In the Netherlands, where $\sim$50\% of employment is part-time, Orbis headcount may overstate CbCR FTE by 20--30\%.
+
+  \item \textbf{Local currency.} Convert all Orbis values to USD using the ECB end-of-year exchange rate to match CbCR's USD denomination.
+
+  \item \textbf{Population mismatch.} The Phase~1 Orbis parent search is deliberately broad. The raw result set can still contain entities with unconsolidated or limited accounts (\field{U1}, \field{U2}, \field{LF}) if the interface does not expose a working consolidated-accounts filter. Treat the Phase~1 export as a \emph{candidate parent list} and clean it after export: keep \field{CONSOL\_CODE} $\in \{\field{C1}, \field{C2}\}$ and, when available, keep \menu{Corporate companies} only. If you need only foreign-owned subsidiaries in Phase~2, apply \field{GUO50\_ISO} $\neq$ \field{CTRYCODE} after export rather than relying on the interface.
+\end{enumerate}
+
+
+%% ============================================================
+\section{File naming and storage}\label{sec:storage}
+%% ============================================================
+
+Store all Orbis extracts under \texttt{data/raw/orbis/}:
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{File} & \textbf{Contents} \\
+\midrule
+\texttt{orbis\_guo\_candidates\_\{batch\}.xlsx} & Raw Phase~1 exports from the broad top-parent search \\
+\texttt{orbis\_guo\_list.xlsx} & Cleaned Phase~1 parent list: keep \field{C1}/\field{C2} (and corporate owners if available) \\
+\texttt{orbis\_subs\_\{CC\}.xlsx} & Phase~2 raw exports by country code \\
+\texttt{orbis\_subsidiaries\_eu27.csv} & Combined panel (all countries, all years) \\
+\texttt{orbis\_sbie\_ratios.csv} & Computed $\rho_{j,s}$ by jurisdiction $\times$ sector \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+
+%% ============================================================
+\section{Checklist}\label{sec:checklist}
+%% ============================================================
+
+\begin{enumerate}[label=$\square$]
+  \item Log in to Orbis via UU library proxy
+  \item Phase~1: search for top-level parent candidates (Active, OPRE $\geq$ 750M, Remove subsidiaries)
+  \item Export broad parent list (\textasciitilde 20,000--30,000 entities is normal)
+  \item Clean Phase~1 export: keep \field{C1}/\field{C2}; keep corporate owners if available
+  \item Phase~2: search for EU-27 subsidiaries of qualifying GUOs (unconsolidated)
+  \item Configure export columns (16 variables, last 5 years)
+  \item Export in batches by country
+  \item Combine into single CSV
+  \item Check currency units (thousands local vs.\ thousands EUR)
+  \item Check consolidation codes (U1/U2 only)
+  \item Compute missingness rates by country $\times$ variable
+  \item Remove outliers (negative profit, implausible ratios)
+  \item Compute entity-level $\rho_i$
+  \item Aggregate to jurisdiction $\times$ NACE sector profit-weighted means
+  \item Compare against CbCR--FATS imputed $\hat{\rho}_{j,s}$
+  \item Document coverage and missingness in thesis appendix
+\end{enumerate}
+
+%% ============================================================
+\section{Key references on Orbis methodology}\label{sec:references}
+%% ============================================================
+
+The following papers document Orbis data collection and cleaning procedures relevant to this exercise:
+
+\begin{itemize}[noitemsep]
+  \item Kalemli-\"Ozcan et al.\ (2024) --- canonical reference on Orbis coverage, representativeness, and cleaning procedures. Includes propensity-weight methodology for making Orbis nationally representative.
+  \item Bajgar et al.\ (2020, OECD Working Paper) --- ``Coverage and representativeness of Orbis data.'' Documents variable availability by country and sector. The benchmark coverage study.
+  \item Barak\'e et al.\ (2024, EU Tax Observatory) --- uses Orbis entity-level data to simulate Pillar~Two revenue with SBIE carve-outs. Documents the EUR~750M GUO screening and payroll imputation.
+  \item Garcia-Bernardo \& Jansk\'y (2024) --- Orbis-CbCR matching for profit shifting analysis. Documents that Orbis covers approximately 55--65\% of CbCR-reported profits for major EU jurisdictions.
+  \item Torslov, Wier \& Zucman (2023) --- documents that only 17\% of global profits and fewer than 20\% of foreign subsidiaries appear in Orbis.
+  \item Bratta et al.\ (2024, Bank of Italy / JRC) --- entity-level Pillar~Two simulation using Orbis \field{STAF} and \field{TFAS} for SBIE computation.
+\end{itemize}
+
+\end{document}
