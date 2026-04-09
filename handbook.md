@@ -140,7 +140,8 @@
 - Avoid hedging constructions: "this thesis aims to", "can be seen as", "it would appear that", "may suggest". Replace with direct, declarative statements.
 - Be confident. "The GMT is the most consequential reform..." not "The GMT can be seen as one of the most ambitious...".
 - Contributions should be stated actively with strong verbs: "This thesis delivers / provides / demonstrates / cross-validates..." not "it is the first..." (lowercase bullet).
-- Structure contributions as numbered bold paragraphs (\textbf{First}, \textbf{Second}, \textbf{Third}) rather than bullets, using an active verb at the start of each.
+- No bullets of any form
+- Check each time that the writing style is really in line with what is expected from an academic paper
 
 - Avoid AI sounding language
 - Watch for formulaic sentence patterns: topic sentence → supporting evidence → transition. Vary the structure.
