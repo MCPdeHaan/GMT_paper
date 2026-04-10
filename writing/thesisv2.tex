@@ -234,7 +234,7 @@ The Global Minimum Tax (GMT) reforms international corporate taxation at a scale
 
 Estimates of the revenue that the GMT would raise span a wide range, from roughly \EUR100 to \EUR180 billion globally \citep{barake2022}. The underlying sources of this variation are poorly understood. Three features of the GMT design create compounding uncertainty. First, the GMT taxes only the profit that falls below the 15\% threshold, so revenue depends on how that low-taxed profit is measured. Jurisdiction-average ETRs conceal substantial within-country heterogeneity: a country may have an average ETR well above 15\%, yet individual MNE affiliates within Germany face ETRs below 15\% because of R\&D credits or IP box regimes. \citet{hugger2026} demonstrate that 53.2\% of all low-taxed profit lies in jurisdictions where the \textit{average} ETR exceeds 15\%, so average-based estimates understate the GMT base by approximately half. Second, not all low-taxed profit generates a top-up tax liability. The substance-based income exclusion (SBIE) shields a fraction of profit proportional to the MNE's payroll and tangible assets in each jurisdiction, on the grounds that profit backed by real economic substance should not be subject to the top-up tax. \citet{devereux2023} find that the SBIE shields an average of 57\% of GloBE income at initial carve-out rates, so the effective minimum tax on GloBE income is only 6.45\% in the first year, well below the headline 15\%. The shielding varies dramatically across sectors (e.g. high shielding for manufacturing) and it declines over a ten-year transition as the carve-out rates are phased down. Third, the GMT changes the incentive to shift profits by raising the effective tax rate in low-tax jurisdictions. MNEs that previously booked profits in jurisdictions with ETRs of 5\% face a smaller tax saving when the effective floor rises toward 15\%, and some will reallocate profits back to higher-tax countries. The magnitude of this behavioural response is governed by the tax semi-elasticity of reported profits: the percentage change in profit reported in a jurisdiction for a one percentage-point change in the tax rate. The consensus estimate of semi-elasticities of 0.8 by \citet{heckemeyer2017} implies that a one percentage-point increase in the tax differential reduces reported profits by 0.8\%. At moderate tax rates this behavioural response is small, but \citet{dowd2017} show that the semi-elasticity rises sharply at low ETRs: at a 5\% ETR, a one percentage-point change induces a 4.7\% profit response, nearly six times the consensus estimate. The semi-elasticity is the key parameter that determines how much of the low-taxed profit base survives into the revenue calculation and how much is reallocated before the top-up tax applies.
 
-The January 2026 OECD Administrative Guidance introduced two provisions that alter the GMT's revenue allocation. The Side-by-Side (SbS) Safe Harbour exempts US-parented MNE groups from Income Inclusion Rule (IIR) and Undertaxed Profits Rule (UTPR) collection, while Qualified Domestic Minimum Top-up Taxes (QDMTTs) remain fully operational. The Substance-Based Tax Incentive (SBTI) Safe Harbour allows MNEs to add qualifying tax incentives to their covered taxes, bounded by a cap tied to payroll and tangible assets \citep{oecd2026}. No academic literature quantifies the joint revenue consequences of these provisions.
+The January 2026 OECD Administrative Guidance introduced two provisions that alter the GMT's revenue allocation. The Side-by-Side (SbS) Safe Harbour exempts US-parented MNE groups from Income Inclusion Rule (IIR) and Undertaxed Profits Rule (UTPR) collection, while Qualified Domestic Minimum Top-up Taxes (QDMTTs) remain fully operational. The Substance-Based Tax Incentive (SBTI) Safe Harbour allows MNEs to add qualifying tax incentives to their covered taxes, bounded by a cap tied to payroll and tangible assets \citep{oecd2026}. No academic literature quantifies the joint revenue consequences of these provisions. \workingnote{explain all these technical terms well, make here a clickable link to the literature review part where this is explained.}
 
 Finance ministries across the EU budget GMT revenue, calibrate QDMTT parameters, and negotiate SbS terms on the basis of revenue estimates whose sensitivity to modelling assumptions has not been systematically assessed. The Netherlands illustrates the problem. The Dutch government projected \EUR466 million in annual GMT revenue, of which \EUR402 million (86\%) was attributed to the behavioural response: profit that would no longer be shifted to low-tax jurisdictions once the effective floor rises \citep{36369_3}. The revenue projection therefore depends almost entirely on which semi-elasticity is assumed. The SbS package subsequently reduced the Dutch projection by \EUR120 million per year \citep{1028}. A framework that identifies which assumptions drive the largest variation in revenue estimates is therefore relevant to fiscal planning.
 
@@ -252,7 +252,7 @@ Three subquestions structure the analysis:
 \item How do the January 2026 Administrative Guidance with the Side-by-Side Safe Harbour and the SBTI Safe Harbour jointly reshape the magnitude and distribution of GMT revenue across EU Member States and across collection channels (QDMTT, IIR, UTPR)?
 \end{enumerate}
 
-\workingnote{still updat ethis, i feel like it does not yet flow}Addressing the first subquestion, the thesis estimates profit-shifting semi-elasticities directly from the 2016--2022 CbCR panel using the Hines--Rice framework \citep{hines1994}, which regresses the logarithm of reported profits on the tax rate while controlling for real economic activity through tangible assets and payroll. Semi-elasticities in the literature either rely on US-only administrative data \citep{dowd2017} or on a single cross-section of OECD CbCR for 2017 \citep{garcia-bernardo2024}. Both approaches face identification limitations: \citet{dowd2017} cannot separate US-specific institutional features (check-the-box regulations, the GILTI regime introduced in 2018) from the general profit-shifting response, and the cross-sectional design of \citet{garcia-bernardo2024} cannot distinguish the causal effect of tax rates from time-invariant bilateral confounders such as treaty networks and geographic proximity. The panel structure of the present data addresses both limitations. Bilateral parent--affiliate fixed effects absorb all time-invariant confounders; year fixed effects absorb global shocks (the 2017 TCJA, the 2020 COVID contraction). Three functional forms are estimated --- linear (constant semi-elasticity), quadratic \citep{dowd2017}, and logarithmic \citep{garcia-bernardo2024} --- and compared using formal model selection criteria. The panel-estimated coefficients, together with their standard errors, feed directly into the revenue pipeline, so that estimation uncertainty propagates into the revenue confidence intervals via a pairs cluster bootstrap.
+Addressing the first subquestion, the thesis estimates profit-shifting semi-elasticities directly from the 2016--2022 CbCR panel using the Hines-Rice framework \citep{hines1994}, which regresses the logarithm of reported profits on the tax rate while controlling for real economic activity through tangible assets and payroll. Semi-elasticities in the literature either rely on US-only administrative data \citep{dowd2017} or on a single cross-section of OECD CbCR for 2017 \citep{garcia-bernardo2024}. The panel structure of the CbCR data addresses these limiations. Bilateral parent-affiliate fixed effects absorb all time-invariant confounders; year fixed effects absorb global shocks (the 2017 TCJA, the 2020 COVID contraction). Three functional forms are estimated (linear (constant semi-elasticity), quadratic, and logarithmic) and compared. The panel-estimated coefficients, together with their standard errors, feed directly into the revenue pipeline, so that estimation uncertainty feed into the revenue confidence intervals.
 
 Addressing the second subquestion, five binary factors (ETR measurement, substance specification, SBIE carve-out rates, implementation regime, and the panel-estimated behavioural response) generate 32 revenue scenarios for each EU Member State. The design decomposes factor interactions through an ANOVA identity and separates two distinct sources of uncertainty: the \emph{scenario spread} across the 32 modelling configurations, driven by assumptions that cannot be estimated (e.g.\ average vs.\ distributional ETR measurement), and the \emph{estimation uncertainty} within each scenario, captured by bootstrapped confidence intervals around the semi-elasticity coefficients. \citet{barake2022} and \citet{hugger2026} vary parameters one at a time; \citet{boukal2026} separates GMT revenue by collection channel for Slovakia but does not sweep across methodological choices. No prior study makes all factor interactions simultaneously visible and exactly decomposable across EU Member States, nor quantifies the relative importance of modelling assumptions versus statistical accuracy.
 
@@ -270,9 +270,6 @@ The thesis is organised as follows. Section \ref{sec:literature} reviews the lit
 \section{Literature review}\label{sec:literature}
 
 This section reviews three strands of literature that inform the estimation framework. Section \ref{sec:beps} covers the empirical measurement of profit shifting, establishing the magnitudes that the GMT targets. Section \ref{sec:design} examines the GMT's design, revenue mechanics and the role of the substance-based income exclusion. Section \ref{sec:theory_lit} reviews theoretical models of tax competition under minimum taxation. Throughout, the review identifies what each contribution delivers and where its limitations create the gaps that this thesis addresses.
-
-\workingnote{still add theoretical framework link if needed}
-
 
 \subsection{The empirical measurement of base erosion and profit shifting}\label{sec:beps}
 
@@ -350,96 +347,13 @@ A feature of the GMT is the SBIE, which excludes from the top-up tax calculation
 
 \section{Data and descriptive statistics}\label{data}
 
-\workingnote{still in full draft}
+The estimation framework draws on two primary data sources and several supplementary datasets. The OECD Country-by-Country Reporting (CbCR) statistics provide the bilateral profit, tax, payroll, asset, and ETR distribution data that form the backbone of the revenue pipeline. Eurostat inward Foreign Affiliates Statistics (FATS) supply the sectoral decomposition of economic activity within EU Member States that CbCR lacks. CbCR has no sectoral breakdown, and FATS has no tax data. 
 
 \subsection{OECD CbCR data}\label{CbCR}
 
-Under the OECD/G20 Base Erosion and Profit Shifting (BEPS) Action 13, large multinational enterprise (MNE) groups with consolidated revenue exceeding EUR 750 million are required to file Country-by-Country Reports (CbCRs) detailing their economic activity and tax payments in each jurisdiction where they operate. The OECD aggregates and anonymises these reports into jurisdiction-level statistics. The advantage of this data is that tax-planning behaviour at the MNE level across most jurisdictions is captured, instead of the missing data problem with firm-level data. Currently data of fiscal years 2016--2022 are available. In Appendix \ref{app:CbCR} more information can be found about the structure of this data. 
+BEPS Action 13 requires large MNE groups with consolidated revenue exceeding \EUR750 million to file Country-by-Country Reports detailing their economic activity and tax payments in each jurisdiction where they operate.\footnote{The \EUR750 million threshold was chosen by the OECD to balance coverage against compliance burden. It captures MNEs responsible for approximately 90\% of global corporate revenue \citep{hugger2026}. Since Pillar Two applies to the same threshold population, the CbCR scope aligns with the GMT's statutory scope. The threshold excludes smaller MNEs that may face systematically different ETRs. This is not a limitation for revenue estimation but matters for welfare analysis.} The OECD aggregates and anonymises these filings into jurisdiction-level statistics published in the Corporate Tax Statistics (CTS) database.\workingnote{add link to the database} The resulting dataset is uniquely suited to GMT revenue estimation for two reasons. First, it captures tax-planning behaviour across virtually all jurisdictions, including low-tax locations that are absent from firm-level databases such as Orbis or Compustat.\footnote{Firm-level databases suffer from selection bias in low-tax jurisdictions because MNEs operating through shell entities in these locations often have no obligation to file public financial statements. CbCR data are filed with the parent jurisdiction's tax authority and reported to the OECD regardless of the affiliate jurisdiction's disclosure regime.\workingnote{add source}} Second, the bilateral parent--affiliate structure mirrors the GMT's own architecture: the top-up tax is computed jurisdiction by jurisdiction for each MNE group, allocated through the Income Inclusion Rule to the parent and through the UTPR to affiliate jurisdictions.
 
-CbCR data cover MNE groups with consolidated group revenue exceeding \EUR750 million. These large MNEs account for approximately 90\% of global corporate revenue \citep{hugger2026}, but the threshold excludes smaller multinationals that may face systematically different ETRs. Since Pillar Two applies to the same \EUR750 million population, this is not a limitation for revenue estimation but matters for welfare analysis.
-
-Three complementary data sources are combined. Each source addresses a different component of the estimation framework:
-
-\begin{enumerate}[noitemsep]
-\item \textbf{OECD CbCR} (Tables I--VI): the primary source. CbCR covers the in-scope population (MNEs with consolidated revenue above \EUR750 million), provides bilateral profit, tax, payroll, assets, and ETR distributions for 58 parent and 240 affiliate jurisdictions over 2016--2022. Weaknesses: no sectoral breakdown, double counting in pre-2022 vintages, missing payroll for some jurisdictions.
-\item \textbf{Eurostat inward FATS}: covers all foreign-controlled enterprises in EU Member States, provides sectoral decomposition (NACE) of employment, turnover, personnel costs, and investment. Weaknesses: no tax data, structural break in 2021, covers a broader population than CbCR.
-\item \textbf{Orbis (Bureau van Dijk)}: firm-level financial data including unconsolidated accounts. Weaknesses: severely incomplete in low-tax jurisdictions, \citet{torslov2023} show that only 17\% of global profits appear in Orbis and over 80\% of subsidiaries are unknown to it; \citet{kalemli-ozcan2015} show the high representativeness challenges.
-\end{enumerate}
-
-Therefore, CbCR provides aggregate levels and ETR distributions. FATS provides sectoral shares within EU Member States. Orbis serves as an external cross-check on imputed SBIE ratios. CbCR $\times$ FATS is the primary estimation; the combination restricts the sectoral analysis to the EU-27.\footnote{The global revenue pipeline (equation \ref{eq:pipeline}) is estimated for all jurisdictions in the CbCR data; the sectoral decomposition and data triangulation are restricted to the EU-27. Three grounds justify this scope: (i) all 27 Member States appear in both CbCR Table I and Table IV as affiliates; (ii) FATS is an EU-specific dataset; (iii) the EU implemented Pillar Two uniformly through the Minimum Tax Directive.}
-
-
-Table \ref{tab:crosssummary} summarises the six CbCR tables along the key structural dimensions. The database as a whole contains approximately 2.47 million rows across all tables. 
-
-
-\subsubsection{Correcting the profit base}\label{sec:doublecounting}
-
-Public CbCR profit data suffer from systematic double counting through intra-group dividends and ownership chains. The equity method of accounting causes the same dollar of profit to appear at multiple levels when MNEs structure ownership through intermediate holding companies \citep{blouin2023}. When \citet{blouin2023} replicate the revenue loss estimate of \citet{clausing2016} using the corrected measure ``Net Income Excluding Equity Income,'' the estimate falls from \$77--111 billion to approximately \$11 billion. \citet{garcia-bernardo2022} show that aggregate CbCR profits are overstated by 48\% in 2017, 72\% in 2018, and 47\% in 2019, with domestic holding chains within the United States responsible for the bulk of the discrepancy. Removing these inflated entries lowers revenue estimates. \citet{godar2024} study 35 early voluntary CbCR publishers and find that only 7 include intra-group dividends in reported profits, producing a 1.5 percentage-point downward revision in the sample average global ETR and confirming that the problem is concentrated in firms with opaque intermediate holding structures. The revenue stakes are large: \citet{barake2022} estimate global GMT revenue of \EUR179 billion (pre-behavioural, without carve-outs) using corrected CbCR data combined with Eurostat FATS, explicitly noting that uncorrected profit bases would inflate this figure through phantom profits in conduit jurisdictions (Luxembourg, the Netherlands, and Singapore). \citet{boukal2026} report that the OECD's November 2019 guidance update requires exclusion of intra-company dividends from 2020 fiscal-year data onwards, which is why broad \code{PROFIT\_ADJ} coverage first appears in 2021; compliance across reporting jurisdictions nevertheless remains uneven, so a correction remains necessary for the pre-2021 panel. Correcting the profit base is therefore the first step before any ETR or top-up computation.
-
-\workingnote{check later that this is covered in literature part, so that this can be shorter}
-
-The corrected base is:
-\begin{equation}\label{eq:profit_corrected}
-\pi_{p,j,t}^{*} =
-\begin{cases}
-\code{PROFIT\_ADJ}_{p,j,t} & \text{if observed}, \\
-\hat{\gamma}_{j,t} \cdot \code{PROFIT}_{p,j,t} & \text{otherwise}.
-\end{cases}
-\end{equation}
-
-Broad coverage of \code{PROFIT\_ADJ} first appears in 2021, so the 2021--2022 donor sample anchors the correction. For each affiliate jurisdiction $j$, the observed ratio $\gamma_j = \pi_j^{\text{ADJ},2022} / \pi_j^{2022}$ is regressed on holding-company intensity:
-\begin{equation}\label{eq:correction_model}
-\gamma_j = \alpha + \beta \cdot \frac{\text{ACT\_HOLDING}_j}{\text{ENTITIES\_COUNT}_j} + \varepsilon_j
-\end{equation}
-where $\text{ACT\_HOLDING}_j / \text{ENTITIES\_COUNT}_j$ is the share of entities classified as holding companies in CbCR Table I. Fitted values extend the correction to the 2016--2020 panel:
-\begin{equation}\label{eq:backcast}
-\hat{\pi}_{j,t}^{*} = \hat{\gamma}_{j,t} \cdot \pi_{j,t}, \quad t \in \{2016, \ldots, 2020\}
-\end{equation}
-The holding-company share varies over time as MNE structures evolve; $\hat{\gamma}_{j,t}$ varies accordingly.\footnote{This approach assumes structural stability in the relationship between holding-company intensity and double counting over 2016--2022. The assumption is tested by estimating the model separately on 2021 and 2022 data and comparing the coefficients.} The correction makes the profit-base adjustment vary with the conduit intensity of the jurisdiction, rather than imposing a static median correction of 32.4\% as in \citet{hugger2026}.
-
-The profit-base correction enters the design in three separate ways: (i) conservative with no correction ($\pi^* = \pi$), providing an upper bound on the profit base, (ii) baseline which is the predicted donor ratio $\hat{\gamma}_{j,t}$ from equation \eqref{eq:correction_model} and (iii) aggressive where $\gamma$ set to the 25th percentile of the 2022 distribution, allowing larger reductions for jurisdictions with high holding and IP intensity.
-
-
-\subsection{Notation}\label{sec:notation}
-
-Subscript $p$ denotes the parent (ultimate parent entity, UPE) jurisdiction, $j$ denotes the affiliate jurisdiction, and $t$ denotes the fiscal year ($t \in \{2016, \ldots, 2022\}$). All monetary values are in USD unless stated otherwise, consistent with CbCR reporting conventions.\footnote{CbCR data are reported in USD. No PPP adjustment is applied to the revenue calculations, since the GMT operates on nominal profit and tax liabilities denominated in the MNE group's reporting currency. PPP-adjusted wage data from the OECD and ILO are used only for imputing missing payroll values (Section \ref{sec:payroll_imputation}).}
-
-\begin{table}[H]
-\centering
-\caption{Variable notation}
-\label{tab:notation}
-\small
-\begin{tabular}{@{}ll@{}}
-\toprule
-Symbol & Definition \\
-\midrule
-$\pi_{p,j,t}$ & Reported profit before income tax (CbCR \code{PROFIT}) \\
-$\pi_{p,j,t}^{*}$ & Corrected profit base (Section \ref{sec:doublecounting}) \\
-$\theta_{p,j,t}$ & Income tax accrued (CbCR \code{TAX\_ACCRUED}) \\
-$A_{p,j,t}$ & Tangible assets excl.\ cash and equivalents (CbCR \code{ASSETS}) \\
-$W_{p,j,t}$ & Total payroll / compensation of employees (CbCR \code{EARNINGS}) \\
-$N_{p,j,t}$ & Number of employees, FTE (CbCR \code{EMPLOYEES}) \\
-$\bar{w}_{j,t}$ & Average annual wage in jurisdiction $j$ (OECD/ILO) \\
-$\tau_{p,j,t}$ & Effective tax rate $= \theta_{p,j,t} / \pi_{p,j,t}$ \\
-$T$ & Global minimum tax rate $= 0.15$ \\
-$\tau_{p,j,t}^{(k)}$ & $k$-th percentile of the ETR distribution (from Table I) \\
-$s_{j,t}^{<T}$ & Share of profit with ETR below $T$ in jurisdiction $j$ \\
-$\ell_{p,j,t}$ & Low-taxed profit volume $= s_{j,t}^{<T} \cdot \pi_{p,j,t}^{*}$ \\
-$\bar{\delta}_{j,t}^{\text{top}}$ & Average top-up rate on the low-taxed portion \\
-$\sigma_W(t), \sigma_A(t)$ & SBIE payroll and tangible assets carve-out rates \\
-$\ {p,j,t}$ & SBIE-to-profit ratio $= \text{SBIE}_{p,j,t} / \pi_{p,j,t}^{*}$ \\
-$\text{SC}_{p,j,t}$ & Substance Cap under SBTI Safe Harbour \\
-$\kappa_{j,s,t}$ & Sectoral SBTI-capacity proxy (Section \ref{sec:sbti_amplification}) \\
-$\beta_{j,t}$ & Fraction of low-taxed profit reallocated under behavioural response \\
-$\mathbb{1}_j^{\text{Q}}$ & Indicator: $=1$ if jurisdiction $j$ has implemented a QDMTT \\
-$\mathbb{1}_p^{\text{SbS}}$ & Indicator: $=1$ if parent $p$ has a Qualified SbS Regime (currently US only) \\
-$a_{s,p,j,t}^{(r)}$ & Allocation weight under policy regime $r$ (Section \ref{sec:sbs}) \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\workingnote{add all other data sources later on, now only in working appendix, but need to fix the FATS 2021 data still}
-
+The CbCR database is organised into six tables, each constructed from the same underlying filings but aggregated along different dimensions. Table \ref{tab:crosssummary} summarises their structure. Coverage expanded substantially over the period as more jurisdictions enacted BEPS Action 13 legislation: 26 parent jurisdictions reported in 2016, rising to 54 by 2022, representing approximately 98\% of all CbCR filings globally \citep{oecd2025a}.\footnote{Table \ref{tab:yearcoverage} in Appendix \ref{app:CbCR} documents the year-by-year expansion of reporting coverage in Table I.}
 
 \begin{table}[H]
 \centering
@@ -470,7 +384,108 @@ MNE size classes & No & No & No & No & No & Yes (6) \\
 \end{tabular}
 \end{table}
 
+\subsubsection{Table I: aggregate totals}\label{sec:t1_main}
 
+Table I is the primary CbCR table and the starting point for the revenue pipeline. It reports jurisdiction-level financial aggregates for each bilateral parent--affiliate pair. Creating a dataset analogous to a trade matrix: each cell represents the total economic activity of all MNEs headquartered in parent jurisdiction $p$ that have constituent entities in affiliate jurisdiction $j$. The financial measures include profit before income tax (\code{PROFIT}), income tax accrued (\code{TAX\_ACCRUED}), total payroll (\code{EARNINGS}), tangible assets (\code{ASSETS}), and employee counts (\code{EMPLOYEES}), among 28 measure codes in total.\footnote{Appendix \ref{app:CbCR}, Table \ref{tab:measures}, provides the full list of measure codes. Monetary values are denominated in USD.}
+
+It is the only table that reports the full ETR distribution through percentiles (P5, P25, P50, P75, P95) for each bilateral pair, enabling the distributional ETR measurement that Section \ref{sec:distributional} develops. Second, it reports two profit panels: Panel A-I restricts to profit-making entities (positive profit before tax), while Panel A-II includes all entities including loss-makers. The ETR is only meaningful for profit-making entities, so Panel A-I serves as the denominator for ETR calculations; Panel A-II provides total activity coverage.
+
+Table I also reports business-activity counts: the number of constituent entities in each bilateral cell classified by primary business activity (holding, IP management, manufacturing, R\&D, finance, and others). The holding-company share (\code{ACT\_HOLDING} / \code{ENTITIES\_COUNT}) is central to the profit-base correction developed in Section \ref{sec:doublecounting}, and the activity composition within the low-tax bracket informs the SBIE allocation (Section \ref{sec:sbie_decomp}).
+
+Table I covers 58 parent jurisdictions and 240 affiliate jurisdictions in its most complete vintage (2022). The affiliate dimension includes individual country codes, regional aggregates, and a ``world excluding domestic'' aggregate (\code{WXD}) that captures all foreign affiliate activity.\footnote{Appendix \ref{app:CbCR} documents the full set of aggregate codes. The bilateral structure means that the same affiliate jurisdiction appears in multiple rows, once for each parent jurisdiction that reports MNE activity there.}
+
+\subsubsection{Table IV: subsidiary-level ETR brackets}\label{sec:t4_main}
+
+Table IV is the most policy-relevant table for GMT revenue estimation. It disaggregates all financial variables by 11 ETR brackets at the \emph{subsidiary} level: the ETR assigned to each observation reflects the individual constituent entity's own jurisdictional effective tax rate, not the MNE group's global average.\footnote{This contrasts with Table III, which assigns ETR brackets at the MNE-group level. \citet{hugger2026} demonstrate that 53.2\% of all low-taxed profit (below 15\%) is located in jurisdictions where the average ETR exceeds 15\% at the MNE-group level. Table III therefore substantially understates the share of entities facing low effective rates. Table IV resolves this aggregation problem.} The \code{RATE\_0-15} bracket directly identifies all profit, assets, payroll, and tax reported by entities facing an ETR below 15\%: the GMT top-up base.
+
+Table IV covers 49 parent jurisdictions and 154 affiliate jurisdictions. The reduced affiliate coverage relative to Table I (154 vs.\ 240) reflects OECD confidentiality thresholds: jurisdictions with too few MNE affiliates are suppressed to prevent identification of individual MNE groups. For the EU analysis, this restriction is not binding: all 27 EU Member States appear in Table IV as affiliate jurisdictions for the relevant parent jurisdictions.
+
+\subsubsection{Tables II, III, V, and VI}\label{sec:other_tables}
+
+The remaining four tables serve supporting roles. Table II reports interquartile means (IQM) of financial variables, the arithmetic mean computed after excluding the bottom and top quartiles of MNE groups within each bilateral pair. This robust central tendency estimator is less sensitive to the extremely large MNE groups that dominate simple averages; it serves as a cross-check on the aggregate totals in Table I for the SBIE computation. Table III disaggregates observations by ETR bracket at the MNE-group level and is therefore less suitable for direct GMT revenue computation than Table IV, but it provides business-activity counts within each ETR range that are informative about the composition of low-taxed activity. Table V reports the size distribution of MNE groups within each parent jurisdiction through seven percentile points (P5 through P95), enabling characterisation of MNE groups near the \EUR750 million threshold. Table VI, the most recently added dimension, breaks down all financial and activity variables by five MNE group revenue size classes for fiscal year 2022 only.
+
+\subsubsection{Temporal scope and lag}\label{sec:temporal}
+
+The most recent CbCR release covers fiscal year 2022, published in November 2025 \citep{oecd2025a}. The lag of approximately three years between fiscal year and public availability means that implementation data is not yet availiable. The estimation is therefore necessarily backward-looking: it applies the GMT rules to pre-implementation data (2016--2022) and projects revenue prospectively. The 2016--2022 panel nevertheless provides seven years of pre-reform variation in ETRs, sufficient for the within-pair identification strategy developed in Section \ref{sec:estimation}.
+
+\subsubsection{Correcting the profit base}\label{sec:doublecounting}
+
+Public CbCR profit data suffer from systematic double counting through intra-group dividends and ownership chains. When a German parent owns a Dutch holding company that in turn owns an Irish operating subsidiary, the Irish subsidiary's profits may appear in both the German CbCR filing (through the ultimate parent) and in the Dutch profits (as an intermediate holding). \citet{garcia-bernardo2022} show that aggregate CbCR profits are overstated by 48\% in 2017, 72\% in 2018, and 47\% in 2019, with domestic American profits responsible for the bulk of the discrepancy. \citet{barake2022} estimate global GMT revenue using corrected CbCR data combined with Eurostat FATS, explicitly noting that uncorrected profit bases inflate revenue figures through profits in conduit jurisdictions.\footnote{\citet{barake2022} does not combine CbCR data with FATS themselves, they use the corrected estimates by the Working paper of \citet{torslov2023}.}
+
+The OECD introduced the \code{PROFIT\_ADJ} measure (profit adjusted for intra-group dividends and equity income) but broad coverage first appears in 2021.\footnote{\citet{boukal2026} report that the OECD's November 2019 guidance update requires exclusion of intra-company dividends from 2020 fiscal-year data onwards, which explains why \code{PROFIT\_ADJ} coverage first appears in 2021. Compliance across reporting jurisdictions remains uneven.} The 2016--2020 panel therefore requires a backcasting procedure. \citet{hugger2026} apply a static median correction of 32.4\% to all jurisdictions, but this ignores the substantial cross-jurisdictional variation in double-counting severity. \citet{blouin2023} demonstrate that double counting through the equity method is concentrated in jurisdictions where MNEs structure ownership through intermediate holding companies, and that removing equity income from conduit jurisdictions reduces measured profit shifting by an order of magnitude. \citet{garcia-bernardo2022} confirm this pattern in the CbCR context: domestic holding chains are responsible for the bulk of the aggregate overstatement. The OECD itself identifies a concentration of holding companies as a risk factor associated with tax planning structures \citep{oecd2025a}. Double counting is therefore not uniform across jurisdictions but varies systematically with holding-company prevalence.
+
+The corrected profit base uses observed \code{PROFIT\_ADJ} where available and a predicted correction ratio ($\hat{\gamma}_{j,t} \cdot \code{PROFIT}_{p,j,t}$) otherwise. The prediction exploits the cross-jurisdictional variation in holding-company intensity. For each affiliate jurisdiction $j$, the observed correction ratio $\gamma_j = \pi_j^{\text{ADJ},2022} / \pi_j^{2022}$ in the 2021--2022 sample is regressed on holding-company intensity:
+\begin{equation}\label{eq:correction_model}
+\gamma_j = \alpha + \beta \cdot \frac{\text{ACT\_HOLDING}_j}{\text{ENTITIES\_COUNT}_j} + \varepsilon_j
+\end{equation}
+where $\text{ACT\_HOLDING}_j / \text{ENTITIES\_COUNT}_j$ is the share of entities classified as holding companies in CbCR Table I. A lower $\gamma_j$ indicates a larger downward adjustment after removing intra-group dividends. The hypothesis, motivated by \citet{blouin2023}, is that $\beta < 0$: jurisdictions with a higher share of holding companies exhibit more double counting and therefore require a larger correction. Fitted values extend the correction to the 2016--2020 panel: $\hat{\pi}_{j,t}^{*} = \hat{\gamma}_{j,t} \cdot \pi_{j,t}, \quad t \in \{2016, \ldots, 2020\}$. 
+
+The holding-company share varies over time as MNE structures evolve; $\hat{\gamma}_{j,t}$ varies accordingly.\footnote{This approach assumes structural stability in the relationship between holding-company intensity and double counting over 2016--2022. The assumption is tested by estimating the model separately on 2021 and 2022 data and comparing the coefficients.} The profit-base correction enters the factorial design in three specifications: (i) no correction ($\pi^* = \pi$), providing an upper bound on the profit base; (ii) baseline, using the predicted ratio $\hat{\gamma}_{j,t}$ from equation \eqref{eq:correction_model}; and (iii) aggressive, setting $\gamma$ to the 25th percentile of the 2022 distribution, allowing larger reductions for jurisdictions with high holding and IP intensity.
+
+\workingnote{After estimation: report $\hat{\beta}$, its standard error, and the cross-jurisdictional distribution of $\hat{\gamma}$. Discuss whether the correction ratio is stable between the 2021 and 2022 donor years.}
+
+\subsection{Eurostat inward Foreign Affiliates Statistics}\label{sec:fats_main}
+
+CbCR reports no sectoral breakdown. The substance-based income exclusion depends on payroll and tangible assets, both of which vary dramatically across sectors: manufacturing has high payroll and capital intensity relative to profits, while holding and IP licensing have near-zero substance. Estimating sector-specific SBIE-to-profit ratios and effective tax floors (Section \ref{sec:sbie_decomp}) requires a sectoral decomposition of economic activity that CbCR cannot provide.
+
+Eurostat inward FATS fill this gap. The dataset covers all foreign-controlled enterprises operating inside European reporting economies, recording employment, turnover, personnel costs, and investment by NACE sector and by the controlling country of the foreign parent.\footnote{``Foreign-controlled'' is defined by majority ownership (more than 50\% of voting rights) by an entity resident outside the reporting country. The definition is broader than the CbCR in-scope population: FATS includes all foreign-controlled firms regardless of size, whereas CbCR is restricted to MNE groups with consolidated revenue above \EUR750 million. Using FATS sectoral shares on CbCR aggregate levels therefore produces conservative estimates, since the sectoral composition of all foreign-controlled firms may differ from that of the largest MNE groups alone.} In the sectoral SBIE formula (equation \ref{eq:sbie_sectoral}) FATS personnel costs provide the payroll share and FATS investment data provide the basis for imputing the tangible asset share.\footnote{FATS does not report tangible assets directly. The tangible asset share is imputed from the capital intensity (investment-to-turnover ratio) of each NACE sector. This imputation is the weakest link in the sectoral decomposition; Section \ref{sec:sbie_decomp} discusses the procedure.}
+
+A structural break in 2021 complicates the time series. The pre-2021 series uses a single broad activity aggregate (\code{B-N\_S95\_X\_K}) and 23 indicators, while the post-2021 series uses 48 NACE-based activity categories and 19 \code{indic\_sbs} codes. The two halves are not directly comparable. The sectoral estimation therefore uses the post-2021 \code{fats\_activ} data only. Pre-2021 FATS serve as descriptive background. \workingnote{After data cleaning: report how many EU Member States $\times$ NACE sectors $\times$ years have complete FATS coverage in the post-2021 series. Identify any Member States with substantial missing data and describe how missing cells are handled (drop, impute, or aggregate to broader NACE categories).}
+
+The CbCR $\times$ FATS combination restricts the sectoral analysis to the EU-27.\footnote{Three grounds justify this scope. First, all 27 EU Member States appear in both CbCR Table I and Table IV as affiliate jurisdictions. Second, FATS is an EU-specific dataset with no equivalent coverage for non-EU jurisdictions. Third, the EU implemented Pillar Two uniformly through the Minimum Tax Directive (Council Directive (EU) 2022/2523), so the institutional setting is homogeneous across the sample.} The global revenue pipeline (equation \ref{eq:pipeline}) is estimated for all jurisdictions in the CbCR data. The sectoral decomposition of effective tax floors and SBIE ratios is restricted to the EU-27.
+
+\subsection{Supplementary data sources}\label{sec:supplementary}
+
+The panel estimation (Section \ref{sec:estimation}) and the revenue allocation stage (Section \ref{sec:sbs}) require several additional datasets. Appendix \ref{sec:add_data} documents each source in detail; this subsection summarises their role in the estimation framework.
+
+Statutory corporate income tax rates from the OECD Tax Database (144 jurisdictions, 2000--2025) serve two purposes: as a benchmark against which CbCR effective tax rates are compared, and as an instrument in robustness checks where the endogeneity of effective rates is a concern.\footnote{Appendix \ref{sec:cit} documents the variable codes and coverage.} The combined (central plus sub-central) rate is the relevant measure for jurisdictions with federated tax systems.
+
+Wage data are collected from three sources to maximise country coverage. OECD average annual wages (41 countries, 1990--2024) provide the primary cross-country comparator in PPP-adjusted USD. The OECD hourly earnings index (41 countries, 1955--2026) provides a longer time series for trend analysis. ILO hourly and monthly earnings (105--140 countries, 1990--2025) extend coverage to non-OECD economies.\footnote{Appendix \ref{sec:wages_appendix} documents the three wage files, their indicators, and the hierarchy of preference (OECD first, ILO for non-OECD).} Wage data enter the estimation framework in two ways: as a control variable in the profit-shifting regressions (proxying for labour market conditions in the affiliate jurisdiction) and as the input for imputing missing CbCR payroll values. Where the \code{EARNINGS} variable is missing in CbCR, payroll is imputed as $N_{p,j,t} \times \bar{w}_{j,t}$, the product of the CbCR employee count and the jurisdiction-average annual wage (Section \ref{sec:payroll_imputation}).
+
+World Bank macroeconomic controls (GDP per capita (current USD, 217 countries, 2015--2024) and population (217 countries, 2015--2024)) enter the Hines--Rice regression as affiliate-jurisdiction controls.\footnote{Appendix \ref{sec:worldbank} documents these variables.} Log GDP per capita proxies for the level of economic development and market size. Log population controls for country scale.
+
+OECD BEPS implementation indicators document the adoption of anti-avoidance measures across jurisdictions: CbCR filing requirements (Action 13, 119 countries), CFC rules (146 countries), interest limitation rules (Action 4, 146 countries), hybrid mismatch rules (Action 2, 145 countries), IP regimes (Action 5, 64 countries), and mandatory disclosure rules (Action 12, 145 countries).\footnote{Appendix \ref{sec:beps_appendix} documents these indicators.} These indicators enter the factorial design as controls for the institutional environment: jurisdictions with more comprehensive BEPS implementation may exhibit different profit-shifting patterns.
+
+Pillar Two implementation status is tracked through the PwC global Pillar Two tracker, which records the legislative status (enacted, consultation, or announced) of the IIR, UTPR, and QDMTT for each jurisdiction, together with effective start dates.\footnote{Appendix \ref{sec:pillar2} documents this source, which is cross-referenced against the OECD Central Record of Qualified Domestic Minimum Taxes.} The QDMTT indicator ($\mathbb{1}_j^{\text{Q}}$) and the SbS regime indicator ($\mathbb{1}_p^{\text{SbS}}$) used in the revenue allocation stage (Section \ref{sec:sbs}) are constructed from this tracker.
+
+\subsection{Notation}\label{sec:notation}
+
+Subscript $p$ denotes the parent jurisdiction (ultimate parent entity, UPE), $j$ denotes the affiliate jurisdiction, and $t$ denotes the fiscal year ($t \in \{2016, \ldots, 2022\}$). The $p,j$ convention follows \citet{barake2022}; $j$ is reserved exclusively for the affiliate jurisdiction throughout. All monetary values are in USD unless stated otherwise, consistent with CbCR reporting conventions.\footnote{CbCR data are reported in USD. No PPP adjustment is applied to the revenue calculations, since the GMT operates on nominal profit and tax liabilities denominated in the MNE group's reporting currency. PPP-adjusted wage data from the OECD and ILO are used only for imputing missing payroll values (Section \ref{sec:payroll_imputation}).} Table \ref{tab:notation} summarises the symbols used throughout.
+
+\begin{table}[H]
+\centering
+\caption{Variable notation}
+\label{tab:notation}
+\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+Symbol & Definition \\
+\midrule
+$\pi_{p,j,t}$ & Reported profit before income tax (CbCR \code{PROFIT}) \\
+$\pi_{p,j,t}^{*}$ & Corrected profit base (Section \ref{sec:doublecounting}) \\
+$\theta_{p,j,t}$ & Income tax accrued (CbCR \code{TAX\_ACCRUED}) \\
+$A_{p,j,t}$ & Tangible assets excl.\ cash and equivalents (CbCR \code{ASSETS}) \\
+$W_{p,j,t}$ & Total payroll / compensation of employees (CbCR \code{EARNINGS}) \\
+$N_{p,j,t}$ & Number of employees, FTE (CbCR \code{EMPLOYEES}) \\
+$\bar{w}_{j,t}$ & Average annual wage in jurisdiction $j$ (OECD/ILO) \\
+$\tau_{p,j,t}$ & Effective tax rate (ETR) $= \theta_{p,j,t} / \pi_{p,j,t}$ \\
+$T$ & Global minimum tax rate $= 0.15$ \\
+$\tau_{p,j,t}^{(k)}$ & $k$-th percentile of the ETR distribution (from Table I) \\
+$s_{j,t}^{<T}$ & Share of profit with ETR below $T$ in jurisdiction $j$ \\
+$\ell_{p,j,t}$ & Low-taxed profit volume $= s_{j,t}^{<T} \cdot \pi_{p,j,t}^{*}$ (Section \ref{sec:etr_measurement}) \\
+$\bar{\delta}_{j,t}^{\text{top}}$ & Average top-up rate on the low-taxed portion (Section \ref{sec:etr_measurement}) \\
+$\sigma_W(t), \sigma_A(t)$ & SBIE payroll and tangible assets carve-out rates (Section \ref{sec:SBIE}) \\
+$\rho_{p,j,t}$ & SBIE-to-profit ratio $= \text{SBIE}_{p,j,t} / \pi_{p,j,t}^{*}$ (Section \ref{sec:SBIE}) \\
+$\text{SC}_{p,j,t}^{\text{M1}}$ & Substance Cap, Method 1 (Section \ref{sec:sbti}) \\
+$\text{SC}_{p,j,t}^{\text{M2}}$ & Substance Cap, Method 2 (Section \ref{sec:sbti}) \\
+$\kappa_{j,s,t}$ & Sectoral SBTI-capacity proxy (Section \ref{sec:sbti_amplification}) \\
+$\beta_{j,t}$ & Fraction of low-taxed profit reallocated under behavioural response \\
+$\mathbb{1}_j^{\text{Q}}$ & Indicator: $=1$ if jurisdiction $j$ has implemented a QDMTT \\
+$\mathbb{1}_p^{\text{SbS}}$ & Indicator: $=1$ if parent $p$ has a Qualified SbS Regime (currently US only) \\
+$a_{s,p,j,t}^{(r)}$ & Allocation weight under policy regime $r$ (Section \ref{sec:sbs}) \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \newpage 
 
@@ -478,19 +493,21 @@ MNE size classes & No & No & No & No & No & Yes (6) \\
 
 GMT revenue depends on five quantities: how much profit falls below the minimum rate, how far below it falls, what fraction the substance exclusion shields, how MNEs adjust their behaviour, and which jurisdiction collects the residual liability. This section builds the estimation framework in sequence. Sections \ref{sec:etr_measurement}--\ref{sec:SBIE} develop the first two pipeline stages: identifying low-taxed profit and applying the substance-based income exclusion. Section \ref{sec:estimation} estimates the profit-shifting semi-elasticity directly from the 2016--2022 CbCR panel under three functional forms. Section \ref{sec:behavioural} embeds the estimated semi-elasticities in the behavioural response stage. Section \ref{sec:sbs} specifies the revenue allocation rule under the January 2026 Side-by-Side Safe Harbour. Section \ref{sec:pipeline} assembles these stages into a single multiplicative equation. Section \ref{sec:decomposition} decomposes the resulting revenue surface through a factorial sensitivity analysis, and Section \ref{sec:hypotheses} derives hypotheses.
 
+\workingnote{also in this introduciton i will add a visualisation, since it is technically complex and i want to guide the reader to the setup}
+
 
 \subsection{Stage 1: Identifying low-taxed profit}\label{sec:etr_measurement}
 
-The first pipeline stage determines how much profit falls below the 15\% threshold and by how much. 
+The first pipeline \workingnote{better word for pipeline} stage determines how much profit falls below the 15\% threshold and by how much. 
 
 \subsubsection{ETR calculation}\label{sec:etr_calc}
 
-The basic effective tax rate for each bilateral pair $(p, j, t)$ calculation is computed from CbCR Table I, restricting to profit-making entities:\footnote{Tax accrued (\code{TAX\_ACCRUED}) is used as the ETR numerator. Accrued taxes reflect the current-year charge, unlike taxes paid (cash basis) which include timing differences. The GloBE ETR uses ``covered taxes,'' which differ from both accrued and paid taxes and require at least 22 adjustments from the financial accounting starting point \citep{hanlon2023}. Accrued taxes are the closest available proxy in CbCR data.}
+The basic effective tax rate for each bilateral pair $(p, j, t)$ is computed using CbCR Table I, restricting to profit-making entities:\footnote{Tax accrued (\code{TAX\_ACCRUED}) is used as the ETR numerator. Accrued taxes reflect the current-year charge, unlike taxes paid (cash basis) which include timing differences. The GloBE ETR uses ``covered taxes,'' which differ from both accrued and paid taxes and require at least 22 adjustments from the financial accounting starting point \citep{hanlon2023}. Accrued taxes are the closest available proxy in CbCR data.}
 \begin{equation}\label{eq:etr}
 \tau_{p,j,t} = \frac{\theta_{p,j,t}}{\pi_{p,j,t}}, \quad \text{where } \pi_{p,j,t} > 0
 \end{equation}
 
-Under the jurisdiction-average approach, all profit of jurisdiction $j$ is treated as either above or below the GMT threshold. This produces zero top-up tax for countries like Germany, France, and Italy, even though individual MNE affiliates in these jurisdictions face ETRs below 15\% because of IP box regimes, R\&D credits, or regional development incentives. \citet{hugger2026} confirm empirically that within-jurisdiction ETR dispersion exceeds 10 percentage points for approximately 80\% of jurisdictions and exceeds 20 percentage points for more than half.
+Two approaches determine whether profit in jurisdiction $j$ falls below the 15\% threshold. Under the \emph{jurisdiction-average approach}, the profit-weighted average ETR across all parent jurisdictions reporting affiliates in $j$ is computed as $\bar{\tau}_{j,t} = \sum_p \theta_{p,j,t} / \sum_p \pi_{p,j,t}$. If this aggregate ratio equals or exceeds 15\%, the entire profit base of jurisdiction $j$ is treated as above the GMT threshold and no top-up tax is charged; if it falls below 15\%, the full profit base is treated as low-taxed. The approach therefore ignores within-jurisdiction heterogeneity: it produces zero top-up tax, even though individual MNE affiliates in these jurisdictions face ETRs below 15\% because of IP box regimes, R\&D credits, or regional development incentives.
 
 \subsubsection{Distributional approach}\label{sec:distributional}
 
@@ -500,6 +517,7 @@ The distributional approach replaces the jurisdiction-average ETR with an estima
 \end{equation}
 
 This aggregation assumes that the ETR distribution in affiliate jurisdiction $j$ does not vary systematically by parent jurisdiction $p$. The assumption is violated when bilateral tax treaties create parent-specific withholding rates, but these are typically small relative to the CIT component.\footnote{\citet{riet2025} show that treaty shopping reduces the worldwide average tax on repatriated dividends by approximately 5.6 percentage points. However, withholding taxes on dividends are largely excluded from the GloBE ETR calculation (they affect the parent's covered taxes, not the affiliate's), so this violation is less severe than it appears.}
+
 
 A piecewise-uniform distribution is fitted between nearby percentiles:
 \begin{equation}\label{eq:piecewise}
@@ -513,12 +531,12 @@ f_{j,t}(\tau) = \begin{cases}
 \end{cases}
 \end{equation}
 
-The distribution is shifted to match the profit-weighted average:
+The distribution is shifted to match the profit-weighted average: \workingnote{add why i do this}
 \begin{equation}\label{eq:shift}
 \tilde{\tau}_{j,t}^{(k)} = \tau_{j,t}^{(k)} + \left(\bar{\tau}_{j,t} - \bar{\tau}_{j,t}^{\text{dist}}\right), \quad \tilde{\tau}_{j,t}^{(k)} \geq 0
 \end{equation}
 
-The share of profit with ETR below $T$ is:
+The share of profit with ETR below $T$ is: 
 \begin{equation}\label{eq:lowtax_share}
 s_{j,t}^{<T} = \int_0^{T} \tilde{f}_{j,t}(\tau) \, d\tau
 \end{equation}
@@ -540,6 +558,7 @@ The piecewise-uniform assumption compresses the extreme tails. Subgroups with ET
 
 \subsubsection{Hybrid measurement and cross-validation}\label{sec:crossval}
 
+\workingnote{intro is missing in many of these paragrpahs}
 Low-taxed profit is measured with a hybrid design. For EU affiliates in years with Table IV coverage, the baseline uses the direct subsidiary-level observation from the \code{RATE\_0-15} bracket:
 \begin{equation}\label{eq:share_direct}
 s_{j,t}^{<T,\text{IV}} = \frac{\pi_{j,t}^{<T,\text{IV}}}{\pi_{j,t}^{\text{all,IV}}}
@@ -580,11 +599,11 @@ The total tax on an MNE subsidiary in a low-tax jurisdiction ($\tau_{p,j} < T$) 
 \text{Tax} = \underbrace{\tau_{p,j} \cdot \pi_{p,j}}_{\text{local CIT}} + \underbrace{(T - \tau_{p,j}) \cdot (\pi_{p,j} - \text{SBIE}_{p,j})}_{\text{top-up tax}}
 \end{equation}
 
-The effective tax rate under Pillar Two is:
+The effective tax rate under the Global Minimum Tax is: 
 \begin{equation}\label{eq:etr_pillar2}
 \tau_{p,j}^{\text{P2}} = T - (T - \tau_{p,j}) \cdot \frac{\text{SBIE}_{p,j}}{\pi_{p,j}} = T - \delta_{p,j}^{\text{top}} \cdot \rho_{p,j}
 \end{equation}
-where $\rho_{p,j} \equiv \text{SBIE}_{p,j} / \pi_{p,j}$ is the SBIE-to-profit ratio.\footnote{The $\rho$ notation for the SBIE-to-profit ratio is introduced in this thesis. \citet{devereux2023} compute the ratio but do not assign it a symbol; \citet{schjelderup2024} work with absolute SBIE values. The ratio formulation makes the effective floor directly comparable across jurisdictions with different profit levels.} The effective tax rate under Pillar Two falls \emph{strictly below} the headline rate $T = 15\%$ whenever the SBIE is positive. The gap is larger when (a) the pre-reform ETR is further below 15\% (larger $\delta^{\text{top}}$) and (b) the SBIE-to-profit ratio is larger (larger $\rho$). \citet{schjelderup2024} demonstrate: at $\rho = 0.65$ and $\tau = 0.10$, the effective floor is $0.15 - 0.05 \times 0.65 = 0.1175$, or 11.75\%.
+where $\rho_{p,j} \equiv \text{SBIE}_{p,j} / \pi_{p,j}$ is the SBIE-to-profit ratio.\footnote{The $\rho$ notation for the SBIE-to-profit ratio is introduced in this thesis. \citet{devereux2023} compute the ratio but do not assign it a symbol; \citet{schjelderup2024} work with absolute SBIE values. The ratio formulation makes the effective floor directly comparable across jurisdictions with different profit levels.} The effective tax rate under Pillar Two falls \emph{strictly below} the headline rate $T = 15\%$ whenever the SBIE is positive. The gap is larger when (a) the pre-reform ETR is further below 15\% (larger $\delta^{\text{top}}$) and (b) the SBIE-to-profit ratio is larger (larger $\rho$). 
 
 The SBIE for each bilateral pair is:
 \begin{equation}\label{eq:sbie}
@@ -597,6 +616,7 @@ where the carve-out rates decline over the transition period:
 \begin{equation}\label{eq:sbie_rates_A}
 \sigma_A(t) = \begin{cases} 0.08 & t = 2024 \\ 0.08 - 0.003 \cdot (t - 2024) & 2024 < t < 2033 \\ 0.05 & t \geq 2033 \end{cases}
 \end{equation}
+\workingnote{the above is not really clear, does not need this notaiton, and maybe we can also ujust use threshold levels of 0.1, 0.05, 0.08 or something}
 
 The payroll component $\hat{W}_{p,j,t}$ uses observed \code{EARNINGS} where available; where missing, it is imputed as $N_{p,j,t} \times \bar{w}_{j,t}$ using employee counts and jurisdiction-average wages.\label{sec:payroll_imputation}
 
@@ -604,24 +624,29 @@ The payroll component $\hat{W}_{p,j,t}$ uses observed \code{EARNINGS} where avai
 
 The January 2026 OECD Administrative Guidance introduced the Substance-Based Tax Incentive (SBTI) Safe Harbour, which creates a second channel through which physical substance reduces the GMT burden \citep{oecd2026}. Under the original GloBE rules, local tax credits mechanically reduced covered taxes, driving the ETR below 15\% and triggering a top-up tax. The SBTI reverses this: MNEs may treat ``Qualifying Tax Incentives'' (QTIs; expenditure-based R\&D credits, volume-based production incentives) as an addition to covered taxes rather than a reduction. By inflating the ETR numerator, the safe harbour prevents the ETR from being artificially depressed.
 
-The benefit is bounded by a Substance Cap:
+The benefit is bounded by a Substance Cap, for which two methods are available \citep{oecd2026}. Under Method~1 (the default, permanent option), the cap equals 5.5\% of the greater of eligible payroll costs or depreciation and depletion of eligible tangible assets:
 \begin{equation}\label{eq:substance_cap}
-\text{SC}_{p,j,t} = \max\!\left(0.055 \cdot W_{p,j,t},\; 0.055 \cdot \text{Depr}(A_{p,j,t})\right)
+\text{SC}_{p,j,t}^{\text{M1}} = 0.055 \times \max\!\left(W_{p,j,t},\; \text{Depr}(A_{p,j,t})\right)
 \end{equation}
-where $\text{Depr}(A)$ denotes depreciation of eligible tangible assets.\footnote{An elective alternative cap of 1\% of the carrying value of tangible assets is available for a five-year period. See \citet{oecd2026}, Chapter 1, Section 3. This formula is first introduced in this thesis.}
+where $\text{Depr}(A)$ denotes depreciation and depletion of eligible tangible assets. Under Method~2 (an elective alternative available for a five-year period), the cap equals 1\% of the carrying value of eligible tangible assets:
+\begin{equation}\label{eq:substance_cap_m2}
+\text{SC}_{p,j,t}^{\text{M2}} = 0.01 \times A_{p,j,t}
+\end{equation}
+MNEs elect whichever method yields the larger cap. Method~2 is designed for incentives linked to initial capital expenditure, where the carrying value provides greater relief in early years of asset life than depreciation.\footnote{If an MNE revokes a Method~2 election, assets previously included under Method~2 must be excluded from the depreciation calculation under Method~1, preventing double benefit. See \citet{oecd2026}, Chapter~1, Section~4.}
 
 The SBTI and the SBIE rely on the \emph{same} macroeconomic variables: payroll and tangible assets. The SBIE reduces the denominator of the excess profit base; the SBTI inflates the numerator of the ETR. Capital-intensive sectors benefit doubly: larger SBIE carve-outs \emph{and} higher Substance Caps, allowing them to retain local tax incentives without triggering top-up taxes. Asset-light holding companies in conduit jurisdictions cannot utilise the SBTI because their payroll and tangible assets approach zero, driving the Substance Cap to zero.\footnote{The SBTI also has implications for tax competition. As \citet{janeba2023} predict, competition shifts from headline statutory rates toward opaque subsidies and qualified refundable tax credits. The SBTI explicitly protects expenditure-based incentives up to the Substance Cap, restricting effective tax competition to jurisdictions with heavy industrial footprints.}
 
 Under the SBTI, the effective ETR becomes:
 \begin{equation}\label{eq:etr_sbti}
-\tau_{p,j}^{\text{SBTI}} = \frac{\theta_{p,j} + \min(\text{QTI}_{p,j},\; \text{SC}_{p,j})}{\pi_{p,j}}
+\tau_{p,j}^{\text{SBTI}} = \frac{\theta_{p,j} + \min\!\left(\text{QTI}_{p,j},\; \max\!\left(\text{SC}_{p,j}^{\text{M1}},\; \text{SC}_{p,j}^{\text{M2}}\right)\right)}{\pi_{p,j}}
 \end{equation}
+where the MNE elects the method that yields the larger cap.
 
-Public CbCR does not observe QTI claims. The methodology therefore measures how much \emph{room} a jurisdiction--sector cell has to protect such incentives, using a conservative SBTI-capacity proxy:
+Public CbCR does not observe actual QTI claims. The methodology therefore cannot measure the SBTI benefit directly but can measure how much \emph{room} a jurisdiction--sector cell has to protect local tax incentives under the safe harbour. The Substance Cap sets the upper bound on the SBTI benefit; the SBTI-capacity proxy normalises this cap by profit to obtain a ratio comparable across jurisdictions and sectors:
 \begin{equation}\label{eq:sbti_capacity}
 \kappa_{j,s,t} = \frac{\max\!\left(0.055\,W_{j,s,t},\; 0.01\,A_{j,s,t}\right)}{\pi_{j,s,t}}
 \end{equation}
-The numerator reflects the two Substance Cap options: 5.5\% of payroll or 1\% of the carrying value of tangible assets.\footnote{The 5.5\% payroll cap is the permanent option. The 1\% carrying-value option is available for a five-year period and is observable from CbCR \code{ASSETS} even when depreciation is not. Using the maximum provides a conservative lower bound because MNEs will elect whichever option is larger. Also this formula is introduced in this thesis.} High-$\kappa$ sectors can retain local incentives without triggering top-up tax. Low-$\kappa$ conduit sectors cannot. The index enters the factorial design as part of the substance overlay in Factor 2 (Section \ref{sec:factors}).
+The numerator approximates the maximum Substance Cap an MNE could claim by combining the most favourable observable component from each method. Under Method~1, the cap is $0.055 \times \max(W, \text{Depr}(A))$; however, CbCR reports the carrying value of tangible assets (\code{ASSETS}) but not depreciation, so the Method~1 asset arm ($0.055 \times \text{Depr}(A)$) cannot be computed from public data. The proxy therefore takes the maximum of the Method~1 payroll arm ($0.055 \times W$, which is observable) and the Method~2 carrying-value cap ($0.01 \times A$, also observable). This yields a conservative upper bound: MNEs will elect whichever method produces the larger cap, and the proxy captures the larger of the two observable components. A high $\kappa$ indicates that a sector has substantial physical substance relative to profits and could therefore protect a large share of local tax incentives through the SBTI; a low $\kappa$ --- characteristic of asset-light holding and IP licensing sectors --- means the Substance Cap approaches zero and the SBTI provides little relief. The index enters the factorial design as part of the substance overlay in Factor 2 (Section \ref{sec:factors}).
 
 \subsubsection{Sectoral decomposition}\label{sec:sbie_decomp}
 
@@ -795,7 +820,7 @@ Revenue uncertainty compounds across stages. If Stage 1 doubles the measured bas
 
 \subsubsection{Factor definitions}\label{sec:factors}
 
-Five binary factors drive the variation in GMT revenue estimates:
+Five binary factors drive the variation in GMT revenue estimates. Table \ref{tab:factors} defines each factor and its two levels.
 
 \begin{table}[H]
 \centering
@@ -934,7 +959,7 @@ The hypotheses below are derived from the literature reviewed in Section \ref{se
 
 The CbCR data are split into six ``Tables''.
 
-Each table shares the following fifteen columns: 
+Each table shares fifteen columns, documented in Table \ref{tab:columns}.
 
 \begin{table}[H]
 \centering
@@ -1134,7 +1159,7 @@ Table V reports the size distribution of MNE groups within each parent jurisdict
 Table VI reports all financial and activity variables broken down by five MNE group revenue size classes (see Table \ref{tab:mnesize}). It is the most recently added dimension of the CbCR database and currently covers fiscal year 2022 only. The size breakdown enables analysis of how the GMT's impact differs across the size distribution of MNE groups. In particular, it allows computation of SBIE ratios separately for large and medium MNE groups, testing the prediction of \citet{schjelderup2024} that the production subsidy effect is more pronounced among the largest, most capital-intensive groups.
 
 \subsection{OECD Statutory Corporate Income Tax Rates}\label{sec:cit}
-The OECD \emph{Tax Database} provides harmonised time series of statutory corporate income tax (CIT) rates, compiled from legislation and administrative sources.  The statutory rate is the headline rate applied to corporate profits before allowances and credits.
+The OECD \emph{Tax Database} provides harmonised time series of statutory corporate income tax (CIT) rates, compiled from legislation and administrative sources.  The statutory rate is the headline rate applied to corporate profits before allowances and credits. Table \ref{tab:cit_rates} lists the available variable codes.
 
 \begin{longtable}{@{}L{2.8cm} L{6.0cm} C{1.8cm} C{2.5cm}@{}}
 \caption{Statutory CIT rates -- variable codes}\label{tab:cit_rates}\\
@@ -1382,7 +1407,7 @@ This is the OECD \emph{Revenue Statistics -- Comparative tables} dataset, provid
 \textbf{Source:} US Bureau of Economic Analysis (BEA), Survey of US Direct Investment Abroad\\
 \textbf{Status:} Downloaded; four Excel workbooks present (March 2026)
 
-The BEA provides detailed data on US-headquartered majority-owned foreign affiliates (MOFAs), including employment, assets, sales, and value added by country and industry.  These data complement the OECD CbCR statistics by providing a longer time series (back to the 1980s) for the US parent population, as well as industry-level decompositions not available in the CbCR.
+The BEA provides detailed data on US-headquartered majority-owned foreign affiliates (MOFAs), including employment, assets, sales, and value added by country and industry.  These data complement the OECD CbCR statistics by providing a longer time series (back to the 1980s) for the US parent population, as well as industry-level decompositions not available in the CbCR. Table \ref{tab:bea_files} lists the downloaded files.
 
 \begin{table}[H]
 \centering
@@ -1406,6 +1431,8 @@ Eurostat inward FATS provide information on foreign-controlled enterprises opera
 \textbf{Eurostat datasets:} \texttt{fats\_g1b\_08} (2008--2020) and \texttt{fats\_activ} (2021 onward)\\
 \textbf{Combined rows:} 4{,}623{,}851 \quad \textbf{Combined size:} 442 MB\\
 \textbf{Years:} 2008--2023 \quad \textbf{Downloaded:} March 2026 from the live Eurostat API
+
+Table \ref{tab:fats_files} lists the two raw files.
 
 \begin{table}[H]
 \centering

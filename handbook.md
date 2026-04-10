@@ -156,6 +156,8 @@
 - Identify which limitations of prior work your thesis addresses. Make this connection explicit rather than leaving the reader to infer it.
 - Position papers against each other where they disagree. Do not just list; argue.
 - Whenever you introduce a new formula, notation, or framework that the literature has not used, state this explicitly: "The $\rho$ notation is introduced in this thesis..." or "The application of a $2^5$ factorial design to GMT estimation is original to this thesis."
+- check that all abreheviations are first mentioned in full in the text, and also included in the list of abbreviations
+- always mention tables in the text. 
 - Help the reader see where to cite you in future work.
 - Before submitting, go through the thesis and check: for every non-trivial element, is it clearly attributed to a prior source, or clearly marked as your own contribution? Nothing should be ambiguous.
 - Any named dataset or database should have a URL in a footnote on first reference in the appendix (and optionally in the main text). The reader should be able to locate the data without further searching.
