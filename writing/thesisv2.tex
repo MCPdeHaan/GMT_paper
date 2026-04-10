@@ -475,7 +475,7 @@ $s_{j,t}^{<T}$ & Share of profit with ETR below $T$ in jurisdiction $j$ \\
 $\ell_{p,j,t}$ & Low-taxed profit volume $= s_{j,t}^{<T} \cdot \pi_{p,j,t}^{*}$ (Section \ref{sec:etr_measurement}) \\
 $\bar{\delta}_{j,t}^{\text{top}}$ & Average top-up rate on the low-taxed portion (Section \ref{sec:etr_measurement}) \\
 $\sigma_W(t), \sigma_A(t)$ & SBIE payroll and tangible assets carve-out rates (Section \ref{sec:SBIE}) \\
-$\rho_{p,j,t}$ & SBIE-to-profit ratio $= \text{SBIE}_{p,j,t} / \pi_{p,j,t}^{*}$ (Section \ref{sec:SBIE}) \\
+$\phi_{p,j,t}$ & SBIE-to-profit ratio $= \text{SBIE}_{p,j,t} / \pi_{p,j,t}^{*}$ (Section \ref{sec:SBIE}) \\
 $\text{SC}_{p,j,t}^{\text{M1}}$ & Substance Cap, Method 1 (Section \ref{sec:sbti}) \\
 $\text{SC}_{p,j,t}^{\text{M2}}$ & Substance Cap, Method 2 (Section \ref{sec:sbti}) \\
 $\kappa_{j,s,t}$ & Sectoral SBTI-capacity proxy (Section \ref{sec:sbti_amplification}) \\
@@ -519,15 +519,15 @@ The distributional approach replaces the jurisdiction-average ETR with an estima
 This aggregation assumes that the ETR distribution in affiliate jurisdiction $j$ does not vary systematically by parent jurisdiction $p$. The assumption is violated when bilateral tax treaties create parent-specific withholding rates, but these are typically small relative to the CIT component.\footnote{\citet{riet2025} show that treaty shopping reduces the worldwide average tax on repatriated dividends by approximately 5.6 percentage points. However, withholding taxes on dividends are largely excluded from the GloBE ETR calculation (they affect the parent's covered taxes, not the affiliate's), so this violation is less severe than it appears.}
 
 
-A piecewise-uniform distribution is fitted between nearby percentiles:
+A piecewise-uniform distribution is fitted across the full support $[0, 1]$:
 \begin{equation}\label{eq:piecewise}
 f_{j,t}(\tau) = \begin{cases}
-\text{point mass at } \tau_{j,t}^{(5)} & \text{for } \tau < \tau_{j,t}^{(5)} \\[4pt]
+\frac{0.05}{\tau_{j,t}^{(5)}} & \text{for } 0 \leq \tau < \tau_{j,t}^{(5)} \\[4pt]
 \frac{0.20}{\tau_{j,t}^{(25)} - \tau_{j,t}^{(5)}} & \text{for } \tau_{j,t}^{(5)} \leq \tau < \tau_{j,t}^{(25)} \\[4pt]
 \frac{0.25}{\tau_{j,t}^{(50)} - \tau_{j,t}^{(25)}} & \text{for } \tau_{j,t}^{(25)} \leq \tau < \tau_{j,t}^{(50)} \\[4pt]
 \frac{0.25}{\tau_{j,t}^{(75)} - \tau_{j,t}^{(50)}} & \text{for } \tau_{j,t}^{(50)} \leq \tau < \tau_{j,t}^{(75)} \\[4pt]
 \frac{0.20}{\tau_{j,t}^{(95)} - \tau_{j,t}^{(75)}} & \text{for } \tau_{j,t}^{(75)} \leq \tau < \tau_{j,t}^{(95)} \\[4pt]
-\text{point mass at } \tau_{j,t}^{(95)} & \text{for } \tau \geq \tau_{j,t}^{(95)}
+\frac{0.05}{1 - \tau_{j,t}^{(95)}} & \text{for } \tau_{j,t}^{(95)} \leq \tau \leq 1
 \end{cases}
 \end{equation}
 
@@ -552,7 +552,7 @@ and the profit-weighted average top-up rate for the low-taxed portion is:
 
 \workingnote{show in light of literature, theory look up}
 
-The piecewise-uniform assumption compresses the extreme tails. Subgroups with ETRs near zero are assigned the 5th percentile value rather than their true lower rate, suppressing the measurement of ultra-low-tax profit shifting. This compression is particularly damaging for conduit jurisdictions (Ireland, the Netherlands, Luxembourg, Singapore) which exhibit \emph{bimodal} ETR distributions: a distinct mass of holding and IP entities clusters near an ETR of zero, while a separate mass of operating entities clusters near the headline statutory rate.
+The piecewise-uniform assumption imposes a flat density between each pair of adjacent percentiles, including the tails $[0, \tau^{(5)})$ and $[\tau^{(95)}, 1]$. The tail segments spread 5\% of probability mass uniformly across these intervals. For conduit jurisdictions with very low 5th percentiles, this spreads the lower-tail mass thinly across a wide interval near zero rather than concentrating it where the true density peaks. The assumption is particularly limiting for jurisdictions that exhibit \emph{bimodal} ETR distributions --- Ireland, the Netherlands, Luxembourg, Singapore --- where a distinct mass of holding and IP entities clusters near an ETR of zero while a separate mass of operating entities clusters near the headline statutory rate.
 
 \workingnote{add solution for this}
 
@@ -601,9 +601,9 @@ The total tax on an MNE subsidiary in a low-tax jurisdiction ($\tau_{p,j} < T$) 
 
 The effective tax rate under the Global Minimum Tax is: 
 \begin{equation}\label{eq:etr_pillar2}
-\tau_{p,j}^{\text{P2}} = T - (T - \tau_{p,j}) \cdot \frac{\text{SBIE}_{p,j}}{\pi_{p,j}} = T - \delta_{p,j}^{\text{top}} \cdot \rho_{p,j}
+\tau_{p,j}^{\text{P2}} = T - (T - \tau_{p,j}) \cdot \frac{\text{SBIE}_{p,j}}{\pi_{p,j}} = T - \delta_{p,j}^{\text{top}} \cdot \phi_{p,j}
 \end{equation}
-where $\rho_{p,j} \equiv \text{SBIE}_{p,j} / \pi_{p,j}$ is the SBIE-to-profit ratio.\footnote{The $\rho$ notation for the SBIE-to-profit ratio is introduced in this thesis. \citet{devereux2023} compute the ratio but do not assign it a symbol; \citet{schjelderup2024} work with absolute SBIE values. The ratio formulation makes the effective floor directly comparable across jurisdictions with different profit levels.} The effective tax rate under Pillar Two falls \emph{strictly below} the headline rate $T = 15\%$ whenever the SBIE is positive. The gap is larger when (a) the pre-reform ETR is further below 15\% (larger $\delta^{\text{top}}$) and (b) the SBIE-to-profit ratio is larger (larger $\rho$). 
+where $\phi_{p,j} \equiv \text{SBIE}_{p,j} / \pi_{p,j}$ is the SBIE-to-profit ratio.\footnote{The $\phi$ notation for the SBIE-to-profit ratio is introduced in this thesis. \citet{devereux2023} compute the ratio but do not assign it a symbol; \citet{schjelderup2024} work with absolute SBIE values. The ratio formulation makes the effective floor directly comparable across jurisdictions with different profit levels. The symbol $\phi$ is chosen to avoid confusion with $\phi$, which conventionally denotes a correlation coefficient in econometric reporting.} The effective tax rate under Pillar Two falls \emph{strictly below} the headline rate $T = 15\%$ whenever the SBIE is positive. The gap is larger when (a) the pre-reform ETR is further below 15\% (larger $\delta^{\text{top}}$) and (b) the SBIE-to-profit ratio is larger (larger $\phi$).
 
 The SBIE for each bilateral pair is:
 \begin{equation}\label{eq:sbie}
@@ -653,20 +653,20 @@ The numerator approximates the maximum Substance Cap an MNE could claim by combi
 
 \workingnote{add why we need this, referrence back to FATS section in data}
 
-The SBIE-to-profit ratio $\rho$ depends on the composition of economic activity. Decomposing affiliates in jurisdiction $j$ into sectors $s \in \{1, \ldots, S\}$:
+The SBIE-to-profit ratio $\phi$ depends on the composition of economic activity. Decomposing affiliates in jurisdiction $j$ into sectors $s \in \{1, \ldots, S\}$:
 
 \begin{equation}\label{eq:rho_sectoral}
-\rho_j = \sum_s \omega_{j,s} \cdot \rho_{j,s}, \quad \text{where } \omega_{j,s} = \frac{\pi_{j,s}}{\pi_j}
+\phi_j = \sum_s \omega_{j,s} \cdot \phi_{j,s}, \quad \text{where } \omega_{j,s} = \frac{\pi_{j,s}}{\pi_j}
 \end{equation}
 
 and the sector-specific SBIE-to-profit ratio is:
 \begin{equation}\label{eq:rho_sector}
-\rho_{j,s} = \sigma_W \cdot \frac{W_{j,s}}{\pi_{j,s}} + \sigma_A \cdot \frac{A_{j,s}}{\pi_{j,s}}
+\phi_{j,s} = \sigma_W \cdot \frac{W_{j,s}}{\pi_{j,s}} + \sigma_A \cdot \frac{A_{j,s}}{\pi_{j,s}}
 \end{equation}
 
 The effective tax floor for sector $s$ in jurisdiction $j$ is:
 \begin{equation}\label{eq:floor_sector}
-\tau_{j,s}^{\text{floor}} = T - (T - \tau_j) \cdot \rho_{j,s}
+\tau_{j,s}^{\text{floor}} = T - (T - \tau_j) \cdot \phi_{j,s}
 \end{equation}
 
 CbCR does not report by sector. The sectoral decomposition combines CbCR aggregate levels with Eurostat FATS sectoral shares:
@@ -683,9 +683,9 @@ The effective tax floor evolves over the SBIE transition period (2024--2033):
 \end{equation}
 The output is a matrix of effective tax floors: 27 EU Member States $\times$ 15--20 NACE sectors $\times$ 10 transition years.
 
-For jurisdictions where the ETR distribution straddles $T$, the aggregate $\rho_j$ overstates the effective shielding of the GMT base if high-ETR entities are disproportionately capital-intensive. The SBIE reduces the top-up tax only on the low-taxed portion, not on entities already above $T$. Table IV's activity composition variables (\code{ACT\_HOLDING}, \code{ACT\_IP}, \code{ACT\_MAN}) for the \code{RATE\_0-15} bracket reveal whether low-taxed profit is concentrated in holding/IP activities (low $\rho$, suggesting proportional SBIE allocation \emph{overstates} shielding) or in manufacturing (high $\rho$, suggesting it \emph{understates} shielding). The sensitivity analysis tests both extremes.
+For jurisdictions where the ETR distribution straddles $T$, the aggregate $\phi_j$ overstates the effective shielding of the GMT base if high-ETR entities are disproportionately capital-intensive. The SBIE reduces the top-up tax only on the low-taxed portion, not on entities already above $T$. Table IV's activity composition variables (\code{ACT\_HOLDING}, \code{ACT\_IP}, \code{ACT\_MAN}) for the \code{RATE\_0-15} bracket reveal whether low-taxed profit is concentrated in holding/IP activities (low $\phi$, suggesting proportional SBIE allocation \emph{overstates} shielding) or in manufacturing (high $\phi$, suggesting it \emph{understates} shielding). The sensitivity analysis tests both extremes.
 
-Stage 2 delivers the SBIE filter $(1 - \bar{\rho}_{p,j,t})$: the fraction of low-taxed profit that constitutes excess profit and is subject to the top-up tax.
+Stage 2 delivers the SBIE filter $(1 - \bar{\phi}_{p,j,t})$: the fraction of low-taxed profit that constitutes excess profit and is subject to the top-up tax.
 
 \subsection{Panel estimation of profit-shifting semi-elasticities}\label{sec:estimation}
 
@@ -809,15 +809,15 @@ Equation \eqref{eq:utpr_sbs} formalises the core consequence: UTPR revenue from 
 
 The three stages and the allocation rule combine into a single multiplicative framework.\footnote{The revenue pipeline decomposition is original to this thesis. The individual components draw on \citet{hugger2026} (Stage 1), \citet{schjelderup2024} and \citet{devereux2023} (Stage 2), and the panel-estimated semi-elasticities (Section \ref{sec:estimation}) for Stage 3. No prior study combines these into a single multiplicative framework that makes the sources of revenue uncertainty simultaneously visible and exactly decomposable.} For each bilateral parent--affiliate cell, the pre-allocation top-up liability is:
 \begin{equation}\label{eq:pipeline}
-L_{p,j,t} = \underbrace{\ell_{p,j,t} \cdot \bar{\delta}_{j,t}^{\text{top}}}_{\text{Stage 1: ETR filter}} \times \underbrace{\left(1 - \bar{\rho}_{p,j,t}\right)}_{\text{Stage 2: SBIE filter}} \times \underbrace{\left(1 - \beta_{j,t}\right)}_{\text{Stage 3: behavioural filter}}
+L_{p,j,t} = \underbrace{\ell_{p,j,t} \cdot \bar{\delta}_{j,t}^{\text{top}}}_{\text{Stage 1: ETR filter}} \times \underbrace{\left(1 - \bar{\phi}_{p,j,t}\right)}_{\text{Stage 2: SBIE filter}} \times \underbrace{\left(1 - \beta_{j,t}\right)}_{\text{Stage 3: behavioural filter}}
 \end{equation}
-where $\ell_{p,j,t} = s_{j,t}^{<T} \cdot \pi_{p,j,t}^{*}$ is low-taxed profit (Section \ref{sec:etr_measurement}), $\bar{\delta}_{j,t}^{\text{top}}$ is the average top-up rate on that low-taxed portion, $\bar{\rho}_{p,j,t}$ is the SBIE shield (Section \ref{sec:SBIE}), and $\beta_{j,t}$ is the behavioural reallocation fraction (Section \ref{sec:behavioural}). The allocation rule then distributes the liability:
+where $\ell_{p,j,t} = s_{j,t}^{<T} \cdot \pi_{p,j,t}^{*}$ is low-taxed profit (Section \ref{sec:etr_measurement}), $\bar{\delta}_{j,t}^{\text{top}}$ is the average top-up rate on that low-taxed portion, $\bar{\phi}_{p,j,t}$ is the SBIE shield (Section \ref{sec:SBIE}), and $\beta_{j,t}$ is the behavioural reallocation fraction (Section \ref{sec:behavioural}). The allocation rule then distributes the liability:
 \begin{equation}\label{eq:allocation}
 R_{s,t}^{(r)} = \sum_p \sum_j a_{s,p,j,t}^{(r)} \cdot L_{p,j,t}
 \end{equation}
 where $a_{s,p,j,t}^{(r)}$ is the regime-specific allocation weight implied by the QDMTT/IIR/UTPR rule order under policy regime $r$ (Section \ref{sec:sbs}).
 
-Revenue uncertainty compounds across stages. If Stage 1 doubles the measured base (distributional vs.\ average ETR) and Stage 2 shields 57\% of it, the combined effect is $2 \times 0.43 = 0.86$: doubling the base produces only a modest net increase after the SBIE. The interactions have economic content. A positive Stage 1 $\times$ Stage 2 interaction indicates that the distributional approach reveals low-taxed profit concentrated in capital-intensive sectors with high $\rho$, so the expanded base is partially offset by stronger SBIE shielding. The pipeline structure identifies which data improvements would most reduce uncertainty: if Stage 1 dominates variation, within-jurisdiction ETR data are the priority; if Stage 2 dominates, better CbCR coverage of tangible assets and payroll matters more.
+Revenue uncertainty compounds across stages. If Stage 1 doubles the measured base (distributional vs.\ average ETR) and Stage 2 shields 57\% of it, the combined effect is $2 \times 0.43 = 0.86$: doubling the base produces only a modest net increase after the SBIE. The interactions have economic content. A positive Stage 1 $\times$ Stage 2 interaction indicates that the distributional approach reveals low-taxed profit concentrated in capital-intensive sectors with high $\phi$, so the expanded base is partially offset by stronger SBIE shielding. The pipeline structure identifies which data improvements would most reduce uncertainty: if Stage 1 dominates variation, within-jurisdiction ETR data are the priority; if Stage 2 dominates, better CbCR coverage of tangible assets and payroll matters more.
 
 \subsection{Counterfactual decomposition}\label{sec:decomposition}
 
@@ -843,7 +843,7 @@ Factor & Name & Baseline ($x_i = 0$) & Alternative ($x_i = 1$) \\
 \end{tabular}
 \end{table}
 
-Each factor maps to a pipeline stage. Factor 1 switches $s_j^{<T}$ between binary and continuous. Factor 2 changes $\bar{\rho}_{p,j,t}$ from the aggregate CbCR value to the sectoral FATS-based estimate with the SBTI-capacity overlay ($\kappa_{j,s,t}$ from equation \ref{eq:sbti_capacity}). Factor 3 moves from initial to long-run carve-out rates. Factor 4 switches the allocation weight $a_{s,p,j,t}^{(r)}$ between universal and SbS regimes. Under the alternative, IIR and UTPR top-up variables are set to zero for all observations where the parent jurisdiction is the United States (equations \ref{eq:iir_sbs}--\ref{eq:utpr_sbs}); QDMTTs remain fully operational in both scenarios. Factor 5 introduces $\hat{\beta}_j > 0$ via the panel-estimated nonlinear semi-elasticities (equation \ref{eq:beta_estimated}) and sets $\hat{\beta}_j = 0$ for jurisdictions in the bunching band $[T - \eta, T)$.
+Each factor maps to a pipeline stage. Factor 1 switches $s_j^{<T}$ between binary and continuous. Factor 2 changes $\bar{\phi}_{p,j,t}$ from the aggregate CbCR value to the sectoral FATS-based estimate with the SBTI-capacity overlay ($\kappa_{j,s,t}$ from equation \ref{eq:sbti_capacity}). Factor 3 moves from initial to long-run carve-out rates. Factor 4 switches the allocation weight $a_{s,p,j,t}^{(r)}$ between universal and SbS regimes. Under the alternative, IIR and UTPR top-up variables are set to zero for all observations where the parent jurisdiction is the United States (equations \ref{eq:iir_sbs}--\ref{eq:utpr_sbs}); QDMTTs remain fully operational in both scenarios. Factor 5 introduces $\hat{\beta}_j > 0$ via the panel-estimated nonlinear semi-elasticities (equation \ref{eq:beta_estimated}) and sets $\hat{\beta}_j = 0$ for jurisdictions in the bunching band $[T - \eta, T)$.
 
 \subsubsection{Factorial design}\label{sec:factorial}
 
