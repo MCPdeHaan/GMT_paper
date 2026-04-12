@@ -207,7 +207,7 @@ Three strands of literature inform the GMT estimation framework: the empirical m
 
 \subsection{The empirical measurement of profit shifting}
 
-Modern empirical work on profit shifting traces back to \citet{hines1994}, who regress the logarithm of reported profits on the tax rate while controlling for real economic activity through labour and capital inputs. The framework has yielded a meta-regression consensus semi-elasticity of approximately 0.8 \citep{heckemeyer2017}. A constant semi-elasticity across the ETR distribution masks nonlinearity that subsequent work has revealed but does not motivate how the semi-elasticity should behave at the very low rates the GMT targets. ADD source
+Modern empirical work on profit shifting traces back to \citet{hines1994}, who regress the logarithm of reported profits on the tax rate while controlling for real economic activity through labour and capital inputs. The framework has yielded a meta-regression consensus semi-elasticity of approximately 0.8 \citep{heckemeyer2017}. A constant semi-elasticity across the ETR distribution masks nonlinearity that subsequent work has revealed \citep{dowd2017,garcia-bernardo2024}, but does not motivate how the semi-elasticity should behave at the very low rates the GMT targets.
 
 Two studies establish that the constant-elasticity assumption breaks down exactly where the GMT bites. \citet{dowd2017} estimate a quadratic specification on US IRS Controlled Foreign Corporation returns for 2002--2012 and find semi-elasticities of 4.7 at a 5\% statutory rate and 0.7 at 30\%. In their simulation, raising six haven jurisdictions to a 29\% statutory rate removes \$116 billion of shifted profits under the quadratic model but only \$55--76 billion under a linear model. \citet{garcia-bernardo2024} replicate the pattern on a 2017 OECD CbCR cross-section with a logarithmic specification that permits unbounded semi-elasticity as $\tau \to 0$, and find total shifted profits of over \$850 billion. Both leave open the question whether the nonlinearity is a robust feature of the data or an artefact of bilateral heterogeneity that a pair fixed-effect estimator would absorb. The thesis takes exactly this step.
 
@@ -225,7 +225,7 @@ The thesis combines these insights into a two-stage substance filter: an aggrega
 
 \subsection{Theoretical models of tax competition under minimum taxation}
 
-The welfare and competition consequences of the GMT have been modelled from several angles. \citet{johannesen2022} shows in a two-country model that the GMT is welfare-improving for non-haven countries when the profit-shifting semi-elasticity exceeds approximately 4; the consensus of 0.8 falls far below, but the \citet{dowd2017} quadratic crosses the threshold at an ETR of about 9\%, precisely where the GMT bites. \citet{hebous2023} identify conditions under which a minimum tax combined with lump-sum transfers is Pareto-improving, but their framework is two-country and treats the SBIE stylistically. \citet{vantriet2025} simulate the GMT in CORTAX and find a welfare-optimal minimum rate of 16\% with aggregate EU CIT revenue rising by about 6\%. But the representative-firm framework cannot capture within-jurisdiction ETR heterogeneity or nonlinear semi-elasticities. \citet{janeba2023} show that the GMT removes the incentive for havens to undercut below 15\% but may intensify competition among non-havens through subsidies and regulatory concessions, and \citet{jean2026} adds that enforcement cooperation may erode when a low-tax country's top-up is collected elsewhere.
+The welfare and competition consequences of the GMT have been modelled from several angles. \citet{johannesen2022} shows in a two-country model that the GMT is welfare-improving for non-haven countries only when the profit-shifting semi-elasticity is sufficiently high. In the baseline the required threshold ranges from roughly 1.8 to 4.2 depending on the marginal social value of public funds and the initial haven tax rate. The meta-regression consensus of 0.8 \citep{heckemeyer2017} falls below even the lowest of these thresholds, but the \citet{dowd2017} quadratic semi-elasticity exceeds them all at ETRs below roughly 9\%, precisely the range in which the GMT base is concentrated. \citet{hebous2023} identify conditions under which a minimum tax combined with lump-sum transfers is Pareto-improving, but their framework is two-country and treats the SBIE stylistically. \citet{vantriet2025} simulate the GMT and find a welfare-optimal minimum rate of 16\% with aggregate EU CIT revenue rising by about 6\%. But the representative-firm framework cannot capture within-jurisdiction ETR heterogeneity or nonlinear semi-elasticities. \citet{janeba2023} show that the GMT removes the incentive for havens to undercut below 15\% but may intensify competition among non-havens through subsidies and regulatory concessions, and \citet{jean2026} adds that enforcement cooperation may erode when a low-tax country's top-up is collected elsewhere.
 
 \subsection{Conceptual framework}
 
@@ -293,7 +293,7 @@ Here $s_{j,t}^{<T}$ is the share of profit with an ETR below the 15\% threshold 
 
 \subsubsection{Stage 1: identifying low-taxed profit}\label{sec:stage1}
 
-Factor 1 switches between a \emph{jurisdiction-average} and a \emph{within-jurisdiction distributional} ETR measurement. Under the average approach, $s_{j,t}^{<T} = \mathbb{1}\{\bar{\tau}_{j,t} < T\}$, so the entire profit base is either fully low-taxed or fully above the floor \citep{barake2022}. Under the distributional approach, the five Table I percentiles are fitted with a piecewise-uniform density that spreads mass between adjacent percentiles and extends a uniform component down to zero on $[0,\tau^{(5)}]$, so that near-zero-ETR profit is mathematically admissible.\footnote{\citet{hugger2026} place a point mass at the fifth percentile, which makes existence of profit taxed near zero impossible and understates the top-up base. The fitted mixture is based on the profit-weighted average through a uniform location shift that equates its mean to $\bar{\tau}_{j,t}$.} The low-taxed share and the average top-up rate are then the closed-form integrals against the fitted mixture $\tilde{F}_{j,t}$. Cross-validation against Table IV quantifies the remaining distributional error.
+ETR can be measured in two ways. Under the jurisdiction-average approach, the entire profit base is either fully low-taxed or fully above the floor \citep{barake2022}. Under the distributional approach, the five Table I percentiles are fitted with a piecewise-uniform density that spreads mass between adjacent percentiles and extends a uniform component down to zero on $[0,\tau^{(5)}]$, so that near-zero-ETR profit is mathematically admissible.\footnote{\citet{hugger2026} place a point mass at the fifth percentile, which makes existence of profit taxed near zero impossible and understates the top-up base. The fitted mixture is based on the profit-weighted average through a uniform location shift that equates its mean to $\bar{\tau}_{j,t}$.} The low-taxed share and the average top-up rate are then the closed-form integrals against the fitted mixture $\tilde{F}_{j,t}$. Where Table IV is observed (all 27 EU Member States), the direct \code{RATE\_0-15} bracket substitutes for the distributional fit. The fit is used only for non-EU affiliates where Table IV is unavailable. Cross-validation on the overlapping sample quantifies the remaining distributional error.
 \begin{equation}\label{eq:stage1}
 s_{j,t}^{<T} = \tilde{F}_{j,t}(T), \qquad \bar{\delta}_{j,t}^{\text{top}} = T - \frac{\int_0^{T} \tau \, d\tilde{F}_{j,t}(\tau)}{\int_0^{T} d\tilde{F}_{j,t}(\tau)},
 \end{equation}
@@ -308,19 +308,19 @@ where $\phi_{p,j}$ is the SBIE-to-profit ratio. Equation \eqref{eq:p2_floor} mak
 
 \subsubsection{Stage 3: panel estimation of the profit-shifting semi-elasticity}\label{sec:estimation}
 
-Stage 3 requires a semi-elasticity of reported profits with respect to the ETR. Rather than import a benchmark from the literature, this thesis estimates the parameter directly on the 2016--2022 CbCR panel. The baseline specification follows \citet{hines1994}, adapted to a bilateral parent--affiliate panel:
+Stage 3 requires a semi-elasticity of reported profits with respect to the ETR. This thesis estimates the parameter directly on the 2016--2022 CbCR panel. The baseline specification follows the \citet{hines1994} framework, adapted to a bilateral parent--affiliate panel. Corrected log profit ($\log \pi_{p,j,t}^{*}$) is regressed on: real-activity controls (log tangible assets $A$ and log imputed payroll $\hat{W}$), which capture the profit that would be reported absent any tax motive; affiliate-jurisdiction controls (log GDP per capita and log population, collected in $\mathbf{X}$); and a tax function $f(\tau)$ whose form determines how the semi-elasticity varies with the ETR:
 \begin{equation}\label{eq:hines}
 \log \pi_{p,j,t}^{*} = \beta_0 + \beta_1 \log A_{p,j,t} + \beta_2 \log \hat{W}_{p,j,t} + f(\tau_{p,j,t}) + \boldsymbol{\beta}_x \mathbf{X}_{p,j,t} + \alpha_{pj} + \gamma_t + \varepsilon_{p,j,t},
 \end{equation}
-where $\mathbf{X}$ collects log GDP per capita and log population of the affiliate jurisdiction, $\alpha_{pj}$ is a parent--affiliate pair fixed effect and $\gamma_t$ is a year fixed effect. The function $f(\tau)$ takes three forms estimated on the same sample: $f_1(\tau) = \beta_3\tau$ (linear Hines--Rice), $f_2(\tau) = \beta_3\tau + \beta_4\tau^2$ (quadratic, \citealp{dowd2017}) and $f_3(\tau) = \beta_3\tau + \beta_4\log(t_0+\tau)$ (logarithmic, \citealp{garcia-bernardo2024}, with $t_0$ a small offset that prevents the logarithm from diverging at zero and selected by BIC grid search over $[0.001, 0.200]$). The implied semi-elasticities are $\varepsilon_1(\tau) = \beta_3$, $\varepsilon_2(\tau) = \beta_3 + 2\beta_4\tau$, and $\varepsilon_3(\tau) = \beta_3 + \beta_4/(t_0+\tau)$. Only $\varepsilon_3$ rises without bound as $\tau \to 0$, the regime in which the GMT base is concentrated.
+where $\alpha_{pj}$ is a parent--affiliate pair fixed effect and $\gamma_t$ is a year fixed effect. Three functional forms for $f(\tau)$ are estimated on the same sample. The linear Hines--Rice specification $f_1(\tau) = \beta_3\tau$ implies a constant semi-elasticity $\varepsilon_1 = \beta_3$. The quadratic specification $f_2(\tau) = \beta_3\tau + \beta_4\tau^2$ \citep{dowd2017} implies $\varepsilon_2(\tau) = \beta_3 + 2\beta_4\tau$, which varies linearly with the ETR but remains bounded as $\tau \to 0$. The logarithmic specification $f_3(\tau) = \beta_3\tau + \beta_4\log(t_0+\tau)$ \citep{garcia-bernardo2024} implies $\varepsilon_3(\tau) = \beta_3 + \beta_4/(t_0+\tau)$, where $t_0$ is a small offset selected by BIC grid search over $[0.001, 0.200]$ that prevents the logarithm from diverging at zero. Only $\varepsilon_3$ rises without bound as $\tau \to 0$, the regime in which the GMT base is concentrated.
 
-The bilateral pair fixed effects absorb all time-invariant determinants of profit allocation (e.g. treaty neworks and MNE group structure). Identification of $\beta_3$ (and $\beta_4$) comes from within-pair variation in the ETR over 2016--2022, driven by domestic tax reforms and within-pair shifts in the mix of low-taxed and fully taxed profit. Year fixed effects absorb global shocks. The counterfactual profit under the GMT follows from exponentiating the fitted tax function: for the logarithmic form,
+The bilateral pair fixed effects absorb all time-invariant determinants of profit allocation (e.g. treaty networks and MNE group structure). Identification of $\beta_3$ (and $\beta_4$) comes from within-pair variation in the ETR over 2016--2022, driven by domestic tax reforms and within-pair shifts in the mix of low-taxed and fully taxed profit. Year fixed effects absorb global shocks. The counterfactual profit under the GMT follows from exponentiating the fitted tax function: for the logarithmic form: 
 \begin{equation}\label{eq:counterfactual}
 \hat{\pi}_{p,j,t}^{\text{GMT}} = \pi_{p,j,t}^{*} \cdot \exp\!\left[\hat{\beta}_3 (T - \tau_{p,j,t}) + \hat{\beta}_4 \bigl(\log(t_0 + T) - \log(t_0 + \tau_{p,j,t})\bigr)\right],
 \end{equation}
-from which $\beta_{j,t} = 1 - \hat{\pi}_{j,t}^{\text{GMT}}/\pi_{j,t}^{*}$ is the Stage 3 filter in equation \eqref{eq:pipeline}.
+from which $\beta_{j,t} = 1 - \hat{\pi}_{j,t}^{\text{GMT}}/\pi_{j,t}^{*}$ is the Stage 3 filter in equation \eqref{eq:pipeline}.\footnote{Profit reallocated out of low-tax jurisdictions is redistributed across non-haven jurisdictions using a composite key based on employment, payroll and unrelated-party revenue, following \citet{garcia-bernardo2024}. Jurisdictions with pre-reform ETRs in the narrow band $[T - \eta,\; T)$, with baseline $\eta = 0.02$, are assumed to satisfy the Simplified ETR Safe Harbour through covered-tax management rather than profit reallocation ($\beta_{j,t} = 0$). This bunching channel follows from the January 2026 Administrative Guidance, which sets the top-up to zero when the simplified ETR meets or exceeds 15\%.}
 
-A central econometric concern is that the ETR is mechanically constructed as $\theta/\pi$, so any shock that raises $\pi$ lowers $\tau$ even without behavioural shifting \citep{blouin2023}. This division bias inflates the estimated semi-elasticity. The preferred correction instruments the affiliate-level ETR with the one-year lagged \emph{statutory} CIT rate of the affiliate jurisdiction: the statutory rate is set by domestic legislation and is not mechanically affected by same-year MNE shifting decisions, isolating policy-driven changes in the tax wedge from the accounting mechanics of the ratio.\footnote{If governments adjust statutory rates in response to observed base erosion, the exclusion restriction is violated. The pair fixed effects remove the persistent part of this response, leaving only unanticipated rate changes as a threat. The first-stage $F$-statistic is reported alongside the second-stage results.} Robustness checks include a balanced panel, sample splits by ETR quartile as non-parametric evidence on nonlinearity, replication of the \citet{garcia-bernardo2024} specification on the 2017 slice and exclusion of 2020--2021. 
+A concern is that the ETR is mechanically constructed as $\theta/\pi$, so any shock that raises $\pi$ lowers $\tau$ even without behavioural shifting \citep{blouin2023}. This division bias inflates the estimated semi-elasticity. The preferred correction instruments the affiliate-level ETR with the one-year lagged \emph{statutory} CIT rate of the affiliate jurisdiction: the statutory rate is set by domestic legislation and is not mechanically affected by same-year MNE shifting decisions, isolating policy-driven changes in the tax wedge from the accounting mechanics of the ratio.\footnote{If governments adjust statutory rates in response to observed base erosion, the exclusion restriction is violated. The pair fixed effects remove the persistent part of this response, leaving only unanticipated rate changes as a threat. The first-stage $F$-statistic is reported alongside the second-stage results.} Robustness checks include a balanced panel, sample splits by ETR quartile as non-parametric evidence on nonlinearity, replication of the \citet{garcia-bernardo2024} specification on the 2017 slice and exclusion of 2020--2021. 
 
 \subsection{Factorial decomposition}\label{sec:factorial}
 
@@ -336,12 +336,11 @@ A value $\Lambda_{j,t} > 1$ means that the modelling assumptions move revenue mo
 
 \section{Feasibility}\label{sec:feasibility}
 
-The thesis is complex and uses difficult to understand data. However, all raw data are already analysed on a first-stage basis and the methodology has been worked out in a more extensive version than the above. Also ,three risks are acknowledged. First, within-pair ETR variation may be insufficient to identify the semi-elasticity. Second, the profit-base correction assumes structural stability in the holding-company--double-counting relationship over 2016--2022. This is tested by re-estimating separately on 2021 and 2022. Third, CbCR has well-documented imperfections \citep{bobeldijk2019,godar2024,blouin2023}. The scenario spread produced by the factorial design is the object that quantifies the residual uncertainty.
-
+The thesis is complex and uses difficult to understand data. However, all raw data are already analysed on a first-stage basis and the methodology has been worked out in a more extensive version than the above. Also, three risks are acknowledged. First, within-pair ETR variation may be insufficient to identify the semi-elasticity. Second, the profit-base correction assumes structural stability in the holding-company--double-counting relationship over 2016--2022. This is tested by re-estimating separately on 2021 and 2022. Third, CbCR has well-documented imperfections \citep{bobeldijk2019,godar2024,blouin2023}. The scenario spread produced by the factorial design is the object that quantifies the residual uncertainty.
 
 \section{Activities and timeline}\label{sec:timeline}
 
-Table \ref{tab:timeline} lists the planned activities from mid-April 2026 through the final deadline of 26 June 2026, with milestones marking the end of each block. Bi-weekly supervision meetings are scheduled throughout. The timeline works backward from the final thesis deadline, allocating roughly one third of the available weeks to data cleaning and panel estimation, one third to the factorial decomposition and robustness, and one third to writing, feedback collection and final revision. A one-week buffer is reserved in the final block.
+Table \ref{tab:timeline} lists the planned activities from mid-April 2026 through the final deadline of 26 June 2026. The timeline works backward from the final thesis deadline, allocating roughly one third of the available weeks to data cleaning and panel estimation, one third to the factorial decomposition and robustness, and one third to writing, feedback collection and final revision. A one-week buffer is reserved in the final block.
 
 \begin{table}[H]
 \centering
@@ -352,27 +351,27 @@ Table \ref{tab:timeline} lists the planned activities from mid-April 2026 throug
 \toprule
 \textbf{Dates} & \textbf{Activity} & \textbf{Milestone} \\
 \midrule
-14--27 Apr
-  & Finalise research proposal; clean CbCR Table I and Table IV; compute jurisdiction-average and distributional ETRs; produce descriptive statistics of within-pair ETR variation.
+13--26 Apr
+  & Finalise methodology; clean CbCR Table I and Table IV; compute jurisdiction-average and distributional ETRs; produce descriptive statistics of within-pair ETR variation.
   & Proposal submitted; cleaned CbCR panel and descriptive tables ready. \\[0.4em]
-28 Apr--11 May
-  & Implement profit-base correction (holding-company regression); merge FATS sectoral shares; construct effective tax floor matrix.
+27 Apr--10 May
+  & Implement profit-base correction; merge FATS sectoral shares; construct effective tax floor matrix.
   & Stage 1 and Stage 2 inputs ready. \\[0.4em]
-12--25 May
-  & Estimate linear, quadratic and logarithmic semi-elasticities; run BIC, Vuong and robustness checks; draft semi-elasticity results section.
+11--24 May
+  & Estimate linear, quadratic and logarithmic semi-elasticities; run statistical tests and robustness checks; draft semi-elasticity results section.
   & Panel estimation complete; SQ1/H1 addressed. \\[0.4em]
-26 May--8 Jun
+25 May--7 Jun
   & Run $2^5$ factorial design; ANOVA decomposition; pairs cluster bootstrap; country-level decompositions.
   & Factorial results and figures complete; SQ2/H2--H3 addressed. \\[0.4em]
-9--15 Jun
+8--14 Jun
   & SbS and SBTI analysis; draft results section for SQ3; draft discussion and policy implications.
   & SQ3/H4--H5 addressed; full draft ready. \\[0.4em]
-15--23 Jun
-  & Discuss draft with supervisor; incorporate feedback; finalise figures and tables; proofread in British English.
+15--21 Jun
+  & Discuss draft with supervisor; incorporate feedback; finalise figures and tables; proofread.
   & Revised draft ready for submission. \\[0.4em]
-24--26 Jun
+22--26 Jun
   & Final revisions; check references, abbreviations, figure numbering; submit.
-  & Final thesis submitted (26 June). \\
+  & Final thesis submitted (before 26 June). \\
 \bottomrule
 \end{tabular}
 \end{table}
