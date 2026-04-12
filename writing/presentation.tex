@@ -21,9 +21,6 @@
 % Uncomment for dual-screen speaker notes:
 % \setbeameroption{show notes on second screen=right}
 
-%% ─────────────────────────────────────────────
-%%  COLOUR PALETTE
-%% ─────────────────────────────────────────────
 \definecolor{Navy}{HTML}{0D1B2A}
 \definecolor{MidNavy}{HTML}{1B2E4A}
 \definecolor{DkOrange}{HTML}{D97706}
@@ -38,9 +35,6 @@
 \definecolor{TealLt}{HTML}{D0ECF0}
 \definecolor{ForestGreen}{HTML}{4A7C59}
 
-%% ─────────────────────────────────────────────
-%%  BEAMER THEME — custom minimal academic
-%% ─────────────────────────────────────────────
 \usefonttheme{professionalfonts}
 \setbeamercolor{normal text}{fg=Navy, bg=Ivory}
 \setbeamercolor{alerted text}{fg=Bordeaux}
@@ -101,9 +95,6 @@
   \end{frame}
 }
 
-%% ─────────────────────────────────────────────
-%%  MACROS
-%% ─────────────────────────────────────────────
 \newcommand{\highlight}[1]{\textcolor{DkOrange}{\textbf{#1}}}
 \newcommand{\emphbx}[1]{\textcolor{Bordeaux}{\textbf{#1}}}
 \newcommand{\EUR}{\texteuro}
@@ -111,7 +102,7 @@
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 
-%% ─────────────────────────────────────────────
+
 \title{Decomposition of Global Minimum Tax Revenue\\Using CbCR Data}
 \subtitle{A factorial decomposition for quantifying uncertainty\\in EU revenue estimates under Pillar Two}
 \author{Maurits de Haan}
@@ -120,64 +111,25 @@
 
 \begin{document}
 
-%% ═══════════════════════════════════════════════
-%%  TITLE SLIDE
-%% ═══════════════════════════════════════════════
 {
 \setbeamercolor{background canvas}{bg=Navy}
 \begin{frame}[plain]
   \vspace{1.8em}
   \begin{center}
     {\color{Ivory}\Large\bfseries Decomposition of Global Minimum Tax Revenue}\\[0.3em]
-    {\color{Ivory}\Large\bfseries Using CbCR Data}\\[0.8em]
+    {\color{Ivory}\Large\bfseries using CbCR Data}\\[0.8em]
     {\color{DkOrange}\rule{6cm}{2pt}}\\[0.8em]
     {\color{LtOrange}\normalsize\itshape A factorial decomposition for quantifying uncertainty\\[0.2em]
      in EU revenue estimates under Pillar Two}\\[1.8em]
     {\color{Ivory}\normalsize Maurits de Haan}\\[0.3em]
-    {\color{WarmGrey}\small MSc Economic Policy --- Utrecht University}\\[0.3em]
+    {\color{WarmGrey}\small MSc Economic Policy, Utrecht University}\\[0.3em]
     {\color{WarmGrey}\small Supervisor: dr.\ Peter Gerbrands \quad Second reader: dr.\ Adriaan Kalwij}\\[1.2em]
-    {\color{MidGrey}\small April 2026}
+    {\color{MidGrey}\small 13 April 2026}
   \end{center}
 \end{frame}
 }
 
-\note{
-Welcome everyone. Thank you for taking the time to attend this presentation of my research proposal. I will walk you through what I am investigating, why it matters, and how I plan to do it. The presentation is about 20 minutes; I am happy to take questions throughout or at the end.
-}
-
-
-%% ═══════════════════════════════════════════════
-%%  ROADMAP SLIDE
-%% ═══════════════════════════════════════════════
-\begin{frame}{Roadmap}
-\begin{columns}[T]
-\begin{column}{0.5\textwidth}
-  \begin{enumerate}
-    \item[\highlight{1.}] What is the problem?
-    \item[\highlight{2.}] Why does it matter?
-    \item[\highlight{3.}] What has been done before?
-    \item[\highlight{4.}] What do I do differently?
-  \end{enumerate}
-\end{column}
-\begin{column}{0.5\textwidth}
-  \begin{enumerate}
-    \item[\highlight{5.}] Research question \& hypotheses
-    \item[\highlight{6.}] Data
-    \item[\highlight{7.}] Methodology
-    \item[\highlight{8.}] Timeline \& next steps
-  \end{enumerate}
-\end{column}
-\end{columns}
-\end{frame}
-
-\note{
-Here is the structure. I start with the problem and its relevance --- societal and scientific --- then move to what the literature already covers and where the gap is. After that I show the research question, the data, the method, and the timeline. If at any point something needs more detail, I have backup slides at the end.
-}
-
-
-%% ═══════════════════════════════════════════════
-\section{The Problem}
-%% ═══════════════════════════════════════════════
+\section{The problem and relevance}
 
 \begin{frame}{The Global Minimum Tax in one picture}
 \begin{center}
@@ -185,14 +137,13 @@ Here is the structure. I start with the problem and its relevance --- societal a
   % Fact boxes
   \node[draw=Navy, rounded corners=4pt, fill=Ivory, line width=0.7pt,
         minimum width=5cm, minimum height=1.1cm, align=center] (f1)
-    {\textbf{137 jurisdictions agreed} (Oct 2021)\\[2pt]
+    {\textbf{OECD: 137 jurisdictions agreed} (Oct 2021)\\[2pt]
      15\% minimum ETR on MNEs $>$ \EUR750m revenue};
 
   \node[draw=Navy, rounded corners=4pt, fill=Ivory, line width=0.7pt,
         minimum width=5cm, minimum height=1.1cm, align=center,
         below=0.5cm of f1] (f2)
-    {\textbf{61 jurisdictions enacted} by April 2026\\[2pt]
-     Top-up tax closes gap between actual ETR and 15\%};
+    {\textbf{61 jurisdictions enacted} by April 2026};
 
   \node[draw=Bordeaux, rounded corners=4pt, fill=Bordeaux!8, line width=0.9pt,
         minimum width=5cm, minimum height=1.1cm, align=center,
@@ -215,82 +166,33 @@ Here is the structure. I start with the problem and its relevance --- societal a
 \end{center}
 
 \vspace{0.6em}
-\highlight{Revenue estimates diverge by an order of magnitude} --- and nobody has shown \emph{why} they diverge.
+\highlight{Revenue estimates diverge}, and nobody has shown \emph{why} they diverge.
 \end{frame}
 
-\note{
-Start with the big picture. The GMT is the largest reform of international corporate taxation since Bretton Woods. 137 countries agreed; 61 have enacted it. The motivation is profit shifting: somewhere between 300 and 850 billion dollars shifted annually. But the revenue estimates are all over the place. Barake says 179 billion globally. Boukal finds a 4--5 percent rise for Slovakia. Van 't Riet simulates a 7 percent CIT rise for the EU. Nobody has shown where the divergence comes from. That is the gap.
-}
-
-
-%% ═══════════════════════════════════════════════
-\section{Why Does It Matter?}
-%% ═══════════════════════════════════════════════
-
 \begin{frame}{Societal relevance: governments budget on guesswork}
-\begin{columns}[T]
-\begin{column}{0.55\textwidth}
 \begin{block}{The Dutch case}
   The Netherlands projected \highlight{\EUR466 million} in annual GMT revenue.\\[6pt]
   \emphbx{86\%} of that comes from a single assumption: the behavioural response (profit that MNEs stop shifting).\\[6pt]
-  The January 2026 Side-by-Side package cut the projection by \highlight{\EUR122 million}.
+  The January 2026 Side-by-Side package implies a \highlight{\EUR122 million} annual revenue loss.
 \end{block}
 \vspace{0.5em}
 Finance ministries across the EU face the same uncertainty. Fiscal plans rest on untested assumptions.
-\end{column}
-\begin{column}{0.42\textwidth}
-\vspace{0.5em}
-\begin{tikzpicture}[font=\scriptsize]
-  % Stacked bar (narrower, with more room for labels)
-  \fill[ForestGreen!60] (0,0) rectangle (2.6, 0.7);
-  \fill[DkOrange!70] (0,0.7) rectangle (2.6, 4.0);
-  \fill[Bordeaux!50, draw=Bordeaux, dashed, line width=0.5pt] (0,2.9) rectangle (2.6, 4.0);
-
-  % Labels inside bar
-  \node[font=\scriptsize, white] at (1.3, 0.35) {\EUR64m (14\%)};
-  \node[font=\scriptsize, Navy] at (1.3, 1.95) {Behavioural};
-  \node[font=\scriptsize, Navy] at (1.3, 1.5) {\EUR402m (86\%)};
-  \node[font=\scriptsize, Bordeaux] at (1.3, 3.5) {SbS cut};
-  \node[font=\scriptsize, Bordeaux] at (1.3, 3.15) {\EUR122m};
-
-  % Right axis labels
-  \node[right, font=\scriptsize] at (2.8, 0.0) {\EUR0};
-  \node[right, font=\scriptsize] at (2.8, 4.0) {\EUR466m};
-  \node[right, font=\scriptsize, Bordeaux] at (2.8, 2.9) {\EUR344m};
-
-  % Braces
-  \draw[decorate, decoration={brace, amplitude=4pt}, Navy, line width=0.5pt]
-    (-0.2, 0) -- node[left=4pt, font=\scriptsize, align=right] {Dutch\\proj.} (-0.2, 4.0);
-\end{tikzpicture}
-\end{column}
-\end{columns}
 \end{frame}
-
-\note{
-Why does this matter for society? Governments are budgeting GMT revenue right now. The Dutch case is the clearest example: 466 million projected, of which 86 percent depends on a single behavioural assumption. Then the SbS package came along and wiped 122 million off. If you do not know which assumption drives which number, fiscal planning is a lottery. That is exactly what my thesis addresses. Every EU Member State faces the same problem.
-}
 
 
 \begin{frame}{Scientific relevance: four gaps in the literature}
 \begin{enumerate}
-  \item \emphbx{No panel semi-elasticity.} Dowd (2017): US-only. Garcia-Bernardo (2024): single cross-section 2017. Neither uses the 2016--2022 CbCR panel with bilateral fixed effects.
+  \item \emphbx{No panel semi-elasticity:} Dowd (2017): US-only. Garcia-Bernardo (2024): single cross-section 2017. Neither uses the 2016--2022 CbCR panel with bilateral fixed effects.
 
-  \item \emphbx{No factorial decomposition.} Barake and Hugger vary parameters one at a time. Interactions between modelling choices are invisible.
+  \item \emphbx{No factorial decomposition:} Barake et. al. (2022) and Hugger (2026) vary parameters one at a time. Interactions between modelling choices are invisible.
 
-  \item \emphbx{No CbCR $\times$ FATS sectoral analysis.} The SBIE depends on sectoral payroll and assets. No study combines CbCR aggregate levels with FATS sectoral shares.
+  \item \emphbx{No CbCR $\times$ FATS sectoral analysis:} The SBIE depends on sectoral payroll and assets. No study combines CbCR aggregate levels with FATS sectoral shares.
 
-  \item \emphbx{No cross-validation of the ETR distribution.} CbCR Table I percentiles vs.\ Table IV direct observation. Nobody has tested whether the five-percentile fit recovers the actual low-taxed profit share.
+  \item \emphbx{No cross-validation of the ETR distribution:} CbCR Table I percentiles vs.\ Table IV direct observation. Nobody has tested whether the five-percentile fit recovers the actual low-taxed profit share.
 \end{enumerate}
 \end{frame}
 
-\note{
-On the scientific side, four gaps. First, no panel estimation of the semi-elasticity. Dowd uses US admin data, Garcia-Bernardo uses 2017 only. I use seven years with pair fixed effects. Second, the literature varies one assumption at a time. I run a full factorial design so interactions are visible and decomposable. Third, nobody combined CbCR and FATS for sectoral SBIE analysis. Fourth, nobody cross-validated the percentile-based distributional approach against the direct Table IV bracket data. These are the four contributions.
-}
-
-
-%% ═══════════════════════════════════════════════
-\section{What Has Been Done Before?}
-%% ═══════════════════════════════════════════════
+\section{Where does the literature stand now?}
 
 \begin{frame}{Three sources of divergence in revenue estimates}
 \begin{center}
@@ -331,15 +233,7 @@ On the scientific side, four gaps. First, no panel estimation of the semi-elasti
   \draw[Navy!50, line width=0.3pt] (9.7, 0.5) -- (9.7, -1.0+\th);
 \end{tikzpicture}
 \end{center}
-
-\vspace{0.2em}
-{\footnotesize Each filter carries a contested assumption $\to$ the filters multiply $\to$ interactions are not additive.}
 \end{frame}
-
-\note{
-The revenue pipeline has three stages, each of which is a multiplicative filter on the profit base. First, you identify which profit is taxed below 15 percent. Second, the SBIE shields profit backed by real substance. Third, MNEs reallocate profit in response. Every stage carries a modelling choice, and because they multiply, interactions between choices are not additive. This is the core insight that motivates a factorial decomposition rather than one-at-a-time sensitivity.
-}
-
 
 \begin{frame}{Key finding from the literature: within-jurisdiction heterogeneity}
 \begin{columns}[T]
@@ -354,8 +248,10 @@ The revenue pipeline has three stages, each of which is a multiplicative filter 
 \vspace{0.5em}
 \begin{tikzpicture}[font=\small, xscale=0.85]
   % Simplified ETR density
-  \draw[->, Navy, line width=0.6pt] (-0.05,0) -- (5.2,0) node[right, font=\scriptsize] {ETR};
-  \draw[->, Navy, line width=0.6pt] (0,-0.05) -- (0,3.0) node[above, font=\scriptsize] {Density};
+  \draw[->, Navy, line width=0.6pt] (-0.05,0) -- (5.3,0);
+  \draw[->, Navy, line width=0.6pt] (0,-0.05) -- (0,3.05);
+  \node[font=\scriptsize, anchor=north west] at (5.18,0.0) {ETR};
+  \node[font=\scriptsize, anchor=south] at (0.02,3.05) {Density};
 
   % Bars (low-taxed in Bordeaux, above-15 in Teal)
   \fill[Bordeaux!45] (0,0) rectangle (0.5, 0.5);
@@ -366,24 +262,19 @@ The revenue pipeline has three stages, each of which is a multiplicative filter 
 
   % Threshold
   \draw[Bordeaux, dashed, line width=1pt] (1.8,0) -- (1.8,2.8);
-  \node[font=\scriptsize, Bordeaux] at (1.8,2.95) {$T{=}15\%$};
+  \node[font=\scriptsize, Bordeaux, anchor=south] at (1.8,2.82) {$T{=}15\%$};
 
   % Average ETR line
-  \draw[DkOrange, line width=1.2pt] (2.5,0) -- (2.5,2.3);
-  \node[font=\scriptsize, DkOrange, rotate=90, anchor=south] at (2.75,0.9) {Avg ETR};
+  \draw[DkOrange, line width=1.2pt] (2.55,0) -- (2.55,2.35);
+  \node[font=\scriptsize, DkOrange, rotate=90, anchor=west, fill=Ivory, inner sep=1pt] at (2.62,0.55) {Avg ETR};
 
   % Annotation
-  \node[font=\scriptsize, Bordeaux, align=center] at (0.9, -0.55) {Hidden\\low-taxed};
-  \draw[->, Bordeaux, line width=0.4pt] (0.9, -0.2) -- (0.9, 0.05);
+  \node[font=\scriptsize, Bordeaux, align=center] at (0.9, -0.62) {Hidden\\low-taxed};
+  \draw[->, Bordeaux, line width=0.4pt] (0.9, -0.28) -- (0.9, 0.08);
 \end{tikzpicture}
 \end{column}
 \end{columns}
 \end{frame}
-
-\note{
-This is a key finding. Hugger shows that if you only look at average ETRs, you miss 53 percent of the GMT base. The picture on the right illustrates why: the average ETR can be above 15 percent while a substantial share of profit within the jurisdiction is taxed below 15 percent. The distributional approach reconstructs this from the five percentiles. My thesis uses this approach, extends it with a uniform lower tail, and cross-validates against Table IV.
-}
-
 
 \begin{frame}{Nonlinear profit shifting: semi-elasticity at low rates}
 \begin{columns}[T]
@@ -410,8 +301,10 @@ This is a key finding. Hugger shows that if you only look at average ETRs, you m
   \fill[Bordeaux!10] (0,0) rectangle (3, 6.2);
 
   % Axes
-  \draw[->, Navy, line width=0.6pt] (0,0) -- (7.0,0) node[above left, font=\scriptsize] {ETR (\%)};
-  \draw[->, Navy, line width=0.6pt] (0,0) -- (0,6.5) node[right, font=\scriptsize] {$\varepsilon(\tau)$};
+  \draw[->, Navy, line width=0.6pt] (0,0) -- (7.0,0);
+  \draw[->, Navy, line width=0.6pt] (0,0) -- (0,6.5);
+  \node[font=\scriptsize, anchor=west, fill=Ivory, inner sep=1pt] at (6.55,-0.52) {ETR (\%)};
+  \node[font=\scriptsize, anchor=south] at (0.02,6.45) {$\varepsilon(\tau)$};
 
   % Ticks
   \foreach \x/\lbl in {1/5, 2/10, 3/15, 4/20, 5/25, 6/30} {
@@ -422,21 +315,21 @@ This is a key finding. Hugger shows that if you only look at average ETRs, you m
   }
 
   % Constant (consensus)
-  \draw[MidGrey, line width=1.2pt] (0.5, 0.8) -- (6.5, 0.8);
-  \node[font=\scriptsize, MidGrey, anchor=south west] at (5.5, 0.85) {$\varepsilon{=}0.8$};
+  \draw[MidGrey, line width=1.2pt] (0, 0.8) -- (6.3, 0.8);
+  \node[font=\scriptsize, MidGrey, anchor=west, fill=Ivory, inner sep=1pt] at (5.05, 0.95) {$\varepsilon{=}0.8$};
 
   % Quadratic (Dowd)
-  \draw[DkOrange, line width=1.5pt, smooth, domain=0.5:6.5, samples=50]
+  \draw[DkOrange, line width=1.5pt, smooth, domain=0.5:5.75, samples=50]
     plot (\x, {-0.73 + 1.6178*(6-\x)/5 + 4.7*exp(-0.35*\x)});
-  \node[font=\scriptsize, DkOrange, anchor=south] at (2.0, 5.0) {Quadratic};
+  \node[font=\scriptsize, DkOrange, anchor=west] at (2.15, 5.1) {Quadratic};
 
   % Log (Garcia-Bernardo)
   \draw[Bordeaux, line width=1.5pt, smooth, domain=0.5:6.5, samples=50]
     plot (\x, {0.5 + 4.5/(0.3+\x)});
-  \node[font=\scriptsize, Bordeaux, anchor=south west] at (0.5, 6.0) {Log};
+  \node[font=\scriptsize, Bordeaux, anchor=west] at (0.72, 5.85) {Logarithmic};
 
   % GMT zone label
-  \node[font=\scriptsize, Bordeaux!60, rotate=90] at (0.35, 3.2) {GMT zone};
+  \node[font=\scriptsize, Bordeaux!60, rotate=90] at (0.42, 3.1) {GMT zone};
 \end{tikzpicture}
 \end{column}
 \end{columns}
@@ -612,8 +505,13 @@ Two tables from the OECD CbCR. Table I has broader coverage and the five ETR per
         minimum height=1.2cm, align=center, line width=0.8pt] (combo) at (0,-1.2)
     {\textbf{Sectoral SBIE}\\$\phi_{j,s,t}$ per sector};
 
-  \draw[-latex, Navy, line width=0.6pt] (cbcr.south) -- ++(0,-0.25) -| ([xshift=-0.5cm]combo.north) -- (combo.north);
-  \draw[-latex, Teal, line width=0.6pt] (fats.south) -- ++(0,-0.25) -| ([xshift=0.5cm]combo.north) -- (combo.north);
+  \draw[-latex, Navy, line width=0.7pt]
+    ([xshift=0.25cm]cbcr.south west) -- ++(-0.55,0)
+    |- ([yshift=0.15cm]combo.west);
+
+  \draw[-latex, Teal!80!black, line width=0.7pt]
+    ([xshift=-0.25cm]fats.south east) -- ++(0.55,0)
+    |- ([yshift=0.15cm]combo.east);
 \end{tikzpicture}
 \end{column}
 \end{columns}
@@ -652,8 +550,9 @@ CbCR has no sectors. But the SBIE depends on payroll and tangible assets, which 
   \def\pe{8.0}
   \def\Tx{2.25}
 
-  \draw[->, Navy, line width=0.5pt] (-0.05,0) -- (8.8,0) node[above left, font=\scriptsize] {$\tau$};
+  \draw[->, Navy, line width=0.5pt] (-0.05,0) -- (8.85,0);
   \draw[->, Navy, line width=0.5pt] (0,-0.05) -- (0,4.0);
+  \node[font=\scriptsize, anchor=north east] at (8.75,-0.03) {$\tau$};
 
   \fill[Teal!30, draw=Teal!70, line width=0.4pt] (0,0) rectangle (\pa, 0.55);
   \fill[Teal!30, draw=Teal!70, line width=0.4pt] (\pa,0) rectangle (\pb, 2.6);
@@ -666,11 +565,11 @@ CbCR has no sectors. But the SBIE depends on payroll and tangible assets, which 
   \fill[Bordeaux!45] (\pa,0) rectangle (\pb, 2.6);
   \fill[Bordeaux!45] (\pb,0) rectangle (\Tx, 1.8);
 
-  \draw[Bordeaux, dashed, line width=0.8pt] (\Tx,0) -- (\Tx,3.6);
-  \node[font=\scriptsize, Bordeaux] at (\Tx,3.8) {$T$};
+  \draw[Bordeaux, dashed, line width=0.8pt] (\Tx,0) -- (\Tx,3.45);
+  \node[font=\scriptsize, Bordeaux, anchor=south] at (\Tx,3.48) {$T{=}15\%$};
 
-  \node[font=\scriptsize, Bordeaux, align=center] at (5.5,3.2) {$s^{<T}_{j,t}$};
-  \draw[->, Bordeaux, line width=0.4pt] (4.8,3.0) to[bend right=10] (1.3, 1.5);
+  \node[font=\scriptsize, Bordeaux, align=left] (slowtax) at (1.55,2.95) {$s_{j,t}^{<T}$};
+  \draw[->, Bordeaux, line width=0.4pt] (slowtax.south west) to[bend right=20] (1.08, 1.25);
 \end{tikzpicture}
 \end{column}
 \end{columns}
@@ -945,7 +844,7 @@ January 2026 OECD Administrative Guidance:
 \end{itemize}
 
 \vspace{0.5em}
-\textbf{The Dutch case:} SbS reduced projected revenue by \EUR122m/year.
+\textbf{The Dutch case:} SbS reduced projected revenue by around \EUR120m/year.
 \end{frame}
 
 
