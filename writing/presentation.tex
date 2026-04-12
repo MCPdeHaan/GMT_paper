@@ -1,5 +1,4 @@
 %% Compile: pdflatex > pdflatex (no biber needed; references are hardcoded for presentation)
-%% For speaker notes in a separate PDF: uncomment \setbeameroption{show notes on second screen=right}
 
 \documentclass[aspectratio=169, 11pt]{beamer}
 
@@ -17,10 +16,6 @@
   fit, backgrounds, decorations.pathreplacing, decorations.pathmorphing}
 \usepackage{appendixnumberbeamer}
 \usepackage{pgfpages}
-
-% Uncomment for dual-screen speaker notes:
-% \setbeameroption{show notes on second screen=right}
-
 \definecolor{Navy}{HTML}{0D1B2A}
 \definecolor{MidNavy}{HTML}{1B2E4A}
 \definecolor{DkOrange}{HTML}{D97706}
@@ -156,9 +151,9 @@
 
   % Right side: numbers
   \node[right=1.5cm of f1, align=left, font=\footnotesize, text=DkGrey] (n1)
-    {\$300--850 bn shifted annually\\(Torstlov 2023; Garcia-Bernardo 2024)};
+    {\$300--850 bn shifted annually\\(Torslov 2023; Garcia-Bernardo 2024)};
   \node[right=1.5cm of f3, align=left, font=\footnotesize, text=DkGrey] (n2)
-    {Barake: \EUR179 bn globally\\Boukal: 4.3--5.3\% rise (Slovakia)\\Van 't Riet: $\sim$7\% CIT rise (EU)};
+    {Barake: \EUR179 bn globally\\Boukal: 4.3--5.3\% rise (Slovakia)\\Van 't Riet: $\sim$7\% CIT rise (large EU)};
 
   \draw[->, DkGrey, line width=0.4pt, dashed] (n1.west) -- (f1.east);
   \draw[->, DkGrey, line width=0.4pt, dashed] (n2.west) -- (f3.east);
@@ -184,7 +179,7 @@ Finance ministries across the EU face the same uncertainty. Fiscal plans rest on
 \begin{enumerate}
   \item \emphbx{No panel semi-elasticity:} Dowd (2017): US-only. Garcia-Bernardo (2024): single cross-section 2017. Neither uses the 2016--2022 CbCR panel with bilateral fixed effects.
 
-  \item \emphbx{No factorial decomposition:} Barake et. al. (2022) and Hugger (2026) vary parameters one at a time. Interactions between modelling choices are invisible.
+  \item \emphbx{No factorial decomposition:} Barake et al. (2022) and Hugger (2026) vary parameters one at a time. Interactions between modelling choices are invisible.
 
   \item \emphbx{No CbCR $\times$ FATS sectoral analysis:} The SBIE depends on sectoral payroll and assets. No study combines CbCR aggregate levels with FATS sectoral shares.
 
@@ -285,13 +280,13 @@ Finance ministries across the EU face the same uncertainty. Fiscal plans rest on
     \toprule
     & \textbf{At 5\%} & \textbf{At 30\%} \\
     \midrule
-    Consensus (H\&R) & 0.8 & 0.8 \\
+    Consensus (H\&O) & 0.8 & 0.8 \\
     Dowd (quadratic) & 4.7 & 0.7 \\
     Garcia-B.\ (log) & $>$5 & $\sim$0.6 \\
     \bottomrule
   \end{tabular}\\[10pt]
 
-  At low rates --- where the GMT bites --- the response is \highlight{5--6$\times$ larger} than the consensus.\\[8pt]
+  At low rates the response is \highlight{larger} than the consensus.\\[8pt]
   No panel estimate exists with bilateral fixed effects.
 \end{column}
 \begin{column}{0.45\textwidth}
@@ -335,14 +330,7 @@ Finance ministries across the EU face the same uncertainty. Fiscal plans rest on
 \end{columns}
 \end{frame}
 
-\note{
-The behavioural response is the second big driver. The consensus semi-elasticity is 0.8, but that is an average across the whole tax distribution. Dowd shows it is 4.7 at a 5 percent rate --- nearly six times larger. Garcia-Bernardo's logarithmic specification goes even higher. The GMT zone on the left of the graph is exactly where the nonlinearity matters most. I estimate this on a seven-year panel with pair fixed effects, which has not been done before. This is subquestion 1.
-}
-
-
-%% ═══════════════════════════════════════════════
-\section{What Do I Do Differently?}
-%% ═══════════════════════════════════════════════
+\section{Set-up of research}
 
 \begin{frame}{Research question}
 \begin{alertblock}{}
@@ -354,15 +342,10 @@ What profit-shifting semi-elasticities emerge from the 2016--2022 CbCR panel und
 \textbf{Three subquestions:}
 \begin{enumerate}
   \item \highlight{Estimate} the semi-elasticity (linear, quadratic, logarithmic) on 2016--2022 CbCR with bilateral FE
-  \item \highlight{Decompose} revenue variation through a $2^5$ factorial design over five modelling choices
+  \item \highlight{Decompose} revenue variation through a factorial design over five modelling choices
   \item \highlight{Quantify} the Side-by-Side and SBTI Safe Harbour effects on EU revenue and collection channels
 \end{enumerate}
 \end{frame}
-
-\note{
-This is the research question. Three subquestions. SQ1 estimates the semi-elasticity on the panel. SQ2 runs the full factorial decomposition with ANOVA. SQ3 quantifies the January 2026 policy changes. Together they tell finance ministries which assumptions drive which numbers.
-}
-
 
 \begin{frame}{The revenue pipeline: three multiplicative filters}
 \begin{center}
@@ -401,15 +384,7 @@ This is the research question. Three subquestions. SQ1 estimates the semi-elasti
 $$
 L_{p,j,t} = \underbrace{s_{j,t}^{<T}\, \pi_{p,j,t}^{*}\, \bar{\delta}_{j,t}^{\text{top}}}_{\text{Stage 1}} \times \underbrace{(1 - \bar{\phi}_{p,j,t})}_{\text{Stage 2}} \times \underbrace{(1 - \beta_{j,t})}_{\text{Stage 3}}
 $$
-
-\vspace{0.4em}
-{\footnotesize Each factor has two levels $\to$ $2^5 = 32$ scenarios $\to$ ANOVA decomposes the variance exactly.}
 \end{frame}
-
-\note{
-Here is the pipeline. Corrected profits flow through three multiplicative stages. Stage 1 identifies the low-taxed share and the average top-up rate. Stage 2 applies the substance exclusion. Stage 3 applies the behavioural response. The result is allocated across QDMTT, IIR, and UTPR. Five binary factors generate 32 scenarios. An ANOVA identity decomposes the variance into main effects and interactions. The key equation is on screen: everything multiplies. That is why interactions matter.
-}
-
 
 \begin{frame}{The $2^5$ factorial design}
 \begin{center}
@@ -426,25 +401,9 @@ Here is the pipeline. Corrected profits flow through three multiplicative stages
   \bottomrule
 \end{tabular}
 \end{center}
-
-\vspace{0.3em}
-The ANOVA identity decomposes total variance exactly:
-$$
-\text{SS}_{\text{total}} = \sum_{i} \text{SS}_i + \sum_{i<k} \text{SS}_{ik} + \cdots + \text{SS}_{12345}
-$$
-
-\vspace{-0.3em}
-$\eta_i^2 = \text{SS}_i / \text{SS}_{\text{total}}$ tells us \highlight{which assumption matters most}.
 \end{frame}
 
-\note{
-Here are the five factors. Each has two levels. ETR measurement is the biggest one conceptually: average versus distributional. The substance factor switches between an aggregate SBIE and a sectoral one that uses FATS data. Carve-out rates switch between initial (generous) and long-run (tight). The SbS factor captures the January 2026 policy package. And the behavioural factor switches between no response and the panel-estimated response. 32 scenarios. The ANOVA identity decomposes the total sum of squares exactly into main effects and all interactions. Eta-squared tells us which assumption drives which share of the variation.
-}
-
-
-%% ═══════════════════════════════════════════════
 \section{Data}
-%% ═══════════════════════════════════════════════
 
 \begin{frame}{OECD CbCR data: two complementary tables}
 \begin{center}
@@ -467,11 +426,6 @@ Here are the five factors. Each has two levels. ETR measurement is the biggest o
 \vspace{0.5em}
 \textbf{Hybrid strategy:} use Table IV where observed (all EU), Table I distributional fit elsewhere. Cross-validate on the overlap.
 \end{frame}
-
-\note{
-Two tables from the OECD CbCR. Table I has broader coverage and the five ETR percentiles I need for the distributional fit. Table IV has narrower coverage but directly observes the profit in the 0-to-15 percent bracket --- exactly the GMT base. All 27 EU Member States appear in both. So I use Table IV directly for the EU sample and the distributional fit from Table I for non-EU affiliates. The overlap lets me cross-validate: I can check whether the five-percentile fit actually recovers what Table IV observes. Nobody has done this test.
-}
-
 
 \begin{frame}{Eurostat FATS: the sectoral dimension CbCR lacks}
 \begin{columns}[T]
@@ -517,28 +471,22 @@ Two tables from the OECD CbCR. Table I has broader coverage and the five ETR per
 \end{columns}
 \end{frame}
 
-\note{
-CbCR has no sectors. But the SBIE depends on payroll and tangible assets, which vary enormously by sector. Manufacturing has high substance, IP licensing has almost none. FATS gives me sectoral shares; CbCR gives me aggregate levels. Multiplying them gives sector-specific SBIE ratios. This is the CbCR-times-FATS combination that no study has used before.
-}
-
-
-%% ═══════════════════════════════════════════════
 \section{Methodology}
-%% ═══════════════════════════════════════════════
 
 \begin{frame}{Stage 1: how ETR measurement changes the base}
 \begin{columns}[T]
 \begin{column}{0.52\textwidth}
+  \textbf{Data:} CbCR Table I\\[6pt]
+
   \textbf{Jurisdiction-average:}\\
-  All profit either above or below 15\%. Binary.\\[6pt]
+  All profit either above or below 15\%. Binary.\\
+  $$\tau_{p,j,t} = \frac{\theta_{p,j,t}}{\pi_{p,j,t}}$$
 
   \textbf{Distributional (piecewise-uniform):}\\
-  Fit density from five percentiles. Integrate below $T$:\\
-  $$s_{j,t}^{<T} = \tilde{F}_{j,t}(T)$$
-  $$\bar{\delta}_{j,t}^{\text{top}} = T - \frac{\int_0^{T} \tau \, d\tilde{F}}{\int_0^{T} d\tilde{F}}$$
+  Fit density from five percentiles. Follows Hugger et al., but with addition that between 0-0.05 also distributed. 
 
-  \vspace{4pt}
-  \highlight{Hugger}: switching from average to distributional roughly \emphbx{doubles} the GMT base.
+  \textbf{Hybrid measurement}: compare Table I and IV and use most informative source
+
 \end{column}
 \begin{column}{0.45\textwidth}
 \vspace{0.5em}
@@ -574,11 +522,6 @@ CbCR has no sectors. But the SBIE depends on payroll and tangible assets, which 
 \end{column}
 \end{columns}
 \end{frame}
-
-\note{
-Stage 1 in more detail. The jurisdiction-average approach treats a country as either entirely above or below 15 percent. The distributional approach fits a piecewise-uniform density from the five CbCR percentiles and integrates below the threshold. The red area in the graph is the low-taxed share. Switching from average to distributional roughly doubles the measured GMT base. This is the single biggest modelling choice, and it is Factor 1 in my design.
-}
-
 
 \begin{frame}{Stage 2: the SBIE erodes the effective floor}
 \begin{center}
@@ -621,11 +564,6 @@ Stage 1 in more detail. The jurisdiction-average approach treats a country as ei
 \end{columns}
 \end{frame}
 
-\note{
-Stage 2. The SBIE shields profit backed by payroll and tangible assets. Devereux finds an average SBIE-to-profit ratio of 57 percent, so the effective minimum tax is only 6.45 percent in year one, not 15 percent. Schjelderup shows it acts as a production subsidy favouring capital-intensive sectors. This is why the sectoral decomposition with FATS matters: the aggregate SBIE conceals dramatic variation across sectors.
-}
-
-
 \begin{frame}{Stage 3: panel estimation of the semi-elasticity}
 
 The Hines--Rice framework adapted to the CbCR panel:
@@ -653,14 +591,7 @@ Three functional forms for $f(\tau)$:
 \highlight{Key:} $\alpha_{pj}$ absorbs all time-invariant bilateral confounders. Identification from \emph{within-pair} ETR variation over 2016--2022.
 \end{frame}
 
-\note{
-Stage 3. I use the Hines-Rice framework with the CbCR panel. Log corrected profit on the left, real-activity controls and a tax function on the right. The pair fixed effect alpha-pj absorbs all time-invariant bilateral confounders: treaty networks, group structure, everything. Identification comes from within-pair ETR variation over seven years. Three functional forms: linear gives a constant semi-elasticity, quadratic is bounded at zero, logarithmic rises without bound. Only the logarithmic captures the extreme nonlinearity at low rates. I compare them on BIC and rank. The instrument for the ETR is the lagged statutory rate, to handle division bias.
-}
-
-
-%% ═══════════════════════════════════════════════
-\section{Expected Findings \& Hypotheses}
-%% ═══════════════════════════════════════════════
+\section{Hypotheses}
 
 \begin{frame}{Five hypotheses}
 \begin{enumerate}
@@ -676,73 +607,6 @@ Stage 3. I use the Hines-Rice framework with the CbCR panel. Log corrected profi
 \end{enumerate}
 \end{frame}
 
-\note{
-Five testable hypotheses. H1: the logarithmic form wins on BIC and the semi-elasticity at 5 percent is at least 2.4, three times the consensus. H2: ETR measurement is the single biggest factor. H3: interactions are at least 10 percent of variance, which means you cannot do one-at-a-time sensitivity. H4: SbS cuts IIR and UTPR revenue, possibly turning it negative for countries without a QDMTT. H5: the SBTI Safe Harbour benefits capital-intensive sectors disproportionately. Each hypothesis maps to a subquestion and has a clear rejection criterion.
-}
-
-
-%% ═══════════════════════════════════════════════
-\section{Timeline}
-%% ═══════════════════════════════════════════════
-
-\begin{frame}{Period 4 timeline: April--June 2026}
-\begin{center}
-\begin{tikzpicture}[font=\small, xscale=1.0, yscale=0.9]
-  \def\ybase{0}
-  \def\bh{0.65}
-
-  % Phase bars
-  \fill[Navy!25, rounded corners=2pt] (0,\ybase) rectangle (2.4, \ybase+\bh);
-  \fill[DkOrange!30, rounded corners=2pt] (2.4,\ybase) rectangle (4.8, \ybase+\bh);
-  \fill[Teal!30, rounded corners=2pt] (4.8,\ybase) rectangle (7.6, \ybase+\bh);
-  \fill[ForestGreen!25, rounded corners=2pt] (7.6,\ybase) rectangle (9.6, \ybase+\bh);
-  \fill[Bordeaux!20, rounded corners=2pt] (9.6,\ybase) rectangle (11.5, \ybase+\bh);
-
-  % Labels inside bars
-  \node[font=\scriptsize, Navy] at (1.2, \ybase+\bh/2) {Data clean};
-  \node[font=\scriptsize, DkOrange!80!black] at (3.6, \ybase+\bh/2) {Panel est.};
-  \node[font=\scriptsize, Teal!80!black] at (6.2, \ybase+\bh/2) {Factorial + ANOVA};
-  \node[font=\scriptsize, ForestGreen!70!black] at (8.6, \ybase+\bh/2) {Writing};
-  \node[font=\scriptsize, Bordeaux!70!black] at (10.55, \ybase+\bh/2) {Revise};
-
-  % Date labels below
-  \node[below, font=\scriptsize] at (0, \ybase-0.1) {13 Apr};
-  \node[below, font=\scriptsize] at (2.4, \ybase-0.1) {27 Apr};
-  \node[below, font=\scriptsize] at (4.8, \ybase-0.1) {11 May};
-  \node[below, font=\scriptsize] at (7.6, \ybase-0.1) {25 May};
-  \node[below, font=\scriptsize] at (9.6, \ybase-0.1) {15 Jun};
-  \node[below, font=\scriptsize] at (11.5, \ybase-0.1) {26 Jun};
-
-  % SQ mapping (top row, well above bars)
-  \node[font=\scriptsize, MidGrey] at (3.6, \ybase+\bh+1.2) {SQ1/H1};
-  \node[font=\scriptsize, MidGrey] at (6.2, \ybase+\bh+1.2) {SQ2/H2--H3};
-  \node[font=\scriptsize, MidGrey] at (8.6, \ybase+\bh+1.2) {SQ3/H4--H5};
-
-  % Milestone markers (below SQ labels)
-  \draw[DkOrange, line width=0.8pt, dashed] (9.6, \ybase-0.3) -- (9.6, \ybase+\bh+0.35);
-  \node[above, font=\scriptsize, DkOrange] at (8.6, \ybase+\bh+0.35) {Draft to sup.};
-
-  \draw[Bordeaux, line width=1.2pt] (11.5, \ybase-0.3) -- (11.5, \ybase+\bh+0.35);
-  \node[above, font=\scriptsize\bfseries, Bordeaux] at (11.5, \ybase+\bh+0.35) {Deadline};
-\end{tikzpicture}
-\end{center}
-
-\vspace{0.8em}
-\begin{itemize}
-  \item All raw data already downloaded and analysed at first-stage level
-  \item Methodology worked out in detail (extensive working document)
-  \item One-week buffer before final deadline
-\end{itemize}
-\end{frame}
-
-\note{
-The timeline. First two weeks: finalise data cleaning. Then two weeks panel estimation. Then two weeks factorial design and ANOVA. Then writing and the SbS analysis. Draft to supervisor around 15 June, final deadline 26 June. All raw data are already downloaded and the methodology is worked out in a much longer working document. I have a one-week buffer at the end.
-}
-
-
-%% ═══════════════════════════════════════════════
-%%  CLOSING SLIDE
-%% ═══════════════════════════════════════════════
 {
 \setbeamercolor{background canvas}{bg=Navy}
 \begin{frame}[plain]
@@ -756,10 +620,6 @@ The timeline. First two weeks: finalise data cleaning. Then two weeks panel esti
 \end{frame}
 }
 
-
-%% ═══════════════════════════════════════════════
-%%  BACKUP SLIDES
-%% ═══════════════════════════════════════════════
 \appendix
 
 {
@@ -767,12 +627,11 @@ The timeline. First two weeks: finalise data cleaning. Then two weeks panel esti
 \begin{frame}[plain]
   \vfill
   \centering
-  {\color{Ivory}\LARGE\bfseries Backup Slides}\\[0.6em]
+  {\color{Ivory}\LARGE\bfseries Appendix slides}\\[0.6em]
   {\color{DkOrange}\rule{4cm}{2pt}}
   \vfill
 \end{frame}
 }
-
 
 \begin{frame}{Backup: the SBIE formula and effective floor}
 The SBIE for each bilateral pair:
@@ -844,7 +703,7 @@ January 2026 OECD Administrative Guidance:
 \end{itemize}
 
 \vspace{0.5em}
-\textbf{The Dutch case:} SbS reduced projected revenue by around \EUR120m/year.
+\textbf{The Dutch case:} SbS reduced projected revenue by around \EUR122m/year.
 \end{frame}
 
 
@@ -863,9 +722,6 @@ January 2026 OECD Administrative Guidance:
   \bottomrule
 \end{tabular}
 \end{center}
-
-\vspace{0.4em}
-{\footnotesize Tables V and VI: size distribution and 2022 size-class disaggregation (supporting roles).}
 \end{frame}
 
 
@@ -953,7 +809,7 @@ Robustness check: include CHE with winsorisation. Results should be insensitive 
 \end{frame}
 
 
-\begin{frame}{Backup: collection channels --- QDMTT, IIR, UTPR}
+\begin{frame}{Backup: collection channels: QDMTT, IIR, UTPR}
 \begin{center}
 \begin{tikzpicture}[font=\small, node distance=0.7cm]
   \tikzset{
