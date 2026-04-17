@@ -1,0 +1,92 @@
+%% Compile: pdflatex (no biber needed)
+
+\documentclass[aspectratio=169, 11pt]{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{babel}
+\babelprovide[main,import]{british}
+
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{tikz}
+
+\definecolor{Navy}{HTML}{0D1B2A}
+\definecolor{MidNavy}{HTML}{1B2E4A}
+\definecolor{DkOrange}{HTML}{D97706}
+\definecolor{LtOrange}{HTML}{F5DEB3}
+\definecolor{Bordeaux}{HTML}{7A1C2E}
+\definecolor{BordeauxLt}{HTML}{A63D50}
+\definecolor{Ivory}{HTML}{FAF8F5}
+\definecolor{WarmGrey}{HTML}{E8E4DF}
+\definecolor{MidGrey}{HTML}{9CA3AF}
+\definecolor{DkGrey}{HTML}{4B5563}
+\definecolor{Teal}{HTML}{2A7F8C}
+\definecolor{TealLt}{HTML}{D0ECF0}
+
+\usefonttheme{professionalfonts}
+\setbeamercolor{normal text}{fg=Navy, bg=Ivory}
+\setbeamercolor{alerted text}{fg=Bordeaux}
+\setbeamercolor{example text}{fg=DkOrange}
+
+\setbeamercolor{frametitle}{fg=Ivory, bg=Navy}
+\setbeamerfont{frametitle}{size=\large, series=\bfseries}
+\setbeamertemplate{frametitle}{%
+  \nointerlineskip
+  \begin{beamercolorbox}[wd=\paperwidth, ht=2.6em, dp=0.8em, leftskip=1.2em]{frametitle}%
+    \usebeamerfont{frametitle}\insertframetitle%
+  \end{beamercolorbox}%
+  {\color{DkOrange}\hrule height 2.2pt}%
+}
+
+\setbeamertemplate{itemize item}{\color{DkOrange}\scriptsize$\blacksquare$}
+\setbeamertemplate{itemize subitem}{\color{Bordeaux}\scriptsize$\blacktriangleright$}
+\setbeamercolor{itemize item}{fg=DkOrange}
+\setbeamercolor{itemize subitem}{fg=Bordeaux}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{}
+
+\setbeamercolor{block title alerted}{fg=Ivory, bg=Bordeaux}
+\setbeamercolor{block body alerted}{fg=Navy, bg=WarmGrey}
+\setbeamerfont{block title}{series=\bfseries}
+
+\newcommand{\highlight}[1]{\textcolor{DkOrange}{\textbf{#1}}}
+\newcommand{\emphbx}[1]{\textcolor{Bordeaux}{\textbf{#1}}}
+\newcommand{\EUR}{\texteuro}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\begin{document}
+
+\begin{frame}{The Global Minimum Tax: what does it actually raise?}
+
+\begin{columns}[T]
+\begin{column}{0.46\textwidth}
+  \textbf{Policy:} 137 countries agreed a \highlight{15\% minimum tax} on large multinationals.\\[10pt]
+
+  \textbf{Problem:} revenue estimates range from \emphbx{near-zero to hundreds of billions} of euros. Nobody has explained \emph{why} they diverge.\\[10pt]
+
+\end{column}
+\begin{column}{0.50\textwidth}
+  \vspace{0.2em}
+  \begin{itemize}
+    \item[\textcolor{DkOrange}{\textbf{1.}}] \textbf{ETR measurement}: which profits are actually low-taxed?
+    \item[\textcolor{DkOrange}{\textbf{2.}}] \textbf{Substance exemptions}: how much of the base is carved out?
+    \item[\textcolor{DkOrange}{\textbf{3.}}] \textbf{Behavioural response}: how much shifting stops once the tax kicks in?
+  \end{itemize}
+
+  \vspace{10pt}
+  \begin{alertblock}{Research question}
+    \itshape How sensitive are EU minimum-tax revenue estimates to these modelling choices and which one drives the uncertainty?
+  \end{alertblock}
+
+\end{column}
+\end{columns}
+
+\end{frame}
+
+\end{document}
