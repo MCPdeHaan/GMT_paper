@@ -13,7 +13,9 @@ from datetime import datetime
 from typing import Optional
 
 BASE_DIR = Path(__file__).parent  
-RAW_DIR  = BASE_DIR / "raw"
+PROJECT_DIR = BASE_DIR.parent
+RAW_DIR = PROJECT_DIR / "data" / "raw"
+RAW_DIR.mkdir(parents=True, exist_ok=True)
 
 import requests
 

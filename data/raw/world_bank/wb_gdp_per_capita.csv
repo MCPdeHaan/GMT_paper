@@ -19,7 +19,7 @@ ZI,Africa Western and Central,2018,1720.14009242722
 ZI,Africa Western and Central,2017,1574.23056437855
 ZI,Africa Western and Central,2016,1630.03943895258
 ZI,Africa Western and Central,2015,1860.72768628324
-1A,Arab World,2024,7583.81170078145
+1A,Arab World,2024,7583.81170078144
 1A,Arab World,2023,7513.89907880749
 1A,Arab World,2022,7950.35581975672
 1A,Arab World,2021,6697.41498492196
@@ -27,7 +27,7 @@ ZI,Africa Western and Central,2015,1860.72768628324
 1A,Arab World,2019,6674.34224402621
 1A,Arab World,2018,6699.18058175457
 1A,Arab World,2017,6096.72395041636
-1A,Arab World,2016,6042.19675439671
+1A,Arab World,2016,6042.19675439672
 1A,Arab World,2015,6290.55879501691
 S3,Caribbean small states,2024,19903.8112311908
 S3,Caribbean small states,2023,17596.5404249612
@@ -55,7 +55,7 @@ V2,Early-demographic dividend,2022,4043.82776331568
 V2,Early-demographic dividend,2021,3698.98363187847
 V2,Early-demographic dividend,2020,3187.03781234801
 V2,Early-demographic dividend,2019,3483.31545469615
-V2,Early-demographic dividend,2018,3463.50882263375
+V2,Early-demographic dividend,2018,3463.50882263374
 V2,Early-demographic dividend,2017,3457.64943157186
 V2,Early-demographic dividend,2016,3223.9805446069
 V2,Early-demographic dividend,2015,3174.36962020929
@@ -64,7 +64,7 @@ Z4,East Asia & Pacific,2023,13176.1786055635
 Z4,East Asia & Pacific,2022,13139.2109813612
 Z4,East Asia & Pacific,2021,13336.4841670883
 Z4,East Asia & Pacific,2020,11639.4853357389
-Z4,East Asia & Pacific,2019,11622.8915284735
+Z4,East Asia & Pacific,2019,11622.8915284736
 Z4,East Asia & Pacific,2018,11438.8584591418
 Z4,East Asia & Pacific,2017,10566.2828244863
 Z4,East Asia & Pacific,2016,9965.00400107685
@@ -73,12 +73,12 @@ Z4,East Asia & Pacific,2015,9691.70576095154
 4E,East Asia & Pacific (excluding high income),2023,10125.9095208645
 4E,East Asia & Pacific (excluding high income),2022,10106.9935977814
 4E,East Asia & Pacific (excluding high income),2021,9974.57829690175
-4E,East Asia & Pacific (excluding high income),2020,8391.27634645493
+4E,East Asia & Pacific (excluding high income),2020,8391.27634645494
 4E,East Asia & Pacific (excluding high income),2019,8286.3981179292
 4E,East Asia & Pacific (excluding high income),2018,8045.94630458507
 4E,East Asia & Pacific (excluding high income),2017,7241.92533864361
 4E,East Asia & Pacific (excluding high income),2016,6683.18386700353
-4E,East Asia & Pacific (excluding high income),2015,6589.77076427461
+4E,East Asia & Pacific (excluding high income),2015,6589.77076427462
 T4,East Asia & Pacific (IDA & IBRD countries),2024,10513.9529323033
 T4,East Asia & Pacific (IDA & IBRD countries),2023,10239.8162178816
 T4,East Asia & Pacific (IDA & IBRD countries),2022,10220.4774431567
@@ -110,8 +110,8 @@ Z7,Europe & Central Asia,2017,23814.1197034605
 Z7,Europe & Central Asia,2016,22519.6408855547
 Z7,Europe & Central Asia,2015,22702.8228380066
 7E,Europe & Central Asia (excluding high income),2024,9793.69205809432
-7E,Europe & Central Asia (excluding high income),2023,8617.0484098633
-7E,Europe & Central Asia (excluding high income),2022,7266.022431542
+7E,Europe & Central Asia (excluding high income),2023,8617.04840986329
+7E,Europe & Central Asia (excluding high income),2022,7266.02243154199
 7E,Europe & Central Asia (excluding high income),2021,6673.97429035651
 7E,Europe & Central Asia (excluding high income),2020,5776.19343817718
 7E,Europe & Central Asia (excluding high income),2019,6069.27407282315
@@ -133,7 +133,7 @@ EU,European Union,2024,43304.9642561331
 EU,European Union,2023,41566.5741100785
 EU,European Union,2022,38066.8844892624
 EU,European Union,2021,39206.9791776084
-EU,European Union,2020,34694.7035869194
+EU,European Union,2020,34694.7035869195
 EU,European Union,2019,35374.1403676934
 EU,European Union,2018,36054.953230113
 EU,European Union,2017,33394.5888043692
@@ -144,7 +144,7 @@ F1,Fragile and conflict affected situations,2023,1682.75058845476
 F1,Fragile and conflict affected situations,2022,1850.91743054769
 F1,Fragile and conflict affected situations,2021,1711.40128929758
 F1,Fragile and conflict affected situations,2020,1618.4798041022
-F1,Fragile and conflict affected situations,2019,1861.65330453031
+F1,Fragile and conflict affected situations,2019,1861.6533045303
 F1,Fragile and conflict affected situations,2018,1634.92965875473
 F1,Fragile and conflict affected situations,2017,1549.60952933559
 F1,Fragile and conflict affected situations,2016,1491.08080315915
@@ -158,11 +158,11 @@ XE,Heavily indebted poor countries (HIPC),2019,983.900062178744
 XE,Heavily indebted poor countries (HIPC),2018,985.478210719267
 XE,Heavily indebted poor countries (HIPC),2017,943.132832332498
 XE,Heavily indebted poor countries (HIPC),2016,894.708764701024
-XE,Heavily indebted poor countries (HIPC),2015,917.296109229182
-XD,High income,2024,50302.6052129513
+XE,Heavily indebted poor countries (HIPC),2015,917.296109229181
+XD,High income,2024,50302.6052129514
 XD,High income,2023,48608.1947665895
 XD,High income,2022,46553.1150181383
-XD,High income,2021,45081.6648348437
+XD,High income,2021,45081.6648348438
 XD,High income,2020,40108.2348602411
 XD,High income,2019,41342.2066107349
 XD,High income,2018,41094.8560877186
@@ -172,20 +172,20 @@ XD,High income,2015,36586.4346902662
 XF,IBRD only,2024,8219.91265703844
 XF,IBRD only,2023,7925.3992413749
 XF,IBRD only,2022,7699.23258826186
-XF,IBRD only,2021,7314.52836425796
+XF,IBRD only,2021,7314.52836425795
 XF,IBRD only,2020,6191.51088391849
 XF,IBRD only,2019,6476.07259783679
 XF,IBRD only,2018,6394.19484299789
 XF,IBRD only,2017,6053.30921793356
-XF,IBRD only,2016,5534.81953332906
+XF,IBRD only,2016,5534.81953332907
 XF,IBRD only,2015,5546.04775275527
-ZT,IDA & IBRD total,2024,6327.14399704869
-ZT,IDA & IBRD total,2023,6149.50554558946
+ZT,IDA & IBRD total,2024,6327.1439970487
+ZT,IDA & IBRD total,2023,6149.50554558945
 ZT,IDA & IBRD total,2022,6036.81374407089
-ZT,IDA & IBRD total,2021,5754.24675079937
+ZT,IDA & IBRD total,2021,5754.24675079938
 ZT,IDA & IBRD total,2020,4923.57218418891
-ZT,IDA & IBRD total,2019,5167.89523774327
-ZT,IDA & IBRD total,2018,5085.50217477103
+ZT,IDA & IBRD total,2019,5167.89523774326
+ZT,IDA & IBRD total,2018,5085.50217477104
 ZT,IDA & IBRD total,2017,4831.93005964107
 ZT,IDA & IBRD total,2016,4447.41739069513
 ZT,IDA & IBRD total,2015,4474.43525326247
@@ -195,7 +195,7 @@ XH,IDA blend,2022,2234.83616206483
 XH,IDA blend,2021,2142.31172674601
 XH,IDA blend,2020,2008.89632662853
 XH,IDA blend,2019,2205.87361894796
-XH,IDA blend,2018,1869.38204447615
+XH,IDA blend,2018,1869.38204447614
 XH,IDA blend,2017,1804.50559433385
 XH,IDA blend,2016,1790.53787826053
 XH,IDA blend,2015,1947.85246838642
@@ -218,14 +218,14 @@ XG,IDA total,2019,1544.27890067061
 XG,IDA total,2018,1408.95016839901
 XG,IDA total,2017,1355.23505457315
 XG,IDA total,2016,1314.0817741131
-XG,IDA total,2015,1350.30758062231
+XG,IDA total,2015,1350.30758062232
 V3,Late-demographic dividend,2024,12874.1679137972
 V3,Late-demographic dividend,2023,12437.9861721907
 V3,Late-demographic dividend,2022,12286.0846812169
 V3,Late-demographic dividend,2021,11759.7974990154
 V3,Late-demographic dividend,2020,9873.93519864422
 V3,Late-demographic dividend,2019,10120.3125161359
-V3,Late-demographic dividend,2018,9966.81160876464
+V3,Late-demographic dividend,2018,9966.81160876463
 V3,Late-demographic dividend,2017,9138.44134545505
 V3,Late-demographic dividend,2016,8297.33610796797
 V3,Late-demographic dividend,2015,8331.63270803563
@@ -236,7 +236,7 @@ ZJ,Latin America & Caribbean,2021,8291.07156305024
 ZJ,Latin America & Caribbean,2020,7168.64740599577
 ZJ,Latin America & Caribbean,2019,8539.39776066424
 ZJ,Latin America & Caribbean,2018,8778.37906311973
-ZJ,Latin America & Caribbean,2017,9065.54817792867
+ZJ,Latin America & Caribbean,2017,9065.54817792866
 ZJ,Latin America & Caribbean,2016,8241.45140922665
 ZJ,Latin America & Caribbean,2015,8547.2373391789
 XJ,Latin America & Caribbean (excluding high income),2024,10382.3911125152
@@ -271,7 +271,7 @@ XL,Least developed countries: UN classification,2016,966.721782937566
 XL,Least developed countries: UN classification,2015,982.894810600519
 XO,Low & middle income,2024,6002.45120765259
 XO,Low & middle income,2023,5856.29495195922
-XO,Low & middle income,2022,5741.78381882952
+XO,Low & middle income,2022,5741.78381882953
 XO,Low & middle income,2021,5524.24398933119
 XO,Low & middle income,2020,4732.82727829687
 XO,Low & middle income,2019,4943.24879858439
@@ -285,7 +285,7 @@ XM,Low income,2022,734.204117595357
 XM,Low income,2021,651.812637638679
 XM,Low income,2020,605.437906755342
 XM,Low income,2019,645.998249720369
-XM,Low income,2018,645.846067078284
+XM,Low income,2018,645.846067078285
 XM,Low income,2017,634.710788724745
 XM,Low income,2016,633.792954627598
 XM,Low income,2015,740.889503942237
@@ -314,7 +314,7 @@ XQ,"Middle East, North Africa, Afghanistan & Pakistan (excluding high income)",2
 XQ,"Middle East, North Africa, Afghanistan & Pakistan (excluding high income)",2022,3015.7557973385
 XQ,"Middle East, North Africa, Afghanistan & Pakistan (excluding high income)",2021,2753.47858029524
 XQ,"Middle East, North Africa, Afghanistan & Pakistan (excluding high income)",2020,2408.49731335268
-XQ,"Middle East, North Africa, Afghanistan & Pakistan (excluding high income)",2019,2695.63342343004
+XQ,"Middle East, North Africa, Afghanistan & Pakistan (excluding high income)",2019,2695.63342343005
 XQ,"Middle East, North Africa, Afghanistan & Pakistan (excluding high income)",2018,2809.30894215325
 XQ,"Middle East, North Africa, Afghanistan & Pakistan (excluding high income)",2017,2859.85560174494
 XQ,"Middle East, North Africa, Afghanistan & Pakistan (excluding high income)",2016,2863.14057781135
@@ -323,7 +323,7 @@ T3,"Middle East, North Africa, Afghanistan & Pakistan (IDA & IBRD)",2024,2973.77
 T3,"Middle East, North Africa, Afghanistan & Pakistan (IDA & IBRD)",2023,2868.88626501212
 T3,"Middle East, North Africa, Afghanistan & Pakistan (IDA & IBRD)",2022,3010.19656726913
 T3,"Middle East, North Africa, Afghanistan & Pakistan (IDA & IBRD)",2021,2746.96809945183
-T3,"Middle East, North Africa, Afghanistan & Pakistan (IDA & IBRD)",2020,2402.73480964451
+T3,"Middle East, North Africa, Afghanistan & Pakistan (IDA & IBRD)",2020,2402.73480964452
 T3,"Middle East, North Africa, Afghanistan & Pakistan (IDA & IBRD)",2019,2688.96932958269
 T3,"Middle East, North Africa, Afghanistan & Pakistan (IDA & IBRD)",2018,2804.12633142444
 T3,"Middle East, North Africa, Afghanistan & Pakistan (IDA & IBRD)",2017,2854.66192638041
@@ -332,7 +332,7 @@ T3,"Middle East, North Africa, Afghanistan & Pakistan (IDA & IBRD)",2015,2799.45
 XP,Middle income,2024,6554.37054933497
 XP,Middle income,2023,6386.30246387838
 XP,Middle income,2022,6248.00962014697
-XP,Middle income,2021,6007.32308658147
+XP,Middle income,2021,6007.32308658146
 XP,Middle income,2020,5134.62007912707
 XP,Middle income,2019,5353.79775844374
 XP,Middle income,2018,5248.39737081301
@@ -359,14 +359,14 @@ XY,Not classified,2018,
 XY,Not classified,2017,
 XY,Not classified,2016,
 XY,Not classified,2015,
-OE,OECD members,2024,48322.164420487
+OE,OECD members,2024,48322.1644204871
 OE,OECD members,2023,46580.4448807226
 OE,OECD members,2022,43950.173710934
-OE,OECD members,2021,43027.7494275705
+OE,OECD members,2021,43027.7494275706
 OE,OECD members,2020,38597.246423496
 OE,OECD members,2019,39708.8864576635
-OE,OECD members,2018,39552.695671629
-OE,OECD members,2017,37605.2706249889
+OE,OECD members,2018,39552.6956716291
+OE,OECD members,2017,37605.270624989
 OE,OECD members,2016,36229.3490773616
 OE,OECD members,2015,35779.9123271942
 S4,Other small states,2024,16094.1266173126
@@ -390,10 +390,10 @@ S2,Pacific island small states,2017,4099.79965867267
 S2,Pacific island small states,2016,3856.70459060951
 S2,Pacific island small states,2015,3722.7745565917
 V4,Post-demographic dividend,2024,55644.314789934
-V4,Post-demographic dividend,2023,53813.7418308678
+V4,Post-demographic dividend,2023,53813.7418308677
 V4,Post-demographic dividend,2022,50969.801641014
 V4,Post-demographic dividend,2021,49855.2269396596
-V4,Post-demographic dividend,2020,44743.7389324311
+V4,Post-demographic dividend,2020,44743.738932431
 V4,Post-demographic dividend,2019,45840.3536114764
 V4,Post-demographic dividend,2018,45535.8018785923
 V4,Post-demographic dividend,2017,43114.2688521392
@@ -401,7 +401,7 @@ V4,Post-demographic dividend,2016,41502.2222895522
 V4,Post-demographic dividend,2015,40775.9479386213
 V1,Pre-demographic dividend,2024,1366.06577255622
 V1,Pre-demographic dividend,2023,1558.34344693401
-V1,Pre-demographic dividend,2022,1770.15579032781
+V1,Pre-demographic dividend,2022,1770.15579032782
 V1,Pre-demographic dividend,2021,1594.14229813292
 V1,Pre-demographic dividend,2020,1496.33767488397
 V1,Pre-demographic dividend,2019,1681.19065754666
@@ -472,8 +472,8 @@ T6,Sub-Saharan Africa (IDA & IBRD countries),2015,1646.44941139316
 XT,Upper middle income,2024,10996.101696107
 XT,Upper middle income,2023,10657.9686111279
 XT,Upper middle income,2022,10324.5193124329
-XT,Upper middle income,2021,9918.6994774671
-XT,Upper middle income,2020,8346.18727671434
+XT,Upper middle income,2021,9918.69947746711
+XT,Upper middle income,2020,8346.18727671435
 XT,Upper middle income,2019,8657.73234539015
 XT,Upper middle income,2018,8569.23675625056
 XT,Upper middle income,2017,8064.20583627107
@@ -488,7 +488,7 @@ XT,Upper middle income,2015,7435.76486473308
 1W,World,2018,11309.3830773178
 1W,World,2017,10747.764306505
 1W,World,2016,10204.9287763386
-1W,World,2015,10161.9445773234
+1W,World,2015,10161.9445773233
 AF,Afghanistan,2024,
 AF,Afghanistan,2023,413.757894705303
 AF,Afghanistan,2022,357.261152798144
