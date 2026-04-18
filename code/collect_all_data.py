@@ -1,4 +1,3 @@
-# python collect_all_data.py
 import pandas as pd
 import argparse
 import csv
@@ -9,15 +8,13 @@ import time
 import json
 import logging
 from pathlib import Path
-from datetime import datetime
 from typing import Optional
+import requests
 
 BASE_DIR = Path(__file__).parent  
 PROJECT_DIR = BASE_DIR.parent
 RAW_DIR = PROJECT_DIR / "data" / "raw"
 RAW_DIR.mkdir(parents=True, exist_ok=True)
-
-import requests
 
 logging.basicConfig(
     level=logging.INFO,
@@ -30,51 +27,96 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 SESSION = requests.Session() 
-SESSION.headers.update({
-    "User-Agent": "GMT-Thesis-DataCollector/1.0 (academic research)",
-})
+SESSION.headers.update({"User-Agent": "GMT-Thesis-DataCollector (academic research)"})
 TIMEOUT = 180
 RETRY_WAIT = 5
 MAX_RETRIES = 3
 
-#  OECD SDMX base URL 
 OECD_SDMX = "https://sdmx.oecd.org/public/rest/data"
 EUROSTAT_SDMX = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data"
 SDMX_CSV_HEADERS = {"Accept": "application/vnd.sdmx.data+csv;file=true"}
 
-#  Helper Functions 
-def download_file(url: str, dest: Path, description: str,
-                  headers: Optional[dict] = None) -> bool:
-    """Download a file with retry logic."""
+COLLECTORS = {}
+
+def register(key: str, name: str):
+    def decorator(func):
+        COLLECTORS[key] = (name, func)
+        return func
+    return decorator
+
+OECD_CBCR_CONFIG = [
+    ("cbcr_table1_aggregate_totals.csv", "OECD.CTP.TPS,DSD_CBCR@DF_CBCRI,1.1", "Table I – Aggregate totals by jurisdiction"),
+    ("cbcr_table2_interquartile_means.csv", "OECD.CTP.TPS,DSD_CBCR@DF_CBCRII,1.1", "Table II – Interquartile means by jurisdiction"),
+    ("cbcr_table3_etr_aggregates.csv", "OECD.CTP.TPS,DSD_CBCR@DF_CBCRIII,1.1", "Table III – Aggregate totals by ETR bracket"),
+    ("cbcr_table4_etr_aggregates_alt.csv", "OECD.CTP.TPS,DSD_CBCR@DF_CBCRIV,1.1", "Table IV – Aggregate totals by ETR bracket (alt)"),
+    ("cbcr_table5_mne_size_distribution.csv", "OECD.CTP.TPS,DSD_CBCR@DF_CBCRV,1.1", "Table V – Distribution of MNE group size"),
+    ("cbcr_table6_mne_size_aggregates.csv", "OECD.CTP.TPS,DSD_CBCR@DF_CBCRVI,1.1", "Table VI – Aggregates by MNE group size"),
+]
+
+OECD_CIT_RATES_CONFIG = [
+    ("oecd_statutory_cit_rates.csv", "OECD.CTP.TPS,DSD_TAX_CIT@DF_CIT,2.0", "Statutory CIT rates"),
+    ("oecd_combined_dividend_rates.csv", "OECD.CTP.TPS,DSD_TAX_CIT@DF_CIT_DIVD_INCOME,1.0", "Combined statutory tax rates on dividend income"),
+]
+
+OECD_ETR_CONFIG = [
+    ("oecd_etr_baseline.csv", "OECD.CTP.TPS,DSD_ETR@DF_ETR_BASELINE,2.0", "ETR baseline"),
+    ("oecd_etr_income_incentives.csv", "OECD.CTP.TPS,DSD_ETR@DF_ETR_IBRD,2.0", "ETR with income-based incentives"),
+    ("oecd_etr_expenditure_incentives.csv", "OECD.CTP.TPS,DSD_ETR@DF_ETR_XBRD,2.0", "ETR with expenditure-based incentives"),
+]
+
+OECD_WAGES_CONFIG = [
+    ("oecd_avg_annual_wages.csv", "OECD.ELS.SAE,DSD_EARNINGS@AV_AN_WAGE,1.0", "Average annual wages"),
+    ("oecd_hourly_earnings.csv", "OECD.SDD.TPS,DSD_EAR@DF_HOU_EAR,1.0", "Hourly earnings (supplementary)"),
+]
+
+EUROSTAT_FATS_CONFIG = [
+    ("fats_g1b_08", "Legacy inward FATS by controlling country (2008-2020)", "indic_sb"),
+    ("fats_activ", "Current inward FATS by activity and country of control (2021 onward)", "indic_sbs"),
+]
+
+BEA_MNE_CONFIG = [
+    ("bea_mofa_selected_by_country.xls", "https://www.bea.gov/sites/default/files/2025-08/selected-mofas-cntry.xls", "MOFA Selected Data by Country"),
+    ("bea_mofa_employment.xls", "https://www.bea.gov/sites/default/files/2025-08/mofas-employment.xls", "MOFA Employment by Country & Industry"),
+    ("bea_mofa_assets.xls", "https://www.bea.gov/sites/default/files/2025-08/mofas-assets.xls", "MOFA Assets by Country & Industry"),
+    ("bea_mofa_value_added.xls", "https://www.bea.gov/sites/default/files/2025-08/mofas-value-added.xls", "MOFA Value Added by Country & Industry"),
+]
+
+ILO_WAGES_CONFIG = [
+    ("ilo_monthly_earnings.csv", "ILO,DF_EAR_EMTA_SEX_ECO_CUR_NB,1.0", "Mean nominal monthly earnings"),
+    ("ilo_hourly_earnings.csv", "ILO,DF_EAR_EHRA_SEX_ECO_CUR_NB,1.0", "Mean nominal hourly earnings"),
+]
+
+PILLAR2_BEPS_CONFIG = [
+    ("oecd_cbcr_requirements.csv", "OECD.CTP.TPS,DSD_QDD_CBCREQ@DF_QDD_CBCREQ,1.0", "CbCR implementation requirements"),
+    ("oecd_cfc_rules.csv", "OECD.CTP.TPS,DSD_QDD_CFC@DF_QDD_CFC,2.0", "Controlled foreign company rules"),
+    ("oecd_interest_limitation.csv", "OECD.CTP.TPS,DSD_QDD_ILR@DF_QDD_ILR,2.0", "Interest limitation rules"),
+    ("oecd_ip_regimes.csv", "OECD.CTP.TPS,DSD_QDD_IPR@DF_QDD_IPR,2.1", "Intellectual property regimes"),
+    ("oecd_hybrid_mismatch.csv", "OECD.CTP.TPS,DSD_QDD_ACT2@DF_QDD_ACT2,1.0", "Hybrid mismatch arrangements"),
+    ("oecd_mandatory_disclosure.csv", "OECD.CTP.TPS,DSD_QDD_ACT12@DF_QDD_ACT12,1.0", "Mandatory disclosure rules"),
+]
+
+def download_file(url: str, dest: Path, description: str, headers: Optional[dict] = None) -> bool:
     if dest.exists() and dest.stat().st_size > 0:
-        size_mb = dest.stat().st_size / 1e6
-        log.info(f"Already exists: {dest.name} ({size_mb:.2f} MB)")
         return True
 
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            log.info(f"[{attempt}/{MAX_RETRIES}] {description}")
             req_headers = headers or {}
-            resp = SESSION.get(url, timeout=TIMEOUT, headers=req_headers,
-                               stream=True)
+            resp = SESSION.get(url, timeout=TIMEOUT, headers=req_headers, stream=True)
             resp.raise_for_status()
 
             with open(dest, "wb") as f:
                 for chunk in resp.iter_content(chunk_size=65536):
                     f.write(chunk)
-
-            size_mb = dest.stat().st_size / 1e6
-            log.info(f"Saved: {dest.name} ({size_mb:.2f} MB)")
             return True
 
         except requests.exceptions.RequestException as e:
-            log.warning(f"Error: {e}")
             if dest.exists():
                 dest.unlink()
             if attempt < MAX_RETRIES:
                 time.sleep(RETRY_WAIT)
             else:
-                log.error(f"FAILED: {description}")
+                log.error(f"FAILED: {description} - {e}")
                 return False
     return False
 
@@ -82,27 +124,15 @@ def download_oecd(dataflow: str, dest: Path, description: str) -> bool:
     url = f"{OECD_SDMX}/{dataflow}/all?format=csv"
     return download_file(url, dest, description, headers=SDMX_CSV_HEADERS)
 
-
 def download_eurostat(dataset: str, dest: Path, description: str) -> bool:
     url = f"{EUROSTAT_SDMX}/{dataset}/?format=SDMX-CSV&compressed=true"
     return download_file(url, dest, description)
 
-
-def build_eurostat_fats_combined(sources, dest: Path) -> None:
+def build_eurostat_fats_combined(sources: list, dest: Path) -> None:
     fieldnames = [
-        "source_dataset",
-        "dataflow",
-        "last_update",
-        "freq",
-        "nace_r2",
-        "indicator_scheme",
-        "indicator_code",
-        "c_ctrl",
-        "geo",
-        "time_period",
-        "obs_value",
-        "obs_flag",
-        "conf_status",
+        "source_dataset", "dataflow", "last_update", "freq", "nace_r2",
+        "indicator_scheme", "indicator_code", "c_ctrl", "geo",
+        "time_period", "obs_value", "obs_flag", "conf_status",
     ]
 
     if dest.exists():
@@ -116,30 +146,17 @@ def build_eurostat_fats_combined(sources, dest: Path) -> None:
         writer.writeheader()
 
         for dataset, path, indicator_column in sources:
-            log.info(f"  Combining {path.name}")
             with gzip.open(path, "rt", newline="") as in_f:
                 reader = csv.DictReader(in_f)
                 required = {
-                    "DATAFLOW",
-                    "LAST UPDATE",
-                    "freq",
-                    "nace_r2",
-                    indicator_column,
-                    "c_ctrl",
-                    "geo",
-                    "TIME_PERIOD",
-                    "OBS_VALUE",
-                    "OBS_FLAG",
-                    "CONF_STATUS",
+                    "DATAFLOW", "LAST UPDATE", "freq", "nace_r2",
+                    indicator_column, "c_ctrl", "geo", "TIME_PERIOD",
+                    "OBS_VALUE", "OBS_FLAG", "CONF_STATUS",
                 }
                 missing = required - set(reader.fieldnames or [])
                 if missing:
-                    raise ValueError(
-                        f"{path.name} is missing required columns: {sorted(missing)}"
-                    )
+                    raise ValueError(f"{path.name} is missing required columns: {sorted(missing)}")
 
-                source_rows = 0
-                source_years = set()
                 for row in reader:
                     time_period = row["TIME_PERIOD"]
                     writer.writerow({
@@ -157,51 +174,26 @@ def build_eurostat_fats_combined(sources, dest: Path) -> None:
                         "obs_flag": row["OBS_FLAG"],
                         "conf_status": row["CONF_STATUS"],
                     })
-                    source_rows += 1
                     total_rows += 1
                     if time_period:
-                        source_years.add(int(time_period))
                         all_years.add(int(time_period))
-
-                if source_years:
-                    log.info(
-                        "    %s rows across %s-%s",
-                        f"{source_rows:,}",
-                        min(source_years),
-                        max(source_years),
-                    )
 
     if not all_years:
         raise RuntimeError("Combined Eurostat FATS file is empty")
-
-    size_mb = dest.stat().st_size / 1e6
-    log.info(
-        "  Built %s (%s rows, %s-%s, %.2f MB)",
-        dest.name,
-        f"{total_rows:,}",
-        min(all_years),
-        max(all_years),
-        size_mb,
-    )
-
 
 def verify_eurostat_fats_coverage(dest: Path, minimum_year: int = 2022) -> None:
     expected_sources = {"fats_g1b_08", "fats_activ"}
     seen_sources = set()
     years = set()
-    row_count = 0
 
     with gzip.open(dest, "rt", newline="") as f:
         reader = csv.DictReader(f)
         required = {"source_dataset", "time_period"}
         missing = required - set(reader.fieldnames or [])
         if missing:
-            raise ValueError(
-                f"{dest.name} is missing required columns: {sorted(missing)}"
-            )
+            raise ValueError(f"{dest.name} is missing required columns: {sorted(missing)}")
 
         for row in reader:
-            row_count += 1
             seen_sources.add(row["source_dataset"])
             if row["time_period"]:
                 years.add(int(row["time_period"]))
@@ -211,134 +203,47 @@ def verify_eurostat_fats_coverage(dest: Path, minimum_year: int = 2022) -> None:
 
     latest_year = max(years)
     if latest_year < minimum_year:
-        raise RuntimeError(
-            f"{dest.name} ends in {latest_year}, below required minimum {minimum_year}"
-        )
+        raise RuntimeError(f"{dest.name} ends in {latest_year}, below required minimum {minimum_year}")
+    
     if not expected_sources.issubset(seen_sources):
         missing_sources = sorted(expected_sources - seen_sources)
-        raise RuntimeError(
-            f"{dest.name} is missing expected source datasets: {missing_sources}"
-        )
+        raise RuntimeError(f"{dest.name} is missing expected source datasets: {missing_sources}")
 
-    log.info(
-        "  Verified %s rows across %s-%s with source datasets %s",
-        f"{row_count:,}",
-        min(years),
-        latest_year,
-        ", ".join(sorted(seen_sources)),
-    )
-
-# 1. OECD Country-by-Country Reporting (CbCR)
+@register("oecd_cbcr", "OECD CbCR Data")
 def collect_oecd_cbcr():
-    log.info("=" * 70)
-    log.info("1. OECD CbCR Data")
-    log.info("=" * 70)
-
     d = RAW_DIR / "oecd_cbcr"
     d.mkdir(exist_ok=True)
-
-    tables = [
-        ("cbcr_table1_aggregate_totals.csv",
-         "OECD.CTP.TPS,DSD_CBCR@DF_CBCRI,1.1",
-         "Table I – Aggregate totals by jurisdiction"),
-        ("cbcr_table2_interquartile_means.csv",
-         "OECD.CTP.TPS,DSD_CBCR@DF_CBCRII,1.1",
-         "Table II – Interquartile means by jurisdiction"),
-        ("cbcr_table3_etr_aggregates.csv",
-         "OECD.CTP.TPS,DSD_CBCR@DF_CBCRIII,1.1",
-         "Table III – Aggregate totals by ETR bracket"),
-        ("cbcr_table4_etr_aggregates_alt.csv",
-         "OECD.CTP.TPS,DSD_CBCR@DF_CBCRIV,1.1",
-         "Table IV – Aggregate totals by ETR bracket (alt)"),
-        ("cbcr_table5_mne_size_distribution.csv",
-         "OECD.CTP.TPS,DSD_CBCR@DF_CBCRV,1.1",
-         "Table V – Distribution of MNE group size"),
-        ("cbcr_table6_mne_size_aggregates.csv",
-         "OECD.CTP.TPS,DSD_CBCR@DF_CBCRVI,1.1",
-         "Table VI – Aggregates by MNE group size"),
-    ]
-    for fname, flow, desc in tables:
+    for fname, flow, desc in OECD_CBCR_CONFIG:
         download_oecd(flow, d / fname, desc)
-    log.info("")
 
-# 2. OECD Statutory CIT Rates
+@register("oecd_cit_rates", "OECD Statutory CIT Rates")
 def collect_oecd_cit_rates():
-    log.info("=" * 70)
-    log.info("2. OECD Statutory CIT Rates")
-    log.info("=" * 70)
-
     d = RAW_DIR / "oecd_tax_rates"
     d.mkdir(exist_ok=True)
+    for fname, flow, desc in OECD_CIT_RATES_CONFIG:
+        download_oecd(flow, d / fname, desc)
 
-    download_oecd(
-        "OECD.CTP.TPS,DSD_TAX_CIT@DF_CIT,2.0",
-        d / "oecd_statutory_cit_rates.csv",
-        "Statutory CIT rates (combined central + sub-central)",
-    )
-    download_oecd(
-        "OECD.CTP.TPS,DSD_TAX_CIT@DF_CIT_DIVD_INCOME,1.0",
-        d / "oecd_combined_dividend_rates.csv",
-        "Combined statutory tax rates on dividend income",
-    )
-    log.info("")
-
-
-# 3. OECD Forward-Looking ETRs
+@register("oecd_etr", "OECD Forward-Looking ETRs")
 def collect_oecd_etr():
-    log.info("=" * 70)
-    log.info("3. OECD Forward-Looking ETRs")
-    log.info("=" * 70)
-
     d = RAW_DIR / "oecd_etr"
     d.mkdir(exist_ok=True)
-
-    for fname, flow, desc in [
-        ("oecd_etr_baseline.csv",
-         "OECD.CTP.TPS,DSD_ETR@DF_ETR_BASELINE,2.0",
-         "ETR baseline"),
-        ("oecd_etr_income_incentives.csv",
-         "OECD.CTP.TPS,DSD_ETR@DF_ETR_IBRD,2.0",
-         "ETR with income-based incentives"),
-        ("oecd_etr_expenditure_incentives.csv",
-         "OECD.CTP.TPS,DSD_ETR@DF_ETR_XBRD,2.0",
-         "ETR with expenditure-based incentives"),
-    ]:
+    for fname, flow, desc in OECD_ETR_CONFIG:
         download_oecd(flow, d / fname, desc)
-    log.info("")
 
-# 4. OECD Average Annual Wages
+@register("oecd_wages", "OECD Average Annual Wages")
 def collect_oecd_wages():
-    log.info("=" * 70)
-    log.info("4. OECD Average Annual Wages")
-    log.info("=" * 70)
-
     d = RAW_DIR / "oecd_wages"
     d.mkdir(exist_ok=True)
+    for fname, flow, desc in OECD_WAGES_CONFIG:
+        download_oecd(flow, d / fname, desc)
 
-    download_oecd(
-        "OECD.ELS.SAE,DSD_EARNINGS@AV_AN_WAGE,1.0",
-        d / "oecd_avg_annual_wages.csv",
-        "Average annual wages",
-    )
-    download_oecd(
-        "OECD.SDD.TPS,DSD_EAR@DF_HOU_EAR,1.0",
-        d / "oecd_hourly_earnings.csv",
-        "Hourly earnings (supplementary)",
-    )
-    log.info("")
-
-# World Bank for income classifications, GDP, population
+@register("world_bank", "World Bank Classifications & GDP")
 def collect_world_bank():
-    log.info("=" * 70)
-    log.info("6. World Bank Classifications & GDP")
-    log.info("=" * 70)
-
     d = RAW_DIR / "world_bank"
     d.mkdir(exist_ok=True)
 
     csv_dest = d / "wb_income_classifications.csv"
     if not csv_dest.exists():
-        log.info("  Fetching income classifications via API...")
         try:
             all_c = []
             page = 1
@@ -364,35 +269,25 @@ def collect_world_bank():
                 if page >= data[0].get("pages", 1):
                     break
                 page += 1
-            df = pd.DataFrame(all_c)
-            df.to_csv(csv_dest, index=False)
-            log.info(f"{len(df)} entries → {csv_dest.name}")
-            for lv, n in df["income_level"].value_counts().items():
-                log.info(f"    {lv}: {n}")
-        except Exception as e:
-            log.error(f"API error: {e}")
-    else:
-        log.info(f"Already exists: {csv_dest.name}")
+            pd.DataFrame(all_c).to_csv(csv_dest, index=False)
+        except requests.exceptions.RequestException as e:
+            log.error(f"Income Classification API error: {e}")
 
-    # Parse via sheet='Country Analytical History', skiprows=4 to get year columns
     download_file(
         "https://databankfiles.worldbank.org/public/ddpext_download/site-content/OGHIST.xlsx",
         d / "wb_historical_income_groups.xlsx",
-        "Historical income group classifications (OGHIST.xlsx)",
+        "Historical income group classifications",
     )
 
-    #  GDP per capita 
     gdp_dest = d / "wb_gdp_per_capita.csv"
     if not gdp_dest.exists():
-        log.info("  Fetching GDP per capita (2015-2024)...")
         try:
             all_obs = []
             page = 1
             while True:
                 r = SESSION.get(
                     "https://api.worldbank.org/v2/country/all/indicator/NY.GDP.PCAP.CD",
-                    params={"per_page": 10000, "page": page,
-                            "format": "json", "date": "2015:2024"},
+                    params={"per_page": 10000, "page": page, "format": "json", "date": "2015:2024"},
                     timeout=TIMEOUT,
                 )
                 r.raise_for_status()
@@ -409,26 +304,19 @@ def collect_world_bank():
                 if page >= data[0].get("pages", 1):
                     break
                 page += 1
-            df = pd.DataFrame(all_obs)
-            df.to_csv(gdp_dest, index=False)
-            log.info(f"{len(df)} obs → {gdp_dest.name}")
-        except Exception as e:
-            log.error(f"GDP error: {e}")
-    else:
-        log.info(f"Already exists: {gdp_dest.name}")
+            pd.DataFrame(all_obs).to_csv(gdp_dest, index=False)
+        except requests.exceptions.RequestException as e:
+            log.error(f"GDP API error: {e}")
 
-    #  Population (for per-capita revenue analysis) 
     pop_dest = d / "wb_population.csv"
     if not pop_dest.exists():
-        log.info("  Fetching population (2015-2024)...")
         try:
             all_obs = []
             page = 1
             while True:
                 r = SESSION.get(
                     "https://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL",
-                    params={"per_page": 10000, "page": page,
-                            "format": "json", "date": "2015:2024"},
+                    params={"per_page": 10000, "page": page, "format": "json", "date": "2015:2024"},
                     timeout=TIMEOUT,
                 )
                 r.raise_for_status()
@@ -445,43 +333,19 @@ def collect_world_bank():
                 if page >= data[0].get("pages", 1):
                     break
                 page += 1
-            df = pd.DataFrame(all_obs)
-            df.to_csv(pop_dest, index=False)
-            log.info(f"{len(df)} obs → {pop_dest.name}")
-        except Exception as e:
-            log.error(f"  ✗ Population error: {e}")
-    else:
-        log.info(f"Already exists: {pop_dest.name}")
+            pd.DataFrame(all_obs).to_csv(pop_dest, index=False)
+        except requests.exceptions.RequestException as e:
+            log.error(f"Population API error: {e}")
 
-    log.info("")
-
-# Eurostat Inward FATS
+@register("eurostat_fats", "Eurostat Inward FATS")
 def collect_eurostat_fats():
-    log.info("=" * 70)
-    log.info("Eurostat Inward FATS")
-    log.info("=" * 70)
-
     d = RAW_DIR / "eurostat_fats"
     d.mkdir(exist_ok=True)
 
-    datasets = [
-        (
-            "fats_g1b_08",
-            "Legacy inward FATS by controlling country (2008-2020)",
-            "indic_sb",
-        ),
-        (
-            "fats_activ",
-            "Current inward FATS by activity and country of control (2021 onward)",
-            "indic_sbs",
-        ),
-    ]
-
     sources = []
-    for dataset, desc, indicator_column in datasets:
+    for dataset, desc, indicator_column in EUROSTAT_FATS_CONFIG:
         dest = d / f"{dataset}.csv.gz"
-        ok = download_eurostat(dataset, dest, desc)
-        if not ok:
+        if not download_eurostat(dataset, dest, desc):
             raise RuntimeError(f"Failed to download Eurostat dataset {dataset}")
         sources.append((dataset, dest, indicator_column))
 
@@ -489,227 +353,120 @@ def collect_eurostat_fats():
     build_eurostat_fats_combined(sources, combined_dest)
     verify_eurostat_fats_coverage(combined_dest, minimum_year=2022)
 
-    log.info("")
-
-
-# BEA US MNE Data
+@register("bea_mne", "BEA US MNE Data")
 def collect_bea_mne():
-    log.info("=" * 70)
-    log.info("8. BEA US Multinational Enterprise Data")
-    log.info("=" * 70)
-
     d = RAW_DIR / "bea_mne"
     d.mkdir(exist_ok=True)
 
-    base = "https://www.bea.gov/sites/default/files/2025-08"
-
-    files = [
-        ("bea_mofa_selected_by_country.xls",
-         f"{base}/selected-mofas-cntry.xls",
-         "MOFA Selected Data by Country"),
-        ("bea_mofa_employment.xls",
-         f"{base}/mofas-employment.xls",
-         "MOFA Employment by Country & Industry"),
-        ("bea_mofa_assets.xls",
-         f"{base}/mofas-assets.xls",
-         "MOFA Assets by Country & Industry"),
-        ("bea_mofa_value_added.xls",
-         f"{base}/mofas-value-added.xls",
-         "MOFA Value Added by Country & Industry"),
-    ]
-
-    for fname, url, desc in files:
-        dest = d / fname
-        download_file(url, dest, desc)
+    for fname, url, desc in BEA_MNE_CONFIG:
+        download_file(url, d / fname, desc)
 
     api_key = os.environ.get("BEA_API_KEY")
     if api_key:
-        log.info("  BEA_API_KEY found — fetching via API...")
         try:
             r = SESSION.get("https://apps.bea.gov/api/data", params={
                 "UserID": api_key, "method": "GetData",
                 "DatasetName": "MNE", "DirectionOfInvestment": "outward",
                 "Classification": "Country", "Year": "ALL",
-                "State": "0", "Industry": "0000",
-                "SeriesID": "5,6,8,22,25",
+                "State": "0", "Industry": "0000", "SeriesID": "5,6,8,22,25",
                 "GetFootnotes": "no", "ResultFormat": "json",
             }, timeout=TIMEOUT)
             r.raise_for_status()
             with open(d / "bea_api_outward.json", "w") as f:
                 json.dump(r.json(), f, indent=2)
-            log.info("BEA API data saved")
-        except Exception as e:
-            log.warning(f"  BEA API error: {e}")
-    else:
-        log.info("  Tip: Set BEA_API_KEY for more data (free: https://apps.bea.gov/API/signup/)")
+        except requests.exceptions.RequestException as e:
+            log.warning(f"BEA API error: {e}")
 
-    log.info("")
-
-# ILO Wage Data
-
+@register("ilo_wages", "ILO Global Wage Data")
 def collect_ilo_wages():
-    """ILO wage data for non-OECD countries (bulk CSV)."""
-    log.info("=" * 70)
-    log.info("9. ILO Global Wage Data")
-    log.info("=" * 70)
-
     d = RAW_DIR / "ilo_wages"
     d.mkdir(exist_ok=True)
 
     ilo_sdmx = "https://sdmx.ilo.org/rest/data"
-    for fname, flow, desc in [
-        ("ilo_monthly_earnings.csv",
-         "ILO,DF_EAR_EMTA_SEX_ECO_CUR_NB,1.0",
-         "Mean nominal monthly earnings"),
-        ("ilo_hourly_earnings.csv",
-         "ILO,DF_EAR_EHRA_SEX_ECO_CUR_NB,1.0",
-         "Mean nominal hourly earnings"),
-    ]:
+    for fname, flow, desc in ILO_WAGES_CONFIG:
         url = f"{ilo_sdmx}/{flow}/all?format=csv"
         download_file(url, d / fname, desc, headers=SDMX_CSV_HEADERS)
 
-    log.info("")
-
-
-# OECD BEPS & Pillar Two
+@register("pillar2_tracker", "OECD BEPS / Pillar Two")
 def collect_pillar2_tracker():
-    """OECD BEPS implementation: CbCR requirements, CFC, interest rules, IP regimes."""
-    log.info("=" * 70)
-    log.info("10. OECD BEPS & Pillar Two Implementation")
-    log.info("=" * 70)
-
     d = RAW_DIR / "pillar2_beps"
     d.mkdir(exist_ok=True)
 
-    for fname, flow, desc in [
-        ("oecd_cbcr_requirements.csv",
-         "OECD.CTP.TPS,DSD_QDD_CBCREQ@DF_QDD_CBCREQ,1.0",
-         "CbCR implementation requirements"),
-        ("oecd_cfc_rules.csv",
-         "OECD.CTP.TPS,DSD_QDD_CFC@DF_QDD_CFC,2.0",
-         "Controlled foreign company rules"),
-        ("oecd_interest_limitation.csv",
-         "OECD.CTP.TPS,DSD_QDD_ILR@DF_QDD_ILR,2.0",
-         "Interest limitation rules"),
-        ("oecd_ip_regimes.csv",
-         "OECD.CTP.TPS,DSD_QDD_IPR@DF_QDD_IPR,2.1",
-         "Intellectual property regimes"),
-        ("oecd_hybrid_mismatch.csv",
-         "OECD.CTP.TPS,DSD_QDD_ACT2@DF_QDD_ACT2,1.0",
-         "Hybrid mismatch arrangements"),
-        ("oecd_mandatory_disclosure.csv",
-         "OECD.CTP.TPS,DSD_QDD_ACT12@DF_QDD_ACT12,1.0",
-         "Mandatory disclosure rules"),
-    ]:
+    for fname, flow, desc in PILLAR2_BEPS_CONFIG:
         download_oecd(flow, d / fname, desc)
 
-    log.info("")
-
-
-# 11. OECD Additional CTS
+@register("oecd_cts_additional", "OECD Additional CTS")
 def collect_oecd_cts_additional():
-    """CIT revenue as % of GDP and other supplementary data."""
-    log.info("=" * 70)
-    log.info("11. OECD Additional CTS")
-    log.info("=" * 70)
-
     d = RAW_DIR / "oecd_cts_additional"
     d.mkdir(exist_ok=True)
-
     download_oecd(
         "OECD.CTP.TPS,DSD_REV_COMP_GLOBAL@DF_RSGLOBAL,2.1",
         d / "oecd_cit_revenue_gdp.csv",
-        "Comparative tax revenue statistics (incl. CIT as % of GDP)",
+        "Comparative tax revenue statistics"
     )
-    log.info("")
 
-# Pillar Two QDMTT / IIR / UTPR Implementation Status
+@register("pillar2_qdmtt", "Pillar Two QDMTT / IIR Status")
 def collect_pillar2_qdmtt():
-    """PwC Pillar Two tracker (IIR/UTPR/QDMTT status) + OECD central record."""
-    log.info("=" * 70)
-    log.info("12. Pillar Two QDMTT / IIR / UTPR Implementation Status")
-    log.info("=" * 70)
-
     d = RAW_DIR / "pillar2_qdmtt"
     d.mkdir(exist_ok=True)
 
     download_file(
         "https://www.pwc.com/content/pwc/script/gx/en/pillar-two/registration-tracker.csv",
         d / "pwc_pillar2_tracker.csv",
-        "PwC Pillar Two Country Tracker (IIR/UTPR/QDMTT status)",
+        "PwC Pillar Two Country Tracker"
     )
     download_file(
         "https://www.oecd.org/content/dam/oecd/en/topics/policy-sub-issues/global-minimum-tax/administrative-guidance-globe-rules-pillar-two-central-record-legislation-transitional-qualified-status.pdf",
         d / "oecd_pillar2_central_record.pdf",
-        "OECD Central Record of Qualified Pillar Two Legislation (PDF)",
+        "OECD Central Record of Qualified Pillar Two Legislation"
     )
-    log.info("")
 
-
-# ORCHESTRATION
-SOURCES = {
-    "oecd_cbcr":          ("OECD CbCR Tables I–VI",           collect_oecd_cbcr),
-    "oecd_cit_rates":     ("OECD Statutory CIT Rates",        collect_oecd_cit_rates),
-    "oecd_etr":           ("OECD Forward-Looking ETRs",       collect_oecd_etr),
-    "oecd_wages":         ("OECD Average Annual Wages",       collect_oecd_wages),
-    "world_bank":         ("World Bank Classifications",      collect_world_bank),
-    "eurostat_fats":      ("Eurostat Inward FATS",            collect_eurostat_fats),
-    "bea_mne":            ("BEA US MNE Data",                 collect_bea_mne),
-    "ilo_wages":          ("ILO Global Wage Data",            collect_ilo_wages),
-    "pillar2_tracker":    ("OECD BEPS / Pillar Two",          collect_pillar2_tracker),
-    "pillar2_qdmtt":      ("Pillar Two QDMTT / IIR Status",  collect_pillar2_qdmtt),
-    "oecd_cts_additional":("OECD Additional CTS",             collect_oecd_cts_additional),
-}
-
+def execute_collection(key: str, name: str, func) -> str:
+    log.info("\n" + "=" * 70)
+    log.info(f"Collecting: {name}")
+    log.info("=" * 70)
+    try:
+        func()
+        return "✓"
+    except Exception as e:
+        log.error(f"Error during collection of {name}: {e}")
+        return "✗"
 
 def collect_all():
-
     results = {}
-    for key, (name, func) in SOURCES.items():
-        try:
-            func()
-            results[key] = "✓"
-        except Exception as e:
-            log.error(f"Error in {name}: {e}")
-            results[key] = "✗"
+    for key, (name, func) in COLLECTORS.items():
+        results[key] = execute_collection(key, name, func)
 
-    # Summary
     log.info("\n" + "=" * 60)
     log.info("SUMMARY")
     log.info("=" * 60)
-    for key, (name, _) in SOURCES.items():
+    for key, (name, _) in COLLECTORS.items():
         log.info(f"  {results.get(key, '?'):2s} {name}")
 
-    total = 0
-    log.info("\nFiles:")
-    for root, _, files in os.walk(RAW_DIR):
-        for f in sorted(files):
-            p = Path(root) / f
-            mb = p.stat().st_size / 1e6
-            total += mb
-            log.info(f"  {mb:8.2f} MB  {p.relative_to(RAW_DIR)}")
-    log.info(f"\nTotal: {total:.1f} MB")
-
+    total_mb = sum(
+        p.stat().st_size / 1e6 
+        for p in RAW_DIR.rglob('*') 
+        if p.is_file()
+    )
+    log.info(f"\nTotal Data Collected: {total_mb:.1f} MB")
 
 def main():
     parser = argparse.ArgumentParser(description="GMT Thesis Data Collection")
-    parser.add_argument("--source", action="append", choices=list(SOURCES.keys()))
+    parser.add_argument("--source", action="append", choices=list(COLLECTORS.keys()))
     parser.add_argument("--list", action="store_true")
     args = parser.parse_args()
 
     if args.list:
-        for key, (name, _) in SOURCES.items():
+        for key, (name, _) in COLLECTORS.items():
             print(f"  {key:25s} {name}")
         return
 
     if args.source:
         for s in args.source:
-            name, func = SOURCES[s]
-            log.info(f"Downloading: {name}")
-            func()
+            name, func = COLLECTORS[s]
+            execute_collection(s, name, func)
     else:
         collect_all()
-
 
 if __name__ == "__main__":
     main()
