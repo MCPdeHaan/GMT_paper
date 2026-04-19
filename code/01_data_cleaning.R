@@ -23,6 +23,16 @@ EU27_ISO2 <- c("AT","BE","BG","CY","CZ","DE","DK","EE","EL","ES","FI","FR",
 
 clean_name <- function(x) x |> tolower() |> str_replace_all("[-[:space:]]", "_")
 
+# OECD CbCR "EARNINGS" refers to accumulated earnings / retained earnings,
+# not payroll costs. Rename it explicitly here to avoid a misleading carry-over
+# into the merged panel and the later SBIE construction.
+measure_name <- function(x) {
+  case_when(
+    x == "EARNINGS" ~ "accumulated_earnings",
+    TRUE            ~ clean_name(x)
+  )
+}
+
 read_oecd <- function(path) {
   read_csv(path, show_col_types = FALSE,
            col_types = cols(.default = col_guess(),
@@ -58,7 +68,7 @@ t1_raw <- read_oecd(file.path(RAW, "oecd_cbcr/cbcr_table1_aggregate_totals.csv")
 # and Panel A-II (all entities); activity & entity counts arrive panel-agnostic.
 t1_fin <- t1_raw |>
   filter(measure != "ETR") |>
-  mutate(varname = paste0(clean_name(measure), panel_suffix(panel))) |>
+  mutate(varname = paste0(measure_name(measure), panel_suffix(panel))) |>
   select(parent, affiliate, year, varname, value) |>
   pivot_wider(names_from = varname, values_from = value)
 
@@ -112,7 +122,7 @@ t2_raw <- read_oecd(file.path(RAW, "oecd_cbcr/cbcr_table2_interquartile_means.cs
          measure = MEASURE, panel = PROFIT_GROUPING, value = OBS_VALUE)
 
 cbcr_t2 <- t2_raw |>
-  mutate(varname = paste0(clean_name(measure), panel_suffix(panel))) |>
+  mutate(varname = paste0(measure_name(measure), panel_suffix(panel))) |>
   select(parent, affiliate, year, varname, value) |>
   pivot_wider(names_from = varname, values_from = value) |>
   arrange(parent, affiliate, year)
@@ -131,7 +141,7 @@ t3_raw <- read_oecd(file.path(RAW, "oecd_cbcr/cbcr_table3_etr_aggregates.csv")) 
          etr_bracket = EFFECTIVE_TAX_RATE, value = OBS_VALUE)
 
 cbcr_t3 <- t3_raw |>
-  mutate(varname     = paste0(clean_name(measure), panel_suffix(panel)),
+  mutate(varname     = paste0(measure_name(measure), panel_suffix(panel)),
          etr_bracket = clean_name(etr_bracket)) |>
   select(parent, affiliate, year, etr_bracket, varname, value) |>
   pivot_wider(names_from = varname, values_from = value) |>
@@ -152,7 +162,7 @@ t4_raw <- read_oecd(file.path(RAW, "oecd_cbcr/cbcr_table4_etr_aggregates_alt.csv
          etr_bracket = EFFECTIVE_TAX_RATE, value = OBS_VALUE)
 
 cbcr_t4 <- t4_raw |>
-  mutate(varname     = paste0(clean_name(measure), panel_suffix(panel)),
+  mutate(varname     = paste0(measure_name(measure), panel_suffix(panel)),
          etr_bracket = clean_name(etr_bracket)) |>
   select(parent, affiliate, year, etr_bracket, varname, value) |>
   pivot_wider(names_from = varname, values_from = value) |>
@@ -225,7 +235,7 @@ t5_raw <- read_oecd(file.path(RAW, "oecd_cbcr/cbcr_table5_mne_size_distribution.
          stat_op = STATISTICAL_OPERATION, value = OBS_VALUE)
 
 cbcr_t5 <- t5_raw |>
-  mutate(varname = paste0(clean_name(measure), "_", tolower(stat_op))) |>
+  mutate(varname = paste0(measure_name(measure), "_", tolower(stat_op))) |>
   select(parent, year, varname, value) |>
   pivot_wider(names_from = varname, values_from = value) |>
   arrange(parent, year)
@@ -244,7 +254,7 @@ t6_raw <- read_oecd(file.path(RAW, "oecd_cbcr/cbcr_table6_mne_size_aggregates.cs
          value = OBS_VALUE)
 
 cbcr_t6 <- t6_raw |>
-  mutate(varname    = paste0(clean_name(measure), panel_suffix(panel)),
+  mutate(varname    = paste0(measure_name(measure), panel_suffix(panel)),
          size_class = clean_name(size_class)) |>
   select(parent, affiliate, year, size_class, varname, value) |>
   pivot_wider(names_from = varname, values_from = value) |>
