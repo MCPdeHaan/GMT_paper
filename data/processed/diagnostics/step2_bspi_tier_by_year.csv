@@ -1,0 +1,16 @@
+year,bspi_tier,rows,eu27_rows
+2016,avg_only,1157,293
+2017,avg_only,325,0
+2017,shape_transport,1720,444
+2018,avg_only,375,0
+2018,shape_transport,2179,572
+2019,avg_only,2517,571
+2019,direct_t4,194,55
+2020,avg_only,2571,592
+2020,direct_t4,179,53
+2021,avg_only,1258,278
+2021,direct_t4,186,55
+2021,percentile_fit,1477,344
+2022,avg_only,1077,235
+2022,direct_t4,201,62
+2022,percentile_fit,1499,349
