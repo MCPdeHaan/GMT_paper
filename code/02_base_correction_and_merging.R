@@ -22,6 +22,21 @@ ESTIMATION_YEARS <- 2017:2022
 GMT_RATE         <- 0.15
 EMPLOYEES_PER_ENTITY_CAP <- 100000
 
+# Stage-1 loss-offset margin (thesis Section sec:distributional). ETRs in
+# [-ZETA, 0) are treated as noise and clamped to 0; ETRs below -ZETA are
+# flagged as loss-carryforward cells; ETRs above 1 are capped at
+# tau_stat + ZETA. The regression sample (Section sec:estimation_robustness)
+# drops rows outside [-ZETA, 1 + ZETA] before its 1st/99th winsorisation.
+ZETA_LOSS_OFFSET <- 0.05
+
+# Bracket-Share Panel Imputation (BSPI): Table IV anchor years used to build
+# the within-affiliate bracket-share shape backcast into 2017-2018. 2019-2020
+# is the nearest bilateral window to the pre-period; 2021-2022 is reserved
+# for shape-stability validation.
+BSPI_ANCHOR_YEARS     <- 2019:2020
+BSPI_VALIDATION_YEARS <- 2021:2022
+BSPI_IMPUTE_YEARS     <- 2017:2018
+
 AGGREGATE_AFFILIATES <- c("A", "A_O", "E", "E_O", "F", "F_O",
                           "S", "S_O", "W", "W_O", "WXD", "STLS")
 EU27_ISO3 <- c("AUT","BEL","BGR","CYP","CZE","DEU","DNK","ESP","EST","FIN","FRA",
@@ -184,6 +199,61 @@ t4_low <- t4 |>
   filter(etr_bracket == "rate_0_15") |>
   select(-etr_bracket) |>
   rename_with(~ paste0("t4_low_", .x), -c(parent, affiliate, year))
+
+# Full Table IV bracket profile kept as a side panel for the Bracket-Share
+# Panel Imputation (Section sec:distributional / sec:crossval). Parents are
+# pooled within affiliate-year to produce a single within-jurisdiction
+# bracket-share vector per cell. Shares are computed only across the
+# positive-profit brackets (the non-overlapping partition {rate_0_15,
+# rate_15, rate_20_30, rate_30} for 2019-2022 bilateral data, and the
+# finer 2016-2018 WXD partition {rate_0_10, rate_10, rate_10_20, rate_20,
+# rate_20_30, rate_30} for the legacy vintages). The negative-profit
+# brackets are retained as companion volumes for diagnostics but do not
+# enter the share denominator, which keeps bracket_profit_share bounded in
+# [0, 1] even when an affiliate-year reports substantial loss mass.
+T4_POSITIVE_BRACKETS <- c("rate_0_15", "rate_15", "rate_20_30", "rate_30",
+                          "rate_0_10", "rate_10", "rate_10_20", "rate_20",
+                          "rate_10_accrued")
+
+t4_brackets_long <- t4 |>
+  filter(!affiliate %in% AGGREGATE_AFFILIATES,
+         year %in% CORE_YEARS) |>
+  group_by(affiliate, year, etr_bracket) |>
+  summarise(
+    profit          = sum_or_na(profit),
+    tax_accrued     = sum_or_na(tax_accrued),
+    assets          = sum_or_na(assets),
+    employees       = sum_or_na(employees),
+    entities_count  = sum_or_na(entities_count),
+    subgroups_count = sum_or_na(subgroups_count),
+    cbcr_count      = sum_or_na(cbcr_count),
+    .groups = "drop"
+  )
+
+t4_positive_totals <- t4_brackets_long |>
+  filter(etr_bracket %in% T4_POSITIVE_BRACKETS) |>
+  group_by(affiliate, year) |>
+  summarise(positive_profit_total = sum(pmax(profit, 0), na.rm = TRUE),
+            .groups = "drop")
+
+t4_brackets_by_affiliate_year <- t4_brackets_long |>
+  left_join(t4_positive_totals, by = c("affiliate", "year")) |>
+  mutate(
+    is_positive_bracket = etr_bracket %in% T4_POSITIVE_BRACKETS,
+    bracket_profit_share = if_else(
+      is_positive_bracket & !is.na(positive_profit_total) &
+        positive_profit_total > 0,
+      pmax(profit, 0) / positive_profit_total,
+      NA_real_
+    )
+  ) |>
+  arrange(affiliate, year, etr_bracket)
+
+assert_unique_keys(
+  t4_brackets_by_affiliate_year,
+  c("affiliate", "year", "etr_bracket"),
+  "Table IV bracket shares"
+)
 
 t5_wide <- t5 |>
   rename_with(~ paste0("t5_", .x), -c(parent, year))
@@ -561,6 +631,11 @@ panel <- panel |>
       employees_sbie * affiliate_wage_annual,
       NA_real_
     ),
+    payroll_sbie_raw_uncapped = if_else(
+      !is.na(employees_sbie_raw) & employees_sbie_raw >= 0 & !is.na(affiliate_wage_annual),
+      employees_sbie_raw * affiliate_wage_annual,
+      NA_real_
+    ),
     payroll_sbie_source = case_when(
       !is.na(payroll_sbie) & employees_sbie_correction_flag ~
         paste0("proxy_", employees_sbie_source, "_", affiliate_wage_source, "_screened_emp"),
@@ -569,11 +644,55 @@ panel <- panel |>
       is.na(employees_sbie) & !is.na(affiliate_wage_annual) ~ "missing_employee_base",
       TRUE ~ "missing_employee_and_wage"
     ),
+    affiliate_wage_stale_flag = !is.na(affiliate_wage_year_gap) &
+      affiliate_wage_year_gap > 5,
+    affiliate_wage_very_stale_flag = !is.na(affiliate_wage_year_gap) &
+      affiliate_wage_year_gap > 10,
     etr_panelai_raw = if_else(
       !is.na(profit_panelai) & profit_panelai > 0,
       tax_accrued_panelai / profit_panelai,
       NA_real_
     ),
+    # Stage 1 bounded ETR: clip to [0, affiliate_cit_rate + ZETA] for use as
+    # a location shift anchor in the BSPI (Section sec:distributional).
+    # Negative ETRs with magnitude below ZETA are treated as rounding noise
+    # and collapsed to 0; ETRs below -ZETA are flagged as loss-carryforward
+    # cells and propagate NA to the Stage-1 shift so that the bracket
+    # imputation falls through to the shape-only branch.
+    etr_panelai_stage1 = case_when(
+      is.na(etr_panelai_raw)                              ~ NA_real_,
+      etr_panelai_raw < -ZETA_LOSS_OFFSET                 ~ NA_real_,
+      etr_panelai_raw < 0                                 ~ 0,
+      !is.na(affiliate_cit_top_all) &
+        etr_panelai_raw > affiliate_cit_top_all + ZETA_LOSS_OFFSET ~
+        affiliate_cit_top_all + ZETA_LOSS_OFFSET,
+      !is.na(affiliate_cit_standard) &
+        etr_panelai_raw > affiliate_cit_standard + ZETA_LOSS_OFFSET ~
+        affiliate_cit_standard + ZETA_LOSS_OFFSET,
+      etr_panelai_raw > 1                                 ~ 1,
+      TRUE                                                ~ etr_panelai_raw
+    ),
+    etr_panelai_stage1_adjustment = case_when(
+      is.na(etr_panelai_raw)                              ~ "missing",
+      etr_panelai_raw < -ZETA_LOSS_OFFSET                 ~ "dropped_loss_carryforward",
+      etr_panelai_raw < 0                                 ~ "negative_noise_to_zero",
+      !is.na(affiliate_cit_top_all) &
+        etr_panelai_raw > affiliate_cit_top_all + ZETA_LOSS_OFFSET ~
+        "above_cit_capped_top_all",
+      !is.na(affiliate_cit_standard) &
+        etr_panelai_raw > affiliate_cit_standard + ZETA_LOSS_OFFSET ~
+        "above_cit_capped_standard",
+      etr_panelai_raw > 1                                 ~ "above_one_capped",
+      TRUE                                                ~ "unchanged"
+    ),
+    # Regression-input ETR (Section sec:estimation_robustness). Harder
+    # bounds to keep the log-regression well-behaved: drop anything outside
+    # [-ZETA, 1 + ZETA] before the cluster-bootstrap winsorisation at the
+    # 1st and 99th percentiles is applied inside the estimation script.
+    etr_panelai_reg_eligible = !is.na(etr_panelai_raw) &
+      etr_panelai_raw >= -ZETA_LOSS_OFFSET &
+      etr_panelai_raw <= 1 + ZETA_LOSS_OFFSET,
+    etr_panelai_reg = if_else(etr_panelai_reg_eligible, etr_panelai_raw, NA_real_),
     domestic_correction_rate_baseline = case_when(
       parent == "USA" ~ 0.54,
       parent == "NLD" ~ 0.16,
@@ -629,22 +748,72 @@ panel <- panel |>
     has_any_percentile_set = has_panelai_percentiles | has_t_fallback_percentiles,
     has_t4_low_bracket = !is.na(t4_low_profit),
     t4_low_profit_share_panelai = safe_divide(t4_low_profit, profit_panelai),
-    t3_low_profit_share_panelai = safe_divide(t3_low_profit, profit_panelai),
+    # Table III groups entities by the parent-MNE ETR, not by the subsidiary
+    # ETR used in Table I. The below-15 numerator is therefore not a subset of
+    # bilateral Panel A-I profit, so this object is a loose ratio diagnostic,
+    # not a bounded share.
+    t3_low_profit_ratio_to_panelai = safe_divide(t3_low_profit, profit_panelai),
+    t3_low_ratio_above_one_flag = !is.na(t3_low_profit_ratio_to_panelai) &
+      t3_low_profit_ratio_to_panelai > 1,
     has_behavioral_estimation_inputs = is_main_estimation_year &
       !is.na(analysis_profit_base) & analysis_profit_base > 0 &
       !is.na(payroll_sbie) & payroll_sbie > 0 &
       !is.na(assets_sbie) & assets_sbie >= 0 &
-      !is.na(etr_panelai_raw),
+      !is.na(etr_panelai_reg) &
+      etr_panelai_reg_eligible,
     has_stage1_percentile_inputs = has_behavioral_estimation_inputs &
       has_any_percentile_set,
     has_stage1_hybrid_inputs = has_behavioral_estimation_inputs &
       (has_any_percentile_set | has_t4_low_bracket),
     has_stage1_crossval_inputs = has_behavioral_estimation_inputs &
       has_any_percentile_set & has_t4_low_bracket,
-    has_estimation_inputs = has_behavioral_estimation_inputs
+    has_estimation_inputs = has_behavioral_estimation_inputs,
+    # BSPI information tier (Section sec:crossval). Each cell is assigned to
+    # the highest-information branch it qualifies for. Tiers are ranked from
+    # most to least informative:
+    #   1. direct_t4         -> bilateral Table IV bracket observed
+    #   2. percentile_fit    -> Table I percentiles usable for Hugger fit
+    #   3. shape_transport   -> pre-2019 cell, affiliate has a BSPI anchor
+    #   4. avg_only          -> fallback: jurisdiction-average binary rule
+    # The shape-transport eligibility is patched in after the merge once the
+    # per-affiliate anchor availability can be evaluated (see below).
+    bspi_tier_raw = case_when(
+      has_t4_low_bracket                       ~ "direct_t4",
+      has_any_percentile_set                   ~ "percentile_fit",
+      year %in% BSPI_IMPUTE_YEARS              ~ "shape_transport_candidate",
+      TRUE                                     ~ "avg_only"
+    )
   )
 
 assert_unique_keys(panel, c("parent", "affiliate", "year"), "final base panel")
+
+# BSPI anchor eligibility. An affiliate qualifies as a shape-transport
+# anchor jurisdiction if the Table IV bilateral bracket profile is observed
+# in at least one of the 2019-2020 anchor years. Pre-2019 affiliate-years
+# only upgrade to the shape_transport tier if this anchor exists. The
+# complementary 2021-2022 observation (if present) is held out for the
+# shape-stability validation test and does not in itself qualify an
+# affiliate as an anchor, because backcasting from 2021 to 2017 spans a
+# three-to-four year window over which the ATAD I entry into force and the
+# TCJA transitional provisions can shift the within-affiliate shape.
+bspi_anchor_affiliates <- t4_brackets_by_affiliate_year |>
+  filter(year %in% BSPI_ANCHOR_YEARS, !is.na(profit), profit > 0) |>
+  distinct(affiliate) |>
+  pull(affiliate)
+
+panel <- panel |>
+  mutate(
+    bspi_has_anchor = affiliate %in% bspi_anchor_affiliates,
+    bspi_tier = case_when(
+      bspi_tier_raw == "shape_transport_candidate" & bspi_has_anchor
+        ~ "shape_transport",
+      bspi_tier_raw == "shape_transport_candidate" & !bspi_has_anchor
+        ~ "avg_only",
+      TRUE
+        ~ bspi_tier_raw
+    )
+  ) |>
+  select(-bspi_tier_raw)
 
 # =============================================================================
 # 5. Sectoral FATS sidecar for later SBIE work
@@ -697,6 +866,8 @@ panel_summary <- tibble(
     "rows_with_employee_base",
     "rows_with_employee_plausibility_correction",
     "rows_with_payroll_proxy",
+    "rows_with_wage_gap_over_5_years",
+    "rows_with_wage_gap_over_10_years",
     "rows_with_affiliate_cit_rate",
     "rows_with_affiliate_cit_top_all",
     "rows_with_baseline_profit_correction",
@@ -705,7 +876,15 @@ panel_summary <- tibble(
     "rows_ready_for_behavioral_estimation",
     "rows_ready_for_stage1_percentiles",
     "rows_ready_for_stage1_hybrid",
-    "rows_ready_for_stage1_crossval"
+    "rows_ready_for_stage1_crossval",
+    "rows_bspi_direct_t4",
+    "rows_bspi_percentile_fit",
+    "rows_bspi_shape_transport",
+    "rows_bspi_avg_only",
+    "rows_t3_ratio_above_one",
+    "rows_etr_negative_noise_recoded",
+    "rows_etr_loss_carryforward_dropped",
+    "rows_etr_above_cit_capped"
   ),
   value = c(
     nrow(panel),
@@ -718,6 +897,8 @@ panel_summary <- tibble(
     sum(!is.na(panel$employees_sbie)),
     sum(panel$employees_sbie_correction_flag, na.rm = TRUE),
     sum(!is.na(panel$payroll_sbie)),
+    sum(panel$affiliate_wage_stale_flag, na.rm = TRUE),
+    sum(panel$affiliate_wage_very_stale_flag, na.rm = TRUE),
     sum(!is.na(panel$affiliate_cit_rate)),
     sum(!is.na(panel$affiliate_cit_top_all)),
     sum(panel$profit_correction_source_baseline != "uncorrected_foreign", na.rm = TRUE),
@@ -726,7 +907,19 @@ panel_summary <- tibble(
     sum(panel$has_behavioral_estimation_inputs, na.rm = TRUE),
     sum(panel$has_stage1_percentile_inputs, na.rm = TRUE),
     sum(panel$has_stage1_hybrid_inputs, na.rm = TRUE),
-    sum(panel$has_stage1_crossval_inputs, na.rm = TRUE)
+    sum(panel$has_stage1_crossval_inputs, na.rm = TRUE),
+    sum(panel$bspi_tier == "direct_t4", na.rm = TRUE),
+    sum(panel$bspi_tier == "percentile_fit", na.rm = TRUE),
+    sum(panel$bspi_tier == "shape_transport", na.rm = TRUE),
+    sum(panel$bspi_tier == "avg_only", na.rm = TRUE),
+    sum(panel$t3_low_ratio_above_one_flag, na.rm = TRUE),
+    sum(panel$etr_panelai_stage1_adjustment == "negative_noise_to_zero",
+        na.rm = TRUE),
+    sum(panel$etr_panelai_stage1_adjustment == "dropped_loss_carryforward",
+        na.rm = TRUE),
+    sum(panel$etr_panelai_stage1_adjustment %in%
+          c("above_cit_capped_top_all", "above_cit_capped_standard",
+            "above_one_capped"), na.rm = TRUE)
   )
 )
 
@@ -745,6 +938,19 @@ payroll_diag <- panel |>
     wage_from_oecd = sum(str_detect(affiliate_wage_source, "^oecd_"), na.rm = TRUE),
     wage_from_ilo = sum(str_detect(affiliate_wage_source, "^ilo_"), na.rm = TRUE),
     proxy_payroll_sum = sum(payroll_sbie, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+payroll_plausibility_diag <- panel |>
+  group_by(year) |>
+  summarise(
+    rows = n(),
+    rows_with_raw_payroll_proxy = sum(!is.na(payroll_sbie_raw_uncapped)),
+    rows_with_corrected_payroll_proxy = sum(!is.na(payroll_sbie)),
+    rows_with_payroll_screen = sum(employees_sbie_correction_flag, na.rm = TRUE),
+    raw_payroll_proxy_sum = sum(payroll_sbie_raw_uncapped, na.rm = TRUE),
+    corrected_payroll_proxy_sum = sum(payroll_sbie, na.rm = TRUE),
+    removed_payroll_proxy_sum = sum(payroll_sbie_raw_uncapped - payroll_sbie, na.rm = TRUE),
     .groups = "drop"
   )
 
@@ -774,6 +980,26 @@ employee_plausibility_diag <- panel |>
     removed_employees_sum = sum(employees_sbie_raw - employees_sbie, na.rm = TRUE),
     .groups = "drop"
   )
+
+wage_match_quality_diag <- panel |>
+  mutate(
+    wage_gap_band = case_when(
+      is.na(affiliate_wage_year_gap) ~ "missing_wage",
+      affiliate_wage_year_gap <= 1   ~ "gap_0_1",
+      affiliate_wage_year_gap <= 3   ~ "gap_2_3",
+      affiliate_wage_year_gap <= 5   ~ "gap_4_5",
+      affiliate_wage_year_gap <= 10  ~ "gap_6_10",
+      TRUE                           ~ "gap_11_plus"
+    )
+  ) |>
+  group_by(year, wage_gap_band) |>
+  summarise(
+    rows = n(),
+    behavioral_rows = sum(has_behavioral_estimation_inputs, na.rm = TRUE),
+    stage1_hybrid_rows = sum(has_stage1_hybrid_inputs, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  arrange(year, wage_gap_band)
 
 profit_correction_diag <- panel |>
   group_by(year, profit_correction_source_baseline) |>
@@ -852,10 +1078,77 @@ fats_diag <- fats_sector_shares |>
     .groups = "drop"
   )
 
+# Stage 1 tail-bounding diagnostic (Section sec:distributional).
+etr_bounding_diag <- panel |>
+  group_by(year, etr_panelai_stage1_adjustment) |>
+  summarise(n = n(), .groups = "drop") |>
+  tidyr::pivot_wider(names_from = etr_panelai_stage1_adjustment,
+                     values_from = n, values_fill = 0) |>
+  arrange(year)
+
+# BSPI tier coverage (Section sec:crossval). Verifies that the
+# shape-transport branch activates for exactly 2017-2018 EU affiliate-years
+# with a 2019-2020 Table IV anchor present.
+bspi_tier_diag <- panel |>
+  group_by(year, bspi_tier) |>
+  summarise(
+    rows = n(),
+    eu27_rows = sum(affiliate_is_eu27, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  arrange(year, bspi_tier)
+
+# Shape-stability validation for the BSPI. The backcast from 2019-2020
+# bracket shares into 2017-2018 is only credible if the within-affiliate
+# bracket profile is short-run stable. For each affiliate observed in both
+# the anchor window (2019-2020) and the validation window (2021-2022), we
+# compute the total variation distance between the two average profiles.
+# Reported per affiliate; a small TV distance is the empirical warrant for
+# using the 2019-2020 shape to impute 2017-2018.
+shape_stability_diag <- t4_brackets_by_affiliate_year |>
+  mutate(window = case_when(
+    year %in% BSPI_ANCHOR_YEARS     ~ "anchor",
+    year %in% BSPI_VALIDATION_YEARS ~ "validation",
+    TRUE                            ~ NA_character_
+  )) |>
+  filter(!is.na(window), !is.na(bracket_profit_share))
+
+shape_stability_support <- shape_stability_diag |>
+  distinct(affiliate, window, year) |>
+  count(affiliate, window, name = "n_years_observed") |>
+  tidyr::pivot_wider(
+    names_from = window,
+    values_from = n_years_observed,
+    values_fill = 0
+  ) |>
+  rename(
+    anchor_years_observed = anchor,
+    validation_years_observed = validation
+  )
+
+shape_stability_diag <- shape_stability_diag |>
+  group_by(affiliate, window, etr_bracket) |>
+  summarise(profit_share = mean(bracket_profit_share, na.rm = TRUE),
+            .groups = "drop") |>
+  tidyr::pivot_wider(names_from = window, values_from = profit_share,
+                     values_fill = 0) |>
+  group_by(affiliate) |>
+  summarise(
+    tv_anchor_vs_validation = 0.5 * sum(abs(anchor - validation), na.rm = TRUE),
+    n_brackets_observed = sum(anchor > 0 | validation > 0, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  left_join(shape_stability_support, by = "affiliate") |>
+  filter(anchor_years_observed > 0, validation_years_observed > 0) |>
+  arrange(desc(tv_anchor_vs_validation))
+
 write_csv(panel_summary, file.path(DIAG, "step2_panel_summary.csv"))
 write_csv(payroll_diag, file.path(DIAG, "step2_payroll_imputation_by_year.csv"))
-write_csv(accumulated_earnings_diag, file.path(DIAG, "step2_payroll_plausibility_by_year.csv"))
+write_csv(payroll_plausibility_diag, file.path(DIAG, "step2_payroll_plausibility_by_year.csv"))
+write_csv(accumulated_earnings_diag,
+          file.path(DIAG, "step2_accumulated_earnings_by_year.csv"))
 write_csv(employee_plausibility_diag, file.path(DIAG, "step2_employee_plausibility_by_year.csv"))
+write_csv(wage_match_quality_diag, file.path(DIAG, "step2_wage_match_quality_by_year.csv"))
 write_csv(profit_correction_diag, file.path(DIAG, "step2_profit_correction_by_year.csv"))
 write_csv(missingness_diag, file.path(DIAG, "step2_missingness_by_year.csv"))
 write_csv(stage_readiness_diag, file.path(DIAG, "step2_stage_readiness_by_year.csv"))
@@ -864,11 +1157,17 @@ write_csv(
   file.path(DIAG, "step2_stage1_affiliate_year_coverage.csv")
 )
 write_csv(fats_diag, file.path(DIAG, "step2_fats_sector_coverage.csv"))
+write_csv(etr_bounding_diag, file.path(DIAG, "step2_etr_tail_bounding_by_year.csv"))
+write_csv(bspi_tier_diag, file.path(DIAG, "step2_bspi_tier_by_year.csv"))
+write_csv(shape_stability_diag, file.path(DIAG, "step2_bspi_shape_stability.csv"))
 
 saveRDS(panel, file.path(OUT, "base_panel.rds"))
 saveRDS(fats_sector_shares, file.path(OUT, "base_panel_fats_sector_shares.rds"))
+saveRDS(t4_brackets_by_affiliate_year,
+        file.path(OUT, "base_panel_t4_bracket_shares.rds"))
 
 message("\nStep 2 outputs written:")
 message(" - data/processed/base_panel.rds")
 message(" - data/processed/base_panel_fats_sector_shares.rds")
+message(" - data/processed/base_panel_t4_bracket_shares.rds")
 message(" - diagnostics/step2_*.csv")

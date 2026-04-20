@@ -17,7 +17,7 @@ required_cols <- c(
   "has_behavioral_estimation_inputs", "has_stage1_hybrid_inputs",
   "has_stage1_crossval_inputs", "analysis_profit_base",
   "tax_accrued_panelai", "payroll_sbie", "assets_sbie", "employees_sbie",
-  "employees_sbie_correction_flag",
+  "employees_sbie_correction_flag", "affiliate_wage_stale_flag",
   "etr_panelai_raw", "etr_negative_flag", "etr_above_one_flag",
   "affiliate_cit_rate", "affiliate_gdp_pc_usd", "affiliate_population",
   "holding_share_panelai", "payroll_sbie_source"
@@ -94,6 +94,7 @@ flags <- tibble(
     "Domestic Hugger correction",
     "Conduit or haven overlay",
     "Employee counts capped by plausibility rule",
+    "Wage benchmark more than 5 years away",
     "Wage-based payroll proxy available",
     "Missing wage-based payroll proxy",
     "Direct Table IV \\code{RATE\\_0-15} observation",
@@ -113,6 +114,7 @@ flags <- tibble(
     sum(x$profit_correction_source_baseline == "domestic_upe_hugger", na.rm = TRUE),
     sum(x$profit_correction_source_baseline == "conduit_overlay_10pct", na.rm = TRUE),
     sum(x$employees_sbie_correction_flag, na.rm = TRUE),
+    sum(x$affiliate_wage_stale_flag, na.rm = TRUE),
     sum(!is.na(x$payroll_sbie)),
     sum(is.na(x$payroll_sbie)),
     sum(x$has_t4_low_bracket, na.rm = TRUE),
@@ -240,7 +242,7 @@ flag_lines <- c(
   "",
   "\\vspace{0.5em}",
   "\\begin{minipage}{0.93\\textwidth}",
-  "\\footnotesize \\textit{Notes:} Shares are calculated relative to the full merged panel. ``Domestic Hugger correction'' identifies cells where the baseline profit correction applies the domestic UPE adjustment rather than observed \\code{PROFIT\\_ADJ}. ``Conduit or haven overlay'' identifies non-US foreign cells that receive the 10 per cent conduit overlay in the baseline correction. The employee-cap row identifies cells where reported CbCR employee counts exceeded a conservative plausibility cap based on the number of constituent entities and the host-jurisdiction population. The payroll rows refer to the wage-based proxy used in Step 2, not to observed CbCR \\code{EARNINGS}. The Stage 1 rows count pair-year cells in the bilateral base panel; the affiliate-year coverage used in the actual Stage 1 aggregation is reported separately in the Step 2 diagnostics. Source: author's calculations based on \\texttt{data/processed/base\\_panel.rds}.",
+  "\\footnotesize \\textit{Notes:} Shares are calculated relative to the full merged panel. ``Domestic Hugger correction'' identifies cells where the baseline profit correction applies the domestic UPE adjustment rather than observed \\code{PROFIT\\_ADJ}. ``Conduit or haven overlay'' identifies non-US foreign cells that receive the 10 per cent conduit overlay in the baseline correction. The employee-cap row identifies cells where reported CbCR employee counts exceeded a conservative plausibility cap based on the number of constituent entities and the host-jurisdiction population. ``Wage benchmark more than 5 years away'' flags cells where the nearest available jurisdiction wage observation is temporally distant and should therefore be treated as a sensitivity issue rather than as a cleaning failure. The payroll rows refer to the wage-based proxy used in Step 2, not to observed CbCR \\code{EARNINGS}. The Stage 1 rows count pair-year cells in the bilateral base panel; the affiliate-year coverage used in the actual Stage 1 aggregation is reported separately in the Step 2 diagnostics. Source: author's calculations based on \\texttt{data/processed/base\\_panel.rds}.",
   "\\end{minipage}",
   "\\end{table}"
 )

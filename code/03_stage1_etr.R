@@ -1,0 +1,1112 @@
+# 03_stage1_etr.R
+# Step 3 of the methodology pipeline.
+#
+# Implements Stage 1 of the GMT revenue pipeline on top of the merged bilateral
+# base panel from code/02_base_correction_and_merging.R. The script builds an
+# affiliate-year ETR measurement object, then maps the resulting low-tax share
+# and average top-up rate back to the bilateral corrected profit base.
+library(dplyr); library(tidyr); library(readr); library(purrr); library(tibble)
+
+IN   <- "data/processed"
+OUT  <- IN
+DIAG <- file.path(OUT, "diagnostics")
+dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
+
+MAIN_YEARS            <- 2017:2022
+DIRECT_YEARS          <- 2019:2022
+PERCENTILE_YEARS      <- 2021:2022
+BSPI_ANCHOR_YEARS     <- 2019:2020
+BSPI_VALIDATION_YEARS <- 2021:2022
+BSPI_IMPUTE_YEARS     <- 2017:2018
+BSPI_TV_FLAG          <- 0.39
+GMT_RATE              <- 0.15
+ZETA_LOSS_OFFSET      <- 0.05
+
+EU27_ISO3 <- c("AUT", "BEL", "BGR", "CYP", "CZE", "DEU", "DNK", "ESP", "EST",
+               "FIN", "FRA", "GRC", "HRV", "HUN", "IRL", "ITA", "LTU", "LUX",
+               "LVA", "MLT", "NLD", "POL", "PRT", "ROU", "SVK", "SVN", "SWE")
+T4_POSITIVE_BRACKETS <- c("rate_0_15", "rate_15", "rate_20_30", "rate_30")
+
+assert_unique_keys <- function(df, keys, label) {
+  n_dup <- df |>
+    count(across(all_of(keys))) |>
+    filter(n > 1) |>
+    nrow()
+
+  if (n_dup > 0) stop(sprintf("%s: %d duplicate key combinations", label, n_dup))
+}
+
+safe_divide <- function(num, den) {
+  if_else(is.na(num) | is.na(den) | den == 0, NA_real_, num / den)
+}
+
+weighted_mean_available <- function(x, w) {
+  keep <- !is.na(x) & !is.na(w) & w > 0
+  if (!any(keep)) return(NA_real_)
+  stats::weighted.mean(x[keep], w[keep])
+}
+
+first_non_missing <- function(x) {
+  idx <- which(!is.na(x))[1]
+  if (is.na(idx)) return(NA_real_)
+  x[idx]
+}
+
+condition_stage1_percentiles <- function(q) {
+  q |>
+    pmax(0) |>
+    pmin(1) |>
+    cummax()
+}
+
+mixture_mean_from_quantiles <- function(q) {
+  0.05 * q[1] / 2 +
+    0.20 * (q[1] + q[2]) / 2 +
+    0.25 * (q[2] + q[3]) / 2 +
+    0.25 * (q[3] + q[4]) / 2 +
+    0.20 * (q[4] + q[5]) / 2 +
+    0.05 * q[5]
+}
+
+apply_percentile_shift <- function(q, delta) {
+  pmin(pmax(q + delta, 0), 1)
+}
+
+solve_percentile_shift <- function(q, target_mean) {
+  if (is.na(target_mean)) return(NA_real_)
+
+  target_mean <- pmin(pmax(target_mean, 0), 1)
+  objective <- function(delta) {
+    mixture_mean_from_quantiles(apply_percentile_shift(q, delta)) - target_mean
+  }
+
+  lower_val <- objective(-1)
+  upper_val <- objective(1)
+
+  if (lower_val > 0) return(-1)
+  if (upper_val < 0) return(1)
+
+  stats::uniroot(objective, interval = c(-1, 1), tol = 1e-10)$root
+}
+
+interval_mass_below <- function(a, b, mass, threshold) {
+  if (is.na(a) | is.na(b) | is.na(mass)) return(NA_real_)
+  if (b < a) stop("Percentile supports must be weakly increasing")
+
+  if (b == a) {
+    return(if (threshold >= b) mass else 0)
+  }
+
+  if (threshold <= a) return(0)
+  if (threshold >= b) return(mass)
+
+  mass * (threshold - a) / (b - a)
+}
+
+interval_first_moment_below <- function(a, b, mass, threshold) {
+  if (is.na(a) | is.na(b) | is.na(mass)) return(NA_real_)
+  if (b < a) stop("Percentile supports must be weakly increasing")
+
+  if (b == a) {
+    return(if (threshold >= b) mass * b else 0)
+  }
+
+  if (threshold <= a) return(0)
+  if (threshold >= b) return(mass * (a + b) / 2)
+
+  interval_mass_below(a, b, mass, threshold) * (a + threshold) / 2
+}
+
+mixture_mass_below <- function(q, threshold = GMT_RATE) {
+  breaks <- c(0, q)
+  masses <- c(0.05, 0.20, 0.25, 0.25, 0.20)
+
+  continuous_mass <- tibble(
+    a = breaks[-length(breaks)],
+    b = breaks[-1],
+    mass = masses
+  ) |>
+    pmap_dbl(~ interval_mass_below(..1, ..2, ..3, threshold)) |>
+    sum()
+
+  upper_point_mass <- if (threshold >= q[5]) 0.05 else 0
+  continuous_mass + upper_point_mass
+}
+
+mixture_first_moment_below <- function(q, threshold = GMT_RATE) {
+  breaks <- c(0, q)
+  masses <- c(0.05, 0.20, 0.25, 0.25, 0.20)
+
+  continuous_moment <- tibble(
+    a = breaks[-length(breaks)],
+    b = breaks[-1],
+    mass = masses
+  ) |>
+    pmap_dbl(~ interval_first_moment_below(..1, ..2, ..3, threshold)) |>
+    sum()
+
+  upper_point_moment <- if (threshold >= q[5]) 0.05 * q[5] else 0
+  continuous_moment + upper_point_moment
+}
+
+mixture_avg_topup_rate <- function(q, threshold = GMT_RATE) {
+  low_share <- mixture_mass_below(q, threshold)
+  if (is.na(low_share) || low_share <= 0) return(0)
+
+  low_mean_etr <- mixture_first_moment_below(q, threshold) / low_share
+  pmax(0, threshold - pmin(pmax(low_mean_etr, 0), threshold))
+}
+
+mixture_mass_between <- function(q, lower, upper) {
+  mixture_mass_below(q, upper) - mixture_mass_below(q, lower)
+}
+
+mixture_bracket_shares <- function(q) {
+  rate_0_15 <- mixture_mass_below(q, 0.15)
+  rate_15 <- mixture_mass_between(q, 0.15, 0.20)
+  rate_20_30 <- mixture_mass_between(q, 0.20, 0.30)
+  rate_30 <- 1 - rate_0_15 - rate_15 - rate_20_30
+
+  c(
+    rate_0_15  = rate_0_15,
+    rate_15    = rate_15,
+    rate_20_30 = rate_20_30,
+    rate_30    = rate_30
+  )
+}
+
+average_rule_metrics <- function(avg_etr, threshold = GMT_RATE) {
+  if (is.na(avg_etr)) {
+    return(c(low_share = NA_real_, topup_rate = NA_real_))
+  }
+
+  low_share <- as.numeric(avg_etr < threshold)
+  topup_rate <- if_else(low_share == 1, threshold - avg_etr, 0)
+  c(low_share = low_share, topup_rate = topup_rate)
+}
+
+direct_rule_metrics <- function(low_profit, low_tax, positive_profit_total,
+                                threshold = GMT_RATE) {
+  if (is.na(positive_profit_total) || positive_profit_total <= 0) {
+    return(c(low_share = NA_real_, low_mean_etr = NA_real_, topup_rate = NA_real_))
+  }
+
+  if (is.na(low_profit) || low_profit <= 0) {
+    return(c(low_share = 0, low_mean_etr = 0, topup_rate = 0))
+  }
+
+  low_mean_etr <- safe_divide(low_tax, low_profit)
+  low_mean_etr <- if_else(is.na(low_mean_etr), NA_real_,
+                          pmin(pmax(low_mean_etr, 0), threshold))
+  topup_rate <- if_else(is.na(low_mean_etr), NA_real_, threshold - low_mean_etr)
+
+  c(
+    low_share = safe_divide(low_profit, positive_profit_total),
+    low_mean_etr = low_mean_etr,
+    topup_rate = topup_rate
+  )
+}
+
+choose_distributional_source <- function(year, direct_available,
+                                         percentile_available, bspi_available,
+                                         average_available) {
+  case_when(
+    year %in% DIRECT_YEARS & direct_available ~ "direct_t4",
+    year %in% PERCENTILE_YEARS & percentile_available ~ "percentile_fit",
+    year %in% BSPI_IMPUTE_YEARS & bspi_available ~ "shape_transport",
+    average_available ~ "avg_only",
+    TRUE ~ "missing"
+  )
+}
+
+choose_percentile_affiliate_year_source <- function(affiliate_is_eu27,
+                                                    panelai_available,
+                                                    t_fallback_available) {
+  case_when(
+    affiliate_is_eu27 & panelai_available ~ "panelai",
+    affiliate_is_eu27                     ~ "missing",
+    panelai_available                     ~ "panelai",
+    t_fallback_available                  ~ "t_fallback",
+    TRUE                                  ~ "missing"
+  )
+}
+
+run_stage1_pipeline <- function() {
+  panel <- readRDS(file.path(IN, "base_panel.rds")) |>
+    filter(year %in% MAIN_YEARS)
+  t4_brackets <- readRDS(file.path(IN, "base_panel_t4_bracket_shares.rds"))
+
+  affiliate_year_base <- panel |>
+    group_by(affiliate, year) |>
+    summarise(
+      affiliate_name = first(affiliate_jurisdiction_name),
+      affiliate_is_eu27 = first(affiliate_is_eu27),
+      n_pair_years = n(),
+      total_analysis_profit_positive = sum(
+        pmax(coalesce(analysis_profit_base, 0), 0),
+        na.rm = TRUE
+      ),
+      total_analysis_profit_signed = sum(
+        coalesce(analysis_profit_base, 0),
+        na.rm = TRUE
+      ),
+      avg_profit_denominator = sum(
+        profit_panelai[!is.na(profit_panelai) & profit_panelai > 0],
+        na.rm = TRUE
+      ),
+      avg_tax_numerator = sum(
+        tax_accrued_panelai[!is.na(profit_panelai) & profit_panelai > 0],
+        na.rm = TRUE
+      ),
+      affiliate_cit_rate = first_non_missing(affiliate_cit_rate),
+      .groups = "drop"
+    ) |>
+    mutate(
+      avg_etr_raw = if_else(
+        avg_profit_denominator > 0,
+        avg_tax_numerator / avg_profit_denominator,
+        NA_real_
+      ),
+      affiliate_etr_cap_stage1 = case_when(
+        !is.na(affiliate_cit_rate) ~ pmin(1, affiliate_cit_rate + ZETA_LOSS_OFFSET),
+        TRUE                       ~ 1
+      ),
+      avg_etr_stage1 = case_when(
+        is.na(avg_etr_raw) ~ NA_real_,
+        TRUE               ~ pmin(pmax(avg_etr_raw, 0), affiliate_etr_cap_stage1)
+      )
+    )
+
+  average_metrics <- affiliate_year_base |>
+    rowwise() |>
+    mutate(
+      avg_metrics = list(average_rule_metrics(avg_etr_stage1))
+    ) |>
+    ungroup() |>
+    mutate(
+      average_low_share = map_dbl(avg_metrics, "low_share"),
+      average_topup_rate = map_dbl(avg_metrics, "topup_rate"),
+      average_liability_rate = average_low_share * average_topup_rate
+    ) |>
+    select(-avg_metrics)
+
+  percentile_rows <- panel |>
+    filter(year %in% PERCENTILE_YEARS, has_any_percentile_set)
+
+  percentile_panelai <- percentile_rows |>
+    filter(has_panelai_percentiles) |>
+    mutate(
+      percentile_source_selected = "panelai",
+      weight_primary = subgroups_count_panelai,
+      weight_used = coalesce(
+        weight_primary,
+        entities_count_panelai,
+        subgroups_count,
+        entities_count,
+        1
+      ),
+      percentile_weight_fallback_row = is.na(weight_primary),
+      p5_raw = etr_p5_panelai,
+      p25_raw = etr_p25_panelai,
+      p50_raw = etr_p50_panelai,
+      p75_raw = etr_p75_panelai,
+      p95_raw = etr_p95_panelai
+    ) |>
+    group_by(affiliate, year) |>
+    summarise(
+      n_pair_years_percentile = n(),
+      percentile_weight_fallback_used = any(percentile_weight_fallback_row),
+      percentile_weight_sum = sum(weight_used[!is.na(weight_used)], na.rm = TRUE),
+      q5_raw = weighted_mean_available(p5_raw, weight_used),
+      q25_raw = weighted_mean_available(p25_raw, weight_used),
+      q50_raw = weighted_mean_available(p50_raw, weight_used),
+      q75_raw = weighted_mean_available(p75_raw, weight_used),
+      q95_raw = weighted_mean_available(p95_raw, weight_used),
+      .groups = "drop"
+    ) |>
+    mutate(percentile_source_selected = "panelai")
+
+  percentile_t_fallback <- percentile_rows |>
+    filter(has_t_fallback_percentiles) |>
+    mutate(
+      percentile_source_selected = "t_fallback",
+      weight_primary = subgroups_count,
+      weight_used = coalesce(weight_primary, entities_count, 1),
+      percentile_weight_fallback_row = is.na(weight_primary),
+      p5_raw = etr_p5,
+      p25_raw = etr_p25,
+      p50_raw = etr_p50,
+      p75_raw = etr_p75,
+      p95_raw = etr_p95
+    ) |>
+    group_by(affiliate, year) |>
+    summarise(
+      n_pair_years_percentile = n(),
+      percentile_weight_fallback_used = any(percentile_weight_fallback_row),
+      percentile_weight_sum = sum(weight_used[!is.na(weight_used)], na.rm = TRUE),
+      q5_raw = weighted_mean_available(p5_raw, weight_used),
+      q25_raw = weighted_mean_available(p25_raw, weight_used),
+      q50_raw = weighted_mean_available(p50_raw, weight_used),
+      q75_raw = weighted_mean_available(p75_raw, weight_used),
+      q95_raw = weighted_mean_available(p95_raw, weight_used),
+      .groups = "drop"
+    ) |>
+    mutate(percentile_source_selected = "t_fallback")
+
+  percentile_candidates <- bind_rows(percentile_panelai, percentile_t_fallback)
+
+  assert_unique_keys(
+    percentile_candidates,
+    c("affiliate", "year", "percentile_source_selected"),
+    "stage1 percentile candidates"
+  )
+
+  percentile_source_availability <- percentile_candidates |>
+    group_by(affiliate, year) |>
+    summarise(
+      panelai_candidate_available =
+        any(percentile_source_selected == "panelai"),
+      t_fallback_candidate_available =
+        any(percentile_source_selected == "t_fallback"),
+      percentile_source_combo =
+        paste(sort(unique(percentile_source_selected)), collapse = "+"),
+      .groups = "drop"
+    )
+
+  percentile_affiliate_year <- affiliate_year_base |>
+    select(
+      affiliate, year, affiliate_is_eu27, avg_etr_stage1,
+      total_analysis_profit_positive
+    ) |>
+    left_join(percentile_source_availability, by = c("affiliate", "year")) |>
+    mutate(
+      panelai_candidate_available = coalesce(panelai_candidate_available, FALSE),
+      t_fallback_candidate_available =
+        coalesce(t_fallback_candidate_available, FALSE),
+      percentile_source_selected = choose_percentile_affiliate_year_source(
+        affiliate_is_eu27 = affiliate_is_eu27,
+        panelai_available = panelai_candidate_available,
+        t_fallback_available = t_fallback_candidate_available
+      ),
+      percentile_source_scope = case_when(
+        affiliate_is_eu27 ~ "eu27_panelai_only",
+        TRUE              ~ "non_eu_panelai_then_t"
+      )
+    ) |>
+    filter(percentile_source_selected != "missing") |>
+    left_join(
+      percentile_candidates,
+      by = c("affiliate", "year", "percentile_source_selected")
+    ) |>
+    rowwise() |>
+    mutate(
+      percentile_raw = list(c(q5_raw, q25_raw, q50_raw, q75_raw, q95_raw)),
+      percentile_raw_non_monotone = any(diff(unlist(percentile_raw)) < 0),
+      percentile_raw_out_of_support = any(unlist(percentile_raw) < 0 |
+                                            unlist(percentile_raw) > 1),
+      percentile_conditioned = list(
+        condition_stage1_percentiles(unlist(percentile_raw))
+      ),
+      percentile_conditioning_flag = any(abs(
+        unlist(percentile_conditioned) - unlist(percentile_raw)
+      ) > 1e-12),
+      percentile_conditioning_max_abs_change = max(abs(
+        unlist(percentile_conditioned) - unlist(percentile_raw)
+      )),
+      percentile_pre_shift_mean = mixture_mean_from_quantiles(
+        unlist(percentile_conditioned)
+      ),
+      percentile_shift = solve_percentile_shift(
+        unlist(percentile_conditioned),
+        avg_etr_stage1
+      ),
+      percentile_shifted = list(
+        if (is.na(percentile_shift)) {
+          unlist(percentile_conditioned)
+        } else {
+          apply_percentile_shift(unlist(percentile_conditioned), percentile_shift)
+        }
+      ),
+      percentile_shifted_mean = mixture_mean_from_quantiles(
+        unlist(percentile_shifted)
+      ),
+      percentile_shift_boundary_flag = !is.na(percentile_shift) &
+        abs(abs(percentile_shift) - 1) <= 1e-10,
+      percentile_shift_mean_gap = percentile_shifted_mean - avg_etr_stage1,
+      percentile_low_share = mixture_mass_below(unlist(percentile_shifted), GMT_RATE),
+      percentile_topup_rate = mixture_avg_topup_rate(unlist(percentile_shifted), GMT_RATE),
+      percentile_liability_rate = percentile_low_share * percentile_topup_rate,
+      percentile_bracket_shares = list(
+        mixture_bracket_shares(unlist(percentile_shifted))
+      )
+    ) |>
+    ungroup() |>
+    mutate(
+      percentile_q5 = map_dbl(percentile_shifted, 1),
+      percentile_q25 = map_dbl(percentile_shifted, 2),
+      percentile_q50 = map_dbl(percentile_shifted, 3),
+      percentile_q75 = map_dbl(percentile_shifted, 4),
+      percentile_q95 = map_dbl(percentile_shifted, 5),
+      percentile_iqr = percentile_q75 - percentile_q25,
+      percentile_rate_0_15 = map_dbl(percentile_bracket_shares, "rate_0_15"),
+      percentile_rate_15 = map_dbl(percentile_bracket_shares, "rate_15"),
+      percentile_rate_20_30 = map_dbl(percentile_bracket_shares, "rate_20_30"),
+      percentile_rate_30 = map_dbl(percentile_bracket_shares, "rate_30")
+    ) |>
+    select(
+      affiliate, year,
+      n_pair_years_percentile, percentile_source_scope,
+      percentile_source_selected, percentile_source_combo,
+      panelai_candidate_available, t_fallback_candidate_available,
+      percentile_weight_fallback_used, percentile_weight_sum,
+      q5_raw, q25_raw, q50_raw, q75_raw, q95_raw,
+      percentile_raw_non_monotone, percentile_raw_out_of_support,
+      percentile_conditioning_flag, percentile_conditioning_max_abs_change,
+      percentile_pre_shift_mean, percentile_shift, percentile_shift_boundary_flag,
+      percentile_shifted_mean, percentile_shift_mean_gap,
+      percentile_q5, percentile_q25, percentile_q50, percentile_q75, percentile_q95,
+      percentile_iqr, percentile_low_share, percentile_topup_rate,
+      percentile_liability_rate, percentile_rate_0_15, percentile_rate_15,
+      percentile_rate_20_30, percentile_rate_30
+    )
+
+  direct_affiliate_year <- t4_brackets |>
+    filter(year %in% DIRECT_YEARS, etr_bracket %in% T4_POSITIVE_BRACKETS) |>
+    group_by(affiliate, year) |>
+    summarise(
+      direct_has_partition = TRUE,
+      direct_positive_profit_total = sum(pmax(profit, 0), na.rm = TRUE),
+      direct_low_profit = sum(if_else(etr_bracket == "rate_0_15", pmax(profit, 0), 0),
+                              na.rm = TRUE),
+      direct_low_tax = sum(if_else(etr_bracket == "rate_0_15", tax_accrued, 0),
+                           na.rm = TRUE),
+      direct_rate_0_15 = sum(if_else(etr_bracket == "rate_0_15",
+                                     coalesce(bracket_profit_share, 0), 0),
+                             na.rm = TRUE),
+      direct_rate_15 = sum(if_else(etr_bracket == "rate_15",
+                                   coalesce(bracket_profit_share, 0), 0),
+                           na.rm = TRUE),
+      direct_rate_20_30 = sum(if_else(etr_bracket == "rate_20_30",
+                                      coalesce(bracket_profit_share, 0), 0),
+                              na.rm = TRUE),
+      direct_rate_30 = sum(if_else(etr_bracket == "rate_30",
+                                   coalesce(bracket_profit_share, 0), 0),
+                           na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    rowwise() |>
+    mutate(
+      direct_metrics = list(
+        direct_rule_metrics(
+          low_profit = direct_low_profit,
+          low_tax = direct_low_tax,
+          positive_profit_total = direct_positive_profit_total,
+          threshold = GMT_RATE
+        )
+      )
+    ) |>
+    ungroup() |>
+    mutate(
+      direct_low_share = map_dbl(direct_metrics, "low_share"),
+      direct_low_mean_etr = map_dbl(direct_metrics, "low_mean_etr"),
+      direct_topup_rate = map_dbl(direct_metrics, "topup_rate"),
+      direct_liability_rate = direct_low_share * direct_topup_rate,
+      direct_zero_low_share_flag = direct_has_partition & direct_low_share == 0
+    ) |>
+    select(-direct_metrics)
+
+  bspi_anchor <- direct_affiliate_year |>
+    filter(year %in% BSPI_ANCHOR_YEARS) |>
+    group_by(affiliate) |>
+    summarise(
+      bspi_has_anchor = TRUE,
+      bspi_anchor_years_observed = n(),
+      bspi_anchor_positive_profit = sum(direct_positive_profit_total, na.rm = TRUE),
+      bspi_anchor_low_profit = sum(direct_low_profit, na.rm = TRUE),
+      bspi_anchor_low_tax = sum(direct_low_tax, na.rm = TRUE),
+      bspi_low_share = safe_divide(
+        bspi_anchor_low_profit,
+        bspi_anchor_positive_profit
+      ),
+      bspi_low_mean_etr = if_else(
+        bspi_anchor_low_profit > 0,
+        bspi_anchor_low_tax / bspi_anchor_low_profit,
+        0
+      ),
+      bspi_topup_rate = if_else(
+        bspi_anchor_low_profit > 0,
+        pmax(0, GMT_RATE - pmin(pmax(bspi_low_mean_etr, 0), GMT_RATE)),
+        0
+      ),
+      .groups = "drop"
+    )
+
+  bspi_support <- direct_affiliate_year |>
+    mutate(window = case_when(
+      year %in% BSPI_ANCHOR_YEARS     ~ "anchor",
+      year %in% BSPI_VALIDATION_YEARS ~ "validation",
+      TRUE                            ~ NA_character_
+    )) |>
+    filter(!is.na(window)) |>
+    count(affiliate, window, name = "n_years_observed") |>
+    pivot_wider(
+      names_from = window,
+      values_from = n_years_observed,
+      values_fill = 0
+    ) |>
+    rename(
+      anchor_years_observed = anchor,
+      validation_years_observed = validation
+    )
+
+  bspi_profile <- t4_brackets |>
+    filter(year %in% c(BSPI_ANCHOR_YEARS, BSPI_VALIDATION_YEARS),
+           etr_bracket %in% T4_POSITIVE_BRACKETS) |>
+    mutate(
+      window = case_when(
+        year %in% BSPI_ANCHOR_YEARS     ~ "anchor",
+        year %in% BSPI_VALIDATION_YEARS ~ "validation",
+        TRUE                            ~ NA_character_
+      ),
+      bracket_profit = pmax(profit, 0)
+    ) |>
+    group_by(affiliate, window, etr_bracket) |>
+    summarise(bracket_profit = sum(bracket_profit, na.rm = TRUE), .groups = "drop") |>
+    group_by(affiliate, window) |>
+    mutate(window_total = sum(bracket_profit, na.rm = TRUE),
+           bracket_share = safe_divide(bracket_profit, window_total)) |>
+    ungroup() |>
+    group_by(affiliate, window) |>
+    complete(
+      etr_bracket = T4_POSITIVE_BRACKETS,
+      fill = list(bracket_profit = 0, window_total = 0, bracket_share = 0)
+    ) |>
+    ungroup() |>
+    select(affiliate, window, etr_bracket, bracket_share) |>
+    pivot_wider(
+      names_from = c(window, etr_bracket),
+      values_from = bracket_share,
+      values_fill = 0
+    ) |>
+    left_join(bspi_support, by = "affiliate") |>
+    mutate(
+      bspi_validation_supported =
+        anchor_years_observed > 0 & validation_years_observed > 0,
+      bspi_tv_anchor_validation = if_else(
+        bspi_validation_supported,
+        0.5 * (
+          abs(anchor_rate_0_15 - validation_rate_0_15) +
+            abs(anchor_rate_15 - validation_rate_15) +
+            abs(anchor_rate_20_30 - validation_rate_20_30) +
+            abs(anchor_rate_30 - validation_rate_30)
+        ),
+        NA_real_
+      ),
+      bspi_high_tv_flag = bspi_validation_supported &
+        bspi_tv_anchor_validation > BSPI_TV_FLAG
+    )
+
+  bspi_validation <- direct_affiliate_year |>
+    filter(year %in% BSPI_ANCHOR_YEARS) |>
+    group_by(affiliate) |>
+    summarise(
+      anchor_low_share = weighted_mean_available(
+        direct_low_share,
+        direct_positive_profit_total
+      ),
+      anchor_low_mean_etr = weighted_mean_available(
+        direct_low_mean_etr,
+        direct_low_profit
+      ),
+      anchor_topup_rate = weighted_mean_available(
+        direct_topup_rate,
+        direct_low_profit
+      ),
+      .groups = "drop"
+    ) |>
+    left_join(
+      direct_affiliate_year |>
+        filter(year %in% BSPI_VALIDATION_YEARS) |>
+        group_by(affiliate) |>
+        summarise(
+          validation_low_share = weighted_mean_available(
+            direct_low_share,
+            direct_positive_profit_total
+          ),
+          validation_low_mean_etr = weighted_mean_available(
+            direct_low_mean_etr,
+            direct_low_profit
+          ),
+          validation_topup_rate = weighted_mean_available(
+            direct_topup_rate,
+            direct_low_profit
+          ),
+          .groups = "drop"
+        ),
+      by = "affiliate"
+    ) |>
+    left_join(
+      bspi_profile |>
+        select(
+          affiliate, anchor_years_observed, validation_years_observed,
+          bspi_validation_supported, bspi_tv_anchor_validation, bspi_high_tv_flag
+        ),
+      by = "affiliate"
+    ) |>
+    mutate(
+      bspi_low_share_gap = validation_low_share - anchor_low_share,
+      bspi_topup_rate_gap = validation_topup_rate - anchor_topup_rate,
+      bspi_low_mean_etr_gap = validation_low_mean_etr - anchor_low_mean_etr
+    )
+
+  affiliate_year_stage1 <- affiliate_year_base |>
+    left_join(
+      average_metrics |>
+        select(
+          affiliate, year,
+          average_low_share, average_topup_rate, average_liability_rate
+        ),
+      by = c("affiliate", "year")
+    ) |>
+    left_join(percentile_affiliate_year, by = c("affiliate", "year")) |>
+    left_join(direct_affiliate_year, by = c("affiliate", "year")) |>
+    left_join(bspi_anchor, by = "affiliate") |>
+    left_join(bspi_validation, by = "affiliate") |>
+    mutate(
+      direct_available = coalesce(direct_has_partition, FALSE),
+      percentile_available = !is.na(percentile_low_share),
+      bspi_available = year %in% BSPI_IMPUTE_YEARS & coalesce(bspi_has_anchor, FALSE),
+      average_available = !is.na(average_low_share),
+      stage1_distributional_source = choose_distributional_source(
+        year = year,
+        direct_available = direct_available,
+        percentile_available = percentile_available,
+        bspi_available = bspi_available,
+        average_available = average_available
+      ),
+      stage1_distributional_low_share = case_when(
+        stage1_distributional_source == "direct_t4"       ~ direct_low_share,
+        stage1_distributional_source == "percentile_fit"  ~ percentile_low_share,
+        stage1_distributional_source == "shape_transport" ~ bspi_low_share,
+        stage1_distributional_source == "avg_only"        ~ average_low_share,
+        TRUE                                              ~ NA_real_
+      ),
+      stage1_distributional_topup_rate = case_when(
+        stage1_distributional_source == "direct_t4"       ~ direct_topup_rate,
+        stage1_distributional_source == "percentile_fit"  ~ percentile_topup_rate,
+        stage1_distributional_source == "shape_transport" ~ bspi_topup_rate,
+        stage1_distributional_source == "avg_only"        ~ average_topup_rate,
+        TRUE                                              ~ NA_real_
+      ),
+      stage1_distributional_liability_rate =
+        stage1_distributional_low_share * stage1_distributional_topup_rate,
+      stage1_distributional_source_strict = case_when(
+        stage1_distributional_source == "shape_transport" &
+          coalesce(bspi_validation_supported, FALSE) &
+          coalesce(bspi_high_tv_flag, FALSE) ~ "avg_only_high_tv",
+        TRUE                                 ~ stage1_distributional_source
+      ),
+      stage1_distributional_low_share_strict = case_when(
+        stage1_distributional_source_strict == "avg_only_high_tv" ~ average_low_share,
+        TRUE                                                      ~ stage1_distributional_low_share
+      ),
+      stage1_distributional_topup_rate_strict = case_when(
+        stage1_distributional_source_strict == "avg_only_high_tv" ~ average_topup_rate,
+        TRUE                                                      ~ stage1_distributional_topup_rate
+      ),
+      stage1_distributional_liability_rate_strict =
+        stage1_distributional_low_share_strict * stage1_distributional_topup_rate_strict,
+      stage1_positive_profit_flag = total_analysis_profit_positive > 0
+    )
+
+  crossval_affiliate_year <- affiliate_year_stage1 |>
+    filter(
+      year %in% BSPI_VALIDATION_YEARS,
+      stage1_positive_profit_flag,
+      percentile_available,
+      direct_available
+    ) |>
+    mutate(
+      low_share_diff = percentile_low_share - direct_low_share,
+      topup_rate_diff = percentile_topup_rate - direct_topup_rate,
+      liability_rate_diff = percentile_liability_rate - direct_liability_rate,
+      liability_rate_rel_diff = safe_divide(
+        liability_rate_diff,
+        direct_liability_rate
+      ),
+      tv_positive_partition = 0.5 * (
+        abs(percentile_rate_0_15 - direct_rate_0_15) +
+          abs(percentile_rate_15 - direct_rate_15) +
+          abs(percentile_rate_20_30 - direct_rate_20_30) +
+          abs(percentile_rate_30 - direct_rate_30)
+      )
+    )
+
+  bilateral_stage1 <- panel |>
+    left_join(
+      affiliate_year_stage1 |>
+        select(
+          affiliate, year,
+          stage1_positive_profit_flag,
+          average_low_share, average_topup_rate, average_liability_rate,
+          stage1_distributional_source, stage1_distributional_low_share,
+          stage1_distributional_topup_rate, stage1_distributional_liability_rate,
+          stage1_distributional_source_strict,
+          stage1_distributional_low_share_strict,
+          stage1_distributional_topup_rate_strict,
+          stage1_distributional_liability_rate_strict,
+          direct_zero_low_share_flag, bspi_high_tv_flag
+        ),
+      by = c("affiliate", "year")
+    ) |>
+    mutate(
+      analysis_profit_positive = pmax(coalesce(analysis_profit_base, 0), 0),
+      stage1_lowtax_profit_average = average_low_share * analysis_profit_positive,
+      stage1_topup_tax_average = stage1_lowtax_profit_average * average_topup_rate,
+      stage1_lowtax_profit_distributional =
+        stage1_distributional_low_share * analysis_profit_positive,
+      stage1_topup_tax_distributional =
+        stage1_lowtax_profit_distributional * stage1_distributional_topup_rate,
+      stage1_lowtax_profit_distributional_strict =
+        stage1_distributional_low_share_strict * analysis_profit_positive,
+      stage1_topup_tax_distributional_strict =
+        stage1_lowtax_profit_distributional_strict *
+        stage1_distributional_topup_rate_strict
+    )
+
+  assert_unique_keys(affiliate_year_stage1, c("affiliate", "year"), "stage1 affiliate-year")
+  assert_unique_keys(bilateral_stage1, c("parent", "affiliate", "year"), "stage1 bilateral")
+
+  percentile_sum_error <- affiliate_year_stage1 |>
+    filter(percentile_available) |>
+    transmute(
+      share_sum = percentile_rate_0_15 + percentile_rate_15 +
+        percentile_rate_20_30 + percentile_rate_30
+    )
+
+  direct_sum_error <- affiliate_year_stage1 |>
+    filter(direct_available) |>
+    transmute(
+      share_sum = direct_rate_0_15 + direct_rate_15 +
+        direct_rate_20_30 + direct_rate_30
+    )
+
+  if (max(abs(percentile_sum_error$share_sum - 1), na.rm = TRUE) > 1e-8) {
+    stop("Percentile-implied positive bracket shares do not sum to one")
+  }
+
+  if (max(abs(direct_sum_error$share_sum - 1), na.rm = TRUE) > 1e-8) {
+    stop("Direct Table IV positive bracket shares do not sum to one")
+  }
+
+  if (any(affiliate_year_stage1$stage1_distributional_low_share < 0, na.rm = TRUE) ||
+      any(affiliate_year_stage1$stage1_distributional_low_share > 1, na.rm = TRUE)) {
+    stop("Hybrid Stage 1 low-tax shares leave [0, 1]")
+  }
+
+  if (any(affiliate_year_stage1$stage1_distributional_topup_rate < 0, na.rm = TRUE) ||
+      any(affiliate_year_stage1$stage1_distributional_topup_rate > GMT_RATE, na.rm = TRUE)) {
+    stop("Hybrid Stage 1 top-up rates leave [0, GMT_RATE]")
+  }
+
+  if (any(bilateral_stage1$stage1_topup_tax_distributional < 0, na.rm = TRUE)) {
+    stop("Hybrid Stage 1 top-up tax turned negative")
+  }
+
+  stage1_summary <- tibble(
+    metric = c(
+      "affiliate_years_total",
+      "affiliate_years_positive_profit",
+      "pair_years_total",
+      "pair_years_positive_profit",
+      "direct_partition_affiliate_years",
+      "direct_zero_low_share_affiliate_years",
+      "percentile_affiliate_years",
+      "percentile_conditioned_affiliate_years",
+      "percentile_weight_fallback_affiliate_years",
+      "percentile_shift_boundary_affiliate_years",
+      "percentile_shift_mean_mismatch_affiliate_years",
+      "bspi_anchor_affiliates_distinct",
+      "bspi_validation_affiliates_distinct",
+      "bspi_high_tv_affiliates_distinct",
+      "hybrid_direct_affiliate_years",
+      "hybrid_percentile_affiliate_years",
+      "hybrid_shape_transport_affiliate_years",
+      "hybrid_avg_only_affiliate_years",
+      "hybrid_shape_transport_strict_fallback_affiliate_years",
+      "hybrid_shape_transport_strict_fallback_affiliates_distinct",
+      "crossval_affiliate_years",
+      "crossval_zero_low_share_cases",
+      "crossval_wilcox_low_share_pvalue",
+      "crossval_wilcox_liability_pvalue",
+      "crossval_rel_diff_regression_rows"
+    ),
+    value = c(
+      nrow(affiliate_year_stage1),
+      sum(affiliate_year_stage1$stage1_positive_profit_flag, na.rm = TRUE),
+      nrow(bilateral_stage1),
+      sum(bilateral_stage1$analysis_profit_positive > 0, na.rm = TRUE),
+      sum(affiliate_year_stage1$direct_available, na.rm = TRUE),
+      sum(affiliate_year_stage1$direct_zero_low_share_flag, na.rm = TRUE),
+      sum(affiliate_year_stage1$percentile_available, na.rm = TRUE),
+      sum(affiliate_year_stage1$percentile_conditioning_flag, na.rm = TRUE),
+      sum(affiliate_year_stage1$percentile_weight_fallback_used, na.rm = TRUE),
+      sum(affiliate_year_stage1$percentile_shift_boundary_flag, na.rm = TRUE),
+      sum(abs(affiliate_year_stage1$percentile_shift_mean_gap) > 1e-6, na.rm = TRUE),
+      n_distinct(affiliate_year_stage1$affiliate[
+        coalesce(affiliate_year_stage1$bspi_has_anchor, FALSE)
+      ]),
+      n_distinct(affiliate_year_stage1$affiliate[
+        coalesce(affiliate_year_stage1$bspi_validation_supported, FALSE)
+      ]),
+      n_distinct(affiliate_year_stage1$affiliate[
+        coalesce(affiliate_year_stage1$bspi_high_tv_flag, FALSE)
+      ]),
+      sum(affiliate_year_stage1$stage1_distributional_source == "direct_t4", na.rm = TRUE),
+      sum(affiliate_year_stage1$stage1_distributional_source == "percentile_fit", na.rm = TRUE),
+      sum(affiliate_year_stage1$stage1_distributional_source == "shape_transport", na.rm = TRUE),
+      sum(affiliate_year_stage1$stage1_distributional_source == "avg_only", na.rm = TRUE),
+      sum(affiliate_year_stage1$stage1_distributional_source_strict == "avg_only_high_tv",
+          na.rm = TRUE),
+      n_distinct(affiliate_year_stage1$affiliate[
+        affiliate_year_stage1$stage1_distributional_source_strict == "avg_only_high_tv"
+      ]),
+      nrow(crossval_affiliate_year),
+      sum(crossval_affiliate_year$direct_zero_low_share_flag, na.rm = TRUE),
+      stats::wilcox.test(crossval_affiliate_year$low_share_diff, mu = 0,
+                         exact = FALSE)$p.value,
+      stats::wilcox.test(crossval_affiliate_year$liability_rate_diff, mu = 0,
+                         exact = FALSE)$p.value,
+      sum(!is.na(crossval_affiliate_year$liability_rate_rel_diff))
+    )
+  )
+
+  stage1_branch_by_year <- affiliate_year_stage1 |>
+    filter(stage1_positive_profit_flag) |>
+    group_by(year, stage1_distributional_source) |>
+    summarise(
+      affiliate_years = n(),
+      total_positive_profit = sum(total_analysis_profit_positive, na.rm = TRUE),
+      profit_weighted_low_share = weighted_mean_available(
+        stage1_distributional_low_share,
+        total_analysis_profit_positive
+      ),
+      profit_weighted_topup_rate = weighted_mean_available(
+        stage1_distributional_topup_rate,
+        total_analysis_profit_positive
+      ),
+      profit_weighted_liability_rate = weighted_mean_available(
+        stage1_distributional_liability_rate,
+        total_analysis_profit_positive
+      ),
+      .groups = "drop"
+    ) |>
+    arrange(year, stage1_distributional_source)
+
+  stage1_pair_year_branch_by_year <- bilateral_stage1 |>
+    count(year, stage1_distributional_source, name = "pair_years") |>
+    arrange(year, stage1_distributional_source)
+
+  stage1_bspi_tv_summary <- bspi_profile |>
+    mutate(affiliate_is_eu27 = affiliate %in% EU27_ISO3) |>
+    filter(bspi_validation_supported) |>
+    group_by(scope = if_else(affiliate_is_eu27, "eu27", "non_eu")) |>
+    summarise(
+      affiliates = n(),
+      high_tv_flagged = sum(bspi_high_tv_flag, na.rm = TRUE),
+      tv_median = median(bspi_tv_anchor_validation, na.rm = TRUE),
+      tv_p75 = stats::quantile(bspi_tv_anchor_validation, 0.75, na.rm = TRUE),
+      tv_p90 = stats::quantile(bspi_tv_anchor_validation, 0.90, na.rm = TRUE),
+      tv_max = max(bspi_tv_anchor_validation, na.rm = TRUE),
+      .groups = "drop"
+    )
+
+  stage1_scenario_by_year <- bind_rows(
+    affiliate_year_stage1 |>
+      filter(stage1_positive_profit_flag) |>
+      mutate(scope = "global"),
+    affiliate_year_stage1 |>
+      filter(stage1_positive_profit_flag, affiliate_is_eu27) |>
+      mutate(scope = "eu27")
+  ) |>
+    group_by(scope, year) |>
+    summarise(
+      affiliate_years = n(),
+      total_positive_profit = sum(total_analysis_profit_positive, na.rm = TRUE),
+      average_low_share = weighted_mean_available(
+        average_low_share,
+        total_analysis_profit_positive
+      ),
+      average_topup_rate = weighted_mean_available(
+        average_topup_rate,
+        total_analysis_profit_positive
+      ),
+      average_liability_rate = weighted_mean_available(
+        average_liability_rate,
+        total_analysis_profit_positive
+      ),
+      distributional_low_share = weighted_mean_available(
+        stage1_distributional_low_share,
+        total_analysis_profit_positive
+      ),
+      distributional_topup_rate = weighted_mean_available(
+        stage1_distributional_topup_rate,
+        total_analysis_profit_positive
+      ),
+      distributional_liability_rate = weighted_mean_available(
+        stage1_distributional_liability_rate,
+        total_analysis_profit_positive
+      ),
+      .groups = "drop"
+    ) |>
+    arrange(scope, year)
+
+  stage1_conditioning_by_year <- affiliate_year_stage1 |>
+    filter(percentile_available) |>
+    group_by(year) |>
+    summarise(
+      affiliate_years = n(),
+      raw_non_monotone = sum(percentile_raw_non_monotone, na.rm = TRUE),
+      raw_out_of_support = sum(percentile_raw_out_of_support, na.rm = TRUE),
+      conditioned = sum(percentile_conditioning_flag, na.rm = TRUE),
+      weight_fallback_used = sum(percentile_weight_fallback_used, na.rm = TRUE),
+      shift_boundary_hits = sum(percentile_shift_boundary_flag, na.rm = TRUE),
+      mean_abs_conditioning_change = mean(
+        percentile_conditioning_max_abs_change,
+        na.rm = TRUE
+      ),
+      mean_abs_shift = mean(abs(percentile_shift), na.rm = TRUE),
+      max_abs_shift = max(abs(percentile_shift), na.rm = TRUE),
+      mean_abs_shift_mean_gap = mean(abs(percentile_shift_mean_gap), na.rm = TRUE),
+      max_abs_shift_mean_gap = max(abs(percentile_shift_mean_gap), na.rm = TRUE),
+      .groups = "drop"
+    )
+
+  crossval_regression_sample <- crossval_affiliate_year |>
+    filter(!is.na(percentile_iqr),
+           !is.na(liability_rate_rel_diff),
+           is.finite(liability_rate_rel_diff))
+
+  crossval_regression <- if (nrow(crossval_regression_sample) > 0) {
+    crossval_fit <- stats::lm(
+      liability_rate_rel_diff ~ percentile_iqr + factor(year),
+      data = crossval_regression_sample
+    )
+
+    crossval_fit_summary <- summary(crossval_fit)
+
+    as.data.frame(crossval_fit_summary$coefficients) |>
+      rownames_to_column("term") |>
+      as_tibble() |>
+      rename(
+        estimate = Estimate,
+        std_error = `Std. Error`,
+        statistic = `t value`,
+        p_value = `Pr(>|t|)`
+      ) |>
+      mutate(
+        n_obs = stats::nobs(crossval_fit),
+        r_squared = crossval_fit_summary$r.squared,
+        adj_r_squared = crossval_fit_summary$adj.r.squared
+      )
+  } else {
+    tibble(
+      term = NA_character_,
+      estimate = NA_real_,
+      std_error = NA_real_,
+      statistic = NA_real_,
+      p_value = NA_real_,
+      n_obs = NA_real_,
+      r_squared = NA_real_,
+      adj_r_squared = NA_real_
+    )
+  }
+
+  stage1_crossval_summary <- tibble(
+    metric = c(
+      "overlap_affiliate_years",
+      "overlap_zero_low_share_cases",
+      "low_share_mean_diff",
+      "low_share_median_diff",
+      "low_share_mae",
+      "low_share_rmse",
+      "topup_rate_mean_diff",
+      "topup_rate_median_diff",
+      "liability_rate_mean_diff",
+      "liability_rate_median_diff",
+      "liability_rate_mae",
+      "liability_rate_rmse",
+      "liability_rate_rel_diff_mean",
+      "liability_rate_rel_diff_median",
+      "positive_partition_tv_mean",
+      "positive_partition_tv_median",
+      "positive_partition_tv_p90",
+      "rel_diff_regression_rows",
+      "rel_diff_regression_iqr_beta",
+      "rel_diff_regression_iqr_pvalue",
+      "rel_diff_regression_r_squared"
+    ),
+    value = c(
+      nrow(crossval_affiliate_year),
+      sum(crossval_affiliate_year$direct_zero_low_share_flag, na.rm = TRUE),
+      mean(crossval_affiliate_year$low_share_diff, na.rm = TRUE),
+      median(crossval_affiliate_year$low_share_diff, na.rm = TRUE),
+      mean(abs(crossval_affiliate_year$low_share_diff), na.rm = TRUE),
+      sqrt(mean(crossval_affiliate_year$low_share_diff^2, na.rm = TRUE)),
+      mean(crossval_affiliate_year$topup_rate_diff, na.rm = TRUE),
+      median(crossval_affiliate_year$topup_rate_diff, na.rm = TRUE),
+      mean(crossval_affiliate_year$liability_rate_diff, na.rm = TRUE),
+      median(crossval_affiliate_year$liability_rate_diff, na.rm = TRUE),
+      mean(abs(crossval_affiliate_year$liability_rate_diff), na.rm = TRUE),
+      sqrt(mean(crossval_affiliate_year$liability_rate_diff^2, na.rm = TRUE)),
+      mean(crossval_affiliate_year$liability_rate_rel_diff, na.rm = TRUE),
+      median(crossval_affiliate_year$liability_rate_rel_diff, na.rm = TRUE),
+      mean(crossval_affiliate_year$tv_positive_partition, na.rm = TRUE),
+      median(crossval_affiliate_year$tv_positive_partition, na.rm = TRUE),
+      stats::quantile(crossval_affiliate_year$tv_positive_partition, 0.9, na.rm = TRUE),
+      nrow(crossval_regression_sample),
+      crossval_regression$estimate[crossval_regression$term == "percentile_iqr"][1],
+      crossval_regression$p_value[crossval_regression$term == "percentile_iqr"][1],
+      crossval_regression$r_squared[1]
+    )
+  )
+
+  write_csv(stage1_summary, file.path(DIAG, "step3_stage1_summary.csv"))
+  write_csv(stage1_branch_by_year, file.path(DIAG, "step3_stage1_branch_by_year.csv"))
+  write_csv(stage1_pair_year_branch_by_year,
+            file.path(DIAG, "step3_stage1_pair_year_branch_by_year.csv"))
+  write_csv(stage1_bspi_tv_summary,
+            file.path(DIAG, "step3_stage1_bspi_tv_summary.csv"))
+  write_csv(stage1_scenario_by_year, file.path(DIAG, "step3_stage1_scenario_by_year.csv"))
+  write_csv(stage1_conditioning_by_year,
+            file.path(DIAG, "step3_stage1_conditioning_by_year.csv"))
+  write_csv(stage1_crossval_summary,
+            file.path(DIAG, "step3_stage1_crossval_summary.csv"))
+  write_csv(crossval_regression,
+            file.path(DIAG, "step3_stage1_crossval_regression.csv"))
+  write_csv(crossval_affiliate_year,
+            file.path(DIAG, "step3_stage1_crossval_affiliate_year.csv"))
+  write_csv(bspi_validation,
+            file.path(DIAG, "step3_stage1_bspi_validation.csv"))
+
+  saveRDS(affiliate_year_stage1, file.path(OUT, "stage1_affiliate_year.rds"))
+  saveRDS(bilateral_stage1, file.path(OUT, "stage1_bilateral_panel.rds"))
+
+  message("\nStep 3 outputs written:")
+  message(" - data/processed/stage1_affiliate_year.rds")
+  message(" - data/processed/stage1_bilateral_panel.rds")
+  message(" - diagnostics/step3_stage1_*.csv")
+}
+
+is_direct_script_run <- function(script_path) {
+  file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
+  if (length(file_arg) == 0) return(FALSE)
+
+  invoked_path <- sub("^--file=", "", file_arg[1])
+  normalizePath(invoked_path, winslash = "/", mustWork = FALSE) ==
+    normalizePath(script_path, winslash = "/", mustWork = FALSE)
+}
+
+if (is_direct_script_run("code/03_stage1_etr.R")) {
+  run_stage1_pipeline()
+}

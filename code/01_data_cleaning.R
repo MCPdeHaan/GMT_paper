@@ -333,7 +333,29 @@ saveRDS(wages_oecd, file.path(OUT, "wages_oecd.rds"))
 add_diag("wages_oecd", "rows", nrow(wages_oecd))
 add_diag("wages_oecd", "jurisdictions", n_distinct(wages_oecd$jurisdiction))
 
-wages_oecd_hourly <- read_oecd(file.path(RAW, "oecd_wages/oecd_hourly_earnings.csv"))
+wages_oecd_hourly <- read_csv(
+  file.path(RAW, "oecd_wages/oecd_hourly_earnings.csv"),
+  show_col_types = FALSE,
+  col_types = cols(
+    .default = col_guess(),
+    TIME_PERIOD = col_character(),
+    OBS_VALUE   = col_double()
+  )
+) |>
+  transmute(
+    jurisdiction = REF_AREA,
+    time_period  = TIME_PERIOD,
+    year         = suppressWarnings(as.integer(str_sub(TIME_PERIOD, 1, 4))),
+    measure      = MEASURE,
+    unit_measure = UNIT_MEASURE,
+    adjustment   = ADJUSTMENT,
+    activity     = ACTIVITY,
+    sector       = SECTOR,
+    frequency    = FREQ,
+    base_year    = BASE_PER,
+    value        = OBS_VALUE
+  ) |>
+  arrange(jurisdiction, time_period)
 saveRDS(wages_oecd_hourly, file.path(OUT, "wages_oecd_hourly.rds"))
 add_diag("wages_oecd_hourly", "rows", nrow(wages_oecd_hourly))
 
