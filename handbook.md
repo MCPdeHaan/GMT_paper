@@ -165,30 +165,9 @@
 - When using another author's formula or notation with minor modification, note explicitly what you changed and why. E.g.: "Following \citet{hugger2026}, but replacing their absolute SBIE with the ratio $\rho$..."
 - Check original sources for claims about new concepts (e.g., SBIE-to-profit ratio: is this from Devereux, Schjelderup, or is the analytical use of the ratio original to you?). Verify before submitting.
 
-## Reader accessibility for a broad academic audience
-
-The thesis must speak to readers beyond specialists in international taxation or applied econometrics. An economist working on pensions, a public-finance PhD, or a policy reader at a ministry should be able to follow the argument, the findings, and the method without being forced to reconstruct jargon or parse notation before getting to the point. Technical depth stays. Presentation opens up.
-
-Apply the following rules across the thesis.
-
-- Each section and each subsection begins with one plain-language sentence stating what the section does and why the reader should care. No formula, no abbreviation, no citation in that opening sentence. The reader should know from it alone whether to continue, skim, or skip.
-- Every equation that carries argumentative weight is preceded by one short sentence of intuition in everyday terms, using words such as "in plain terms", "the idea is", or "read this as". The sentence translates the formula into something a non-specialist grasps in one read. Secondary or book-keeping equations do not need this treatment.
+- Each section and each subsection begins with one plain-language, but still academic, sentence stating what the section does and why the reader should care. No formula, no abbreviation, no citation in that opening sentence. The reader should know from it alone whether to continue, skim, or skip.
 - Define every abbreviation at first use in the running text, even when the abbreviation also appears in the list of abbreviations. Write the full term followed by the abbreviation in parentheses the first time. Do not rely on the reader remembering what "IIR" or "UTPR" means three subsections later. If an abbreviation is reintroduced after a long gap, repeat the full form once.
 - Before long equation chains (mixture distributions, counterfactual integrals, ANOVA identities), give the reader a one-line map: what the chain produces, what the inputs are, and where it is used downstream. The mathematics then follows as derivation rather than as revelation.
 - Anchor notation in a single reference table (Table \ref{tab:notation}) and resist redefining symbols across sections. When a new symbol is introduced locally, remind the reader of it in words: "$\phi$, the ratio of the substance carve-out to profit".
-- Use worked numerical examples for the most counterintuitive mechanisms. One concrete affiliate paying 5\% ETR with a 60\% SBIE ratio makes the effective-floor logic clearer than another paragraph of algebra.
-- Headline numbers go at the top. The abstract, the introduction, and each results subsection state the main finding in euros, percentage points, or percentage shares before explaining the model that produced it. The reader who reads nothing else should still leave with the number.
-- Replace run-on sentences with short declarative ones wherever the content is technical. Long sentences are acceptable for argument; they are costly for mechanics.
-- Prefer active verbs for what the thesis does ("The pipeline filters low-taxed profit through three stages") and reserve passive voice for established facts ("CbCR data are filed with the parent jurisdiction").
-- Figures and tables must stand alone. A reader who looks only at the figure and its caption should be able to state what is shown and why it matters. Captions carry the narrative content, not the figure number.
-- Signpost structure. At the end of each major section, one sentence recaps what was established and what the next section will do. This is not a summary; it is a navigation aid.
-- Keep footnotes for dissent, limitation, and qualification. They are not a parking space for content that belongs in the main text. If the reader needs it to follow the argument, it goes above the line.
-- Avoid stacking modifiers. Phrases like "the post-transition bilateral distributional ETR measurement" should be broken up. The reader's working memory is finite.
-- Check every paragraph for a "what and why" opening. If the first sentence states only a fact without telling the reader why the fact matters for the argument, rewrite it.
-
-The goal is not to dilute the thesis. A reader with specialist knowledge should still encounter full mathematical rigour and every technical nuance. A reader without that knowledge should still follow the argument, the findings, and the contribution. Both readers should finish the thesis without needing a secondary source to understand what was done.
-
-# Structure of GMT_thesis repository
-
-UseofAI.md: update each time I use AI with as detailed as possible notes, so that in the end of the thesis, I can reference this and write a good and complete section about use of AI 
+- SAt the end of each major section, one sentence recaps what was established and what the next section will do. This is not a summary; it is a navigation aid.
 
