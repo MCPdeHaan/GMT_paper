@@ -1,0 +1,838 @@
+country,country_name,effect,effect_label,interaction_order,ss,total_ss,eta_squared
+AUT,Austria,x1_etr,ETR measurement,1,5783059515874789e3,14794909893561082e3,0.390881699008633
+AUT,Austria,x2_substance,Substance specification,1,3352187586203733e3,14794909893561082e3,0.2265770870062983
+AUT,Austria,x1_etr:x2_substance,ETR measurement x Substance specification,2,2085468296153012500,14794909893561082e3,0.14095849931878482
+AUT,Austria,x4_sbs,SbS regime,1,1633638270265373700,14794909893561082e3,0.11041894016376215
+AUT,Austria,x5_behaviour,Behavioural response,1,1476742511135786500,14794909893561082e3,0.09981422812034037
+AUT,Austria,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,167693186248717660,14794909893561082e3,0.011334518929493427
+AUT,Austria,x1_etr:x4_sbs,ETR measurement x SbS regime,2,157260885507556500,14794909893561082e3,0.01062939123245342
+AUT,Austria,x3_rates,SBIE rate endpoint,1,63732846214019376,14794909893561082e3,0.004307754942242443
+AUT,Austria,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,31135177925089628,14794909893561082e3,0.002104452014178202
+AUT,Austria,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,18875402956208560,14794909893561082e3,0.0012758038468638027
+AUT,Austria,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,17955311667748066,14794909893561082e3,0.0012136141278942447
+AUT,Austria,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,4099181935806844.5,14794909893561082e3,2.770670430098974e-4
+AUT,Austria,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,1047876767471837,14794909893561082e3,7.082684348945479e-5
+AUT,Austria,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,910646217096273.75,14794909893561082e3,6.155131890952561e-5
+AUT,Austria,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,456470472079726.2,14794909893561082e3,3.085321068960261e-5
+AUT,Austria,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,242527147996429.5,14794909893561082e3,1.639260730489343e-5
+AUT,Austria,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,151607437637954.8,14794909893561082e3,1.0247270090096064e-5
+AUT,Austria,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,102232032092879.36,14794909893561082e3,6.90994624694348e-6
+AUT,Austria,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,101704784145990.66,14794909893561082e3,6.87430912913189e-6
+AUT,Austria,x2_substance:x4_sbs,Substance specification x SbS regime,2,40456568693377.22,14794909893561082e3,2.7344924020783925e-6
+AUT,Austria,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,3645415657926.935,14794909893561082e3,2.463966110069695e-7
+AUT,Austria,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,1639770070149.2727,14794909893561082e3,1.1083339350805508e-7
+AUT,Austria,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,1523189349406.8271,14794909893561082e3,1.0295360771813399e-7
+AUT,Austria,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,543875616002.1272,14794909893561082e3,3.67609954987849e-8
+AUT,Austria,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,454063600526.20953,14794909893561082e3,3.0690528282556376e-8
+AUT,Austria,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,307856484307.352,14794909893561082e3,2.0808270312030404e-8
+AUT,Austria,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,38943598985.838806,14794909893561082e3,2.632229548271025e-9
+AUT,Austria,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,33868275797.943672,14794909893561082e3,2.2891843236357623e-9
+AUT,Austria,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,8218521195.98275,14794909893561082e3,5.554965359781979e-10
+AUT,Austria,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,3049097294.350319,14794909893561082e3,2.0609096752102032e-10
+AUT,Austria,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,1795750877.0707436,14794909893561082e3,1.2137626318713001e-10
+BEL,Belgium,x1_etr,ETR measurement,1,17301458590192032e4,25789550051334396e4,0.6708708975438997
+BEL,Belgium,x5_behaviour,Behavioural response,1,24212462589242327e3,25789550051334396e4,0.09388478101032062
+BEL,Belgium,x4_sbs,SbS regime,1,2045980281223944e4,25789550051334396e4,0.07933369435106068
+BEL,Belgium,x2_substance,Substance specification,1,17569143881751261e3,25789550051334396e4,0.06812505005624246
+BEL,Belgium,x1_etr:x2_substance,ETR measurement x Substance specification,2,15685424101456916e3,25789550051334396e4,0.06082085212900147
+BEL,Belgium,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,2660797634996747e3,25789550051334396e4,0.010317348033216548
+BEL,Belgium,x1_etr:x4_sbs,ETR measurement x SbS regime,2,2433462423379661e3,25789550051334396e4,0.009435846761714826
+BEL,Belgium,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,628366889947302800,25789550051334396e4,0.0024365174603532486
+BEL,Belgium,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,547211920239467100,25789550051334396e4,0.0021218358565784803
+BEL,Belgium,x3_rates,SBIE rate endpoint,1,291117911166283200,25789550051334396e4,0.0011288212108656788
+BEL,Belgium,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,224811772014463520,25789550051334396e4,8.717165346699461e-4
+BEL,Belgium,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,122088079162448220,25789550051334396e4,4.73401354112152e-4
+BEL,Belgium,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,15922803440819482,25789550051334396e4,6.17412999029644e-5
+BEL,Belgium,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,8027457407443024,25789550051334396e4,3.112678348968585e-5
+BEL,Belgium,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,6828163682270238,25789550051334396e4,2.6476474652247518e-5
+BEL,Belgium,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,4478047489621721.5,25789550051334396e4,1.7363806195564157e-5
+BEL,Belgium,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,4020344428393081.5,25789550051334396e4,1.5589044478831696e-5
+BEL,Belgium,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,3735418234772416,25789550051334396e4,1.4484231897559371e-5
+BEL,Belgium,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,2507920902570532,25789550051334396e4,9.724562458741958e-6
+BEL,Belgium,x2_substance:x4_sbs,Substance specification x SbS regime,2,445179646269962.9,25789550051334396e4,1.7262016800751763e-6
+BEL,Belgium,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,103148413666465.69,25789550051334396e4,3.9996205230858074e-7
+BEL,Belgium,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,70852320492917.52,25789550051334396e4,2.747326740942946e-7
+BEL,Belgium,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,52912808929332.195,25789550051334396e4,2.0517150870801795e-7
+BEL,Belgium,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,25018592815253.055,25789550051334396e4,9.70105828347267e-8
+BEL,Belgium,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,3889243406142.9727,25789550051334396e4,1.5080695081540348e-8
+BEL,Belgium,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,2528451932614.83,25789550051334396e4,9.804172339501532e-9
+BEL,Belgium,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,418842067889.45496,25789550051334396e4,1.6240766785606767e-9
+BEL,Belgium,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,319618066846.1479,25789550051334396e4,1.2393316913631469e-9
+BEL,Belgium,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,95253545290.39746,25789550051334396e4,3.693493880304006e-10
+BEL,Belgium,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,48909406353.0118,25789550051334396e4,1.8964815693045076e-10
+BEL,Belgium,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,28140880882.596336,25789550051334396e4,1.091173782659317e-10
+BGR,Bulgaria,x4_sbs,SbS regime,1,542581010461453440,1147901526879121700,0.47267208707057434
+BGR,Bulgaria,x1_etr,ETR measurement,1,356164656192701500,1147901526879121700,0.3102745730820924
+BGR,Bulgaria,x5_behaviour,Behavioural response,1,94188253753617250,1147901526879121700,0.08205255550943755
+BGR,Bulgaria,x1_etr:x4_sbs,ETR measurement x SbS regime,2,79001024552814992,1147901526879121700,0.06882212690107703
+BGR,Bulgaria,x2_substance,Substance specification,1,60889522283918470,1147901526879121700,0.05304420358204678
+BGR,Bulgaria,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,6005415028156444,1147901526879121700,0.005231646519787961
+BGR,Bulgaria,x3_rates,SBIE rate endpoint,1,4979468001550123,1147901526879121700,0.004337887776043075
+BGR,Bulgaria,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,1951319564495830.5,1147901526879121700,0.001699901532321345
+BGR,Bulgaria,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,503994039763482.25,1147901526879121700,4.3905685981072376e-4
+BGR,Bulgaria,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,452950978377444.1,1147901526879121700,3.945904485456282e-4
+BGR,Bulgaria,x1_etr:x2_substance,ETR measurement x Substance specification,2,452316720182446.7,1147901526879121700,3.940379114332142e-4
+BGR,Bulgaria,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,308157095455456.1,1147901526879121700,2.6845255297574513e-4
+BGR,Bulgaria,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,189646742565497.94,1147901526879121700,1.652116824699271e-4
+BGR,Bulgaria,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,126774338024625.81,1147901526879121700,1.1044008136246309e-4
+BGR,Bulgaria,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,46896942728040.74,1147901526879121700,4.085449982416407e-5
+BGR,Bulgaria,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,23335121145648.52,1147901526879121700,2.032850431786715e-5
+BGR,Bulgaria,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,19263819325744.83,1147901526879121700,1.6781769929445683e-5
+BGR,Bulgaria,x2_substance:x4_sbs,Substance specification x SbS regime,2,12090604471861.12,1147901526879121700,1.0532788909805418e-5
+BGR,Bulgaria,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,2159546029118.1455,1147901526879121700,1.8812990300565684e-6
+BGR,Bulgaria,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,1529735979513.7844,1147901526879121700,1.3326369411431852e-6
+BGR,Bulgaria,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,738785332202.9314,1147901526879121700,6.435964365440976e-7
+BGR,Bulgaria,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,712735100924.9001,1147901526879121700,6.209026508246416e-7
+BGR,Bulgaria,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,107556003135.0785,1147901526879121700,9.369793542090528e-8
+BGR,Bulgaria,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,70118310378.93954,1147901526879121700,6.10839072316377e-8
+BGR,Bulgaria,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,59376474979.356384,1147901526879121700,5.1726105061282794e-8
+BGR,Bulgaria,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,28968192884.49658,1147901526879121700,2.5235782169620755e-8
+BGR,Bulgaria,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,11469749579.170986,1147901526879121700,9.991928149407187e-9
+BGR,Bulgaria,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,7529221025.705182,1147901526879121700,6.55911752829129e-9
+BGR,Bulgaria,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,2463108448.885181,1147901526879121700,2.1457489089519744e-9
+BGR,Bulgaria,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,1520141506.7290509,1147901526879121700,1.3242786694969937e-9
+BGR,Bulgaria,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,834729676.236754,1147901526879121700,7.271788186450022e-10
+CYP,Cyprus,x5_behaviour,Behavioural response,1,3943712546346662e3,4375547112041748e3,0.9013072983475248
+CYP,Cyprus,x1_etr,ETR measurement,1,278267863872634460,4375547112041748e3,0.06359613020891168
+CYP,Cyprus,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,112605893208712660,4375547112041748e3,0.025735271572968555
+CYP,Cyprus,x2_substance,Substance specification,1,20265056225270948,4375547112041748e3,0.004631433671346011
+CYP,Cyprus,x4_sbs,SbS regime,1,15621802096517030,4375547112041748e3,0.003570251147227958
+CYP,Cyprus,x3_rates,SBIE rate endpoint,1,2010030025762537.2,4375547112041748e3,4.5937798732204787e-4
+CYP,Cyprus,x1_etr:x4_sbs,ETR measurement x SbS regime,2,1538275412995637,4375547112041748e3,3.5156184440620416e-4
+CYP,Cyprus,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,935686470551998,4375547112041748e3,2.1384445112633733e-4
+CYP,Cyprus,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,178737765711330.4,4375547112041748e3,4.084923808029267e-5
+CYP,Cyprus,x1_etr:x2_substance,ETR measurement x Substance specification,2,140114892853235.61,4375547112041748e3,3.2022256706511435e-5
+CYP,Cyprus,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,118007181959778.31,4375547112041748e3,2.6969697488804545e-5
+CYP,Cyprus,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,60189079828181.05,4375547112041748e3,1.375578374245757e-5
+CYP,Cyprus,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,36188606914999.99,4375547112041748e3,8.270647301547033e-6
+CYP,Cyprus,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,34828054775103.28,4375547112041748e3,7.95970284018987e-6
+CYP,Cyprus,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,11244161494614.078,4375547112041748e3,2.569772695092123e-6
+CYP,Cyprus,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,4792056371777.68,4375547112041748e3,1.0951902125769999e-6
+CYP,Cyprus,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,2717790704802.7676,4375547112041748e3,6.211316288477975e-7
+CYP,Cyprus,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,1285642209562.1926,4375547112041748e3,2.938243325101069e-7
+CYP,Cyprus,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,1165032008439,4375547112041748e3,2.6625973360743103e-7
+CYP,Cyprus,x2_substance:x4_sbs,Substance specification x SbS regime,2,390018361944.29156,4375547112041748e3,8.91359073408076e-8
+CYP,Cyprus,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,179668464604.10992,4375547112041748e3,4.1061942656188604e-8
+CYP,Cyprus,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,55022238645.79567,4375547112041748e3,1.257493914175245e-8
+CYP,Cyprus,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,36333269490.90999,4375547112041748e3,8.30370889869265e-9
+CYP,Cyprus,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,18529077561.69734,4375547112041748e3,4.2346881629280805e-9
+CYP,Cyprus,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,4670132916.824426,4375547112041748e3,1.0673254789034178e-9
+CYP,Cyprus,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,3102305343.5947976,4375547112041748e3,7.090096996229526e-10
+CYP,Cyprus,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,353127025.74351287,4375547112041748e3,8.07046562866819e-11
+CYP,Cyprus,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,296244691.4958243,4375547112041748e3,6.770460559790168e-11
+CYP,Cyprus,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,75183209.03222498,4375547112041748e3,1.7182584739018492e-11
+CYP,Cyprus,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,29777400.276978247,4375547112041748e3,6.805411875243942e-12
+CYP,Cyprus,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,19624625.76197534,4375547112041748e3,4.485067869105393e-12
+CZE,Czechia,x1_etr,ETR measurement,1,5661826129791513e3,10675099737080218e3,0.5303768835175396
+CZE,Czechia,x4_sbs,SbS regime,1,3927907512306106400,10675099737080218e3,0.36795042754143314
+CZE,Czechia,x5_behaviour,Behavioural response,1,551858148894829060,10675099737080218e3,0.05169583071696617
+CZE,Czechia,x1_etr:x4_sbs,ETR measurement x SbS regime,2,335012727004864060,10675099737080218e3,0.03138263203679393
+CZE,Czechia,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,51969472878571710,10675099737080218e3,0.004868289211205633
+CZE,Czechia,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,44691636291339136,10675099737080218e3,0.004186531029410588
+CZE,Czechia,x2_substance,Substance specification,1,42808063122423640,10675099737080218e3,0.004010085542688543
+CZE,Czechia,x1_etr:x2_substance,ETR measurement x Substance specification,2,35683918290381328,10675099737080218e3,0.0033427245804957093
+CZE,Czechia,x3_rates,SBIE rate endpoint,1,11522156657983930,10675099737080218e3,0.0010793488531035864
+CZE,Czechia,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,6303561276434134,10675099737080218e3,5.904920264621568e-4
+CZE,Czechia,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,2464432974329545,10675099737080218e3,2.3085807486831035e-4
+CZE,Czechia,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,1102662932125272.8,10675099737080218e3,1.0329298641540053e-4
+CZE,Czechia,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,563471842956037.4,10675099737080218e3,5.278375442234083e-5
+CZE,Czechia,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,527131164039954.5,10675099737080218e3,4.9379507173029176e-5
+CZE,Czechia,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,496492231569716.75,10675099737080218e3,4.6509376380357265e-5
+CZE,Czechia,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,177294625095430.5,10675099737080218e3,1.660824062182701e-5
+CZE,Czechia,x2_substance:x4_sbs,Substance specification x SbS regime,2,94200112773341.48,10675099737080218e3,8.824284090399185e-6
+CZE,Czechia,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,58312175759085.234,10675099737080218e3,5.4624478642139965e-6
+CZE,Czechia,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,10062538383500.035,10675099737080218e3,9.426177395371365e-7
+CZE,Czechia,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,8266177831017.412,10675099737080218e3,7.743419766191639e-7
+CZE,Czechia,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,8179678001273.238,10675099737080218e3,7.662390237780101e-7
+CZE,Czechia,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,3589189970000.172,10675099737080218e3,3.362207434496404e-7
+CZE,Czechia,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,936428225525.5356,10675099737080218e3,8.77207940524274e-8
+CZE,Czechia,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,737652720660.3551,10675099737080218e3,6.910031183110173e-8
+CZE,Czechia,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,232522785726.22647,10675099737080218e3,2.178179047063635e-8
+CZE,Czechia,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,216182913612.86365,10675099737080218e3,2.0251137594709963e-8
+CZE,Czechia,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,82275145887.06866,10675099737080218e3,7.707201610612026e-9
+CZE,Czechia,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,80562557022.3216,10675099737080218e3,7.546773239268726e-9
+CZE,Czechia,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,18798975238.915157,10675099737080218e3,1.761011672201662e-9
+CZE,Czechia,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,6305126085.828098,10675099737080218e3,5.906386114526959e-10
+CZE,Czechia,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,4194490871.6992264,10675099737080218e3,3.9292287425939083e-10
+DEU,Germany,x1_etr,ETR measurement,1,2424197297439386e6,3878232652822028e6,0.625077842010174
+DEU,Germany,x4_sbs,SbS regime,1,8553309975244097e5,3878232652822028e6,0.22054659276359326
+DEU,Germany,x5_behaviour,Behavioural response,1,3867411331960236e5,3878232652822028e6,0.0997209728804197
+DEU,Germany,x2_substance,Substance specification,1,6462590678167907e4,3878232652822028e6,0.016663751911493368
+DEU,Germany,x1_etr:x4_sbs,ETR measurement x SbS regime,2,5830869755328758e4,3878232652822028e6,0.01503486324134236
+DEU,Germany,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,35755081959164568e3,3878232652822028e6,0.009219426775014925
+DEU,Germany,x1_etr:x2_substance,ETR measurement x Substance specification,2,26968808657578074e3,3878232652822028e6,0.006953891391212438
+DEU,Germany,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,998435179620095e4,3878232652822028e6,0.0025744592163483935
+DEU,Germany,x3_rates,SBIE rate endpoint,1,8881059388107128e3,3878232652822028e6,0.002289975920254488
+DEU,Germany,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,4251441693071162400,3878232652822028e6,0.0010962317307027895
+DEU,Germany,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,134610575963238e4,3878232652822028e6,3.470925754422894e-4
+DEU,Germany,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,704825355033197200,3878232652822028e6,1.817388016988422e-4
+DEU,Germany,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,466166026544742340,3878232652822028e6,1.2020063474158333e-4
+DEU,Germany,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,216599505972974080,3878232652822028e6,5.5850054744746594e-5
+DEU,Germany,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,209052253954466900,3878232652822028e6,5.3904000267324944e-5
+DEU,Germany,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,90963927378300820,3878232652822028e6,2.3454994973576473e-5
+DEU,Germany,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,90854607332200740,3878232652822028e6,2.3426806864227093e-5
+DEU,Germany,x2_substance:x4_sbs,Substance specification x SbS regime,2,22076842887191324,3878232652822028e6,5.692500905309775e-6
+DEU,Germany,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,20425311244108956,3878232652822028e6,5.266654446129298e-6
+DEU,Germany,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,16252949520294984,3878232652822028e6,4.190813438814299e-6
+DEU,Germany,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,1587618664026323.8,3878232652822028e6,4.0936653526215865e-7
+DEU,Germany,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,999282141577042.75,3878232652822028e6,2.57664310275431e-7
+DEU,Germany,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,829707164299663.5,3878232652822028e6,2.1393950249372488e-7
+DEU,Germany,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,658641576733048.4,3878232652822028e6,1.6983034172892707e-7
+DEU,Germany,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,236207806177170.7,3878232652822028e6,6.090604337656024e-8
+DEU,Germany,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,198227430105053.38,3878232652822028e6,5.1112825828231724e-8
+DEU,Germany,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,20621808411567.742,3878232652822028e6,5.317321124755657e-9
+DEU,Germany,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,18042010066919.72,3878232652822028e6,4.652121644582437e-9
+DEU,Germany,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,4175684357671.7856,3878232652822028e6,1.0766977464937062e-9
+DEU,Germany,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,985914708921.3148,3878232652822028e6,2.5421752565666887e-10
+DEU,Germany,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,783419704716.0951,3878232652822028e6,2.020043083660887e-10
+DNK,Denmark,x1_etr,ETR measurement,1,12441782607030813e3,32950894085930705e3,0.37758558461523434
+DNK,Denmark,x5_behaviour,Behavioural response,1,9960232588045801e3,32950894085930705e3,0.3022750327220589
+DNK,Denmark,x4_sbs,SbS regime,1,6126065079197228e3,32950894085930705e3,0.18591498801888112
+DNK,Denmark,x2_substance,Substance specification,1,2718595634290459e3,32950894085930705e3,0.08250445730549201
+DNK,Denmark,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,630441506547960700,32950894085930705e3,0.019132758731944245
+DNK,Denmark,x1_etr:x2_substance,ETR measurement x Substance specification,2,491100174421077060,32950894085930705e3,0.014904001485979887
+DNK,Denmark,x1_etr:x4_sbs,ETR measurement x SbS regime,2,3.5378431034787277e+17,32950894085930705e3,0.010736713529692379
+DNK,Denmark,x3_rates,SBIE rate endpoint,1,97843423934155580,32950894085930705e3,0.0029693708364633585
+DNK,Denmark,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,69431156733760170,32950894085930705e3,0.002107109948297449
+DNK,Denmark,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,47179701661495544,32950894085930705e3,0.0014318185581993121
+DNK,Denmark,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,3349783231579374.5,32950894085930705e3,1.0165985854112702e-4
+DNK,Denmark,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,3260586505702353,32950894085930705e3,9.895289934164641e-5
+DNK,Denmark,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,2761045317336704.5,32950894085930705e3,8.379272835924683e-5
+DNK,Denmark,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,1716274603281764.2,32950894085930705e3,5.2085828044786656e-5
+DNK,Denmark,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,1520473677379783.8,32950894085930705e3,4.614362430999989e-5
+DNK,Denmark,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,871480604135786.9,32950894085930705e3,2.6447859104008035e-5
+DNK,Denmark,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,484957937339849,32950894085930705e3,1.4717595706967939e-5
+DNK,Denmark,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,219572671522349.4,32950894085930705e3,6.663633191552821e-6
+DNK,Denmark,x2_substance:x4_sbs,Substance specification x SbS regime,2,143211978709931.12,32950894085930705e3,4.346224364548561e-6
+DNK,Denmark,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,80271255068691.03,32950894085930705e3,2.4360873140302757e-6
+DNK,Denmark,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,11224085915749.236,32950894085930705e3,3.4063069385852176e-7
+DNK,Denmark,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,10803937132755.7,32950894085930705e3,3.2787993869242956e-7
+DNK,Denmark,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,4118194357881.4395,32950894085930705e3,1.2497974553108762e-7
+DNK,Denmark,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,1346160625657.2913,32950894085930705e3,4.0853538667166905e-8
+DNK,Denmark,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,1227604569847.8777,32950894085930705e3,3.7255576939626576e-8
+DNK,Denmark,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,1226222293104.1135,32950894085930705e3,3.721362734213889e-8
+DNK,Denmark,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,142143418145.41238,32950894085930705e3,4.313795485328104e-9
+DNK,Denmark,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,116200993527.9567,32950894085930705e3,3.526489849559861e-9
+DNK,Denmark,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,29427704368.41111,32950894085930705e3,8.930775684468023e-10
+DNK,Denmark,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,6869291245.671137,32950894085930705e3,2.0847055705854643e-10
+DNK,Denmark,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,5091718346.128931,32950894085930705e3,1.545244366617348e-10
+ESP,Spain,x1_etr,ETR measurement,1,6710382465531925e4,21518896105356096e4,0.31183674258558725
+ESP,Spain,x4_sbs,SbS regime,1,563628517991411e5,21518896105356096e4,0.2619225982745103
+ESP,Spain,x2_substance,Substance specification,1,30026135235248427e3,21518896105356096e4,0.13953380827827344
+ESP,Spain,x1_etr:x2_substance,ETR measurement x Substance specification,2,27681477869464728e3,21518896105356096e4,0.12863800138230488
+ESP,Spain,x5_behaviour,Behavioural response,1,219362367677261e5,21518896105356096e4,0.10193941483023437
+ESP,Spain,x1_etr:x4_sbs,ETR measurement x SbS regime,2,6525333994758915e3,21518896105356096e4,0.030323739483712392
+ESP,Spain,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,2042377287999467e3,21518896105356096e4,0.009491087637581535
+ESP,Spain,x3_rates,SBIE rate endpoint,1,1311875276263385600,21518896105356096e4,0.0060963874254537495
+ESP,Spain,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,635199855068491400,21518896105356096e4,0.0029518236063716527
+ESP,Spain,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,625054748957584e3,21518896105356096e4,0.002904678501617035
+ESP,Spain,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,599684166481786400,21518896105356096e4,0.0027867794125950715
+ESP,Spain,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,187399474074307170,21518896105356096e4,8.70860071802954e-4
+ESP,Spain,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,41029727555038350,21518896105356096e4,1.906683658592783e-4
+ESP,Spain,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,34477494124522832,21518896105356096e4,1.602196225852929e-4
+ESP,Spain,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,20100073184884224,21518896105356096e4,9.3406618473711e-5
+ESP,Spain,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,19795394543720808,21518896105356096e4,9.19907529029507e-5
+ESP,Spain,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,17978121076596380,21518896105356096e4,8.354574039753643e-5
+ESP,Spain,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,10837522686665066,21518896105356096e4,5.03628189550466e-5
+ESP,Spain,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,4984471198081232,21518896105356096e4,2.3163229069360053e-5
+ESP,Spain,x2_substance:x4_sbs,Substance specification x SbS regime,2,1301509468452654.5,21518896105356096e4,6.048216702569172e-6
+ESP,Spain,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,394741312137828.56,21518896105356096e4,1.8343938750630274e-6
+ESP,Spain,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,378301618902857.2,21518896105356096e4,1.7579973296525056e-6
+ESP,Spain,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,144961396613345.56,21518896105356096e4,6.736469933384008e-7
+ESP,Spain,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,64419027246520.65,21518896105356096e4,2.993602781998033e-7
+ESP,Spain,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,12383446178478.39,21518896105356096e4,5.7546846817091725e-8
+ESP,Spain,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,7959870976895.84,21518896105356096e4,3.699014548852537e-8
+ESP,Spain,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,1193775919871.964,21518896105356096e4,5.547570442402159e-9
+ESP,Spain,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,1160830562142.502,21518896105356096e4,5.394470777957652e-9
+ESP,Spain,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,284619863928.9498,21518896105356096e4,1.322650857810998e-9
+ESP,Spain,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,130668579002.66248,21518896105356096e4,6.072271475400581e-10
+ESP,Spain,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,72652521451.58438,21518896105356096e4,3.3762197231623337e-10
+EST,Estonia,x1_etr,ETR measurement,1,0,0,NA
+EST,Estonia,x1_etr:x2_substance,ETR measurement x Substance specification,2,0,0,NA
+EST,Estonia,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,0,0,NA
+EST,Estonia,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,0,0,NA
+EST,Estonia,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,0,0,NA
+EST,Estonia,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,0,0,NA
+EST,Estonia,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,0,0,NA
+EST,Estonia,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,0,0,NA
+EST,Estonia,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,0,0,NA
+EST,Estonia,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,0,0,NA
+EST,Estonia,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,0,0,NA
+EST,Estonia,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,0,0,NA
+EST,Estonia,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,0,0,NA
+EST,Estonia,x1_etr:x4_sbs,ETR measurement x SbS regime,2,0,0,NA
+EST,Estonia,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,0,0,NA
+EST,Estonia,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,0,0,NA
+EST,Estonia,x2_substance,Substance specification,1,0,0,NA
+EST,Estonia,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,0,0,NA
+EST,Estonia,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,0,0,NA
+EST,Estonia,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,0,0,NA
+EST,Estonia,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,0,0,NA
+EST,Estonia,x2_substance:x4_sbs,Substance specification x SbS regime,2,0,0,NA
+EST,Estonia,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,0,0,NA
+EST,Estonia,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,0,0,NA
+EST,Estonia,x3_rates,SBIE rate endpoint,1,0,0,NA
+EST,Estonia,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,0,0,NA
+EST,Estonia,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,0,0,NA
+EST,Estonia,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,0,0,NA
+EST,Estonia,x4_sbs,SbS regime,1,0,0,NA
+EST,Estonia,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,0,0,NA
+EST,Estonia,x5_behaviour,Behavioural response,1,0,0,NA
+FIN,Finland,x2_substance,Substance specification,1,2258422044495389e3,6439553390260625e3,0.3507109744460065
+FIN,Finland,x1_etr:x2_substance,ETR measurement x Substance specification,2,1554847063426593500,6439553390260625e3,0.2414526239937992
+FIN,Finland,x1_etr,ETR measurement,1,1147769119113872100,6439553390260625e3,0.17823737914026658
+FIN,Finland,x4_sbs,SbS regime,1,1073860785780177500,6439553390260625e3,0.16676013392548572
+FIN,Finland,x5_behaviour,Behavioural response,1,202609663121306850,6439553390260625e3,0.03146330977358458
+FIN,Finland,x1_etr:x4_sbs,ETR measurement x SbS regime,2,108688633470237440,6439553390260625e3,0.01687828749655549
+FIN,Finland,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,30657016819894028,6439553390260625e3,0.004760736492418966
+FIN,Finland,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,21062523833374916,6439553390260625e3,0.003270805063163311
+FIN,Finland,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,20016459524175648,6439553390260625e3,0.0031083614516573686
+FIN,Finland,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,11744593480120750,6439553390260625e3,0.0018238211205583957
+FIN,Finland,x3_rates,SBIE rate endpoint,1,5993561555266519,6439553390260625e3,9.307418064630634e-4
+FIN,Finland,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,1483112855467422,6439553390260625e3,2.3031299930062333e-4
+FIN,Finland,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,755031535227943.25,6439553390260625e3,1.1724905276348445e-4
+FIN,Finland,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,592244365744152.6,6439553390260625e3,9.196978887384968e-5
+FIN,Finland,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,332591232769942.1,6439553390260625e3,5.164818312912245e-5
+FIN,Finland,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,326897461343102.9,6439553390260625e3,5.076399581336067e-5
+FIN,Finland,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,166455182497586.62,6439553390260625e3,2.584887062965243e-5
+FIN,Finland,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,128622164704693.31,6439553390260625e3,1.9973770991514e-5
+FIN,Finland,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,31237656683417.57,6439553390260625e3,4.850904214982105e-6
+FIN,Finland,x2_substance:x4_sbs,Substance specification x SbS regime,2,23090651854198.098,6439553390260625e3,3.5857536159450275e-6
+FIN,Finland,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,20017273277538.5,6439553390260625e3,3.108487819638739e-6
+FIN,Finland,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,18743249126138.715,6439553390260625e3,2.910644262145038e-6
+FIN,Finland,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,2431872296834.826,6439553390260625e3,3.7764611137673974e-7
+FIN,Finland,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,1090974464199.529,6439553390260625e3,1.6941772170870602e-7
+FIN,Finland,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,167854406663.20743,6439553390260625e3,2.60661565314569e-8
+FIN,Finland,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,147285106905.44348,6439553390260625e3,2.287194436934119e-8
+FIN,Finland,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,21104622115.25914,6439553390260625e3,3.2773425168239782e-9
+FIN,Finland,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,14920508290.72848,6439553390260625e3,2.3170097965636415e-9
+FIN,Finland,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,4634990291.0297985,6439553390260625e3,7.197689047876981e-10
+FIN,Finland,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,2048223483.5756145,6439553390260625e3,3.1806918266620933e-10
+FIN,Finland,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,1316902925.831943,6439553390260625e3,2.0450221405473037e-10
+FRA,France,x1_etr,ETR measurement,1,5904506594113233e5,1264144935192409e6,0.46707512957875663
+FRA,France,x4_sbs,SbS regime,1,5489739914934649e5,1264144935192409e6,0.43426507215322463
+FRA,France,x5_behaviour,Behavioural response,1,5272062431250558e4,1264144935192409e6,0.04170457266791268
+FRA,France,x1_etr:x4_sbs,ETR measurement x SbS regime,2,4190830209722695e4,1264144935192409e6,0.03315150101111492
+FRA,France,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,845083466306157e4,1264144935192409e6,0.00668502038634938
+FRA,France,x2_substance,Substance specification,1,7133327447602843e3,1264144935192409e6,0.005642808232678729
+FRA,France,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,6398861466799329e3,1264144935192409e6,0.005061809993982527
+FRA,France,x1_etr:x2_substance,ETR measurement x Substance specification,2,4941944340919868e3,1264144935192409e6,0.003909317834800074
+FRA,France,x3_rates,SBIE rate endpoint,1,1475126655532630800,1264144935192409e6,0.0011668967809518689
+FRA,France,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,861063751252263300,1264144935192409e6,6.811432196429323e-4
+FRA,France,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,313206830271484200,1264144935192409e6,2.477618044831328e-4
+FRA,France,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,148667415342943170,1264144935192409e6,1.1760314122550772e-4
+FRA,France,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,141389324237092770,1264144935192409e6,1.1184581791293784e-4
+FRA,France,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,102698489895851630,1264144935192409e6,8.123949005912082e-5
+FRA,France,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,62601713560258624,1264144935192409e6,4.9520993849277534e-5
+FRA,France,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,23341185704262208,1264144935192409e6,1.846401077476893e-5
+FRA,France,x2_substance:x4_sbs,Substance specification x SbS regime,2,14251170654992904,1264144935192409e6,1.1273367679809442e-5
+FRA,France,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,13412693966782832,1264144935192409e6,1.0610091923313647e-5
+FRA,France,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,4418263226096516,1264144935192409e6,3.4950606557024532e-6
+FRA,France,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,4179111058745290,1264144935192409e6,3.3058796838902093e-6
+FRA,France,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,1026337018517706.6,1264144935192409e6,8.118823957171439e-7
+FRA,France,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,437604384760191.6,1264144935192409e6,3.4616630781626806e-07
+FRA,France,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,153430671017672.9,1264144935192409e6,1.2137110765255728e-7
+FRA,France,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,141722196851054.8,1264144935192409e6,1.121091363068144e-7
+FRA,France,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,127204494713004.08,1264144935192409e6,1.0062492928759229e-7
+FRA,France,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,119975396180440.6,1264144935192409e6,9.49063614783852e-8
+FRA,France,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,11812171398057.418,1264144935192409e6,9.344000888837599e-9
+FRA,France,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,11530541714358.93,1264144935192409e6,9.121218139915205e-9
+FRA,France,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,2526671934948.4204,1264144935192409e6,1.998720134542048e-9
+FRA,France,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,670716491707.278,1264144935192409e6,5.305692986897833e-10
+FRA,France,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,540537565081.3925,1264144935192409e6,4.275914493927234e-10
+GRC,Greece,x1_etr,ETR measurement,1,4410749700213717e3,5058516958313068e3,0.8719452235828087
+GRC,Greece,x5_behaviour,Behavioural response,1,290755657026534300,5058516958313068e3,0.05747843872475551
+GRC,Greece,x4_sbs,SbS regime,1,235089210168275400,5058516958313068e3,0.04647393931969219
+GRC,Greece,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,80165348267045620,5058516958313068e3,0.015847598995453294
+GRC,Greece,x1_etr:x4_sbs,ETR measurement x SbS regime,2,25300622061553536,5058516958313068e3,0.005001588858958947
+GRC,Greece,x2_substance,Substance specification,1,6446474571742473,5058516958313068e3,0.00127438034207802
+GRC,Greece,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,2855253530289588,5058516958313068e3,5.644447876362894e-4
+GRC,Greece,x3_rates,SBIE rate endpoint,1,2392270450156031.5,5058516958313068e3,4.7291932988869815e-4
+GRC,Greece,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,1868937574308802,5058516958313068e3,3.694635383671941e-4
+GRC,Greece,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,1618509754288715.5,5058516958313068e3,3.199573645055965e-4
+GRC,Greece,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,707815252917095.25,5058516958313068e3,1.3992544825887864e-4
+GRC,Greece,x1_etr:x2_substance,ETR measurement x Substance specification,2,222484494221563,5058516958313068e3,4.3982158418177556e-5
+GRC,Greece,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,156007632659987.8,5058516958313068e3,3.084058706250019e-5
+GRC,Greece,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,64557691994413.734,5058516958313068e3,1.2762177635546105e-5
+GRC,Greece,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,48254735223513.75,5058516958313068e3,9.539304824156588e-6
+GRC,Greece,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,40484290794468.195,5058516958313068e3,8.003193649066869e-6
+GRC,Greece,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,25892236343036.793,5058516958313068e3,5.118542955655412e-6
+GRC,Greece,x2_substance:x4_sbs,Substance specification x SbS regime,2,7035242730298.13,5058516958313068e3,1.3907717989828126e-6
+GRC,Greece,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,811064211739.9498,5058516958313068e3,1.6033636309295412e-7
+GRC,Greece,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,679566179878.0785,5058516958313068e3,1.3434099074458824e-7
+GRC,Greece,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,489791391318.1708,5058516958313068e3,9.682509623957219e-8
+GRC,Greece,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,247716526794.2891,5058516958313068e3,4.8970188068104944e-8
+GRC,Greece,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,95676580724.37636,5058516958313068e3,1.8913958678569486e-8
+GRC,Greece,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,65999275202.06479,5058516958313068e3,1.304715902822128e-8
+GRC,Greece,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,22884979814.482414,5058516958313068e3,4.52404924270812e-9
+GRC,Greece,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,18583516227.957466,5058516958313068e3,3.6737083973629226e-9
+GRC,Greece,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,6032748703.692331,5058516958313068e3,1.1925923651947495e-9
+GRC,Greece,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,4124684267.778373,5058516958313068e3,8.153939784663463e-10
+GRC,Greece,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,1019898946.4692934,5058516958313068e3,2.016201497146731e-10
+GRC,Greece,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,362560918.2377559,5058516958313068e3,7.16733622177406e-11
+GRC,Greece,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,295718349.35130775,5058516958313068e3,5.845949549804909e-11
+HRV,Croatia,x1_etr,ETR measurement,1,133490615553730080,154970043981050500,0.8613962552017673
+HRV,Croatia,x4_sbs,SbS regime,1,11283060787989656,154970043981050500,0.07280801178174365
+HRV,Croatia,x5_behaviour,Behavioural response,1,7384504914200870,154970043981050500,0.04765117647578287
+HRV,Croatia,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,1038597472715866.5,154970043981050500,0.006701924101169285
+HRV,Croatia,x1_etr:x4_sbs,ETR measurement x SbS regime,2,791737736140126.25,154970043981050500,0.005108972778228925
+HRV,Croatia,x2_substance,Substance specification,1,331157339976329.9,154970043981050500,0.0021369119571058733
+HRV,Croatia,x3_rates,SBIE rate endpoint,1,269520209886918.44,154970043981050500,0.0017391761850430588
+HRV,Croatia,x1_etr:x2_substance,ETR measurement x Substance specification,2,149160644110308.38,154970043981050500,9.625127558752421e-4
+HRV,Croatia,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,131854607828066.88,154970043981050500,8.50839326368068e-4
+HRV,Croatia,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,82476737445643.42,154970043981050500,5.322108410560208e-4
+HRV,Croatia,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,6143374525160.679,154970043981050500,3.964233581757182e-5
+HRV,Croatia,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,3391578286669.124,154970043981050500,2.188537990660854e-5
+HRV,Croatia,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,2420432988966.8457,154970043981050500,1.5618715248366406e-5
+HRV,Croatia,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,1978044606402.9954,154970043981050500,1.2764044944356263e-5
+HRV,Croatia,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,1867040855003.247,154970043981050500,1.2047753275668851e-5
+HRV,Croatia,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,609263238034.5662,154970043981050500,3.931490386032709e-6
+HRV,Croatia,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,475698737732.55884,154970043981050500,3.069617362893222e-6
+HRV,Croatia,x2_substance:x4_sbs,Substance specification x SbS regime,2,288999560526.79083,154970043981050500,1.8648737078640131e-6
+HRV,Croatia,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,95222509318.30493,154970043981050500,6.144575227064438e-7
+HRV,Croatia,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,43122691666.34526,154970043981050500,2.7826469270163104e-7
+HRV,Croatia,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,26106336887.618843,154970043981050500,1.6846053738496123e-7
+HRV,Croatia,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,11635702897.642,154970043981050500,7.508356194997787e-8
+HRV,Croatia,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,2285894840.283142,154970043981050500,1.475055940851806e-8
+HRV,Croatia,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,2131026409.7825017,154970043981050500,1.375121510608257e-8
+HRV,Croatia,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,1273157281.286697,154970043981050500,8.215505710525427e-9
+HRV,Croatia,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,1066796937.6193333,154970043981050500,6.883891300629556e-9
+HRV,Croatia,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,362214514.6871412,154970043981050500,2.3373195579103805e-9
+HRV,Croatia,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,245561902.3527562,154970043981050500,1.584576580379516e-9
+HRV,Croatia,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,66975010.676667914,154970043981050500,4.321803682578648e-10
+HRV,Croatia,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,14232765.05290003,154970043981050500,9.184204048261347e-11
+HRV,Croatia,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,11127703.915214172,154970043981050500,7.180551562968422e-11
+HUN,Hungary,x2_substance,Substance specification,1,5471844247125854e3,10697398060210719e3,0.5115116981089577
+HUN,Hungary,x1_etr,ETR measurement,1,4182046283530271e3,10697398060210719e3,0.39094051282297454
+HUN,Hungary,x5_behaviour,Behavioural response,1,439409099353974460,10697398060210719e3,0.04107625956150677
+HUN,Hungary,x1_etr:x2_substance,ETR measurement x Substance specification,2,300512399937510140,10697398060210719e3,0.02809210223327808
+HUN,Hungary,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,143223776558117070,10697398060210719e3,0.013388655423681207
+HUN,Hungary,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,124842876337352940,10697398060210719e3,0.011670396449180444
+HUN,Hungary,x3_rates,SBIE rate endpoint,1,15211416671133338,10697398060210719e3,0.0014219735103354377
+HUN,Hungary,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,10348820743761018,10697398060210719e3,9.674147568887575e-4
+HUN,Hungary,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,7417730654350151,10697398060210719e3,6.934144744917565e-4
+HUN,Hungary,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,1433209821562415,10697398060210719e3,1.3397742268685695e-4
+HUN,Hungary,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,515798706611050.56,10697398060210719e3,4.821721167220829e-5
+HUN,Hungary,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,312781010700967.25,10697398060210719e3,2.9238980258607488e-5
+HUN,Hungary,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,230833821330465.1,10697398060210719e3,2.1578501616113378e-5
+HUN,Hungary,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,27859064516273.46,10697398060210719e3,2.604284178214893e-6
+HUN,Hungary,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,20926873674102.234,10697398060210719e3,1.956258293494784e-6
+HUN,Hungary,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,0,10697398060210719e3,0
+HUN,Hungary,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,0,10697398060210719e3,0
+HUN,Hungary,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,0,10697398060210719e3,0
+HUN,Hungary,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,0,10697398060210719e3,0
+HUN,Hungary,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,0,10697398060210719e3,0
+HUN,Hungary,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,0,10697398060210719e3,0
+HUN,Hungary,x1_etr:x4_sbs,ETR measurement x SbS regime,2,0,10697398060210719e3,0
+HUN,Hungary,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,0,10697398060210719e3,0
+HUN,Hungary,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,0,10697398060210719e3,0
+HUN,Hungary,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,0,10697398060210719e3,0
+HUN,Hungary,x2_substance:x4_sbs,Substance specification x SbS regime,2,0,10697398060210719e3,0
+HUN,Hungary,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,0,10697398060210719e3,0
+HUN,Hungary,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,0,10697398060210719e3,0
+HUN,Hungary,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,0,10697398060210719e3,0
+HUN,Hungary,x4_sbs,SbS regime,1,0,10697398060210719e3,0
+HUN,Hungary,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,0,10697398060210719e3,0
+IRL,Ireland,x4_sbs,SbS regime,1,22914958089497975e4,5993078218558369e5,0.38235706683318
+IRL,Ireland,x2_substance,Substance specification,1,17058489139922928e4,5993078218558369e5,0.2846365176262681
+IRL,Ireland,x1_etr,ETR measurement,1,10375539438555238e4,5993078218558369e5,0.17312537998296088
+IRL,Ireland,x5_behaviour,Behavioural response,1,6134734150182578e4,5993078218558369e5,0.10236365898221639
+IRL,Ireland,x1_etr:x4_sbs,ETR measurement x SbS regime,2,1788898057389279e4,5993078218558369e5,0.02984940279687518
+IRL,Ireland,x1_etr:x2_substance,ETR measurement x Substance specification,2,8290696202144559e3,5993078218558369e5,0.013833786077530757
+IRL,Ireland,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,2752600911405651500,5993078218558369e5,0.004592966771035717
+IRL,Ireland,x3_rates,SBIE rate endpoint,1,2169701521215967700,5993078218558369e5,0.0036203457423552333
+IRL,Ireland,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,1440252996267675600,5993078218558369e5,0.002403194057784428
+IRL,Ireland,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,1392500636042653e3,5993078218558369e5,0.0023235148704226624
+IRL,Ireland,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,140596655361023300,5993078218558369e5,2.3459839874214714e-4
+IRL,Ireland,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,126070605285821660,5993078218558369e5,2.1036035354156927e-4
+IRL,Ireland,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,109176501877789040,5993078218558369e5,1.8217099443105782e-4
+IRL,Ireland,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,54672136567108050,5993078218558369e5,9.122546807049582e-5
+IRL,Ireland,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,49618804628393744,5993078218558369e5,8.279352082330993e-5
+IRL,Ireland,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,24751176336254844,5993078218558369e5,4.1299605033702906e-5
+IRL,Ireland,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,21123141839558064,5993078218558369e5,3.5245897132040476e-5
+IRL,Ireland,x2_substance:x4_sbs,Substance specification x SbS regime,2,6553239331962614,5993078218558369e5,1.0934680130937774e-5
+IRL,Ireland,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,1542802698302558.8,5993078218558369e5,2.5743076296335727e-6
+IRL,Ireland,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,808425512108731.6,5993078218558369e5,1.3489320222875347e-6
+IRL,Ireland,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,390298819562905.2,5993078218558369e5,6.512493335299591e-7
+IRL,Ireland,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,237356277405324.66,5993078218558369e5,3.9605069173020166e-7
+IRL,Ireland,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,170323202831926.97,5993078218558369e5,2.841998662799e-7
+IRL,Ireland,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,81517759014370.72,5993078218558369e5,1.3601984830089498e-7
+IRL,Ireland,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,64480254176226.8,5993078218558369e5,1.075912107680408e-7
+IRL,Ireland,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,12091385496707.482,5993078218558369e5,2.017558432537204e-8
+IRL,Ireland,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,5336878094081.849,5993078218558369e5,8.905069981492135e-9
+IRL,Ireland,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,4495339011150.141,5993078218558369e5,7.50088493293767e-9
+IRL,Ireland,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,986310001061.1699,5993078218558369e5,1.6457485871065875e-9
+IRL,Ireland,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,232282438256.81934,5993078218558369e5,3.875845263249288e-10
+IRL,Ireland,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,225334231806.18796,5993078218558369e5,3.759908073757662e-10
+ITA,Italy,x1_etr,ETR measurement,1,1438479222425192e5,2449902301453349e5,0.5871577905665246
+ITA,Italy,x4_sbs,SbS regime,1,6883432376821982e4,2449902301453349e5,0.28096762767799116
+ITA,Italy,x5_behaviour,Behavioural response,1,2023583294526377e4,2449902301453349e5,0.08259853028938878
+ITA,Italy,x1_etr:x4_sbs,ETR measurement x SbS regime,2,5445051225543005e3,2449902301453349e5,0.022225585168489582
+ITA,Italy,x2_substance,Substance specification,1,2492943165583665e3,2449902301453349e5,0.010175684002193814
+ITA,Italy,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,2276561882746007600,2449902301453349e5,0.009292459872360987
+ITA,Italy,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,753317812471201200,2449902301453349e5,0.003074889198741976
+ITA,Italy,x3_rates,SBIE rate endpoint,1,339580679417734300,2449902301453349e5,0.0013860988628660242
+ITA,Italy,x1_etr:x2_substance,ETR measurement x Substance specification,2,245835007018854660,2449902301453349e5,0.0010034482063754893
+ITA,Italy,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,208860469448008e3,2449902301453349e5,8.525257081643878e-4
+ITA,Italy,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,123502201136543420,2449902301453349e5,5.041107192857386e-4
+ITA,Italy,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,102700704842832370,2449902301453349e5,4.192032669298996e-4
+ITA,Italy,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,44277295700924130,2449902301453349e5,1.8073086291913612e-4
+ITA,Italy,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,20850619421485756,2449902301453349e5,8.510796291393579e-5
+ITA,Italy,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,9249087042558710,2449902301453349e5,3.7752881153962337e-5
+ITA,Italy,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,5459615694798368,2449902301453349e5,2.228503435242938e-5
+ITA,Italy,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,1605869053405437.5,2449902301453349e5,6.55482895155775e-6
+ITA,Italy,x2_substance:x4_sbs,Substance specification x SbS regime,2,1495906244445599.5,2449902301453349e5,6.105983261284284e-6
+ITA,Italy,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,355571734033734.3,2449902301453349e5,1.451371076400881e-6
+ITA,Italy,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,231481304264372.06,2449902301453349e5,9.448593281742338e-7
+ITA,Italy,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,143768822937387.34,2449902301453349e5,5.86834923384903e-7
+ITA,Italy,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,66882051248474.84,2449902301453349e5,2.729988506431403e-7
+ITA,Italy,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,22293389650791.203,2449902301453349e5,9.09970558318434e-8
+ITA,Italy,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,16723837847506.18,2449902301453349e5,6.826328477500977e-8
+ITA,Italy,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,10831929251774.486,2449902301453349e5,4.421371923830877e-8
+ITA,Italy,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,9196459297375.271,2449902301453349e5,3.753806546456845e-8
+ITA,Italy,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,1365738231825.0889,2449902301453349e5,5.574664063195073e-9
+ITA,Italy,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,1053183681317.9191,2449902301453349e5,4.298880329608008e-9
+ITA,Italy,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,304458497028.16925,2449902301453349e5,1.242737299554991e-9
+ITA,Italy,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,98699371633.54726,2449902301453349e5,4.028706433517618e-10
+ITA,Italy,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,76358351362.27338,2449902301453349e5,3.1167916907125446e-10
+LTU,Lithuania,x1_etr,ETR measurement,1,0,0,NA
+LTU,Lithuania,x1_etr:x2_substance,ETR measurement x Substance specification,2,0,0,NA
+LTU,Lithuania,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,0,0,NA
+LTU,Lithuania,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,0,0,NA
+LTU,Lithuania,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,0,0,NA
+LTU,Lithuania,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,0,0,NA
+LTU,Lithuania,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,0,0,NA
+LTU,Lithuania,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,0,0,NA
+LTU,Lithuania,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,0,0,NA
+LTU,Lithuania,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,0,0,NA
+LTU,Lithuania,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,0,0,NA
+LTU,Lithuania,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,0,0,NA
+LTU,Lithuania,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,0,0,NA
+LTU,Lithuania,x1_etr:x4_sbs,ETR measurement x SbS regime,2,0,0,NA
+LTU,Lithuania,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,0,0,NA
+LTU,Lithuania,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,0,0,NA
+LTU,Lithuania,x2_substance,Substance specification,1,0,0,NA
+LTU,Lithuania,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,0,0,NA
+LTU,Lithuania,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,0,0,NA
+LTU,Lithuania,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,0,0,NA
+LTU,Lithuania,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,0,0,NA
+LTU,Lithuania,x2_substance:x4_sbs,Substance specification x SbS regime,2,0,0,NA
+LTU,Lithuania,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,0,0,NA
+LTU,Lithuania,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,0,0,NA
+LTU,Lithuania,x3_rates,SBIE rate endpoint,1,0,0,NA
+LTU,Lithuania,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,0,0,NA
+LTU,Lithuania,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,0,0,NA
+LTU,Lithuania,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,0,0,NA
+LTU,Lithuania,x4_sbs,SbS regime,1,0,0,NA
+LTU,Lithuania,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,0,0,NA
+LTU,Lithuania,x5_behaviour,Behavioural response,1,0,0,NA
+LUX,Luxembourg,x4_sbs,SbS regime,1,2366372985256391e6,2685775815950601e6,0.8810761386719984
+LUX,Luxembourg,x1_etr,ETR measurement,1,10943411465089237e4,2685775815950601e6,0.040745811322364364
+LUX,Luxembourg,x5_behaviour,Behavioural response,1,10752663638118628e4,2685775815950601e6,0.040035596322892796
+LUX,Luxembourg,x1_etr:x4_sbs,ETR measurement x SbS regime,2,67409496944217375e3,2685775815950601e6,0.02509870576087473
+LUX,Luxembourg,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,27947914150459335e3,2685775815950601e6,0.010405899846323353
+LUX,Luxembourg,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,2994734210642895e3,2685775815950601e6,0.0011150350646756946
+LUX,Luxembourg,x3_rates,SBIE rate endpoint,1,1235108794786664400,2685775815950601e6,4.5987039850886114e-4
+LUX,Luxembourg,x2_substance,Substance specification,1,1209851630390626300,2685775815950601e6,4.5046635061847583e-4
+LUX,Luxembourg,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,851569328298291200,2685775815950601e6,3.1706642201515526e-4
+LUX,Luxembourg,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,426623732993161300,2685775815950601e6,1.5884562310058723e-4
+LUX,Luxembourg,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,160094166994289280,2685775815950601e6,5.960816462919326e-5
+LUX,Luxembourg,x2_substance:x4_sbs,Substance specification x SbS regime,2,54213407070521416,2685775815950601e6,2.018538060717967e-5
+LUX,Luxembourg,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,44163168135060064,2685775815950601e6,1.6443356095761475e-5
+LUX,Luxembourg,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,43275222814821536,2685775815950601e6,1.6112745731722492e-5
+LUX,Luxembourg,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,26661607014799024,2685775815950601e6,9.926966672518958e-6
+LUX,Luxembourg,x1_etr:x2_substance,ETR measurement x Substance specification,2,26614119652436836,2685775815950601e6,9.909285612886145e-6
+LUX,Luxembourg,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,4319076594516392,2685775815950601e6,1.608129974536874e-6
+LUX,Luxembourg,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,2948776281088609,2685775815950601e6,1.0979234616590374e-6
+LUX,Luxembourg,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,1563497147401202.5,2685775815950601e6,5.821398562440402e-7
+LUX,Luxembourg,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,759462610727899.5,2685775815950601e6,2.8277215328901014e-7
+LUX,Luxembourg,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,729023225124944.6,2685775815950601e6,2.71438599154604e-7
+LUX,Luxembourg,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,614682652226901.75,2685775815950601e6,2.2886595693369202e-7
+LUX,Luxembourg,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,429604599807533.2,2685775815950601e6,1.59955494891326e-7
+LUX,Luxembourg,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,194619372486947.72,2685775815950601e6,7.24629998271335e-8
+LUX,Luxembourg,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,125945825701891.72,2685775815950601e6,4.689364799322038e-8
+LUX,Luxembourg,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,32850574857350.223,2685775815950601e6,1.2231316799508496e-8
+LUX,Luxembourg,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,17127288851957.156,2685775815950601e6,6.377035920213296e-9
+LUX,Luxembourg,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,14093662817771.375,2685775815950601e6,5.247520189164813e-9
+LUX,Luxembourg,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,6236747123988.074,2685775815950601e6,2.322139877404714e-9
+LUX,Luxembourg,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,3480714012191.59,2685775815950601e6,1.2959808452812468e-9
+LUX,Luxembourg,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,701363530217.6719,2685775815950601e6,2.611400125253686e-10
+LVA,Latvia,x1_etr,ETR measurement,1,0,0,NA
+LVA,Latvia,x1_etr:x2_substance,ETR measurement x Substance specification,2,0,0,NA
+LVA,Latvia,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,0,0,NA
+LVA,Latvia,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,0,0,NA
+LVA,Latvia,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,0,0,NA
+LVA,Latvia,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,0,0,NA
+LVA,Latvia,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,0,0,NA
+LVA,Latvia,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,0,0,NA
+LVA,Latvia,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,0,0,NA
+LVA,Latvia,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,0,0,NA
+LVA,Latvia,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,0,0,NA
+LVA,Latvia,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,0,0,NA
+LVA,Latvia,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,0,0,NA
+LVA,Latvia,x1_etr:x4_sbs,ETR measurement x SbS regime,2,0,0,NA
+LVA,Latvia,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,0,0,NA
+LVA,Latvia,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,0,0,NA
+LVA,Latvia,x2_substance,Substance specification,1,0,0,NA
+LVA,Latvia,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,0,0,NA
+LVA,Latvia,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,0,0,NA
+LVA,Latvia,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,0,0,NA
+LVA,Latvia,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,0,0,NA
+LVA,Latvia,x2_substance:x4_sbs,Substance specification x SbS regime,2,0,0,NA
+LVA,Latvia,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,0,0,NA
+LVA,Latvia,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,0,0,NA
+LVA,Latvia,x3_rates,SBIE rate endpoint,1,0,0,NA
+LVA,Latvia,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,0,0,NA
+LVA,Latvia,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,0,0,NA
+LVA,Latvia,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,0,0,NA
+LVA,Latvia,x4_sbs,SbS regime,1,0,0,NA
+LVA,Latvia,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,0,0,NA
+LVA,Latvia,x5_behaviour,Behavioural response,1,0,0,NA
+MLT,Malta,x1_etr,ETR measurement,1,0,0,NA
+MLT,Malta,x1_etr:x2_substance,ETR measurement x Substance specification,2,0,0,NA
+MLT,Malta,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,0,0,NA
+MLT,Malta,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,0,0,NA
+MLT,Malta,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,0,0,NA
+MLT,Malta,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,0,0,NA
+MLT,Malta,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,0,0,NA
+MLT,Malta,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,0,0,NA
+MLT,Malta,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,0,0,NA
+MLT,Malta,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,0,0,NA
+MLT,Malta,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,0,0,NA
+MLT,Malta,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,0,0,NA
+MLT,Malta,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,0,0,NA
+MLT,Malta,x1_etr:x4_sbs,ETR measurement x SbS regime,2,0,0,NA
+MLT,Malta,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,0,0,NA
+MLT,Malta,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,0,0,NA
+MLT,Malta,x2_substance,Substance specification,1,0,0,NA
+MLT,Malta,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,0,0,NA
+MLT,Malta,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,0,0,NA
+MLT,Malta,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,0,0,NA
+MLT,Malta,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,0,0,NA
+MLT,Malta,x2_substance:x4_sbs,Substance specification x SbS regime,2,0,0,NA
+MLT,Malta,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,0,0,NA
+MLT,Malta,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,0,0,NA
+MLT,Malta,x3_rates,SBIE rate endpoint,1,0,0,NA
+MLT,Malta,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,0,0,NA
+MLT,Malta,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,0,0,NA
+MLT,Malta,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,0,0,NA
+MLT,Malta,x4_sbs,SbS regime,1,0,0,NA
+MLT,Malta,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,0,0,NA
+MLT,Malta,x5_behaviour,Behavioural response,1,0,0,NA
+NLD,Netherlands,x1_etr,ETR measurement,1,14848131740582294e5,3832425371194217e6,0.3874343347214479
+NLD,Netherlands,x5_behaviour,Behavioural response,1,13294434152608888e5,3832425371194217e6,0.34689349080439436
+NLD,Netherlands,x2_substance,Substance specification,1,44398820933764494e4,3832425371194217e6,0.1158504514333946
+NLD,Netherlands,x4_sbs,SbS regime,1,2185370469353314e5,3832425371194217e6,0.0570231709084092
+NLD,Netherlands,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,18931930892379377e4,3832425371194217e6,0.049399346520034186
+NLD,Netherlands,x1_etr:x2_substance,ETR measurement x Substance specification,2,11376388483087578e4,3832425371194217e6,0.029684566250386228
+NLD,Netherlands,x1_etr:x4_sbs,ETR measurement x SbS regime,2,22228933842392003e3,3832425371194217e6,0.005800226146469037
+NLD,Netherlands,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,16671122463210134e3,3832425371194217e6,0.004350018812764322
+NLD,Netherlands,x3_rates,SBIE rate endpoint,1,7441213970147289e3,3832425371194217e6,0.0019416461507842857
+NLD,Netherlands,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,2483400078598959e3,3832425371194217e6,6.47996983128496e-4
+NLD,Netherlands,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,2185208194144289300,3832425371194217e6,5.701893663915911e-4
+NLD,Netherlands,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,1018822590037199e3,3832425371194217e6,2.6584277353318035e-4
+NLD,Netherlands,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,211420732972290340,3832425371194217e6,5.5166301361377794e-5
+NLD,Netherlands,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,144681288467256700,3832425371194217e6,3.7751886717672146e-5
+NLD,Netherlands,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,64625606364348896,3832425371194217e6,1.6862847963093147e-5
+NLD,Netherlands,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,46902717318497344,3832425371194217e6,1.2238390255693889e-5
+NLD,Netherlands,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,34533566019161916,3832425371194217e6,9.010890669581638e-6
+NLD,Netherlands,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,16461653878203028,3832425371194217e6,4.295361888044654e-6
+NLD,Netherlands,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,6199208806477024,3832425371194217e6,1.6175680427001495e-6
+NLD,Netherlands,x2_substance:x4_sbs,Substance specification x SbS regime,2,5344926046467946,3832425371194217e6,1.3946588723272178e-6
+NLD,Netherlands,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,472524334372147.4,3832425371194217e6,1.2329642161431174e-7
+NLD,Netherlands,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,469830091523369.44,3832425371194217e6,1.2259340913844496e-7
+NLD,Netherlands,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,213694085447712.1,3832425371194217e6,5.575949033578263e-8
+NLD,Netherlands,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,207957059443788.5,3832425371194217e6,5.4262520284638255e-8
+NLD,Netherlands,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,46691818309754.836,3832425371194217e6,1.2183360088550207e-8
+NLD,Netherlands,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,40734115984860.36,3832425371194217e6,1.0628808662793936e-8
+NLD,Netherlands,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,4718235445944.643,3832425371194217e6,1.2311356357800123e-9
+NLD,Netherlands,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,3300671609508.4316,3832425371194217e6,8.612487628115022e-10
+NLD,Netherlands,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,934454683519.0284,3832425371194217e6,2.438285401570244e-10
+NLD,Netherlands,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,359635765733.7213,3832425371194217e6,9.38402528166271e-11
+NLD,Netherlands,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,264547980102.80518,3832425371194217e6,6.902886670442058e-11
+POL,Poland,x1_etr,ETR measurement,1,3027262963692821e4,6023315122475848e4,0.5025908328117628
+POL,Poland,x4_sbs,SbS regime,1,23828419889612243e3,6023315122475848e4,0.39560307579952275
+POL,Poland,x1_etr:x4_sbs,ETR measurement x SbS regime,2,2288625843447316e3,6023315122475848e4,0.037996116705024556
+POL,Poland,x5_behaviour,Behavioural response,1,2186570594064849e3,6023315122475848e4,0.03630177982728674
+POL,Poland,x2_substance,Substance specification,1,800664112118844700,6023315122475848e4,0.013292748193286233
+POL,Poland,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,267494493512858940,6023315122475848e4,0.004440984542128802
+POL,Poland,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,131715367517156450,6023315122475848e4,0.0021867587007969066
+POL,Poland,x3_rates,SBIE rate endpoint,1,115495647427874720,6023315122475848e4,0.0019174764241855062
+POL,Poland,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,1.0580896215759981e+17,6023315122475848e4,0.00175665659202814
+POL,Poland,x1_etr:x2_substance,ETR measurement x Substance specification,2,102815521267359330,6023315122475848e4,0.0017069590279895173
+POL,Poland,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,68040850626303570,6023315122475848e4,0.0011296246210398466
+POL,Poland,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,33323649745382204,6023315122475848e4,5.53244335848142e-4
+POL,Poland,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,16654640676581932,6023315122475848e4,2.765028948001668e-4
+POL,Poland,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,7525559348029754,6023315122475848e4,1.249404886679151e-4
+POL,Poland,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,4166981572677178,6023315122475848e4,6.918086615007393e-5
+POL,Poland,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,1547166849364668.8,6023315122475848e4,2.5686300947321433e-5
+POL,Poland,x2_substance:x4_sbs,Substance specification x SbS regime,2,549356429346346.9,6023315122475848e4,9.120499561718717e-6
+POL,Poland,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,374287096902087.2,6023315122475848e4,6.213971696507201e-6
+POL,Poland,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,367956350017194.3,6023315122475848e4,6.108867667311221e-6
+POL,Poland,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,140655618286691.45,6023315122475848e4,2.335186113073158e-6
+POL,Poland,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,69477097846859.37,6023315122475848e4,1.1534694173248106e-6
+POL,Poland,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,58037067633812.586,6023315122475848e4,9.635402839417904e-7
+POL,Poland,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,54965569611009.625,6023315122475848e4,9.125468034356529e-7
+POL,Poland,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,27426174462252.652,6023315122475848e4,4.553335481305399e-7
+POL,Poland,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,5164236261716.816,6023315122475848e4,8.573744120487071e-8
+POL,Poland,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,3766400150713.0615,6023315122475848e4,6.253035204249625e-8
+POL,Poland,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,520907903730.6297,6023315122475848e4,8.648192783188033e-9
+POL,Poland,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,496418136452.36365,6023315122475848e4,8.241609916771446e-9
+POL,Poland,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,122522874089.3063,6023315122475848e4,2.0341435172819583e-9
+POL,Poland,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,47222072629.6911,6023315122475848e4,7.839880808075795e-10
+POL,Poland,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,28774329498.635635,6023315122475848e4,4.777158244845094e-10
+PRT,Portugal,x1_etr,ETR measurement,1,6220340225302812e3,7910955952166161e3,0.7862943824885754
+PRT,Portugal,x4_sbs,SbS regime,1,760300676834841900,7910955952166161e3,0.09610730756586477
+PRT,Portugal,x5_behaviour,Behavioural response,1,749112032113611100,7910955952166161e3,0.09469298484824591
+PRT,Portugal,x1_etr:x4_sbs,ETR measurement x SbS regime,2,69528643930093010,7910955952166161e3,0.008788905455990413
+PRT,Portugal,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,32744835548099928,7910955952166161e3,0.004139175561852775
+PRT,Portugal,x2_substance,Substance specification,1,32199316375413180,7910955952166161e3,0.0040702181342061996
+PRT,Portugal,x1_etr:x2_substance,ETR measurement x Substance specification,2,23870756821435272,7910955952166161e3,0.0030174301267470757
+PRT,Portugal,x3_rates,SBIE rate endpoint,1,10196052127416656,7910955952166161e3,0.0012888520918416687
+PRT,Portugal,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,8952139438428021,7910955952166161e3,0.0011316128534348323
+PRT,Portugal,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,1864898070480532.8,7910955952166161e3,2.3573612111566495e-4
+PRT,Portugal,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,471634003905426.44,7910955952166161e3,5.961782706883668e-5
+PRT,Portugal,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,462815199340431.75,7910955952166161e3,5.850306867322459e-5
+PRT,Portugal,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,320063763693713.1,7910955952166161e3,4.045829171960867e-5
+PRT,Portugal,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,204367118461104.75,7910955952166161e3,2.5833428942951625e-5
+PRT,Portugal,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,201216233768212.7,7910955952166161e3,2.5435135144838733e-5
+PRT,Portugal,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,108782165431535.33,7910955952166161e3,1.3750824311156584e-5
+PRT,Portugal,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,21226062360602.4,7910955952166161e3,2.6831223039221096e-6
+PRT,Portugal,x2_substance:x4_sbs,Substance specification x SbS regime,2,20010759871995.434,7910955952166161e3,2.5294995943589002e-6
+PRT,Portugal,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,16856501569352.229,7910955952166161e3,2.130779348447341e-6
+PRT,Portugal,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,16096270712103.459,7910955952166161e3,2.034680866564048e-6
+PRT,Portugal,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,1617299255065.3022,7910955952166161e3,2.044379041982223e-7
+PRT,Portugal,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,681204320003.843,7910955952166161e3,8.61089764780345e-8
+PRT,Portugal,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,359541314924.1573,7910955952166161e3,4.544852949480883e-8
+PRT,Portugal,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,234644342807.36227,7910955952166161e3,2.9660681240819253e-8
+PRT,Portugal,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,207165043512.9722,7910955952166161e3,2.618710618104841e-8
+PRT,Portugal,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,166539612846.26398,7910955952166161e3,2.1051768440280904e-8
+PRT,Portugal,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,18752984929.99803,7910955952166161e3,2.3705080705022924e-9
+PRT,Portugal,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,16511883112.908628,7910955952166161e3,2.0872171723301506e-9
+PRT,Portugal,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,3813137722.788353,7910955952166161e3,4.820071993630868e-10
+PRT,Portugal,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,1245387719.2554443,7910955952166161e3,1.574256925187954e-10
+PRT,Portugal,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,807135053.6987393,7910955952166161e3,1.0202749940451018e-10
+ROU,Romania,x1_etr,ETR measurement,1,7867709042519269e3,13142039141314312e3,0.5986672964460851
+ROU,Romania,x4_sbs,SbS regime,1,3509582505047954400,13142039141314312e3,0.2670500724666817
+ROU,Romania,x5_behaviour,Behavioural response,1,640096877432084200,13142039141314312e3,0.04870605471108567
+ROU,Romania,x2_substance,Substance specification,1,552528972250182e3,13142039141314312e3,0.04204286460487018
+ROU,Romania,x1_etr:x4_sbs,ETR measurement x SbS regime,2,299888925218968640,13142039141314312e3,0.022819055855359236
+ROU,Romania,x1_etr:x2_substance,ETR measurement x Substance specification,2,142293373163997650,13142039141314312e3,0.010827343582981229
+ROU,Romania,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,41124491268078240,13142039141314312e3,0.0031292321401475793
+ROU,Romania,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,24961659039185976,13142039141314312e3,0.0018993748816889921
+ROU,Romania,x3_rates,SBIE rate endpoint,1,24957207199187940,13142039141314312e3,0.0018990361336491967
+ROU,Romania,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,16801855747331120,13142039141314312e3,0.001278481639467313
+ROU,Romania,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,8361328365059170,13142039141314312e3,6.362276261051349e-4
+ROU,Romania,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,8189169916881380,13142039141314312e3,6.231277984203596e-4
+ROU,Romania,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,2260334018684788,13142039141314312e3,1.7199264089687804e-4
+ROU,Romania,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,1036729464457814,13142039141314312e3,7.888649952340139e-5
+ROU,Romania,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,1004771791353823,13142039141314312e3,7.645478609138714e-5
+ROU,Romania,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,548921910598240.25,13142039141314312e3,4.176839717914153e-5
+ROU,Romania,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,338337008520703.3,13142039141314312e3,2.5744635583764272e-5
+ROU,Romania,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,185800039047452.5,13142039141314312e3,1.4137839421232385e-5
+ROU,Romania,x2_substance:x4_sbs,Substance specification x SbS regime,2,92950404165596.25,13142039141314312e3,7.072753563287626e-6
+ROU,Romania,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,34813803539480.203,13142039141314312e3,2.6490412305984455e-6
+ROU,Romania,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,19749929134526.082,13142039141314312e3,1.5028055328521056e-6
+ROU,Romania,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,7786863546852.93,13142039141314312e3,5.925156258569916e-7
+ROU,Romania,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,7655863924590.838,13142039141314312e3,5.825476428938096e-7
+ROU,Romania,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,3757282892029.3525,13142039141314312e3,2.8589801412306503e-7
+ROU,Romania,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,1129265273841.664,13142039141314312e3,8.5927705868081e-8
+ROU,Romania,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,805976800647.4437,13142039141314312e3,6.132813880562217e-8
+ROU,Romania,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,82723311552.80632,13142039141314312e3,6.2945567779318995e-9
+ROU,Romania,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,80480870787.129,13142039141314312e3,6.1239256649391054e-9
+ROU,Romania,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,17847020640.989727,13142039141314312e3,1.3580100050748196e-9
+ROU,Romania,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,5533514935.848198,13142039141314312e3,4.210545164526729e-10
+ROU,Romania,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,3939474071.750688,13142039141314312e3,2.9976124933049836e-10
+SVK,Slovak Republic,x2_substance,Substance specification,1,505965967956697500,1112924176214470100,0.45462752878430907
+SVK,Slovak Republic,x1_etr:x2_substance,ETR measurement x Substance specification,2,389332698801167600,1112924176214470100,0.34982859310816145
+SVK,Slovak Republic,x1_etr,ETR measurement,1,166051926220436030,1112924176214470100,0.14920326988065752
+SVK,Slovak Republic,x5_behaviour,Behavioural response,1,21855218395626752,1112924176214470100,0.019637652647609537
+SVK,Slovak Republic,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,11555732308239266,1112924176214470100,0.010383216175198244
+SVK,Slovak Republic,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,9627361659152516,1112924176214470100,0.008650509949293473
+SVK,Slovak Republic,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,6262715414095593,1112924176214470100,0.00562726154031244
+SVK,Slovak Republic,x3_rates,SBIE rate endpoint,1,1060555951960070.4,1112924176214470100,9.529453799516455e-4
+SVK,Slovak Republic,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,515650404512710.56,1112924176214470100,4.6332932245811886e-4
+SVK,Slovak Republic,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,467243577541689.7,1112924176214470100,4.198341518026721e-4
+SVK,Slovak Republic,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,167332279965257.5,1112924176214470100,1.5035371100880022e-4
+SVK,Slovak Republic,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,25887885823302.258,1112924176214470100,2.326114067479242e-5
+SVK,Slovak Republic,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,15130041833967.098,1112924176214470100,1.3594854130522012e-5
+SVK,Slovak Republic,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,13683394436127.65,1112924176214470100,1.2294992532798337e-5
+SVK,Slovak Republic,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,7071922982034.638,1112924176214470100,6.354361899198977e-6
+SVK,Slovak Republic,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,0,1112924176214470100,0
+SVK,Slovak Republic,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,0,1112924176214470100,0
+SVK,Slovak Republic,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,0,1112924176214470100,0
+SVK,Slovak Republic,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,0,1112924176214470100,0
+SVK,Slovak Republic,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,0,1112924176214470100,0
+SVK,Slovak Republic,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,0,1112924176214470100,0
+SVK,Slovak Republic,x1_etr:x4_sbs,ETR measurement x SbS regime,2,0,1112924176214470100,0
+SVK,Slovak Republic,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,0,1112924176214470100,0
+SVK,Slovak Republic,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,0,1112924176214470100,0
+SVK,Slovak Republic,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,0,1112924176214470100,0
+SVK,Slovak Republic,x2_substance:x4_sbs,Substance specification x SbS regime,2,0,1112924176214470100,0
+SVK,Slovak Republic,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,0,1112924176214470100,0
+SVK,Slovak Republic,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,0,1112924176214470100,0
+SVK,Slovak Republic,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,0,1112924176214470100,0
+SVK,Slovak Republic,x4_sbs,SbS regime,1,0,1112924176214470100,0
+SVK,Slovak Republic,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,0,1112924176214470100,0
+SVN,Slovenia,x2_substance,Substance specification,1,43375876766524280,84895914380152e3,0.5109300851898855
+SVN,Slovenia,x1_etr,ETR measurement,1,20976328481906212,84895914380152e3,0.24708289715777315
+SVN,Slovenia,x1_etr:x2_substance,ETR measurement x Substance specification,2,14807104168668690,84895914380152e3,0.17441480284156613
+SVN,Slovenia,x5_behaviour,Behavioural response,1,1629571849666246,84895914380152e3,0.019194938432128213
+SVN,Slovenia,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,1435850780609197,84895914380152e3,0.016913072803240666
+SVN,Slovenia,x3_rates,SBIE rate endpoint,1,803872536333735.25,84895914380152e3,0.009468918995725833
+SVN,Slovenia,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,643675928363373.5,84895914380152e3,0.0075819423474383345
+SVN,Slovenia,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,327693135723405.06,84895914380152e3,0.0038599399996570053
+SVN,Slovenia,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,318711011221431.4,84895914380152e3,0.003754138388736685
+SVN,Slovenia,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,309980178294227.94,84895914380152e3,0.003651296773908108
+SVN,Slovenia,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,221736881419982.97,84895914380152e3,0.0026118675208217476
+SVN,Slovenia,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,21533367758086.703,84895914380152e3,2.536443351285823e-4
+SVN,Slovenia,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,18335060636027.453,84895914380152e3,2.1597106020821712e-4
+SVN,Slovenia,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,3127629622615.8066,84895914380152e3,3.684075547629677e-5
+SVN,Slovenia,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,2516603404507.735,84895914380152e3,2.9643398305821147e-5
+SVN,Slovenia,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,0,84895914380152e3,0
+SVN,Slovenia,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,0,84895914380152e3,0
+SVN,Slovenia,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,0,84895914380152e3,0
+SVN,Slovenia,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,0,84895914380152e3,0
+SVN,Slovenia,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,0,84895914380152e3,0
+SVN,Slovenia,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,0,84895914380152e3,0
+SVN,Slovenia,x1_etr:x4_sbs,ETR measurement x SbS regime,2,0,84895914380152e3,0
+SVN,Slovenia,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,0,84895914380152e3,0
+SVN,Slovenia,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,0,84895914380152e3,0
+SVN,Slovenia,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,0,84895914380152e3,0
+SVN,Slovenia,x2_substance:x4_sbs,Substance specification x SbS regime,2,0,84895914380152e3,0
+SVN,Slovenia,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,0,84895914380152e3,0
+SVN,Slovenia,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,0,84895914380152e3,0
+SVN,Slovenia,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,0,84895914380152e3,0
+SVN,Slovenia,x4_sbs,SbS regime,1,0,84895914380152e3,0
+SVN,Slovenia,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,0,84895914380152e3,0
+SWE,Sweden,x1_etr,ETR measurement,1,23511063946148764e4,26208272751566137e4,0.8970855946523147
+SWE,Sweden,x5_behaviour,Behavioural response,1,12341855979868662e3,26208272751566137e4,0.04709145122557207
+SWE,Sweden,x4_sbs,SbS regime,1,9450304001938268e3,26208272751566137e4,0.036058476998922194
+SWE,Sweden,x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,3018923692267078700,26208272751566137e4,0.011518972352295424
+SWE,Sweden,x1_etr:x4_sbs,ETR measurement x SbS regime,2,901339693812453600,26208272751566137e4,0.0034391419165865937
+SWE,Sweden,x2_substance,Substance specification,1,440230306857160300,26208272751566137e4,0.0016797379630096123
+SWE,Sweden,x1_etr:x2_substance,ETR measurement x Substance specification,2,406940574917483400,26208272751566137e4,0.00155271802447632
+SWE,Sweden,x3_rates,SBIE rate endpoint,1,207864226714895550,26208272751566137e4,7.931244789967097e-4
+SWE,Sweden,x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,108883887044786530,26208272751566137e4,4.154561732355289e-4
+SWE,Sweden,x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,61005102854223970,26208272751566137e4,2.327704058657527e-4
+SWE,Sweden,x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,10047105370335496,26208272751566137e4,3.8335625798671175e-5
+SWE,Sweden,x2_substance:x5_behaviour,Substance specification x Behavioural response,2,9774568871523336,26208272751566137e4,3.729573850279482e-5
+SWE,Sweden,x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,5741364490981506,26208272751566137e4,2.190668780581283e-5
+SWE,Sweden,x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,3075834040245168,26208272751566137e4,1.1736118856063738e-5
+SWE,Sweden,x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,2697713966133593.5,26208272751566137e4,1.029336802049416e-5
+SWE,Sweden,x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,1449325162198203.2,26208272751566137e4,5.53002930004838e-6
+SWE,Sweden,x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,983167416062388.9,26208272751566137e4,3.7513628821786333e-6
+SWE,Sweden,x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,350939479154332.4,26208272751566137e4,1.339040853554003e-6
+SWE,Sweden,x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,340758109441364.3,26208272751566137e4,1.3001929301922481e-6
+SWE,Sweden,x2_substance:x4_sbs,Substance specification x SbS regime,2,231696259441490.8,26208272751566137e4,8.84057723444004e-7
+SWE,Sweden,x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,21236059049146.582,26208272751566137e4,8.102807556395555e-8
+SWE,Sweden,x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,9076441102479.645,26208272751566137e4,3.4631969792581086e-8
+SWE,Sweden,x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,8485003182970.68,26208272751566137e4,3.237528570998117e-8
+SWE,Sweden,x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,5111396467719.144,26208272751566137e4,1.950298867907539e-8
+SWE,Sweden,x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,2023661155083.8953,26208272751566137e4,7.721459457731593e-9
+SWE,Sweden,x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,1686083281422.344,26208272751566137e4,6.433401000535558e-9
+SWE,Sweden,x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,228402602315.6313,26208272751566137e4,8.714904811954178e-10
+SWE,Sweden,x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,193518810749.39703,26208272751566137e4,7.383882661165943e-10
+SWE,Sweden,x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,47777620716.66234,26208272751566137e4,1.822997691208295e-10
+SWE,Sweden,x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,16165724633.144703,26208272751566137e4,6.168176280208577e-11
+SWE,Sweden,x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,10224148967.92086,26208272751566137e4,3.901115142091877e-11

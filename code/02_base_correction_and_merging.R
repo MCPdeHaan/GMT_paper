@@ -653,6 +653,10 @@ panel <- panel |>
       tax_accrued_panelai / profit_panelai,
       NA_real_
     ),
+    affiliate_cit_top_all_unit = affiliate_cit_top_all / 100,
+    affiliate_cit_standard_unit = affiliate_cit_standard / 100,
+    parent_cit_top_all_unit = parent_cit_top_all / 100,
+    parent_cit_standard_unit = parent_cit_standard / 100,
     # Stage 1 bounded ETR: clip to [0, affiliate_cit_rate + ZETA] for use as
     # a location shift anchor in the BSPI (Section sec:distributional).
     # Negative ETRs with magnitude below ZETA are treated as rounding noise
@@ -663,12 +667,12 @@ panel <- panel |>
       is.na(etr_panelai_raw)                              ~ NA_real_,
       etr_panelai_raw < -ZETA_LOSS_OFFSET                 ~ NA_real_,
       etr_panelai_raw < 0                                 ~ 0,
-      !is.na(affiliate_cit_top_all) &
-        etr_panelai_raw > affiliate_cit_top_all + ZETA_LOSS_OFFSET ~
-        affiliate_cit_top_all + ZETA_LOSS_OFFSET,
-      !is.na(affiliate_cit_standard) &
-        etr_panelai_raw > affiliate_cit_standard + ZETA_LOSS_OFFSET ~
-        affiliate_cit_standard + ZETA_LOSS_OFFSET,
+      !is.na(affiliate_cit_top_all_unit) &
+        etr_panelai_raw > affiliate_cit_top_all_unit + ZETA_LOSS_OFFSET ~
+        affiliate_cit_top_all_unit + ZETA_LOSS_OFFSET,
+      !is.na(affiliate_cit_standard_unit) &
+        etr_panelai_raw > affiliate_cit_standard_unit + ZETA_LOSS_OFFSET ~
+        affiliate_cit_standard_unit + ZETA_LOSS_OFFSET,
       etr_panelai_raw > 1                                 ~ 1,
       TRUE                                                ~ etr_panelai_raw
     ),
@@ -676,19 +680,19 @@ panel <- panel |>
       is.na(etr_panelai_raw)                              ~ "missing",
       etr_panelai_raw < -ZETA_LOSS_OFFSET                 ~ "dropped_loss_carryforward",
       etr_panelai_raw < 0                                 ~ "negative_noise_to_zero",
-      !is.na(affiliate_cit_top_all) &
-        etr_panelai_raw > affiliate_cit_top_all + ZETA_LOSS_OFFSET ~
+      !is.na(affiliate_cit_top_all_unit) &
+        etr_panelai_raw > affiliate_cit_top_all_unit + ZETA_LOSS_OFFSET ~
         "above_cit_capped_top_all",
-      !is.na(affiliate_cit_standard) &
-        etr_panelai_raw > affiliate_cit_standard + ZETA_LOSS_OFFSET ~
+      !is.na(affiliate_cit_standard_unit) &
+        etr_panelai_raw > affiliate_cit_standard_unit + ZETA_LOSS_OFFSET ~
         "above_cit_capped_standard",
       etr_panelai_raw > 1                                 ~ "above_one_capped",
       TRUE                                                ~ "unchanged"
     ),
     # Regression-input ETR (Section sec:estimation_robustness). Harder
     # bounds to keep the log-regression well-behaved: drop anything outside
-    # [-ZETA, 1 + ZETA] before the cluster-bootstrap winsorisation at the
-    # 1st and 99th percentiles is applied inside the estimation script.
+    # [-ZETA, 1 + ZETA] before the 1st and 99th percentile winsorisation is
+    # applied inside the estimation script.
     etr_panelai_reg_eligible = !is.na(etr_panelai_raw) &
       etr_panelai_raw >= -ZETA_LOSS_OFFSET &
       etr_panelai_raw <= 1 + ZETA_LOSS_OFFSET,
@@ -738,7 +742,15 @@ panel <- panel |>
     ),
     analysis_profit_base = profit_panelai_corrected_baseline,
     affiliate_cit_rate = coalesce(affiliate_cit_top_all, affiliate_cit_standard),
+    affiliate_cit_rate_unit = coalesce(
+      affiliate_cit_top_all_unit,
+      affiliate_cit_standard_unit
+    ),
     parent_cit_rate = coalesce(parent_cit_top_all, parent_cit_standard),
+    parent_cit_rate_unit = coalesce(
+      parent_cit_top_all_unit,
+      parent_cit_standard_unit
+    ),
     zero_profit_panelai_flag = !is.na(profit_panelai) & profit_panelai == 0,
     below_gmt_on_average_flag = !is.na(etr_panelai_raw) & etr_panelai_raw < GMT_RATE,
     etr_negative_flag = !is.na(etr_panelai_raw) & etr_panelai_raw < 0,

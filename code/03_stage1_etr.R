@@ -259,6 +259,7 @@ run_stage1_pipeline <- function() {
         na.rm = TRUE
       ),
       affiliate_cit_rate = first_non_missing(affiliate_cit_rate),
+      affiliate_cit_rate_unit = first_non_missing(affiliate_cit_rate_unit),
       .groups = "drop"
     ) |>
     mutate(
@@ -268,7 +269,8 @@ run_stage1_pipeline <- function() {
         NA_real_
       ),
       affiliate_etr_cap_stage1 = case_when(
-        !is.na(affiliate_cit_rate) ~ pmin(1, affiliate_cit_rate + ZETA_LOSS_OFFSET),
+        !is.na(affiliate_cit_rate_unit) ~
+          pmin(1, affiliate_cit_rate_unit + ZETA_LOSS_OFFSET),
         TRUE                       ~ 1
       ),
       avg_etr_stage1 = case_when(

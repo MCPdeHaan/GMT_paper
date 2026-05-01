@@ -27,4 +27,4 @@ rows_bspi_avg_only,9280
 rows_t3_ratio_above_one,87
 rows_etr_negative_noise_recoded,300
 rows_etr_loss_carryforward_dropped,403
-rows_etr_above_cit_capped,199
+rows_etr_above_cit_capped,2118
