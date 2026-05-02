@@ -4,9 +4,9 @@
 # Implements Stage 2 of the GMT revenue pipeline on top of the Stage 1 outputs.
 # The script produces two linked objects:
 # 1. an aggregate bilateral SBIE filter for the 2017-2022 panel; and
-# 2. a 2022 EU27 sectoral effective-floor matrix using CbCR levels and FATS
-#    sector shares, with an SBTI-capacity overlay and a mechanical 2024-2033
-#    transition path.
+# 2. a 2022 EU27 sectoral effective-floor matrix using CbCR levels, FATS
+#    foreign-control sector shares and EUKLEMS tangible-capital stock shares,
+#    with an SBTI-capacity overlay and a mechanical 2024-2033 transition path.
 library(dplyr); library(tidyr); library(readr); library(tibble)
 
 IN   <- "data/processed"
@@ -64,6 +64,18 @@ weighted_mean_available <- function(x, w) {
 
 coalesce_zero <- function(x) {
   if_else(is.na(x), 0, x)
+}
+
+nace_broad_group <- function(x) {
+  out <- substr(x, 1, 1)
+  out[!out %in% LETTERS] <- NA_character_
+  out
+}
+
+safe_cor <- function(x, y) {
+  keep <- is.finite(x) & is.finite(y)
+  if (sum(keep) < 2) return(NA_real_)
+  stats::cor(x[keep], y[keep])
 }
 
 cluster_vcov_lm <- function(fit, cluster) {
@@ -192,6 +204,9 @@ run_stage2_pipeline <- function() {
   stage1_affiliate_year <- readRDS(file.path(IN, "stage1_affiliate_year.rds")) |>
     filter(year %in% MAIN_YEARS)
   fats_sector_shares <- readRDS(file.path(IN, "base_panel_fats_sector_shares.rds"))
+  bea_us_parent_sector_benchmark <- readRDS(
+    file.path(IN, "base_panel_bea_us_parent_sector_benchmark.rds")
+  )
 
   assert_unique_keys(stage1_bilateral,
                      c("parent", "affiliate", "year"),
@@ -202,6 +217,9 @@ run_stage2_pipeline <- function() {
   assert_unique_keys(fats_sector_shares,
                      c("affiliate", "year", "nace_r2"),
                      "FATS sector shares input")
+  assert_unique_keys(bea_us_parent_sector_benchmark,
+                     c("measure", "year", "affiliate", "bea_sector_group"),
+                     "BEA US-parent sector benchmark input")
 
   # Aggregate bilateral Stage 2 filter. Missing payroll enters as a conservative
   # zero contribution so that the panel remains complete for downstream work;
@@ -435,14 +453,20 @@ run_stage2_pipeline <- function() {
       payroll_share_sum = sum(fats_payroll_share, na.rm = TRUE),
       employee_share_sum = sum(fats_employee_share, na.rm = TRUE),
       investment_share_sum = sum(fats_investment_share, na.rm = TRUE),
+      asset_share_sum = sum(sectoral_asset_share, na.rm = TRUE),
       turnover_share_sum = sum(fats_turnover_share, na.rm = TRUE),
+      profit_share_sum = sum(sectoral_profit_share, na.rm = TRUE),
+      euklems_asset_share_sum = sum(euklems_tangible_asset_share, na.rm = TRUE),
+      affiliates_using_euklems_stock = as.integer(first(use_euklems_asset_share)),
+      euklems_stock_coverage_turnover_share =
+        first(euklems_stock_coverage_turnover_share),
       .groups = "drop"
     )
 
   if (max(abs(sectoral_weights_check$payroll_share_sum - 1), na.rm = TRUE) > 1e-8 ||
-      max(abs(sectoral_weights_check$investment_share_sum - 1), na.rm = TRUE) > 1e-8 ||
-      max(abs(sectoral_weights_check$turnover_share_sum - 1), na.rm = TRUE) > 1e-8) {
-    stop("Sectoral FATS weights do not sum to one")
+      max(abs(sectoral_weights_check$asset_share_sum - 1), na.rm = TRUE) > 1e-8 ||
+      max(abs(sectoral_weights_check$profit_share_sum - 1), na.rm = TRUE) > 1e-8) {
+    stop("Sectoral Stage 2 weights do not sum to one")
   }
 
   sectoral_reference_base <- stage1_bilateral |>
@@ -486,11 +510,11 @@ run_stage2_pipeline <- function() {
     tidyr::crossing(transition_rates) |>
     mutate(
       payroll_share_proxy_source = "fats_payroll_share",
-      asset_share_proxy_source = "fats_investment_share",
-      profit_share_proxy_source = "fats_turnover_share",
+      sectoral_asset_share_used = sectoral_asset_share,
+      sectoral_profit_share_used = sectoral_profit_share,
       sectoral_payroll = fats_payroll_share * total_payroll,
-      sectoral_assets = fats_investment_share * total_assets,
-      sectoral_profit_proxy = fats_turnover_share * total_profit,
+      sectoral_assets = sectoral_asset_share * total_assets,
+      sectoral_profit_proxy = sectoral_profit_share * total_profit,
       sectoral_sbie = compute_sbie_value(
         sectoral_payroll,
         sectoral_assets,
@@ -624,8 +648,8 @@ run_stage2_pipeline <- function() {
     tidyr::crossing(STAGE2_ENDPOINTS, ASSET_COMPONENT_SENSITIVITY) |>
     mutate(
       sectoral_payroll = fats_payroll_share * total_payroll,
-      sectoral_assets = fats_investment_share * total_assets,
-      sectoral_profit_proxy = fats_turnover_share * total_profit,
+      sectoral_assets = sectoral_asset_share * total_assets,
+      sectoral_profit_proxy = sectoral_profit_share * total_profit,
       sectoral_phi_sensitivity = compute_phi_ratio(
         sigma_w * sectoral_payroll +
           sigma_a * asset_component_scale * sectoral_assets,
@@ -657,6 +681,93 @@ run_stage2_pipeline <- function() {
       .groups = "drop"
     ) |>
     arrange(rate_scenario, asset_component_scale)
+
+  # BEA is a U.S.-parented MNE benchmark, not a replacement for the CbCR
+  # liability base. This diagnostic compares its broad sector shares with the
+  # FATS/EUKLEMS host-country bridge used in the EU sectoral sensitivity.
+  fats_broad_sector_reference <- fats_sector_shares |>
+    filter(year == SECTORAL_REFERENCE_YEAR, affiliate %in% EU27_ISO3) |>
+    mutate(nace_broad = nace_broad_group(nace_r2)) |>
+    group_by(affiliate, nace_broad) |>
+    summarise(
+      fats_payroll_share = sum(fats_payroll_share, na.rm = TRUE),
+      fats_employee_share = sum(fats_employee_share, na.rm = TRUE),
+      fats_investment_share = sum(fats_investment_share, na.rm = TRUE),
+      fats_asset_share = sum(sectoral_asset_share, na.rm = TRUE),
+      fats_profit_share = sum(sectoral_profit_share, na.rm = TRUE),
+      fats_turnover_share = sum(fats_turnover_share, na.rm = TRUE),
+      .groups = "drop"
+    )
+
+  bea_fats_broad_sector_validation <- bea_us_parent_sector_benchmark |>
+    filter(
+      affiliate %in% EU27_ISO3,
+      measure %in% c("employment", "compensation",
+                     "ppe_expenditures", "total_assets"),
+      (measure %in% c("employment", "total_assets") &
+         year == SECTORAL_REFERENCE_YEAR) |
+        (measure %in% c("compensation", "ppe_expenditures") &
+           year == SECTORAL_REFERENCE_YEAR + 1L),
+      !is.na(nace_r2)
+    ) |>
+    transmute(
+      affiliate,
+      bea_year = year,
+      measure,
+      bea_sector_group,
+      nace_broad = nace_r2,
+      bea_value = value,
+      bea_sector_share,
+      bea_top_level_coverage_ratio,
+      bea_share_denominator
+    ) |>
+    left_join(fats_broad_sector_reference,
+              by = c("affiliate", "nace_broad")) |>
+    mutate(
+      fats_reference_year = SECTORAL_REFERENCE_YEAR,
+      fats_comparator_share = case_when(
+        measure == "employment"       ~ fats_employee_share,
+        measure == "compensation"     ~ fats_payroll_share,
+        measure == "ppe_expenditures" ~ fats_investment_share,
+        measure == "total_assets"     ~ fats_asset_share,
+        TRUE                          ~ NA_real_
+      ),
+      share_gap = bea_sector_share - fats_comparator_share,
+      abs_share_gap = abs(share_gap),
+      comparator_interpretation = case_when(
+        measure == "employment" ~
+          "BEA employment share versus FATS employee share",
+        measure == "compensation" ~
+          "BEA compensation share versus FATS personnel-cost share",
+        measure == "ppe_expenditures" ~
+          "BEA PPE expenditure share versus FATS investment-flow share",
+        measure == "total_assets" ~
+          "BEA total-asset share versus FATS/EUKLEMS sectoral asset share",
+        TRUE ~ NA_character_
+      )
+    ) |>
+    arrange(measure, bea_year, affiliate, nace_broad)
+
+  bea_fats_broad_sector_validation_summary <-
+    bea_fats_broad_sector_validation |>
+    filter(!is.na(fats_comparator_share)) |>
+    group_by(measure, bea_year) |>
+    summarise(
+      n_sector_country_cells = n(),
+      eu27_affiliates = n_distinct(affiliate),
+      mean_abs_share_gap = mean(abs_share_gap, na.rm = TRUE),
+      bea_weighted_abs_share_gap = weighted_mean_available(
+        abs_share_gap,
+        bea_sector_share
+      ),
+      share_correlation = safe_cor(bea_sector_share, fats_comparator_share),
+      mean_bea_top_level_coverage_ratio = weighted_mean_available(
+        bea_top_level_coverage_ratio,
+        bea_share_denominator
+      ),
+      .groups = "drop"
+    ) |>
+    arrange(measure, bea_year)
 
   h5_sample <- stage2_sectoral_matrix |>
     filter(
@@ -797,6 +908,12 @@ run_stage2_pipeline <- function() {
             file.path(DIAG, "step4_stage2_sectoral_h5_model_tests.csv"))
   write_csv(stage2_sectoral_asset_sensitivity,
             file.path(DIAG, "step4_stage2_sectoral_asset_sensitivity.csv"))
+  write_csv(bea_fats_broad_sector_validation,
+            file.path(DIAG, "step4_stage2_bea_fats_broad_sector_validation.csv"))
+  write_csv(
+    bea_fats_broad_sector_validation_summary,
+    file.path(DIAG, "step4_stage2_bea_fats_broad_sector_validation_summary.csv")
+  )
   write_csv(stage2_irl_nld_comparison,
             file.path(DIAG, "step4_stage2_irl_nld_comparison.csv"))
 

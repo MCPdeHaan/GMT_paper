@@ -56,6 +56,30 @@ test_that("SESH bunching extinguishes liability inside the band", {
   expect_equal(above_floor$behavioural_liability_filter, 1)
 })
 
+test_that("affiliate statutory CIT lag is constructed by affiliate-year", {
+  toy <- tibble::tibble(
+    parent = c("P1", "P2", "P1", "P2", "P1", "P2"),
+    affiliate = c("A", "A", "A", "A", "B", "B"),
+    year = c(2016, 2016, 2017, 2017, 2016, 2017),
+    affiliate_cit_rate_unit = c(0.20, 0.20, 0.21, 0.21, 0.25, 0.26)
+  )
+
+  out <- add_affiliate_cit_lag(toy)
+
+  expect_equal(
+    out$affiliate_cit_rate_unit_lag1[
+      out$affiliate == "A" & out$year == 2017
+    ],
+    c(0.20, 0.20)
+  )
+  expect_true(is.na(out$affiliate_cit_rate_unit_lag1[
+    out$affiliate == "B" & out$year == 2016
+  ]))
+  expect_equal(out$affiliate_cit_rate_unit_lag1[
+    out$affiliate == "B" & out$year == 2017
+  ], 0.25)
+})
+
 test_that("strategic behaviour conserves channel shares and bounds beta", {
   toy <- tibble::tibble(
     scenario_id = "x00001",

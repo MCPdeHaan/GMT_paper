@@ -4,7 +4,7 @@
 # Reshapes the raw datasets collected by code/collect_all_data.py into tidy,
 # analysis-ready intermediate tables in data/processed/. No new variables are
 # calculated, no datasets are merged.
-library(dplyr); library(tidyr); library(readr); library(purrr); library(stringr); library(tibble)
+library(dplyr); library(tidyr); library(readr); library(purrr); library(stringr); library(tibble); library(xml2)
 
 RAW <- "data/raw"
 OUT <- "data/processed"
@@ -20,6 +20,56 @@ EU27_ISO3 <- c("AUT","BEL","BGR","CYP","CZE","DEU","DNK","ESP","EST","FIN","FRA"
 EU27_ISO2 <- c("AT","BE","BG","CY","CZ","DE","DK","EE","EL","ES","FI","FR",
                "HR","HU","IE","IT","LT","LU","LV","MT","NL","PL","PT","RO",
                "SE","SI","SK")
+
+EUROSTAT_GEO_MAP <- tribble(
+  ~geo, ~jurisdiction,
+  "AT", "AUT", "BE", "BEL", "BG", "BGR", "CY", "CYP", "CZ", "CZE",
+  "DE", "DEU", "DK", "DNK", "EE", "EST", "EL", "GRC", "ES", "ESP",
+  "FI", "FIN", "FR", "FRA", "HR", "HRV", "HU", "HUN", "IE", "IRL",
+  "IT", "ITA", "LT", "LTU", "LU", "LUX", "LV", "LVA", "MT", "MLT",
+  "NL", "NLD", "PL", "POL", "PT", "PRT", "RO", "ROU", "SE", "SWE",
+  "SI", "SVN", "SK", "SVK", "US", "USA", "UK", "GBR", "JP", "JPN"
+)
+
+BEA_COUNTRY_MAP <- tribble(
+  ~country_or_region, ~jurisdiction,
+  "Austria", "AUT",
+  "Belgium", "BEL",
+  "Bulgaria", "BGR",
+  "Croatia", "HRV",
+  "Cyprus", "CYP",
+  "Czech Republic", "CZE",
+  "Denmark", "DNK",
+  "Estonia", "EST",
+  "Finland", "FIN",
+  "France", "FRA",
+  "Germany", "DEU",
+  "Greece", "GRC",
+  "Hungary", "HUN",
+  "Ireland", "IRL",
+  "Italy", "ITA",
+  "Latvia", "LVA",
+  "Lithuania", "LTU",
+  "Luxembourg", "LUX",
+  "Malta", "MLT",
+  "Netherlands", "NLD",
+  "Poland", "POL",
+  "Portugal", "PRT",
+  "Romania", "ROU",
+  "Slovakia", "SVK",
+  "Slovenia", "SVN",
+  "Spain", "ESP",
+  "Sweden", "SWE",
+  "Canada", "CAN",
+  "United Kingdom", "GBR",
+  "Switzerland", "CHE",
+  "Norway", "NOR",
+  "Japan", "JPN",
+  "Australia", "AUS",
+  "China", "CHN",
+  "Mexico", "MEX",
+  "Brazil", "BRA"
+)
 
 clean_name <- function(x) x |> tolower() |> str_replace_all("[-[:space:]]", "_")
 
@@ -51,6 +101,10 @@ assert_unique_keys <- function(df, keys, label) {
   if (n_dup > 0) stop(sprintf("%s: %d duplicate key combinations", label, n_dup))
 }
 
+safe_divide <- function(num, den) {
+  if_else(is.na(num) | is.na(den) | den == 0, NA_real_, num / den)
+}
+
 # Append a one-row tibble to the diagnostics list
 diagnostics <- list()
 add_diag <- function(dataset, metric, value) {
@@ -58,7 +112,141 @@ add_diag <- function(dataset, metric, value) {
     tibble(dataset = dataset, metric = metric, value = as.character(value))
 }
 
-# 1. CbCR Table I — aggregate totals + within-jurisdiction ETR percentiles
+excel_col_to_int <- function(ref) {
+  letters <- str_replace_all(ref, "[0-9]", "")
+  vapply(strsplit(letters, ""), function(x) {
+    sum(match(x, LETTERS) * 26^rev(seq_along(x) - 1L))
+  }, numeric(1))
+}
+
+read_xlsx_sheet_names <- function(xlsx_path) {
+  tmp <- tempfile("xlsx_names_")
+  dir.create(tmp)
+  utils::unzip(xlsx_path, exdir = tmp)
+  wb <- read_xml(file.path(tmp, "xl/workbook.xml"))
+  ns <- xml_ns(wb)
+  xml_attr(xml_find_all(wb, ".//d1:sheets/d1:sheet", ns), "name")
+}
+
+read_xlsx_sheet_cells <- function(xlsx_path, sheet_index) {
+  tmp <- tempfile("xlsx_cells_")
+  dir.create(tmp)
+  utils::unzip(xlsx_path, exdir = tmp)
+
+  shared_path <- file.path(tmp, "xl/sharedStrings.xml")
+  shared_strings <- character()
+  if (file.exists(shared_path)) {
+    shared_xml <- read_xml(shared_path)
+    shared_ns <- xml_ns(shared_xml)
+    shared_strings <- xml_text(xml_find_all(shared_xml, ".//d1:si", shared_ns))
+  }
+
+  sheet_xml <- read_xml(file.path(tmp, sprintf("xl/worksheets/sheet%d.xml", sheet_index)))
+  sheet_ns <- xml_ns(sheet_xml)
+  cells <- xml_find_all(sheet_xml, ".//d1:c", sheet_ns)
+  ref <- xml_attr(cells, "r")
+  type <- xml_attr(cells, "t")
+  raw_value <- xml_text(xml_find_first(cells, "d1:v", sheet_ns))
+  inline_value <- xml_text(xml_find_first(cells, "d1:is", sheet_ns))
+
+  value <- case_when(
+    type == "s" ~ shared_strings[as.integer(raw_value) + 1L],
+    type == "inlineStr" ~ inline_value,
+    TRUE ~ raw_value
+  )
+  value[value == ""] <- NA_character_
+
+  tibble(
+    row = as.integer(str_replace_all(ref, "[A-Z]", "")),
+    col = excel_col_to_int(ref),
+    value = value
+  )
+}
+
+convert_xls_to_xlsx <- function(path) {
+  soffice <- Sys.which("soffice")
+  if (soffice == "") stop("LibreOffice soffice is required to convert BEA .xls files")
+
+  out_dir <- tempfile("bea_xlsx_")
+  dir.create(out_dir)
+  system2(
+    soffice,
+    c("--headless", "--convert-to", "xlsx", "--outdir", out_dir, path),
+    stdout = TRUE,
+    stderr = TRUE
+  )
+
+  out_path <- file.path(out_dir, str_replace(basename(path), "\\.xls$", ".xlsx"))
+  if (!file.exists(out_path)) stop(sprintf("BEA conversion failed for %s", basename(path)))
+  out_path
+}
+
+clean_bea_numeric <- function(x) {
+  suppressWarnings(as.numeric(x))
+}
+
+parse_bea_country_industry_sheet <- function(path, sheet_name, measure, unit,
+                                             year = NA_integer_) {
+  xlsx_path <- if (str_ends(path, "\\.xls$")) convert_xls_to_xlsx(path) else path
+  sheet_names <- read_xlsx_sheet_names(xlsx_path)
+  sheet_index <- match(sheet_name, sheet_names)
+  if (is.na(sheet_index)) stop(sprintf("Missing BEA sheet %s in %s", sheet_name, basename(path)))
+
+  cells <- read_xlsx_sheet_cells(xlsx_path, sheet_index)
+  data_start <- cells |>
+    filter(col == 1, value == "All countries") |>
+    summarise(row = min(row), .groups = "drop") |>
+    pull(row)
+  if (length(data_start) == 0 || is.infinite(data_start)) {
+    stop(sprintf("Cannot locate BEA data body in %s / %s", basename(path), sheet_name))
+  }
+
+  number_row <- max(cells$row[cells$row < data_start &
+                                str_detect(coalesce(cells$value, ""), "^\\([0-9]+\\)$")])
+  industry_cols <- cells |>
+    filter(row == number_row, str_detect(coalesce(value, ""), "^\\([0-9]+\\)$")) |>
+    arrange(col) |>
+    pull(col)
+
+  industry_lookup <- map_dfr(industry_cols, function(j) {
+    label <- cells |>
+      filter(col == j, row < number_row, !is.na(value),
+             !value %in% c("Of which:", "Total")) |>
+      arrange(desc(row)) |>
+      slice(1) |>
+      pull(value)
+    tibble(col = j, bea_industry = label)
+  })
+
+  country_rows <- cells |>
+    filter(col == 1, row >= data_start, !is.na(value)) |>
+    transmute(row, country_or_region = value)
+
+  values <- cells |>
+    filter(row %in% country_rows$row, col %in% industry_cols) |>
+    left_join(country_rows, by = "row") |>
+    left_join(industry_lookup, by = "col") |>
+    transmute(
+      source_file = basename(path),
+      source_sheet = sheet_name,
+      year = year,
+      measure = measure,
+      unit = unit,
+      country_or_region,
+      bea_industry,
+      raw_value = value,
+      suppression_code = if_else(raw_value %in% c("(D)", "(*)", "A"),
+                                 raw_value, NA_character_),
+      value = clean_bea_numeric(raw_value)
+    ) |>
+    filter(!is.na(raw_value)) |>
+    left_join(BEA_COUNTRY_MAP, by = "country_or_region") |>
+    mutate(is_country = !is.na(jurisdiction))
+
+  values
+}
+
+# 1. CbCR Table I: aggregate totals and within-jurisdiction ETR percentiles
 t1_raw <- read_oecd(file.path(RAW, "oecd_cbcr/cbcr_table1_aggregate_totals.csv")) |>
   rename(parent = REF_AREA, affiliate = COUNTERPART_AREA, year = TIME_PERIOD,
          measure = MEASURE, panel = PROFIT_GROUPING,
@@ -114,9 +302,9 @@ write_csv(
 )
 
 # =============================================================================
-# 2. CbCR Table II — interquartile means
+# 2. CbCR Table II: interquartile means
 # =============================================================================
-message("[2/12] CbCR Table II")
+message("[2/15] CbCR Table II")
 t2_raw <- read_oecd(file.path(RAW, "oecd_cbcr/cbcr_table2_interquartile_means.csv")) |>
   rename(parent = REF_AREA, affiliate = COUNTERPART_AREA, year = TIME_PERIOD,
          measure = MEASURE, panel = PROFIT_GROUPING, value = OBS_VALUE)
@@ -132,9 +320,9 @@ saveRDS(cbcr_t2, file.path(OUT, "cbcr_table2.rds"))
 add_diag("cbcr_t2", "rows", nrow(cbcr_t2))
 
 # =============================================================================
-# 3. CbCR Table III — ETR brackets at MNE-group level
+# 3. CbCR Table III: ETR brackets at MNE-group level
 # =============================================================================
-message("[3/12] CbCR Table III")
+message("[3/15] CbCR Table III")
 t3_raw <- read_oecd(file.path(RAW, "oecd_cbcr/cbcr_table3_etr_aggregates.csv")) |>
   rename(parent = REF_AREA, affiliate = COUNTERPART_AREA, year = TIME_PERIOD,
          measure = MEASURE, panel = PROFIT_GROUPING,
@@ -153,9 +341,9 @@ saveRDS(cbcr_t3, file.path(OUT, "cbcr_table3.rds"))
 add_diag("cbcr_t3", "rows", nrow(cbcr_t3))
 
 # =============================================================================
-# 4. CbCR Table IV — ETR brackets at subsidiary level (the GMT-critical table)
+# 4. CbCR Table IV: ETR brackets at subsidiary level (the GMT-critical table)
 # =============================================================================
-message("[4/12] CbCR Table IV")
+message("[4/15] CbCR Table IV")
 t4_raw <- read_oecd(file.path(RAW, "oecd_cbcr/cbcr_table4_etr_aggregates_alt.csv")) |>
   rename(parent = REF_AREA, affiliate = COUNTERPART_AREA, year = TIME_PERIOD,
          measure = MEASURE, panel = PROFIT_GROUPING,
@@ -227,9 +415,9 @@ t4_coverage <- cbcr_t4 |>
 write_csv(t4_coverage, file.path(DIAG, "cbcr_t4_coverage_by_year.csv"))
 
 # =============================================================================
-# 5. CbCR Table V — MNE size distribution percentiles
+# 5. CbCR Table V: MNE size distribution percentiles
 # =============================================================================
-message("[5/12] CbCR Table V")
+message("[5/15] CbCR Table V")
 t5_raw <- read_oecd(file.path(RAW, "oecd_cbcr/cbcr_table5_mne_size_distribution.csv")) |>
   rename(parent = REF_AREA, year = TIME_PERIOD, measure = MEASURE,
          stat_op = STATISTICAL_OPERATION, value = OBS_VALUE)
@@ -245,9 +433,9 @@ saveRDS(cbcr_t5, file.path(OUT, "cbcr_table5.rds"))
 add_diag("cbcr_t5", "rows", nrow(cbcr_t5))
 
 # =============================================================================
-# 6. CbCR Table VI — financial aggregates by MNE size class (2022 only)
+# 6. CbCR Table VI: financial aggregates by MNE size class (2022 only)
 # =============================================================================
-message("[6/12] CbCR Table VI")
+message("[6/15] CbCR Table VI")
 t6_raw <- read_oecd(file.path(RAW, "oecd_cbcr/cbcr_table6_mne_size_aggregates.csv")) |>
   rename(parent = REF_AREA, affiliate = COUNTERPART_AREA, year = TIME_PERIOD,
          measure = MEASURE, panel = PROFIT_GROUPING, size_class = MNE_SIZE,
@@ -268,7 +456,7 @@ add_diag("cbcr_t6", "rows", nrow(cbcr_t6))
 # =============================================================================
 # 7. OECD statutory CIT rates (central + combined)
 # =============================================================================
-message("[7/12] OECD statutory CIT rates")
+message("[7/15] OECD statutory CIT rates")
 cit_stat_raw <- read_oecd(file.path(RAW, "oecd_tax_rates/oecd_statutory_cit_rates.csv"))
 # Filter to MEASURE = "CIT" (the headline statutory CIT rate); the file also
 # carries adjacent measure codes (CIT_C central-only, CIT_LSN local sub-national,
@@ -301,7 +489,7 @@ add_diag("cit_dividend", "rows", nrow(cit_dividend))
 # =============================================================================
 # 8. OECD forward-looking ETRs (kept long; many scenario / asset dimensions)
 # =============================================================================
-message("[8/12] OECD forward-looking ETRs")
+message("[8/15] OECD forward-looking ETRs")
 read_etr <- function(path, scenario) {
   read_oecd(path) |>
     transmute(scenario_file = scenario,
@@ -320,9 +508,9 @@ saveRDS(etr_forward, file.path(OUT, "etr_forward.rds"))
 add_diag("etr_forward", "rows", nrow(etr_forward))
 
 # =============================================================================
-# 9. OECD wages — average annual wages (PPP USD) + hourly earnings (kept long)
+# 9. OECD wages: average annual wages (PPP USD) + hourly earnings (kept long)
 # =============================================================================
-message("[9/12] OECD wages")
+message("[9/15] OECD wages")
 wages_oecd <- read_oecd(file.path(RAW, "oecd_wages/oecd_avg_annual_wages.csv")) |>
   filter(MEASURE == "WG", AGGREGATION_OPERATION == "MEAN") |>
   transmute(jurisdiction = REF_AREA, year = TIME_PERIOD,
@@ -359,7 +547,7 @@ wages_oecd_hourly <- read_csv(
 saveRDS(wages_oecd_hourly, file.path(OUT, "wages_oecd_hourly.rds"))
 add_diag("wages_oecd_hourly", "rows", nrow(wages_oecd_hourly))
 
-# ILO wages — extends coverage to non-OECD economies for payroll imputation.
+# ILO wages extend coverage to non-OECD economies for payroll imputation.
 ilo_monthly <- read_oecd(file.path(RAW, "ilo_wages/ilo_monthly_earnings.csv")) |>
   transmute(jurisdiction = REF_AREA, year = TIME_PERIOD, sex = SEX,
             sector = ECO, currency = CUR, value = OBS_VALUE)
@@ -373,9 +561,9 @@ saveRDS(ilo_hourly, file.path(OUT, "wages_ilo_hourly.rds"))
 add_diag("wages_ilo_hourly", "rows", nrow(ilo_hourly))
 
 # =============================================================================
-# 10. World Bank — income classifications, GDP per capita, population
+# 10. World Bank: income classifications, GDP per capita, population
 # =============================================================================
-message("[10/12] World Bank")
+message("[10/15] World Bank")
 wb_raw <- read_csv(file.path(RAW, "world_bank/wb_income_classifications.csv"),
                    show_col_types = FALSE)
 
@@ -419,9 +607,9 @@ saveRDS(wb_pop, file.path(OUT, "wb_population.rds"))
 add_diag("wb_population", "rows", nrow(wb_pop))
 
 # =============================================================================
-# 11. Eurostat inward FATS — pre/post-2021 split (structural break in 2021)
+# 11. Eurostat inward FATS: pre/post-2021 split (structural break in 2021)
 # =============================================================================
-message("[11/12] Eurostat FATS")
+message("[11/15] Eurostat FATS")
 fats_raw <- read_csv(
   file.path(RAW, "eurostat_fats/fats_inward_eu_full.csv.gz"),
   show_col_types = FALSE,
@@ -441,7 +629,7 @@ fats_pre2021 <- fats_raw |>
 saveRDS(fats_pre2021, file.path(OUT, "fats_pre2021.rds"))
 add_diag("fats_pre2021", "rows", nrow(fats_pre2021))
 
-# Post-2021: NACE-detailed activities — basis for the sectoral SBIE work.
+# Post-2021: NACE-detailed activities, basis for the sectoral SBIE work.
 fats_post2021 <- fats_raw |>
   filter(source_dataset == "fats_activ") |>
   transmute(geo, c_ctrl, nace_r2, year = time_period,
@@ -465,9 +653,186 @@ fats_coverage <- fats_post2021 |>
 write_csv(fats_coverage, file.path(DIAG, "fats_post2021_eu27_coverage.csv"))
 
 # =============================================================================
-# 12. Pillar Two trackers + BEPS rules + CIT revenue
+# 12. EUKLEMS & INTANProd: sectoral capital stocks
 # =============================================================================
-message("[12/12] PwC tracker, BEPS rules, CIT revenue")
+message("[12/15] EUKLEMS & INTANProd")
+euklems_capital_raw <- read_csv(
+  file.path(RAW, "euklems_intanprod/capital_accounts.csv"),
+  show_col_types = FALSE,
+  col_select = c(nace_r2_code, geo_code, nace_r2_name, geo_name, year,
+                 K_GFCF, K_CT, K_OCon, K_OMach, K_Rstruc, K_TraEq)
+)
+
+euklems_intan_raw <- read_csv(
+  file.path(RAW, "euklems_intanprod/intangibles_analytical.csv"),
+  show_col_types = FALSE,
+  col_select = c(nace_r2_code, geo_code, nace_r2_name, geo_name, year,
+                 K_Tang, K_TangNRes, K_Intang, K_NatAcc, K_NonNatAcc,
+                 VA_CP, VAadj)
+)
+
+euklems_sector_capital <- euklems_intan_raw |>
+  left_join(
+    euklems_capital_raw |>
+      select(nace_r2_code, geo_code, year, K_GFCF, K_CT, K_OCon, K_OMach,
+             K_Rstruc, K_TraEq),
+    by = c("nace_r2_code", "geo_code", "year")
+  ) |>
+  left_join(EUROSTAT_GEO_MAP, by = c("geo_code" = "geo")) |>
+  transmute(
+    jurisdiction,
+    geo_code,
+    geo_name,
+    nace_r2 = str_replace_all(nace_r2_code, "_", "-"),
+    nace_r2_name,
+    year = as.integer(year),
+    euklems_k_tang = K_Tang,
+    euklems_k_tang_nres = K_TangNRes,
+    euklems_k_intang = K_Intang,
+    euklems_k_natacc = K_NatAcc,
+    euklems_k_non_natacc = K_NonNatAcc,
+    euklems_k_gfcf = K_GFCF,
+    euklems_k_construction = K_OCon,
+    euklems_k_machinery = K_OMach,
+    euklems_k_residential = K_Rstruc,
+    euklems_k_transport = K_TraEq,
+    euklems_k_computing = K_CT,
+    euklems_va_cp = VA_CP,
+    euklems_va_adjusted = VAadj,
+    euklems_tangible_intensity = safe_divide(euklems_k_tang, euklems_va_cp),
+    euklems_intangible_share = safe_divide(
+      euklems_k_intang,
+      euklems_k_tang + euklems_k_intang
+    )
+  ) |>
+  filter(!is.na(jurisdiction)) |>
+  arrange(jurisdiction, year, nace_r2)
+
+assert_unique_keys(euklems_sector_capital,
+                   c("jurisdiction", "year", "nace_r2"),
+                   "EUKLEMS sector capital")
+saveRDS(euklems_sector_capital, file.path(OUT, "euklems_sector_capital.rds"))
+add_diag("euklems_sector_capital", "rows", nrow(euklems_sector_capital))
+add_diag("euklems_sector_capital", "jurisdictions",
+         n_distinct(euklems_sector_capital$jurisdiction))
+add_diag("euklems_sector_capital", "year_range",
+         paste(range(euklems_sector_capital$year), collapse = "-"))
+
+euklems_coverage <- euklems_sector_capital |>
+  filter(jurisdiction %in% EU27_ISO3) |>
+  group_by(jurisdiction, year) |>
+  summarise(
+    n_nace = n_distinct(nace_r2),
+    tangible_stock_available = sum(!is.na(euklems_k_tang)),
+    intangible_stock_available = sum(!is.na(euklems_k_intang)),
+    .groups = "drop"
+  ) |>
+  arrange(jurisdiction, year)
+write_csv(euklems_coverage, file.path(DIAG, "euklems_sector_capital_coverage.csv"))
+
+# =============================================================================
+# 13. Global INTAN-Invest: country-level robustness data
+# =============================================================================
+message("[13/15] Global INTAN-Invest")
+global_intan_annual <- read_csv(
+  file.path(RAW, "global_intan_invest/annual_extrapolated_estimates.csv"),
+  show_col_types = FALSE
+) |>
+  left_join(EUROSTAT_GEO_MAP, by = c("geo_code" = "geo")) |>
+  transmute(
+    jurisdiction,
+    geo_code,
+    year = as.integer(year),
+    global_intan_va_cp = VA_CP,
+    global_intan_gdp = GDP,
+    global_intan_i_gfcf = I_GFCF,
+    global_intan_i_tang_nres = I_TangNRes,
+    global_intan_i_intan = I_Intan,
+    global_intan_i_natacc = I_NatAcc,
+    global_intan_i_non_natacc = I_NonNatAcc,
+    global_intan_employment = H_EMP,
+    global_intan_intangible_investment_share = safe_divide(I_Intan, I_GFCF),
+    global_intan_non_natacc_share = safe_divide(I_NonNatAcc, I_GFCF)
+  ) |>
+  arrange(jurisdiction, year)
+
+assert_unique_keys(global_intan_annual,
+                   c("geo_code", "year"),
+                   "Global INTAN annual")
+saveRDS(global_intan_annual, file.path(OUT, "global_intan_invest_annual.rds"))
+add_diag("global_intan_invest_annual", "rows", nrow(global_intan_annual))
+add_diag("global_intan_invest_annual", "year_range",
+         paste(range(global_intan_annual$year), collapse = "-"))
+
+# =============================================================================
+# 14. BEA US MNE benchmark: country by industry tables
+# =============================================================================
+message("[14/15] BEA US MNE benchmark")
+bea_assets_xlsx <- convert_xls_to_xlsx(file.path(RAW, "bea_mne/bea_mofa_assets.xls"))
+bea_employment_xlsx <- convert_xls_to_xlsx(file.path(RAW, "bea_mne/bea_mofa_employment.xls"))
+bea_ppe_xlsx <- convert_xls_to_xlsx(
+  file.path(RAW, "bea_mne/bea_usdia2023p_mofa_ppe_c4_c6.xls")
+)
+bea_compensation_xlsx <- convert_xls_to_xlsx(
+  file.path(RAW, "bea_mne/bea_usdia2023p_mofa_employment_compensation_g1_g5.xls")
+)
+
+bea_us_mne_country_industry <- bind_rows(
+  map_dfr(2009:2023, ~ parse_bea_country_industry_sheet(
+    bea_assets_xlsx,
+    as.character(.x),
+    "total_assets",
+    "millions_usd",
+    .x
+  )),
+  map_dfr(2009:2023, ~ parse_bea_country_industry_sheet(
+    bea_employment_xlsx,
+    as.character(.x),
+    "employment",
+    "thousand_employees",
+    .x
+  )),
+  parse_bea_country_industry_sheet(
+    bea_ppe_xlsx,
+    "Table II.C 4",
+    "ppe_expenditures",
+    "millions_usd",
+    2023
+  ),
+  parse_bea_country_industry_sheet(
+    bea_compensation_xlsx,
+    "Table II.G 3",
+    "compensation",
+    "millions_usd",
+    2023
+  )
+) |>
+  arrange(measure, year, country_or_region, bea_industry)
+
+saveRDS(bea_us_mne_country_industry,
+        file.path(OUT, "bea_us_mne_country_industry.rds"))
+add_diag("bea_us_mne_country_industry", "rows", nrow(bea_us_mne_country_industry))
+add_diag("bea_us_mne_country_industry", "eu27_country_rows",
+         sum(bea_us_mne_country_industry$jurisdiction %in% EU27_ISO3))
+add_diag("bea_us_mne_country_industry", "suppressed_cells",
+         sum(!is.na(bea_us_mne_country_industry$suppression_code)))
+
+bea_us_mne_coverage <- bea_us_mne_country_industry |>
+  group_by(measure, year) |>
+  summarise(
+    rows = n(),
+    country_rows = sum(is_country),
+    eu27_country_rows = sum(jurisdiction %in% EU27_ISO3, na.rm = TRUE),
+    suppressed_share = mean(!is.na(suppression_code)),
+    .groups = "drop"
+  ) |>
+  arrange(measure, year)
+write_csv(bea_us_mne_coverage, file.path(DIAG, "bea_us_mne_country_industry_coverage.csv"))
+
+# =============================================================================
+# 15. Pillar Two trackers + BEPS rules + CIT revenue
+# =============================================================================
+message("[15/15] PwC tracker, BEPS rules, CIT revenue")
 pwc <- read_csv(file.path(RAW, "pillar2_qdmtt/pwc_pillar2_tracker.csv"),
                 show_col_types = FALSE)
 # The PwC export carries a leading BOM and many trailing empty columns.
@@ -484,7 +849,7 @@ saveRDS(pwc_clean, file.path(OUT, "pwc_pillar2_tracker.rds"))
 add_diag("pwc_pillar2_tracker", "rows", nrow(pwc_clean))
 add_diag("pwc_pillar2_tracker", "territories", n_distinct(pwc_clean$territory))
 
-# OECD BEPS rules — five panel rule types stacked, kept long with a `rule` key.
+# OECD BEPS rules: five panel rule types stacked, kept long with a `rule` key.
 # Values are categorical ("Yes"/"No"/regime label), so OBS_VALUE stays character.
 read_beps <- function(path) {
   read_csv(path, show_col_types = FALSE,

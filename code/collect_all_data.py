@@ -79,11 +79,31 @@ BEA_MNE_CONFIG = [
     ("bea_mofa_employment.xls", "https://www.bea.gov/sites/default/files/2025-08/mofas-employment.xls", "MOFA Employment by Country & Industry"),
     ("bea_mofa_assets.xls", "https://www.bea.gov/sites/default/files/2025-08/mofas-assets.xls", "MOFA Assets by Country & Industry"),
     ("bea_mofa_value_added.xls", "https://www.bea.gov/sites/default/files/2025-08/mofas-value-added.xls", "MOFA Value Added by Country & Industry"),
+    ("bea_usdia2023p_mofa_selected_a1_a2.xls", "https://www.bea.gov/sites/default/files/2025-08/usdia2023p-Part-II-A1-A2.xls", "Preliminary 2023 MOFA selected data, tables A1-A2"),
+    ("bea_usdia2023p_mofa_ppe_c4_c6.xls", "https://www.bea.gov/sites/default/files/2025-08/usdia2023p-Part-II-C4-C6.xls", "Preliminary 2023 MOFA property, plant, and equipment, tables C4-C6"),
+    ("bea_usdia2023p_mofa_value_added_f1_f9.xls", "https://www.bea.gov/sites/default/files/2025-08/usdia2023p-Part-II-F1-F9.xls", "Preliminary 2023 MOFA value added, tables F1-F9"),
+    ("bea_usdia2023p_mofa_employment_compensation_g1_g5.xls", "https://www.bea.gov/sites/default/files/2025-08/usdia2023p-Part-II-G1-G5.xls", "Preliminary 2023 MOFA employment and compensation, tables G1-G5"),
+    ("bea_usdia2023p_combined.zip", "https://www.bea.gov/sites/default/files/2025-08/usdia2023p-CombinedP.zip", "Preliminary 2023 complete US direct investment abroad table set"),
 ]
 
 ILO_WAGES_CONFIG = [
     ("ilo_monthly_earnings.csv", "ILO,DF_EAR_EMTA_SEX_ECO_CUR_NB,1.0", "Mean nominal monthly earnings"),
     ("ilo_hourly_earnings.csv", "ILO,DF_EAR_EHRA_SEX_ECO_CUR_NB,1.0", "Mean nominal hourly earnings"),
+]
+
+EUKLEMS_INTANPROD_CONFIG = [
+    ("variable_description.xlsx", "https://www.dropbox.com/s/srsn4zdb1wta27t/Variable-List-2023.xlsx?dl=1", "EUKLEMS & INTANProd variable description"),
+    ("national_accounts.csv", "https://www.dropbox.com/s/nkz7mdp0onken1j/national%20accounts.csv?dl=1", "EUKLEMS & INTANProd all-country national accounts"),
+    ("labour_accounts.csv", "https://www.dropbox.com/s/vgtzptui1m1tj9l/labour%20accounts.csv?dl=1", "EUKLEMS & INTANProd all-country labour accounts"),
+    ("capital_accounts.csv", "https://www.dropbox.com/s/sp2p4m86et66nfg/capital%20accounts.csv?dl=1", "EUKLEMS & INTANProd all-country capital accounts"),
+    ("intangibles_analytical.csv", "https://www.dropbox.com/s/jcg52sfygjnbbts/intangibles%20analytical.csv?dl=1", "EUKLEMS & INTANProd all-country analytical intangibles"),
+]
+
+GLOBAL_INTAN_INVEST_CONFIG = [
+    ("annual_extrapolated_estimates.csv", "https://global-intaninvest.luiss.it/wp-content/themes/wp-bootstrap-starter-child/download-2025/Annual/annual_extrapolated_estimates.csv", "Global INTAN-Invest annual extrapolated estimates"),
+    ("quarterly_estimates.csv", "https://global-intaninvest.luiss.it/wp-content/themes/wp-bootstrap-starter-child/download-2025/Quarterly/quarterly_estimates.csv", "Global INTAN-Invest quarterly estimates"),
+    ("annual_all_countries.xlsx", "https://global-intaninvest.luiss.it/wp-content/themes/wp-bootstrap-starter-child/download-2025/Annual/AEX_formatted.xlsx", "Global INTAN-Invest annual all-country workbook"),
+    ("quarterly_all_countries.xlsx", "https://global-intaninvest.luiss.it/wp-content/themes/wp-bootstrap-starter-child/download-2025/Quarterly/QNA_formatted.xlsx", "Global INTAN-Invest quarterly all-country workbook"),
 ]
 
 PILLAR2_BEPS_CONFIG = [
@@ -376,6 +396,24 @@ def collect_bea_mne():
                 json.dump(r.json(), f, indent=2)
         except requests.exceptions.RequestException as e:
             log.warning(f"BEA API error: {e}")
+
+@register("euklems_intanprod", "EUKLEMS & INTANProd Data")
+def collect_euklems_intanprod():
+    d = RAW_DIR / "euklems_intanprod"
+    d.mkdir(exist_ok=True)
+
+    for fname, url, desc in EUKLEMS_INTANPROD_CONFIG:
+        if not download_file(url, d / fname, desc):
+            raise RuntimeError(f"Failed to download EUKLEMS & INTANProd file {fname}")
+
+@register("global_intan_invest", "Global INTAN-Invest Data")
+def collect_global_intan_invest():
+    d = RAW_DIR / "global_intan_invest"
+    d.mkdir(exist_ok=True)
+
+    for fname, url, desc in GLOBAL_INTAN_INVEST_CONFIG:
+        if not download_file(url, d / fname, desc):
+            raise RuntimeError(f"Failed to download Global INTAN-Invest file {fname}")
 
 @register("ilo_wages", "ILO Global Wage Data")
 def collect_ilo_wages():

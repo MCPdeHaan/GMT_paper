@@ -308,11 +308,150 @@ fit_fe_ols <- function(data, x_cols, model_spec, t0 = NA_real_,
   )
 }
 
+fit_fe_2sls <- function(data, y_col, endogenous_col, instrument_col,
+                        exog_cols, model_spec, t0 = NA_real_) {
+  model_data <- data |>
+    select(pair_id, parent, year, affiliate, all_of(y_col),
+           all_of(endogenous_col), all_of(instrument_col),
+           all_of(exog_cols)) |>
+    filter(if_all(c(all_of(y_col), all_of(endogenous_col),
+                    all_of(instrument_col), all_of(exog_cols)), is.finite))
+
+  mat <- model_data |>
+    select(all_of(y_col), all_of(endogenous_col),
+           all_of(instrument_col), all_of(exog_cols)) |>
+    as.matrix()
+
+  mat_resid <- demean_two_way(mat, model_data$pair_id, model_data$year)
+  y <- mat_resid[, y_col]
+  endogenous <- mat_resid[, endogenous_col]
+  z <- mat_resid[, c(instrument_col, exog_cols), drop = FALSE]
+
+  qr_z <- qr(z)
+  z <- z[, sort(qr_z$pivot[seq_len(qr_z$rank)]), drop = FALSE]
+  if (!instrument_col %in% colnames(z)) {
+    stop("The excluded instrument is collinear after demeaning")
+  }
+  exog_cols_kept <- setdiff(colnames(z), instrument_col)
+
+  first_stage <- lm.fit(x = z, y = endogenous)
+  endogenous_hat <- as.numeric(z %*% first_stage$coefficients)
+
+  x_hat <- cbind(endogenous_hat, mat_resid[, exog_cols_kept, drop = FALSE])
+  colnames(x_hat)[1] <- endogenous_col
+  x_structural <- cbind(endogenous, mat_resid[, exog_cols_kept, drop = FALSE])
+  colnames(x_structural)[1] <- endogenous_col
+
+  qr_x <- qr(x_hat)
+  x_hat <- x_hat[, sort(qr_x$pivot[seq_len(qr_x$rank)]), drop = FALSE]
+  x_structural <- x_structural[, colnames(x_hat), drop = FALSE]
+  if (!endogenous_col %in% colnames(x_hat)) {
+    stop("The fitted endogenous regressor is collinear after demeaning")
+  }
+
+  fit <- lm.fit(x = x_hat, y = y)
+  coefficients <- fit$coefficients
+  residuals <- as.numeric(y - x_structural %*% coefficients)
+  fitted_within <- as.numeric(x_structural %*% coefficients)
+  rss <- sum(residuals^2)
+  tss_within <- sum((y - mean(y))^2)
+  within_r_squared <- if (tss_within > 0) 1 - rss / tss_within else NA_real_
+  n <- nrow(x_hat)
+  fe_rank <- n_distinct(model_data$pair_id) + n_distinct(model_data$year) - 1
+  k_total <- length(coefficients) + fe_rank
+  df_resid_full <- n - k_total
+  n_affiliates <- n_distinct(model_data$affiliate)
+  n_parents <- n_distinct(model_data$parent)
+
+  vcov <- cluster_vcov(
+    x = x_hat,
+    residuals = residuals,
+    cluster = model_data$affiliate,
+    df_resid_full = df_resid_full
+  )
+  vcov_two_way <- cluster_vcov_twoway(
+    x = x_hat,
+    residuals = residuals,
+    cluster_a = model_data$parent,
+    cluster_b = model_data$affiliate,
+    df_resid_full = df_resid_full
+  )
+
+  list(
+    model_spec = model_spec,
+    t0 = t0,
+    dependent_variable = y_col,
+    endogenous_col = endogenous_col,
+    instrument_col = instrument_col,
+    x_cols = colnames(x_hat),
+    z_cols = colnames(z),
+    n = n,
+    n_pairs = n_distinct(model_data$pair_id),
+    n_affiliates = n_affiliates,
+    n_parents = n_parents,
+    n_years = n_distinct(model_data$year),
+    fe_rank = fe_rank,
+    k_total = k_total,
+    df_resid_full = df_resid_full,
+    rss = rss,
+    tss_within = tss_within,
+    within_r_squared = within_r_squared,
+    coefficients = coefficients,
+    vcov = vcov,
+    vcov_two_way = vcov_two_way,
+    coefficient_table = coefficient_table_from_vcov(
+      coefficients = coefficients,
+      vcov = vcov,
+      model_spec = model_spec,
+      t0 = t0,
+      n = n,
+      n_affiliates = n_affiliates,
+      n_parents = n_parents,
+      df_resid_full = df_resid_full,
+      within_r_squared = within_r_squared,
+      dependent_variable = y_col,
+      inference = "affiliate_clustered",
+      df_inference = max(n_affiliates - 1, 1)
+    ),
+    coefficient_table_two_way = coefficient_table_from_vcov(
+      coefficients = coefficients,
+      vcov = vcov_two_way,
+      model_spec = model_spec,
+      t0 = t0,
+      n = n,
+      n_affiliates = n_affiliates,
+      n_parents = n_parents,
+      df_resid_full = df_resid_full,
+      within_r_squared = within_r_squared,
+      dependent_variable = y_col,
+      inference = "parent_affiliate_clustered",
+      df_inference = max(min(n_parents, n_affiliates) - 1, 1)
+    ),
+    residuals = residuals,
+    fitted_within = fitted_within,
+    model_data = model_data
+  )
+}
+
+add_affiliate_cit_lag <- function(base_panel) {
+  lagged_rates <- base_panel |>
+    group_by(affiliate, year) |>
+    summarise(
+      affiliate_cit_rate_unit_lag1 =
+        first_non_missing(affiliate_cit_rate_unit),
+      .groups = "drop"
+    ) |>
+    mutate(year = year + 1L)
+
+  base_panel |>
+    left_join(lagged_rates, by = c("affiliate", "year"))
+}
+
 prepare_estimation_sample <- function(base_panel,
                                       exclude_stale_wages = FALSE,
                                       balanced_pairs_only = FALSE,
                                       exclude_covid_years = FALSE) {
-  sample <- base_panel |>
+  sample <- add_affiliate_cit_lag(base_panel) |>
     filter(
       year %in% MAIN_YEARS,
       has_behavioral_estimation_inputs,
@@ -540,51 +679,81 @@ stage3_model_wald_tests <- function(model_fits) {
 
 build_tax_endogeneity_diagnostics <- function(estimation_sample) {
   iv_sample <- estimation_sample |>
-    mutate(statutory_tau = affiliate_cit_rate_unit) |>
-    filter(is.finite(statutory_tau))
+    mutate(statutory_tau_lag1 = affiliate_cit_rate_unit_lag1) |>
+    filter(is.finite(statutory_tau_lag1))
 
-  x_cols <- c("statutory_tau", "log_assets", "log_payroll",
-              "log_gdp_pc", "log_population")
+  exog_cols <- c("log_assets", "log_payroll", "log_gdp_pc", "log_population")
+  first_stage_cols <- c("statutory_tau_lag1", exog_cols)
 
   first_stage <- fit_fe_ols(
     iv_sample,
-    x_cols = x_cols,
-    model_spec = "first_stage_statutory_cit",
+    x_cols = first_stage_cols,
+    model_spec = "first_stage_lagged_statutory_cit",
     y_col = "tau"
   )
   reduced_form <- fit_fe_ols(
     iv_sample,
-    x_cols = x_cols,
-    model_spec = "reduced_form_statutory_cit",
+    x_cols = first_stage_cols,
+    model_spec = "reduced_form_lagged_statutory_cit",
     y_col = "log_profit"
   )
+  iv_fit <- fit_fe_2sls(
+    iv_sample,
+    y_col = "log_profit",
+    endogenous_col = "tau",
+    instrument_col = "statutory_tau_lag1",
+    exog_cols = exog_cols,
+    model_spec = "linear_2sls_lagged_statutory_cit"
+  )
 
-  bind_rows(
+  first_stage_rows <- bind_rows(
     first_stage$coefficient_table,
-    first_stage$coefficient_table_two_way,
+    first_stage$coefficient_table_two_way
+  ) |>
+    filter(term == "statutory_tau_lag1") |>
+    mutate(
+      diagnostic = "lagged_statutory_cit_first_stage_for_cbcr_etr",
+      f_statistic = statistic^2,
+      n_pairs = first_stage$n_pairs,
+      note = "Excluded-instrument relevance for the FE-2SLS robustness model."
+    )
+
+  weak_f <- first_stage_rows |>
+    select(inference, weak_instrument_f = f_statistic)
+
+  reduced_form_rows <- bind_rows(
     reduced_form$coefficient_table,
     reduced_form$coefficient_table_two_way
   ) |>
-    filter(term == "statutory_tau") |>
+    filter(term == "statutory_tau_lag1") |>
     mutate(
-      diagnostic = case_when(
-        model_spec == "first_stage_statutory_cit" ~
-          "statutory_cit_first_stage_for_cbcr_etr",
-        TRUE ~ "statutory_cit_reduced_form_for_profit"
-      ),
+      diagnostic = "lagged_statutory_cit_reduced_form_for_profit",
       f_statistic = statistic^2,
-      n_pairs = first_stage$n_pairs,
-      note = case_when(
-        model_spec == "first_stage_statutory_cit" ~
-          "Instrument relevance diagnostic, not a causal estimate.",
-        TRUE ~
-          "Reduced form sign check before any IV interpretation."
+      n_pairs = reduced_form$n_pairs,
+      note = "Reduced form sign check for the excluded instrument."
+    )
+
+  iv_rows <- bind_rows(
+    iv_fit$coefficient_table,
+    iv_fit$coefficient_table_two_way
+  ) |>
+    filter(term == "tau") |>
+    mutate(
+      diagnostic = "lagged_statutory_cit_2sls_for_profit",
+      f_statistic = statistic^2,
+      n_pairs = iv_fit$n_pairs,
+      note = paste(
+        "Linear FE-2SLS estimate instrumenting CbCR ETR with lagged",
+        "affiliate statutory CIT."
       )
-    ) |>
+    )
+
+  bind_rows(first_stage_rows, reduced_form_rows, iv_rows) |>
+    left_join(weak_f, by = "inference") |>
     select(
       diagnostic, model_spec, dependent_variable, inference, term,
-      estimate, std_error, statistic, f_statistic, p_value,
-      n, n_pairs, n_affiliates, n_parents, within_r_squared, note
+      estimate, std_error, statistic, f_statistic, weak_instrument_f,
+      p_value, n, n_pairs, n_affiliates, n_parents, within_r_squared, note
     )
 }
 
@@ -2075,7 +2244,7 @@ run_stage3_pipeline <- function() {
       "preferred_model_bic",
       "preferred_model_within_r_squared",
       "preferred_model_tax_terms_wald_pvalue",
-      "statutory_cit_first_stage_f_two_way",
+      "lagged_statutory_cit_first_stage_f_two_way",
       "logarithmic_t0",
       "factorial_scenarios",
       "country_year_revenue_rows",
@@ -2100,7 +2269,7 @@ run_stage3_pipeline <- function() {
       ][1],
       tax_endogeneity_diagnostics$f_statistic[
         tax_endogeneity_diagnostics$diagnostic ==
-          "statutory_cit_first_stage_for_cbcr_etr" &
+          "lagged_statutory_cit_first_stage_for_cbcr_etr" &
           tax_endogeneity_diagnostics$inference ==
           "parent_affiliate_clustered"
       ][1],

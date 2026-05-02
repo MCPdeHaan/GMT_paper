@@ -6,10 +6,10 @@ years,6
 max_country_channel_gap,0
 max_global_conservation_gap,0.000640869140625
 negative_revenue_rows,0
-eu_revenue_min_scenario,131693481337.873
+eu_revenue_min_scenario,142135747883.891
 eu_revenue_max_scenario,546258615736.513
-eu_revenue_scenario_spread,414565134398.639
-pooled_interaction_eta_squared,0.0572979522829125
+eu_revenue_scenario_spread,404122867852.622
+pooled_interaction_eta_squared,0.0521492077528068
 preferred_universal_revenue,523968061119.613
 preferred_sbs_revenue,354503207814.921
 preferred_behavioural_universal_revenue,391214157002.772

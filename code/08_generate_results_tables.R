@@ -758,15 +758,28 @@ write_stage3_regression_table <- function() {
 }
 
 write_stage3_iv_table <- function() {
-  iv <- read_diag("step5_stage3_tax_endogeneity_diagnostics.csv") |>
+  iv_raw <- read_diag("step5_stage3_tax_endogeneity_diagnostics.csv")
+  if (!"weak_instrument_f" %in% names(iv_raw)) {
+    iv_raw <- iv_raw |>
+      mutate(weak_instrument_f = f_statistic)
+  }
+
+  iv <- iv_raw |>
     filter(inference == "parent_affiliate_clustered") |>
     mutate(
       Diagnostic = recode(
         diagnostic,
+        "lagged_statutory_cit_first_stage_for_cbcr_etr" =
+          "First stage: CbCR ETR",
+        "lagged_statutory_cit_reduced_form_for_profit" =
+          "Reduced form: log profit",
+        "lagged_statutory_cit_2sls_for_profit" =
+          "FE-2SLS: log profit",
         "statutory_cit_first_stage_for_cbcr_etr" =
           "First stage: CbCR ETR",
         "statutory_cit_reduced_form_for_profit" =
-          "Reduced form: log profit"
+          "Reduced form: log profit",
+        .default = diagnostic
       ),
       `Dependent variable` = recode(
         dependent_variable,
@@ -776,15 +789,16 @@ write_stage3_iv_table <- function() {
       )
     ) |>
     arrange(match(Diagnostic,
-                  c("First stage: CbCR ETR", "Reduced form: log profit"))) |>
+                  c("First stage: CbCR ETR", "Reduced form: log profit",
+                    "FE-2SLS: log profit"))) |>
     transmute(
       Diagnostic = latex_escape(Diagnostic),
       `Dependent variable` = latex_escape(`Dependent variable`),
-      `Statutory CIT coefficient` = paste0(
+      Coefficient = paste0(
         fmt_num(estimate, 3), significance_stars(p_value),
         " (", fmt_num(std_error, 3), ")"
       ),
-      `F-statistic` = fmt_num(f_statistic, 2),
+      `Weak-IV $F$` = fmt_num(weak_instrument_f, 2),
       `$p$-value` = fmt_p(p_value),
       `$N$` = fmt_int(n),
       `Within $R^2$` = fmt_num(within_r_squared, 4)
@@ -797,12 +811,13 @@ write_stage3_iv_table <- function() {
     label = "tab:stage3_iv_diagnostics",
     col_spec = "llrrrrr",
     header = c("Diagnostic", "Dependent variable", "Coefficient",
-               "$F$", "$p$-value", "$N$", "Within $R^2$"),
+               "Weak-IV $F$", "$p$-value", "$N$", "Within $R^2$"),
     rows = iv,
     notes = paste(
-      "The table reports the current IV-readiness diagnostics, not a completed 2SLS estimate.",
-      "The first stage tests whether statutory CIT rates predict cleaned CbCR ETRs after pair and year fixed effects.",
-      "The reduced form checks whether statutory CIT rates are negatively associated with reported profit.",
+      "The table reports a fixed-effect first stage, reduced form and linear FE-2SLS robustness estimate.",
+      "The excluded instrument is the one-year lagged statutory CIT rate of the affiliate jurisdiction.",
+      "The weak-instrument statistic is the parent-and-affiliate clustered first-stage F-statistic for the excluded instrument.",
+      "The 2SLS row is not used for the nonlinear counterfactual because one excluded instrument identifies only the linear ETR coefficient.",
       source_note("data/processed/diagnostics/step5_stage3_tax_endogeneity_diagnostics.csv")
     ),
     size = "\\scriptsize",

@@ -157,6 +157,12 @@ wages_oecd <- readRDS(file.path(IN, "wages_oecd.rds")) |>
 wages_ilo_monthly <- readRDS(file.path(IN, "wages_ilo_monthly.rds")) |>
   mutate(jurisdiction = normalize_code(jurisdiction))
 fats_post2021 <- readRDS(file.path(IN, "fats_post2021.rds"))
+euklems_sector_capital <- readRDS(file.path(IN, "euklems_sector_capital.rds")) |>
+  mutate(jurisdiction = normalize_code(jurisdiction))
+global_intan_annual <- readRDS(file.path(IN, "global_intan_invest_annual.rds")) |>
+  mutate(jurisdiction = normalize_code(jurisdiction))
+bea_us_mne_country_industry <- readRDS(file.path(IN, "bea_us_mne_country_industry.rds")) |>
+  mutate(jurisdiction = normalize_code(jurisdiction))
 beps_rules <- readRDS(file.path(IN, "beps_rules.rds")) |>
   mutate(jurisdiction = normalize_code(jurisdiction))
 cbcr_requirements <- readRDS(file.path(IN, "cbcr_requirements.rds")) |>
@@ -828,7 +834,7 @@ panel <- panel |>
   select(-bspi_tier_raw)
 
 # =============================================================================
-# 5. Sectoral FATS sidecar for later SBIE work
+# 5. Sectoral FATS, EUKLEMS and BEA sidecars for later SBIE work
 # =============================================================================
 fats_geo_map <- tribble(
   ~geo, ~affiliate,
@@ -840,28 +846,373 @@ fats_geo_map <- tribble(
   "SI", "SVN", "SK", "SVK"
 )
 
-fats_sector_shares <- fats_post2021 |>
-  filter(year %in% 2021:2022, geo %in% fats_geo_map$geo) |>
+fats_leaf_sectors <- c(
+  "B", "C10-C12", "C13-C15", "C16-C18", "C19", "C20", "C21",
+  "C22-C23", "C24-C25", "C26", "C27", "C28", "C29-C30",
+  "C31-C32", "C33", "D", "E", "F", "G", "H49", "H50", "H51",
+  "H52-H53", "I", "J58", "J59-J60", "J61", "J62-J63", "K",
+  "L", "M69-M71", "M72", "M73-M75", "N77", "N78-N82", "P",
+  "Q86", "Q87-Q88", "R", "S95-S96"
+)
+
+fats_to_euklems_map <- tribble(
+  ~nace_r2, ~euklems_nace_r2, ~euklems_mapping_tier,
+  "B", "B", "direct",
+  "C10-C12", "C10-C12", "direct",
+  "C13-C15", "C13-C15", "direct",
+  "C16-C18", "C16-C18", "direct",
+  "C19", "C19", "direct",
+  "C20", "C20", "direct",
+  "C21", "C21", "direct",
+  "C22-C23", "C22-C23", "direct",
+  "C24-C25", "C24-C25", "direct",
+  "C26", "C26", "direct",
+  "C27", "C27", "direct",
+  "C28", "C28", "direct",
+  "C29-C30", "C29-C30", "direct",
+  "C31-C32", "C31-C33", "allocated_from_broader_stock",
+  "C33", "C31-C33", "allocated_from_broader_stock",
+  "D", "D", "direct",
+  "E", "E", "direct",
+  "F", "F", "direct",
+  "G", "G", "direct",
+  "H49", "H49", "direct",
+  "H50", "H50", "direct",
+  "H51", "H51", "direct",
+  "H52-H53", "H52-H53", "custom_aggregate",
+  "I", "I", "direct",
+  "J58", "J58-J60", "allocated_from_broader_stock",
+  "J59-J60", "J58-J60", "allocated_from_broader_stock",
+  "J61", "J61", "direct",
+  "J62-J63", "J62-J63", "direct",
+  "K", "K", "direct",
+  "L", "L", "direct",
+  "M69-M71", "M", "allocated_from_broader_stock",
+  "M72", "M", "allocated_from_broader_stock",
+  "M73-M75", "M", "allocated_from_broader_stock",
+  "N77", "N", "allocated_from_broader_stock",
+  "N78-N82", "N", "allocated_from_broader_stock",
+  "P", "P", "direct",
+  "Q86", "Q86", "direct",
+  "Q87-Q88", "Q87-Q88", "direct",
+  "R", "R", "direct",
+  "S95-S96", "S", "allocated_from_broader_stock"
+)
+
+bea_top_level_industries <- c(
+  "Mining",
+  "Manufacturing",
+  "Wholesale trade",
+  "Retail trade",
+  "Information",
+  "Finance and insurance",
+  "Professional, scientific, and technical services",
+  "Other industries"
+)
+
+bea_top_level_nace_map <- tribble(
+  ~bea_sector_group, ~nace_r2,
+  "Mining", "B",
+  "Manufacturing", "C",
+  "Trade", "G",
+  "Information", "J",
+  "Finance and insurance", "K",
+  "Professional, scientific, and technical services", "M",
+  "Other industries", NA_character_
+)
+
+standardise_nace <- function(x) str_replace_all(x, "_", "-")
+
+euklems_bridge_capital_direct <- euklems_sector_capital |>
+  select(
+    affiliate = jurisdiction,
+    source_year = year,
+    euklems_nace_r2 = nace_r2,
+    euklems_k_tang,
+    euklems_k_tang_nres,
+    euklems_k_intang,
+    euklems_k_gfcf,
+    euklems_va_cp,
+    euklems_intangible_share
+  ) |>
+  mutate(euklems_source_nace = euklems_nace_r2)
+
+euklems_bridge_capital_custom <- euklems_sector_capital |>
+  filter(nace_r2 %in% c("H52", "H53")) |>
+  group_by(jurisdiction, year) |>
+  summarise(
+    euklems_nace_r2 = "H52-H53",
+    euklems_source_nace = paste(sort(unique(nace_r2)), collapse = "+"),
+    euklems_k_tang = sum_or_na(euklems_k_tang),
+    euklems_k_tang_nres = sum_or_na(euklems_k_tang_nres),
+    euklems_k_intang = sum_or_na(euklems_k_intang),
+    euklems_k_gfcf = sum_or_na(euklems_k_gfcf),
+    euklems_va_cp = sum_or_na(euklems_va_cp),
+    .groups = "drop"
+  ) |>
+  transmute(
+    affiliate = jurisdiction,
+    source_year = year,
+    euklems_nace_r2,
+    euklems_k_tang,
+    euklems_k_tang_nres,
+    euklems_k_intang,
+    euklems_k_gfcf,
+    euklems_va_cp,
+    euklems_intangible_share = safe_divide(
+      euklems_k_intang,
+      euklems_k_tang + euklems_k_intang
+    ),
+    euklems_source_nace
+  )
+
+euklems_bridge_capital <- bind_rows(
+  euklems_bridge_capital_direct,
+  euklems_bridge_capital_custom
+) |>
+  distinct(affiliate, source_year, euklems_nace_r2, .keep_all = TRUE)
+
+fats_foreign_sector_levels <- fats_post2021 |>
+  filter(year %in% 2021:2022,
+         geo %in% fats_geo_map$geo,
+         c_ctrl == "WRL_REST") |>
   left_join(fats_geo_map, by = "geo") |>
+  mutate(nace_r2 = standardise_nace(nace_r2)) |>
+  filter(nace_r2 %in% fats_leaf_sectors) |>
   group_by(affiliate, year, nace_r2) |>
   summarise(
     fats_personnel_costs = sum_or_na(ind_expn_sal_ben_meur),
     fats_employees       = sum_or_na(ind_emp_nr),
     fats_investment      = sum_or_na(ind_grsinv_tnca_meur),
     fats_turnover        = sum_or_na(ind_nettur_meur),
+    fats_value_added     = sum_or_na(ind_av_meur),
+    fats_gos             = sum_or_na(ind_gos_meur),
     .groups = "drop"
   ) |>
+  left_join(fats_to_euklems_map, by = "nace_r2")
+
+if (any(is.na(fats_foreign_sector_levels$euklems_nace_r2))) {
+  stop("FATS to EUKLEMS NACE map is incomplete")
+}
+
+euklems_nearest_year <- fats_foreign_sector_levels |>
+  distinct(affiliate, year, euklems_nace_r2) |>
+  left_join(euklems_bridge_capital,
+            by = c("affiliate", "euklems_nace_r2"),
+            relationship = "many-to-many") |>
+  filter(!is.na(euklems_k_tang)) |>
+  mutate(
+    year_gap = abs(year - source_year),
+    future_year = source_year > year
+  ) |>
+  arrange(affiliate, year, euklems_nace_r2, future_year, year_gap, desc(source_year)) |>
+  group_by(affiliate, year, euklems_nace_r2) |>
+  slice(1) |>
+  ungroup()
+
+fats_sector_shares <- fats_post2021 |>
+  filter(year %in% 2021:2022,
+         geo %in% fats_geo_map$geo,
+         c_ctrl == "WRL_REST") |>
+  left_join(fats_geo_map, by = "geo") |>
+  mutate(nace_r2 = standardise_nace(nace_r2)) |>
+  filter(nace_r2 %in% fats_leaf_sectors) |>
+  group_by(affiliate, year, nace_r2) |>
+  summarise(
+    fats_personnel_costs = sum_or_na(ind_expn_sal_ben_meur),
+    fats_employees       = sum_or_na(ind_emp_nr),
+    fats_investment      = sum_or_na(ind_grsinv_tnca_meur),
+    fats_turnover        = sum_or_na(ind_nettur_meur),
+    fats_value_added     = sum_or_na(ind_av_meur),
+    fats_gos             = sum_or_na(ind_gos_meur),
+    .groups = "drop"
+  ) |>
+  left_join(fats_to_euklems_map, by = "nace_r2") |>
+  left_join(euklems_nearest_year,
+            by = c("affiliate", "year", "euklems_nace_r2")) |>
+  group_by(affiliate, year, euklems_nace_r2) |>
+  mutate(
+    euklems_allocation_base = coalesce(fats_investment, fats_turnover,
+                                       fats_personnel_costs, fats_employees),
+    euklems_allocation_denom = sum(coalesce(euklems_allocation_base, 0),
+                                   na.rm = TRUE),
+    euklems_family_weight = case_when(
+      is.na(euklems_k_tang) ~ NA_real_,
+      euklems_allocation_denom > 0 ~
+        coalesce(euklems_allocation_base, 0) / euklems_allocation_denom,
+      TRUE ~ 1 / n()
+    ),
+    euklems_k_tang_allocated = euklems_k_tang * euklems_family_weight,
+    euklems_k_tang_nres_allocated = euklems_k_tang_nres * euklems_family_weight,
+    euklems_k_intang_allocated = euklems_k_intang * euklems_family_weight
+  ) |>
+  ungroup() |>
   group_by(affiliate, year) |>
   mutate(
-    fats_payroll_share    = safe_divide(fats_personnel_costs, sum_or_na(fats_personnel_costs)),
-    fats_employee_share   = safe_divide(fats_employees, sum_or_na(fats_employees)),
+    fats_payroll_share = safe_divide(
+      fats_personnel_costs,
+      sum_or_na(fats_personnel_costs)
+    ),
+    fats_employee_share = safe_divide(fats_employees, sum_or_na(fats_employees)),
     fats_investment_share = safe_divide(fats_investment, sum_or_na(fats_investment)),
-    fats_turnover_share   = safe_divide(fats_turnover, sum_or_na(fats_turnover))
+    fats_turnover_share = safe_divide(fats_turnover, sum_or_na(fats_turnover)),
+    fats_value_added_positive = pmax(fats_value_added, 0),
+    fats_gos_positive = pmax(fats_gos, 0),
+    fats_gos_denom = sum(fats_gos_positive, na.rm = TRUE),
+    fats_value_added_denom = sum(fats_value_added_positive, na.rm = TRUE),
+    fats_gos_share = safe_divide(fats_gos_positive, fats_gos_denom),
+    fats_value_added_share = safe_divide(
+      fats_value_added_positive,
+      fats_value_added_denom
+    ),
+    sectoral_profit_share = case_when(
+      fats_gos_denom > 0 ~ fats_gos_share,
+      fats_value_added_denom > 0 ~ fats_value_added_share,
+      TRUE ~ fats_turnover_share
+    ),
+    profit_share_proxy_source = case_when(
+      fats_gos_denom > 0 ~ "fats_gross_operating_surplus",
+      fats_value_added_denom > 0 ~ "fats_value_added",
+      TRUE ~ "fats_turnover"
+    ),
+    euklems_stock_coverage_turnover_share = sum(
+      if_else(!is.na(euklems_k_tang_allocated), fats_turnover_share, 0),
+      na.rm = TRUE
+    ),
+    euklems_stock_to_investment_ratio = safe_divide(
+      euklems_k_tang_allocated,
+      pmax(fats_investment, 0)
+    ),
+    euklems_median_stock_to_investment = median(
+      euklems_stock_to_investment_ratio[
+        is.finite(euklems_stock_to_investment_ratio) &
+          euklems_stock_to_investment_ratio > 0
+      ],
+      na.rm = TRUE
+    ),
+    euklems_median_stock_to_investment = if_else(
+      is.nan(euklems_median_stock_to_investment),
+      NA_real_,
+      euklems_median_stock_to_investment
+    ),
+    euklems_k_tang_gapfilled = case_when(
+      !is.na(euklems_k_tang_allocated) ~ euklems_k_tang_allocated,
+      euklems_stock_coverage_turnover_share >= 0.75 &
+        !is.na(euklems_median_stock_to_investment) &
+        !is.na(fats_investment) & fats_investment > 0 ~
+        euklems_median_stock_to_investment * fats_investment,
+      TRUE ~ NA_real_
+    ),
+    euklems_stock_available = sum(euklems_k_tang_gapfilled, na.rm = TRUE) > 0,
+    use_euklems_asset_share = euklems_stock_available &
+      euklems_stock_coverage_turnover_share >= 0.75,
+    euklems_tangible_asset_share = if_else(
+      use_euklems_asset_share,
+      safe_divide(euklems_k_tang_gapfilled,
+                  sum(euklems_k_tang_gapfilled, na.rm = TRUE)),
+      NA_real_
+    ),
+    sectoral_asset_share = if_else(
+      use_euklems_asset_share,
+      euklems_tangible_asset_share,
+      fats_investment_share
+    ),
+    asset_share_proxy_source = case_when(
+      use_euklems_asset_share & any(is.na(euklems_k_tang_allocated)) ~
+        "euklems_k_tang_stock_with_fats_investment_gapfill",
+      use_euklems_asset_share ~ "euklems_k_tang_stock",
+      TRUE ~ "fats_gross_investment_flow_fallback"
+    )
   ) |>
-  ungroup()
+  ungroup() |>
+  select(
+    affiliate, year, nace_r2, euklems_nace_r2, euklems_mapping_tier,
+    euklems_source_nace, euklems_source_year = source_year, year_gap,
+    fats_personnel_costs, fats_employees, fats_investment, fats_turnover,
+    fats_value_added, fats_gos,
+    fats_payroll_share, fats_employee_share, fats_investment_share,
+    fats_turnover_share, fats_gos_share, fats_value_added_share,
+    sectoral_profit_share, profit_share_proxy_source,
+    euklems_k_tang, euklems_k_tang_nres, euklems_k_intang,
+    euklems_k_tang_allocated, euklems_k_tang_nres_allocated,
+    euklems_k_intang_allocated, euklems_k_tang_gapfilled,
+    euklems_median_stock_to_investment, euklems_intangible_share,
+    euklems_stock_coverage_turnover_share, use_euklems_asset_share,
+    euklems_tangible_asset_share, sectoral_asset_share,
+    asset_share_proxy_source
+  )
 
 assert_unique_keys(fats_sector_shares, c("affiliate", "year", "nace_r2"),
                    "FATS sector shares")
+
+bea_us_parent_totals <- bea_us_mne_country_industry |>
+  filter(jurisdiction %in% EU27_ISO3,
+         !is.na(value),
+         bea_industry == "All industries") |>
+  transmute(
+    measure,
+    year,
+    affiliate = jurisdiction,
+    bea_all_industries_value = value
+  )
+
+assert_unique_keys(bea_us_parent_totals,
+                   c("measure", "year", "affiliate"),
+                   "BEA all-industries totals")
+
+bea_us_parent_sector_benchmark <- bea_us_mne_country_industry |>
+  filter(jurisdiction %in% EU27_ISO3,
+         !is.na(value),
+         bea_industry %in% bea_top_level_industries) |>
+  mutate(
+    affiliate = jurisdiction,
+    bea_sector_group = case_when(
+      bea_industry %in% c("Wholesale trade", "Retail trade") ~ "Trade",
+      TRUE                                                   ~ bea_industry
+    )
+  ) |>
+  group_by(measure, year, country_or_region, affiliate, bea_sector_group) |>
+  summarise(
+    value = sum(value, na.rm = TRUE),
+    bea_industries = paste(sort(unique(bea_industry)), collapse = "; "),
+    suppressed_rows = sum(!is.na(suppression_code)),
+    .groups = "drop"
+  ) |>
+  left_join(bea_top_level_nace_map, by = "bea_sector_group") |>
+  left_join(bea_us_parent_totals, by = c("measure", "year", "affiliate")) |>
+  group_by(measure, year, affiliate) |>
+  mutate(
+    bea_share_denominator = if_else(
+      !is.na(bea_all_industries_value),
+      bea_all_industries_value,
+      sum(value, na.rm = TRUE)
+    ),
+    bea_top_level_value_sum = sum(value, na.rm = TRUE),
+    bea_top_level_coverage_ratio = safe_divide(
+      bea_top_level_value_sum,
+      bea_share_denominator
+    ),
+    bea_sector_share = safe_divide(value, bea_share_denominator),
+    bea_sector_share_mapped = !is.na(nace_r2),
+    bea_sector_level = "top_level_non_overlapping"
+  ) |>
+  ungroup() |>
+  arrange(measure, year, affiliate, bea_sector_group)
+
+assert_unique_keys(bea_us_parent_sector_benchmark,
+                   c("measure", "year", "affiliate", "bea_sector_group"),
+                   "BEA US-parent sector benchmark")
+
+global_intan_eu27_macro <- global_intan_annual |>
+  filter(jurisdiction %in% EU27_ISO3) |>
+  rename(affiliate = jurisdiction) |>
+  select(
+    affiliate, year,
+    global_intan_i_gfcf,
+    global_intan_i_intan,
+    global_intan_intangible_investment_share,
+    global_intan_non_natacc_share
+  )
 
 # =============================================================================
 # 6. Diagnostics and outputs
@@ -1085,10 +1436,59 @@ fats_diag <- fats_sector_shares |>
     employee_share_sum = sum(fats_employee_share, na.rm = TRUE),
     investment_share_sum = sum(fats_investment_share, na.rm = TRUE),
     turnover_share_sum = sum(fats_turnover_share, na.rm = TRUE),
+    profit_share_sum = sum(sectoral_profit_share, na.rm = TRUE),
+    asset_share_sum = sum(sectoral_asset_share, na.rm = TRUE),
+    euklems_asset_share_sum = sum(euklems_tangible_asset_share, na.rm = TRUE),
+    euklems_stock_coverage_turnover_share =
+      first(euklems_stock_coverage_turnover_share),
+    uses_euklems_asset_share = first(use_euklems_asset_share),
     n_missing_payroll = sum(is.na(fats_personnel_costs)),
     n_missing_investment = sum(is.na(fats_investment)),
+    n_missing_euklems_stock = sum(is.na(euklems_k_tang_allocated)),
     .groups = "drop"
   )
+
+bea_benchmark_diag <- bea_us_parent_sector_benchmark |>
+  group_by(measure, year, affiliate) |>
+  summarise(
+    rows = n(),
+    bea_share_denominator = first(bea_share_denominator),
+    top_level_coverage_ratio = first(bea_top_level_coverage_ratio),
+    mapped_rows = sum(bea_sector_share_mapped, na.rm = TRUE),
+    mapped_value = sum(if_else(bea_sector_share_mapped, value, 0), na.rm = TRUE),
+    suppressed_rows = sum(suppressed_rows, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  group_by(measure, year) |>
+  summarise(
+    rows = sum(rows),
+    eu27_affiliates = n_distinct(affiliate),
+    mapped_rows = sum(mapped_rows),
+    mapped_value_share = safe_divide(
+      sum(mapped_value, na.rm = TRUE),
+      sum(bea_share_denominator, na.rm = TRUE)
+    ),
+    mean_top_level_coverage_ratio = weighted.mean(
+      top_level_coverage_ratio,
+      bea_share_denominator,
+      na.rm = TRUE
+    ),
+    suppressed_rows = sum(suppressed_rows, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  arrange(measure, year)
+
+global_intan_diag <- global_intan_eu27_macro |>
+  group_by(year) |>
+  summarise(
+    eu27_countries = n_distinct(affiliate),
+    mean_intangible_investment_share = mean(
+      global_intan_intangible_investment_share,
+      na.rm = TRUE
+    ),
+    .groups = "drop"
+  ) |>
+  arrange(year)
 
 # Stage 1 tail-bounding diagnostic (Section sec:distributional).
 etr_bounding_diag <- panel |>
@@ -1169,17 +1569,25 @@ write_csv(
   file.path(DIAG, "step2_stage1_affiliate_year_coverage.csv")
 )
 write_csv(fats_diag, file.path(DIAG, "step2_fats_sector_coverage.csv"))
+write_csv(bea_benchmark_diag, file.path(DIAG, "step2_bea_us_parent_sector_benchmark.csv"))
+write_csv(global_intan_diag, file.path(DIAG, "step2_global_intan_eu27_macro.csv"))
 write_csv(etr_bounding_diag, file.path(DIAG, "step2_etr_tail_bounding_by_year.csv"))
 write_csv(bspi_tier_diag, file.path(DIAG, "step2_bspi_tier_by_year.csv"))
 write_csv(shape_stability_diag, file.path(DIAG, "step2_bspi_shape_stability.csv"))
 
 saveRDS(panel, file.path(OUT, "base_panel.rds"))
 saveRDS(fats_sector_shares, file.path(OUT, "base_panel_fats_sector_shares.rds"))
+saveRDS(bea_us_parent_sector_benchmark,
+        file.path(OUT, "base_panel_bea_us_parent_sector_benchmark.rds"))
+saveRDS(global_intan_eu27_macro,
+        file.path(OUT, "base_panel_global_intan_eu27_macro.rds"))
 saveRDS(t4_brackets_by_affiliate_year,
         file.path(OUT, "base_panel_t4_bracket_shares.rds"))
 
 message("\nStep 2 outputs written:")
 message(" - data/processed/base_panel.rds")
 message(" - data/processed/base_panel_fats_sector_shares.rds")
+message(" - data/processed/base_panel_bea_us_parent_sector_benchmark.rds")
+message(" - data/processed/base_panel_global_intan_eu27_macro.rds")
 message(" - data/processed/base_panel_t4_bracket_shares.rds")
 message(" - diagnostics/step2_*.csv")

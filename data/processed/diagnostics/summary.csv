@@ -35,6 +35,14 @@ wb_population,rows,2170
 fats_pre2021,rows,90030
 fats_post2021,rows,221130
 fats_post2021,eu27_reporters,27
+euklems_sector_capital,rows,46980
+euklems_sector_capital,jurisdictions,30
+euklems_sector_capital,year_range,1995-2021
+global_intan_invest_annual,rows,464
+global_intan_invest_annual,year_range,1995-2024
+bea_us_mne_country_industry,rows,38368
+bea_us_mne_country_industry,eu27_country_rows,8704
+bea_us_mne_country_industry,suppressed_cells,4794
 pwc_pillar2_tracker,rows,328
 pwc_pillar2_tracker,territories,53
 beps_rules,rows,8627
