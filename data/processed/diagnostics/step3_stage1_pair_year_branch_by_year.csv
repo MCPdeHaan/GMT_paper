@@ -13,9 +13,9 @@ year,stage1_distributional_source,pair_years
 2020,missing,36
 2021,avg_only,5
 2021,direct_t4,2470
-2021,missing,1
-2021,percentile_fit,445
+2021,missing,25
+2021,percentile_fit,421
 2022,avg_only,2
 2022,direct_t4,2344
-2022,missing,2
-2022,percentile_fit,429
+2022,missing,32
+2022,percentile_fit,399

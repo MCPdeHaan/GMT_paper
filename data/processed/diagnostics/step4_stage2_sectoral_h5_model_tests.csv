@@ -1,3 +1,3 @@
 model_variant,inference,test,df_num,df_den,f_statistic,p_value,n_obs,n_clusters,r_squared,adj_r_squared,dependent_variable,reference_year,transition_year
-unweighted,affiliate_clustered,cluster_wald_capital_intensity,1,26,6.466680483736161,0.017285571848636463,830,27,0.3889151213558324,0.36834243840895886,sectoral_delta_floor_average,2022,2024
-profit_weighted,affiliate_clustered,cluster_wald_capital_intensity,1,26,22.446318404045744,6.715813938073677e-5,830,27,0.522519980432457,0.5064452166814299,sectoral_delta_floor_average,2022,2024
+unweighted,affiliate_clustered,cluster_wald_capital_intensity,1,26,5.807728364488577,0.023329478012707926,883,27,0.38878532043280506,0.3694838042359463,sectoral_delta_floor_average,2022,2024
+profit_weighted,affiliate_clustered,cluster_wald_capital_intensity,1,26,12.234587401256015,0.0017057284861283764,883,27,0.4729104908163892,0.45626555894743304,sectoral_delta_floor_average,2022,2024

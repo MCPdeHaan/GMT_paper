@@ -2,23 +2,26 @@
 \begin{table}[H]
 \centering
 \scriptsize
-\caption[Statutory-CIT instrument diagnostics]{Statutory-CIT instrument diagnostics}
+\caption[Tax-code instrument diagnostics]{Tax-code instrument diagnostics}
 \label{tab:stage3_iv_diagnostics}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}llrrrrr@{}}
+\begin{tabular}{@{}lllrrrrr@{}}
 \toprule
-Diagnostic & Dependent variable & Coefficient & Weak-IV $F$ & $p$-value & $N$ & Within $R^2$ \\
+Instrument & Diagnostic & Dependent variable & Coefficient & Weak-IV $F$ & $p$-value & $N$ & Within $R^2$ \\
 \midrule
-First stage: CbCR ETR & CbCR ETR &  0.256*** (0.057) & 20.34 & $4.5 \times 10^{-5}$ & 8,033 & 0.0038 \\
-Reduced form: log profit & Log profit & -0.296 (0.410) & 20.34 & 0.474 & 8,033 & 0.0057 \\
-FE-2SLS: log profit & Log profit & -1.157 (1.581) & 20.34 & 0.468 & 8,033 & 0.0348 \\
+OECD simulated fixed-project EATR & First stage: CbCR ETR & CbCR ETR &  0.239*** (0.071) & 11.28 & 0.002 & 7,465 & 0.0031 \\
+OECD simulated fixed-project EATR & Reduced form: log profit & Log profit & -0.105 (0.455) & 11.28 & 0.819 & 7,465 & 0.0053 \\
+OECD simulated fixed-project EATR & FE-2SLS: log profit & Log profit & -0.437 (1.833) & 11.28 & 0.813 & 7,465 & 0.0209 \\
+Lagged statutory CIT & First stage: CbCR ETR & CbCR ETR &  0.256*** (0.057) & 20.34 & $4.5 \times 10^{-5}$ & 8,033 & 0.0038 \\
+Lagged statutory CIT & Reduced form: log profit & Log profit & -0.296 (0.410) & 20.34 & 0.474 & 8,033 & 0.0057 \\
+Lagged statutory CIT & FE-2SLS: log profit & Log profit & -1.157 (1.581) & 20.34 & 0.468 & 8,033 & 0.0348 \\
 \bottomrule
 \end{tabular}
 }
 
 \vspace{0.5em}
 \begin{minipage}{0.96\textwidth}
-\footnotesize\raggedright \textit{Notes:} The table reports a fixed-effect first stage, reduced form and linear FE-2SLS robustness estimate. The excluded instrument is the one-year lagged statutory CIT rate of the affiliate jurisdiction. The weak-instrument statistic is the parent-and-affiliate clustered first-stage F-statistic for the excluded instrument. The 2SLS row is not used for the nonlinear counterfactual because one excluded instrument identifies only the linear ETR coefficient. Source: author's calculations based on \path{data/processed/diagnostics/step5_stage3_tax_endogeneity_diagnostics.csv}.
+\footnotesize\raggedright \textit{Notes:} The table reports fixed-effect first stages, reduced forms and linear FE-2SLS robustness estimates. The simulated instrument is the current-year OECD forward-looking effective average tax rate for a fixed composite investment project in the affiliate jurisdiction. The statutory benchmark uses the one-year lagged statutory CIT rate of the affiliate jurisdiction. The weak-instrument statistic is the parent-and-affiliate clustered first-stage F-statistic for each excluded instrument. The 2SLS row is not used for the nonlinear counterfactual because one excluded instrument identifies only the linear ETR coefficient. Source: author's calculations based on \path{data/processed/diagnostics/step5_stage3_tax_endogeneity_diagnostics.csv}.
 \end{minipage}
 \end{table}
 

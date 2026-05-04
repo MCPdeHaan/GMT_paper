@@ -2,15 +2,15 @@
 \begin{table}[H]
 \centering
 \scriptsize
-\caption{Stage 1 percentile conditioning diagnostics}
+\caption{Stage 1 percentile and Beta-fit diagnostics}
 \label{tab:app_stage1_conditioning}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}lrrrrrr@{}}
 \toprule
-Year & Affiliate-years & Non-monotone raw & Out of support & Conditioned & Mean absolute shift & Max absolute shift \\
+Year & Affiliate-years & Non-monotone raw & Out of support & Conditioned & Mean beta fit MAE & Max beta fit error \\
 \midrule
-2021 & 206 & 8 &  57 &  62 & 0.213 & 1.000 \\
-2022 & 204 & 0 & 114 & 114 & 0.179 & 1.000 \\
+2021 & 190 & 8 &  57 &  62 & 0.112 & 1.000 \\
+2022 & 185 & 0 & 108 & 108 & 0.082 & 1.000 \\
 \bottomrule
 \end{tabular}
 }

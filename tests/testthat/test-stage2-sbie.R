@@ -35,6 +35,25 @@ test_that("SBTI overlay cannot push the effective floor below zero", {
   )
 })
 
+test_that("BEA bridge classifier rejects weak total-asset alignment", {
+  expect_equal(
+    classify_bea_bridge_signal(
+      measure = "total_assets",
+      share_correlation = 0.150,
+      mean_abs_share_gap = 0.108
+    ),
+    "reject_as_primary_asset_allocator"
+  )
+  expect_equal(
+    classify_bea_bridge_signal(
+      measure = "employment",
+      share_correlation = 0.771,
+      mean_abs_share_gap = 0.066
+    ),
+    "supportive_external_benchmark"
+  )
+})
+
 test_that("transition rates hit the 2024 and 2033 endpoints monotonically", {
   rates <- build_transition_rates()
 

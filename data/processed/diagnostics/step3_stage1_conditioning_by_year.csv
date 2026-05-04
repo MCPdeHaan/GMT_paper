@@ -1,3 +1,3 @@
-year,affiliate_years,raw_non_monotone,raw_out_of_support,conditioned,weight_fallback_used,shift_boundary_hits,mean_abs_conditioning_change,mean_abs_shift,max_abs_shift,mean_abs_shift_mean_gap,max_abs_shift_mean_gap
-2021,206,8,57,62,34,12,6.416547547234077,0.21311351838474668,1,2.6315789478703486e-4,0.02499999999999991
-2022,204,0,114,114,32,9,1.4877715167845915,0.17943934695714472,1,4.2723596221439837e-13,1.1307732528109682e-11
+year,affiliate_years,raw_non_monotone,raw_out_of_support,conditioned,weight_fallback_used,beta_boundary_cells,mean_abs_conditioning_change,mean_beta_fit_mae,max_beta_fit_mae,mean_beta_fit_max_abs_error,max_beta_fit_max_abs_error,mean_abs_beta_mean_gap,max_abs_beta_mean_gap
+2021,190,8,57,62,33,12,6.956888393316965,0.11158184107652412,1,0.1940249530597685,1,8.856219851039486e-18,5.551115123125783e-17
+2022,185,0,108,108,29,9,1.6378325718253666,0.08165886123512567,0.6140246719323049,0.17217890828111362,1,3.891406716380407e-18,5.551115123125783e-17

@@ -21,6 +21,7 @@ CORE_YEARS       <- 2016:2022
 ESTIMATION_YEARS <- 2017:2022
 GMT_RATE         <- 0.15
 EMPLOYEES_PER_ENTITY_CAP <- 100000
+EUKLEMS_STOCK_COVERAGE_THRESHOLD <- 0.75
 
 # Stage-1 loss-offset margin (thesis Section sec:distributional). ETRs in
 # [-ZETA, 0) are treated as noise and clamped to 0; ETRs below -ZETA are
@@ -126,6 +127,12 @@ build_year_nearest_lookup <- function(target_keys, candidates, value_col, source
 
 safe_divide <- function(num, den) {
   if_else(is.na(num) | is.na(den) | den == 0, NA_real_, num / den)
+}
+
+normalise_share <- function(x) {
+  total <- sum(x, na.rm = TRUE)
+  if (is.na(total) || total <= 0) return(rep(NA_real_, length(x)))
+  x / total
 }
 
 row_min_or_na <- function(...) {
@@ -664,11 +671,11 @@ panel <- panel |>
     parent_cit_top_all_unit = parent_cit_top_all / 100,
     parent_cit_standard_unit = parent_cit_standard / 100,
     # Stage 1 bounded ETR: clip to [0, affiliate_cit_rate + ZETA] for use as
-    # a location shift anchor in the BSPI (Section sec:distributional).
+    # the mean anchor in the constrained-Beta percentile fit.
     # Negative ETRs with magnitude below ZETA are treated as rounding noise
     # and collapsed to 0; ETRs below -ZETA are flagged as loss-carryforward
-    # cells and propagate NA to the Stage-1 shift so that the bracket
-    # imputation falls through to the shape-only branch.
+    # cells and propagate NA to Stage 1 so that the hybrid selector falls
+    # through to the best available branch.
     etr_panelai_stage1 = case_when(
       is.na(etr_panelai_raw)                              ~ NA_real_,
       etr_panelai_raw < -ZETA_LOSS_OFFSET                 ~ NA_real_,
@@ -790,7 +797,7 @@ panel <- panel |>
     # the highest-information branch it qualifies for. Tiers are ranked from
     # most to least informative:
     #   1. direct_t4         -> bilateral Table IV bracket observed
-    #   2. percentile_fit    -> Table I percentiles usable for Hugger fit
+    #   2. percentile_fit    -> Table I percentiles usable for the Beta fit
     #   3. shape_transport   -> pre-2019 cell, affiliate has a BSPI anchor
     #   4. avg_only          -> fallback: jurisdiction-average binary rule
     # The shape-transport eligibility is patched in after the merge once the
@@ -898,6 +905,69 @@ fats_to_euklems_map <- tribble(
   "R", "R", "direct",
   "S95-S96", "S", "allocated_from_broader_stock"
 )
+
+sectoral_source_hierarchy <- tribble(
+  ~bridge_component, ~source_rank, ~source_dataset, ~source_variable,
+  ~source_role, ~implementation_rule,
+  "liability_base", 1L, "OECD CbCR",
+  "PROFIT, PROFIT_ADJ, TAX_ACCRUED, ASSETS, EMPLOYEES",
+  "Only source used for the GMT liability base",
+  "CbCR remains the parent-affiliate-year base; sectoral data only allocate country-level levels across sectors",
+  "sectoral_payroll_share", 1L, "Eurostat inward FATS",
+  "ind_expn_sal_ben_meur",
+  "Preferred EU host-country sectoral payroll allocator",
+  "Foreign-control WRL_REST leaf-sector personnel costs, normalised within affiliate-year",
+  "sectoral_payroll_share", 2L, "Eurostat inward FATS",
+  "ind_emp_nr",
+  "Fallback payroll allocator where personnel costs are suppressed",
+  "Employees scaled by observed personnel cost per employee in the same affiliate-year",
+  "sectoral_payroll_share", 3L, "Eurostat inward FATS",
+  "ind_nettur_meur",
+  "Last payroll allocator where both personnel costs and employees are suppressed",
+  "Turnover scaled by observed personnel-cost-to-turnover ratio in the same affiliate-year",
+  "sectoral_asset_share", 1L, "EUKLEMS and INTANProd",
+  "K_Tang",
+  "Preferred sectoral tangible-asset allocator",
+  paste0(
+    "Used when EUKLEMS tangible-stock cells cover at least ",
+    EUKLEMS_STOCK_COVERAGE_THRESHOLD * 100,
+    " per cent of FATS turnover in the affiliate-year"
+  ),
+  "sectoral_asset_share", 2L, "Eurostat inward FATS",
+  "ind_grsinv_tnca_meur",
+  "Fallback tangible-asset allocator",
+  "Gross investment in tangible non-current assets, with activity-scaled imputation for suppressed cells",
+  "sectoral_profit_share", 1L, "Eurostat inward FATS",
+  "ind_gos_meur",
+  "Preferred sectoral profit allocator",
+  "Positive gross operating surplus, normalised within affiliate-year",
+  "sectoral_profit_share", 2L, "Eurostat inward FATS",
+  "ind_av_meur",
+  "Fallback profit allocator",
+  "Positive value added scaled by the observed gross-operating-surplus-to-value-added ratio",
+  "sectoral_profit_share", 3L, "Eurostat inward FATS",
+  "ind_nettur_meur",
+  "Last profit allocator",
+  "Turnover scaled by the observed gross-operating-surplus-to-turnover ratio, or turnover shares when no surplus information is usable",
+  "bea_validation", 99L, "BEA USDIA MOFA",
+  "employment, compensation, ppe_expenditures, total_assets",
+  "External U.S.-parent benchmark only",
+  "Used to validate broad-sector shares; never replaces CbCR levels or the EU sectoral bridge"
+)
+
+sectoral_nace_crosswalk_rules <- fats_to_euklems_map |>
+  mutate(
+    fats_sector_level = "post_2021_fats_leaf_sector",
+    euklems_crosswalk_rule = case_when(
+      euklems_mapping_tier == "direct" ~
+        "FATS and EUKLEMS sectors are aligned one-to-one",
+      euklems_mapping_tier == "custom_aggregate" ~
+        "EUKLEMS source sectors are summed to match the FATS sector",
+      euklems_mapping_tier == "allocated_from_broader_stock" ~
+        "Broader EUKLEMS stock is allocated across FATS child sectors using the FATS activity base",
+      TRUE ~ "unclassified"
+    )
+  )
 
 bea_top_level_industries <- c(
   "Mining",
@@ -1049,39 +1119,179 @@ fats_sector_shares <- fats_post2021 |>
   ungroup() |>
   group_by(affiliate, year) |>
   mutate(
-    fats_payroll_share = safe_divide(
-      fats_personnel_costs,
-      sum_or_na(fats_personnel_costs)
+    fats_personnel_costs_positive = if_else(
+      !is.na(fats_personnel_costs),
+      pmax(fats_personnel_costs, 0),
+      NA_real_
     ),
-    fats_employee_share = safe_divide(fats_employees, sum_or_na(fats_employees)),
-    fats_investment_share = safe_divide(fats_investment, sum_or_na(fats_investment)),
-    fats_turnover_share = safe_divide(fats_turnover, sum_or_na(fats_turnover)),
-    fats_value_added_positive = pmax(fats_value_added, 0),
-    fats_gos_positive = pmax(fats_gos, 0),
+    fats_employees_positive = if_else(
+      !is.na(fats_employees),
+      pmax(fats_employees, 0),
+      NA_real_
+    ),
+    fats_investment_positive = if_else(
+      !is.na(fats_investment),
+      pmax(fats_investment, 0),
+      NA_real_
+    ),
+    fats_turnover_positive = if_else(
+      !is.na(fats_turnover),
+      pmax(fats_turnover, 0),
+      NA_real_
+    ),
+    fats_value_added_positive = if_else(
+      !is.na(fats_value_added),
+      pmax(fats_value_added, 0),
+      NA_real_
+    ),
+    fats_gos_positive = if_else(
+      !is.na(fats_gos),
+      pmax(fats_gos, 0),
+      NA_real_
+    ),
+    fats_turnover_allocation_base = case_when(
+      !is.na(fats_turnover_positive) ~ fats_turnover_positive,
+      !is.na(fats_value_added_positive) ~ fats_value_added_positive,
+      !is.na(fats_personnel_costs_positive) ~ fats_personnel_costs_positive,
+      TRUE ~ NA_real_
+    ),
+    turnover_share_proxy_source = case_when(
+      !is.na(fats_turnover_positive) ~ "fats_turnover",
+      !is.na(fats_value_added_positive) ~ "fats_value_added_turnover_fallback",
+      !is.na(fats_personnel_costs_positive) ~
+        "fats_personnel_costs_turnover_fallback",
+      TRUE ~ "missing_turnover_allocator"
+    ),
+    fats_turnover_share = normalise_share(fats_turnover_allocation_base),
+    fats_employee_share = normalise_share(fats_employees_positive),
+    payroll_employee_rows = !is.na(fats_personnel_costs_positive) &
+      !is.na(fats_employees_positive) & fats_employees_positive > 0,
+    payroll_turnover_rows = !is.na(fats_personnel_costs_positive) &
+      !is.na(fats_turnover_allocation_base) &
+      fats_turnover_allocation_base > 0,
+    fats_payroll_per_employee = safe_divide(
+      sum(fats_personnel_costs_positive[payroll_employee_rows], na.rm = TRUE),
+      sum(fats_employees_positive[payroll_employee_rows], na.rm = TRUE)
+    ),
+    fats_payroll_to_turnover = safe_divide(
+      sum(fats_personnel_costs_positive[payroll_turnover_rows], na.rm = TRUE),
+      sum(fats_turnover_allocation_base[payroll_turnover_rows], na.rm = TRUE)
+    ),
+    fats_payroll_allocation_base = case_when(
+      !is.na(fats_personnel_costs_positive) ~ fats_personnel_costs_positive,
+      !is.na(fats_employees_positive) &
+        !is.na(fats_payroll_per_employee) ~
+        fats_employees_positive * fats_payroll_per_employee,
+      !is.na(fats_turnover_allocation_base) &
+        !is.na(fats_payroll_to_turnover) ~
+        fats_turnover_allocation_base * fats_payroll_to_turnover,
+      TRUE ~ NA_real_
+    ),
+    payroll_share_proxy_source = case_when(
+      !is.na(fats_personnel_costs_positive) ~ "fats_personnel_costs",
+      !is.na(fats_employees_positive) &
+        !is.na(fats_payroll_per_employee) ~
+        "fats_employees_scaled_to_personnel_costs",
+      !is.na(fats_turnover_allocation_base) &
+        !is.na(fats_payroll_to_turnover) ~
+        "fats_turnover_scaled_to_personnel_costs",
+      TRUE ~ "missing_payroll_allocator"
+    ),
+    fats_payroll_share = normalise_share(fats_payroll_allocation_base),
+    investment_turnover_rows = !is.na(fats_investment_positive) &
+      !is.na(fats_turnover_allocation_base) &
+      fats_turnover_allocation_base > 0,
+    investment_payroll_rows = !is.na(fats_investment_positive) &
+      !is.na(fats_payroll_allocation_base) &
+      fats_payroll_allocation_base > 0,
+    fats_investment_to_turnover = safe_divide(
+      sum(fats_investment_positive[investment_turnover_rows], na.rm = TRUE),
+      sum(fats_turnover_allocation_base[investment_turnover_rows], na.rm = TRUE)
+    ),
+    fats_investment_to_payroll = safe_divide(
+      sum(fats_investment_positive[investment_payroll_rows], na.rm = TRUE),
+      sum(fats_payroll_allocation_base[investment_payroll_rows], na.rm = TRUE)
+    ),
+    fats_investment_allocation_base = case_when(
+      !is.na(fats_investment_positive) ~ fats_investment_positive,
+      !is.na(fats_turnover_allocation_base) &
+        !is.na(fats_investment_to_turnover) ~
+        fats_turnover_allocation_base * fats_investment_to_turnover,
+      !is.na(fats_payroll_allocation_base) &
+        !is.na(fats_investment_to_payroll) ~
+        fats_payroll_allocation_base * fats_investment_to_payroll,
+      TRUE ~ NA_real_
+    ),
+    investment_share_proxy_source = case_when(
+      !is.na(fats_investment_positive) ~ "fats_gross_investment_flow",
+      !is.na(fats_turnover_allocation_base) &
+        !is.na(fats_investment_to_turnover) ~
+        "fats_turnover_scaled_to_investment_flow",
+      !is.na(fats_payroll_allocation_base) &
+        !is.na(fats_investment_to_payroll) ~
+        "fats_payroll_scaled_to_investment_flow",
+      TRUE ~ "missing_investment_allocator"
+    ),
+    fats_investment_share = normalise_share(fats_investment_allocation_base),
     fats_gos_denom = sum(fats_gos_positive, na.rm = TRUE),
     fats_value_added_denom = sum(fats_value_added_positive, na.rm = TRUE),
-    fats_gos_share = safe_divide(fats_gos_positive, fats_gos_denom),
-    fats_value_added_share = safe_divide(
-      fats_value_added_positive,
-      fats_value_added_denom
+    gos_value_added_rows = !is.na(fats_gos_positive) &
+      !is.na(fats_value_added_positive) & fats_value_added_positive > 0,
+    gos_turnover_rows = !is.na(fats_gos_positive) &
+      !is.na(fats_turnover_allocation_base) &
+      fats_turnover_allocation_base > 0,
+    fats_gos_to_value_added = safe_divide(
+      sum(fats_gos_positive[gos_value_added_rows], na.rm = TRUE),
+      sum(fats_value_added_positive[gos_value_added_rows], na.rm = TRUE)
     ),
-    sectoral_profit_share = case_when(
-      fats_gos_denom > 0 ~ fats_gos_share,
-      fats_value_added_denom > 0 ~ fats_value_added_share,
-      TRUE ~ fats_turnover_share
+    fats_gos_to_turnover = safe_divide(
+      sum(fats_gos_positive[gos_turnover_rows], na.rm = TRUE),
+      sum(fats_turnover_allocation_base[gos_turnover_rows], na.rm = TRUE)
+    ),
+    sectoral_profit_allocation_base = case_when(
+      fats_gos_denom > 0 & !is.na(fats_gos_positive) ~
+        fats_gos_positive,
+      fats_gos_denom > 0 & is.na(fats_gos_positive) &
+        !is.na(fats_value_added_positive) &
+        !is.na(fats_gos_to_value_added) ~
+        fats_value_added_positive * fats_gos_to_value_added,
+      fats_gos_denom > 0 & is.na(fats_gos_positive) &
+        !is.na(fats_turnover_allocation_base) &
+        !is.na(fats_gos_to_turnover) ~
+        fats_turnover_allocation_base * fats_gos_to_turnover,
+      fats_value_added_denom > 0 & !is.na(fats_value_added_positive) ~
+        fats_value_added_positive,
+      !is.na(fats_turnover_allocation_base) ~
+        fats_turnover_allocation_base,
+      TRUE ~ NA_real_
     ),
     profit_share_proxy_source = case_when(
-      fats_gos_denom > 0 ~ "fats_gross_operating_surplus",
-      fats_value_added_denom > 0 ~ "fats_value_added",
-      TRUE ~ "fats_turnover"
+      fats_gos_denom > 0 & !is.na(fats_gos_positive) ~
+        "fats_gross_operating_surplus",
+      fats_gos_denom > 0 & is.na(fats_gos_positive) &
+        !is.na(fats_value_added_positive) &
+        !is.na(fats_gos_to_value_added) ~
+        "fats_value_added_scaled_to_gos",
+      fats_gos_denom > 0 & is.na(fats_gos_positive) &
+        !is.na(fats_turnover_allocation_base) &
+        !is.na(fats_gos_to_turnover) ~
+        "fats_turnover_scaled_to_gos",
+      fats_value_added_denom > 0 & !is.na(fats_value_added_positive) ~
+        "fats_value_added",
+      !is.na(fats_turnover_allocation_base) ~
+        "fats_turnover",
+      TRUE ~ "missing_profit_allocator"
     ),
+    fats_gos_share = normalise_share(fats_gos_positive),
+    fats_value_added_share = normalise_share(fats_value_added_positive),
+    sectoral_profit_share = normalise_share(sectoral_profit_allocation_base),
     euklems_stock_coverage_turnover_share = sum(
       if_else(!is.na(euklems_k_tang_allocated), fats_turnover_share, 0),
       na.rm = TRUE
     ),
     euklems_stock_to_investment_ratio = safe_divide(
       euklems_k_tang_allocated,
-      pmax(fats_investment, 0)
+      fats_investment_allocation_base
     ),
     euklems_median_stock_to_investment = median(
       euklems_stock_to_investment_ratio[
@@ -1097,15 +1307,19 @@ fats_sector_shares <- fats_post2021 |>
     ),
     euklems_k_tang_gapfilled = case_when(
       !is.na(euklems_k_tang_allocated) ~ euklems_k_tang_allocated,
-      euklems_stock_coverage_turnover_share >= 0.75 &
+      euklems_stock_coverage_turnover_share >=
+        EUKLEMS_STOCK_COVERAGE_THRESHOLD &
         !is.na(euklems_median_stock_to_investment) &
-        !is.na(fats_investment) & fats_investment > 0 ~
-        euklems_median_stock_to_investment * fats_investment,
+        !is.na(fats_investment_allocation_base) &
+        fats_investment_allocation_base > 0 ~
+        euklems_median_stock_to_investment *
+          fats_investment_allocation_base,
       TRUE ~ NA_real_
     ),
     euklems_stock_available = sum(euklems_k_tang_gapfilled, na.rm = TRUE) > 0,
     use_euklems_asset_share = euklems_stock_available &
-      euklems_stock_coverage_turnover_share >= 0.75,
+      euklems_stock_coverage_turnover_share >=
+        EUKLEMS_STOCK_COVERAGE_THRESHOLD,
     euklems_tangible_asset_share = if_else(
       use_euklems_asset_share,
       safe_divide(euklems_k_tang_gapfilled,
@@ -1117,10 +1331,22 @@ fats_sector_shares <- fats_post2021 |>
       euklems_tangible_asset_share,
       fats_investment_share
     ),
+    asset_cell_proxy_source = case_when(
+      use_euklems_asset_share & !is.na(euklems_k_tang_allocated) ~
+        "euklems_k_tang_stock",
+      use_euklems_asset_share & is.na(euklems_k_tang_allocated) &
+        !is.na(euklems_k_tang_gapfilled) ~
+        "euklems_k_tang_gapfilled_from_fats_investment",
+      !use_euklems_asset_share ~ investment_share_proxy_source,
+      TRUE ~ "missing_asset_allocator"
+    ),
     asset_share_proxy_source = case_when(
       use_euklems_asset_share & any(is.na(euklems_k_tang_allocated)) ~
         "euklems_k_tang_stock_with_fats_investment_gapfill",
       use_euklems_asset_share ~ "euklems_k_tang_stock",
+      any(investment_share_proxy_source != "fats_gross_investment_flow",
+          na.rm = TRUE) ~
+        "fats_gross_investment_flow_with_activity_gapfill",
       TRUE ~ "fats_gross_investment_flow_fallback"
     )
   ) |>
@@ -1130,6 +1356,10 @@ fats_sector_shares <- fats_post2021 |>
     euklems_source_nace, euklems_source_year = source_year, year_gap,
     fats_personnel_costs, fats_employees, fats_investment, fats_turnover,
     fats_value_added, fats_gos,
+    fats_payroll_allocation_base, payroll_share_proxy_source,
+    fats_investment_allocation_base, investment_share_proxy_source,
+    fats_turnover_allocation_base, turnover_share_proxy_source,
+    sectoral_profit_allocation_base,
     fats_payroll_share, fats_employee_share, fats_investment_share,
     fats_turnover_share, fats_gos_share, fats_value_added_share,
     sectoral_profit_share, profit_share_proxy_source,
@@ -1139,7 +1369,7 @@ fats_sector_shares <- fats_post2021 |>
     euklems_median_stock_to_investment, euklems_intangible_share,
     euklems_stock_coverage_turnover_share, use_euklems_asset_share,
     euklems_tangible_asset_share, sectoral_asset_share,
-    asset_share_proxy_source
+    asset_cell_proxy_source, asset_share_proxy_source
   )
 
 assert_unique_keys(fats_sector_shares, c("affiliate", "year", "nace_r2"),
@@ -1443,10 +1673,136 @@ fats_diag <- fats_sector_shares |>
       first(euklems_stock_coverage_turnover_share),
     uses_euklems_asset_share = first(use_euklems_asset_share),
     n_missing_payroll = sum(is.na(fats_personnel_costs)),
+    n_missing_payroll_share = sum(is.na(fats_payroll_share)),
+    n_payroll_share_fallback = sum(
+      payroll_share_proxy_source != "fats_personnel_costs",
+      na.rm = TRUE
+    ),
     n_missing_investment = sum(is.na(fats_investment)),
+    n_missing_investment_share = sum(is.na(fats_investment_share)),
+    n_investment_share_fallback = sum(
+      investment_share_proxy_source != "fats_gross_investment_flow",
+      na.rm = TRUE
+    ),
     n_missing_euklems_stock = sum(is.na(euklems_k_tang_allocated)),
+    n_missing_asset_share = sum(is.na(sectoral_asset_share)),
+    n_profit_share_fallback = sum(
+      !profit_share_proxy_source %in% c("fats_gross_operating_surplus"),
+      na.rm = TRUE
+    ),
     .groups = "drop"
   )
+
+sectoral_measurement_bridge <- bind_rows(
+  fats_sector_shares |>
+    transmute(
+      affiliate,
+      year,
+      nace_r2,
+      bridge_component = "sectoral_payroll_share",
+      source_rule = payroll_share_proxy_source,
+      source_rank = case_when(
+        source_rule == "fats_personnel_costs" ~ 1L,
+        source_rule == "fats_employees_scaled_to_personnel_costs" ~ 2L,
+        source_rule == "fats_turnover_scaled_to_personnel_costs" ~ 3L,
+        TRUE ~ 99L
+      ),
+      source_dataset = "Eurostat inward FATS",
+      sector_share = fats_payroll_share,
+      allocation_base = fats_payroll_allocation_base,
+      crosswalk_rule =
+        "Post-2021 WRL_REST FATS leaf NACE sector, normalised within affiliate-year"
+    ),
+  fats_sector_shares |>
+    transmute(
+      affiliate,
+      year,
+      nace_r2,
+      bridge_component = "sectoral_asset_share",
+      source_rule = asset_cell_proxy_source,
+      source_rank = case_when(
+        source_rule == "euklems_k_tang_stock" ~ 1L,
+        source_rule == "euklems_k_tang_gapfilled_from_fats_investment" ~ 1L,
+        source_rule == "fats_gross_investment_flow" ~ 2L,
+        str_detect(source_rule, "scaled_to_investment_flow") ~ 3L,
+        TRUE ~ 99L
+      ),
+      source_dataset = case_when(
+        str_detect(source_rule, "^euklems") ~ "EUKLEMS and INTANProd",
+        TRUE ~ "Eurostat inward FATS"
+      ),
+      sector_share = sectoral_asset_share,
+      allocation_base = if_else(
+        use_euklems_asset_share,
+        euklems_k_tang_gapfilled,
+        fats_investment_allocation_base
+      ),
+      crosswalk_rule = case_when(
+        use_euklems_asset_share ~
+          "FATS leaf sector mapped to EUKLEMS NACE stock, with within-family allocation when EUKLEMS is broader",
+        TRUE ~
+          "FATS investment-flow fallback, normalised within affiliate-year"
+      )
+    ),
+  fats_sector_shares |>
+    transmute(
+      affiliate,
+      year,
+      nace_r2,
+      bridge_component = "sectoral_profit_share",
+      source_rule = profit_share_proxy_source,
+      source_rank = case_when(
+        source_rule == "fats_gross_operating_surplus" ~ 1L,
+        str_detect(source_rule, "value_added") ~ 2L,
+        str_detect(source_rule, "turnover") ~ 3L,
+        TRUE ~ 99L
+      ),
+      source_dataset = "Eurostat inward FATS",
+      sector_share = sectoral_profit_share,
+      allocation_base = sectoral_profit_allocation_base,
+      crosswalk_rule =
+        "Post-2021 WRL_REST FATS leaf NACE sector, normalised within affiliate-year"
+    )
+) |>
+  arrange(year, affiliate, nace_r2, bridge_component)
+
+sectoral_measurement_bridge_summary <- sectoral_measurement_bridge |>
+  group_by(year, bridge_component, source_rule, source_rank, source_dataset) |>
+  summarise(
+    n_cells = n(),
+    eu27_affiliates = n_distinct(affiliate),
+    missing_share_cells = sum(is.na(sector_share)),
+    total_country_share_mass = sum(sector_share, na.rm = TRUE),
+    mean_sector_share = mean(sector_share, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  arrange(year, bridge_component, source_rank, source_rule)
+
+sectoral_bridge_country_year_diag <- fats_sector_shares |>
+  group_by(affiliate, year) |>
+  summarise(
+    n_nace = n(),
+    payroll_share_sum = sum(fats_payroll_share, na.rm = TRUE),
+    asset_share_sum = sum(sectoral_asset_share, na.rm = TRUE),
+    profit_share_sum = sum(sectoral_profit_share, na.rm = TRUE),
+    n_payroll_fallback_cells = sum(
+      payroll_share_proxy_source != "fats_personnel_costs",
+      na.rm = TRUE
+    ),
+    n_asset_fallback_cells = sum(
+      !asset_cell_proxy_source %in% c("euklems_k_tang_stock"),
+      na.rm = TRUE
+    ),
+    n_profit_fallback_cells = sum(
+      profit_share_proxy_source != "fats_gross_operating_surplus",
+      na.rm = TRUE
+    ),
+    euklems_stock_coverage_turnover_share =
+      first(euklems_stock_coverage_turnover_share),
+    asset_country_year_source = first(asset_share_proxy_source),
+    .groups = "drop"
+  ) |>
+  arrange(year, affiliate)
 
 bea_benchmark_diag <- bea_us_parent_sector_benchmark |>
   group_by(measure, year, affiliate) |>
@@ -1569,6 +1925,16 @@ write_csv(
   file.path(DIAG, "step2_stage1_affiliate_year_coverage.csv")
 )
 write_csv(fats_diag, file.path(DIAG, "step2_fats_sector_coverage.csv"))
+write_csv(sectoral_source_hierarchy,
+          file.path(DIAG, "step2_sectoral_source_hierarchy.csv"))
+write_csv(sectoral_nace_crosswalk_rules,
+          file.path(DIAG, "step2_sectoral_nace_crosswalk_rules.csv"))
+write_csv(sectoral_measurement_bridge,
+          file.path(DIAG, "step2_sectoral_measurement_bridge.csv"))
+write_csv(sectoral_measurement_bridge_summary,
+          file.path(DIAG, "step2_sectoral_measurement_bridge_summary.csv"))
+write_csv(sectoral_bridge_country_year_diag,
+          file.path(DIAG, "step2_sectoral_bridge_country_year.csv"))
 write_csv(bea_benchmark_diag, file.path(DIAG, "step2_bea_us_parent_sector_benchmark.csv"))
 write_csv(global_intan_diag, file.path(DIAG, "step2_global_intan_eu27_macro.csv"))
 write_csv(etr_bounding_diag, file.path(DIAG, "step2_etr_tail_bounding_by_year.csv"))
@@ -1577,6 +1943,10 @@ write_csv(shape_stability_diag, file.path(DIAG, "step2_bspi_shape_stability.csv"
 
 saveRDS(panel, file.path(OUT, "base_panel.rds"))
 saveRDS(fats_sector_shares, file.path(OUT, "base_panel_fats_sector_shares.rds"))
+saveRDS(sectoral_measurement_bridge,
+        file.path(OUT, "base_panel_sectoral_measurement_bridge.rds"))
+saveRDS(sectoral_nace_crosswalk_rules,
+        file.path(OUT, "base_panel_sectoral_nace_crosswalk_rules.rds"))
 saveRDS(bea_us_parent_sector_benchmark,
         file.path(OUT, "base_panel_bea_us_parent_sector_benchmark.rds"))
 saveRDS(global_intan_eu27_macro,
@@ -1587,6 +1957,8 @@ saveRDS(t4_brackets_by_affiliate_year,
 message("\nStep 2 outputs written:")
 message(" - data/processed/base_panel.rds")
 message(" - data/processed/base_panel_fats_sector_shares.rds")
+message(" - data/processed/base_panel_sectoral_measurement_bridge.rds")
+message(" - data/processed/base_panel_sectoral_nace_crosswalk_rules.rds")
 message(" - data/processed/base_panel_bea_us_parent_sector_benchmark.rds")
 message(" - data/processed/base_panel_global_intan_eu27_macro.rds")
 message(" - data/processed/base_panel_t4_bracket_shares.rds")

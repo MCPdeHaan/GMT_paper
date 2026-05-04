@@ -42,6 +42,25 @@ FACTOR_LEVELS <- tribble(
   "x5_behaviour", "mechanical", "behavioural"
 )
 
+FACTOR_TAXONOMY <- tribble(
+  ~effect, ~mechanism_class, ~economic_object, ~uncertainty_class,
+  "x1_etr", "Endowment: low-taxed profit base",
+  "Low-taxed profit volume and average top-up rate",
+  "Epistemic measurement uncertainty",
+  "x2_substance", "Endowment: substance shield",
+  "Payroll, tangible assets and sectoral SBTI capacity",
+  "Epistemic model uncertainty",
+  "x3_rates", "Policy parameter: SBIE transition",
+  "Statutory carve-out endpoint",
+  "Policy-design scenario uncertainty",
+  "x4_sbs", "Legal allocation regime",
+  "QDMTT, IIR and UTPR collection rights",
+  "Epistemic legal-regime uncertainty",
+  "x5_behaviour", "Coefficient: behavioural response",
+  "Panel-estimated semi-elasticity and SESH liability filter",
+  "Behavioural specification; aleatoric only under coefficient bootstrap"
+)
+
 assert_unique_keys <- function(df, keys, label) {
   n_dup <- df |>
     count(across(all_of(keys))) |>
@@ -65,6 +84,29 @@ label_effect <- function(effect) {
     parts,
     function(x) paste(FACTOR_LABELS[x], collapse = " x "),
     character(1)
+  )
+}
+
+split_effect <- function(effect) {
+  strsplit(effect, ":", fixed = TRUE)[[1]]
+}
+
+classify_effect_uncertainty <- function(effect) {
+  parts <- split_effect(effect)
+  classes <- FACTOR_TAXONOMY$uncertainty_class[
+    match(parts, FACTOR_TAXONOMY$effect)
+  ]
+  mechanisms <- FACTOR_TAXONOMY$mechanism_class[
+    match(parts, FACTOR_TAXONOMY$effect)
+  ]
+
+  tibble(
+    uncertainty_class = if (length(unique(classes)) == 1) {
+      unique(classes)
+    } else {
+      "Mixed interaction"
+    },
+    mechanism_class = paste(mechanisms, collapse = " x ")
   )
 }
 
@@ -224,6 +266,63 @@ compute_factorial_anova <- function(revenue_country_year) {
     pooled = pooled,
     by_country = by_country
   )
+}
+
+add_decomposition_taxonomy <- function(anova_df) {
+  taxonomy <- bind_rows(lapply(anova_df$effect, classify_effect_uncertainty)) |>
+    mutate(effect = anova_df$effect)
+
+  anova_df |>
+    left_join(taxonomy, by = "effect") |>
+    relocate(mechanism_class, uncertainty_class, .after = effect_label)
+}
+
+build_shapley_factor_attribution <- function(anova_df) {
+  anova_df |>
+    select(effect, interaction_order, eta_squared) |>
+    mutate(factor = strsplit(effect, ":", fixed = TRUE)) |>
+    unnest(factor) |>
+    mutate(
+      allocated_eta_squared = eta_squared / interaction_order,
+      main_eta_squared = if_else(interaction_order == 1L,
+                                 allocated_eta_squared, 0),
+      interaction_eta_squared = if_else(interaction_order >= 2L,
+                                        allocated_eta_squared, 0)
+    ) |>
+    group_by(effect = factor) |>
+    summarise(
+      main_eta_squared = sum(main_eta_squared, na.rm = TRUE),
+      interaction_eta_squared = sum(interaction_eta_squared, na.rm = TRUE),
+      shapley_eta_squared = sum(allocated_eta_squared, na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    left_join(
+      FACTOR_TAXONOMY |>
+        select(effect, effect_label = mechanism_class, economic_object,
+               uncertainty_class),
+      by = "effect"
+    ) |>
+    mutate(factor_label = FACTOR_LABELS[effect]) |>
+    relocate(factor_label, effect_label, economic_object,
+             uncertainty_class, .after = effect) |>
+    arrange(desc(shapley_eta_squared))
+}
+
+build_uncertainty_summary <- function(anova_df) {
+  add_decomposition_taxonomy(anova_df) |>
+    mutate(effect_eta_squared = eta_squared) |>
+    group_by(uncertainty_class) |>
+    summarise(
+      eta_squared = sum(effect_eta_squared, na.rm = TRUE),
+      main_eta_squared = sum(if_else(interaction_order == 1L,
+                                     effect_eta_squared, 0), na.rm = TRUE),
+      interaction_eta_squared = sum(if_else(interaction_order >= 2L,
+                                            effect_eta_squared, 0),
+                                    na.rm = TRUE),
+      effects = n(),
+      .groups = "drop"
+    ) |>
+    arrange(desc(eta_squared))
 }
 
 build_scenario_summary <- function(revenue_country_year) {
@@ -575,6 +674,9 @@ run_stage4_6_pipeline <- function() {
 
   scenario_summary <- build_scenario_summary(revenue_country_year)
   anova_objects <- compute_factorial_anova(revenue_country_year)
+  anova_pooled_taxonomy <- add_decomposition_taxonomy(anova_objects$pooled)
+  shapley_attribution <- build_shapley_factor_attribution(anova_objects$pooled)
+  uncertainty_summary <- build_uncertainty_summary(anova_objects$pooled)
   country_scenario_totals <- build_country_scenario_totals(revenue_country_year)
   scenario_spread_country_year <- build_scenario_spread(revenue_country_year)
   scenario_spread_country <- build_country_spread(country_scenario_totals)
@@ -653,6 +755,12 @@ run_stage4_6_pipeline <- function() {
             file.path(DIAG, "step7_stage4_6_scenario_spread_country.csv"))
   write_csv(anova_objects$pooled,
             file.path(DIAG, "step7_stage4_6_anova_pooled.csv"))
+  write_csv(anova_pooled_taxonomy,
+            file.path(DIAG, "step7_stage4_6_structural_variance_pooled.csv"))
+  write_csv(shapley_attribution,
+            file.path(DIAG, "step7_stage4_6_shapley_factor_attribution.csv"))
+  write_csv(uncertainty_summary,
+            file.path(DIAG, "step7_stage4_6_uncertainty_summary.csv"))
   write_csv(anova_objects$by_country,
             file.path(DIAG, "step7_stage4_6_anova_by_country.csv"))
   write_csv(anova_objects$by_country_year,
@@ -687,6 +795,12 @@ run_stage4_6_pipeline <- function() {
   saveRDS(scenario_spread_country,
           file.path(OUT, "stage4_6_scenario_spread_country.rds"))
   saveRDS(anova_objects$pooled, file.path(OUT, "stage4_6_anova_pooled.rds"))
+  saveRDS(anova_pooled_taxonomy,
+          file.path(OUT, "stage4_6_structural_variance_pooled.rds"))
+  saveRDS(shapley_attribution,
+          file.path(OUT, "stage4_6_shapley_factor_attribution.rds"))
+  saveRDS(uncertainty_summary,
+          file.path(OUT, "stage4_6_uncertainty_summary.rds"))
   saveRDS(anova_objects$by_country,
           file.path(OUT, "stage4_6_anova_by_country.rds"))
   saveRDS(anova_objects$by_country_year,
@@ -721,6 +835,8 @@ run_stage4_6_pipeline <- function() {
 
   message("\nStep 7 outputs written:")
   message(" - data/processed/stage4_6_anova_*.rds")
+  message(" - data/processed/stage4_6_shapley_factor_attribution.rds")
+  message(" - data/processed/stage4_6_uncertainty_summary.rds")
   message(" - data/processed/stage4_6_scenario_spread_*.rds")
   message(" - data/processed/stage4_6_preferred_*.rds")
   message(" - diagnostics/step7_stage4_6_*.csv")

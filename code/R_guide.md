@@ -4,7 +4,7 @@
 - Test that everything works according to the plan
 - Write simple but good code, do not overcomplicate. 
 - Do not write error loops for each part, rather test ourselves that it works that letting the system do it each time. Do not write code with too many guardrails
-- For complex mathematical operations—like the piecewise-uniform ETR distribution or the counterfactual profit ratios—write dedicated, pure R functions.
+- For complex mathematical operations, like the constrained-Beta ETR distribution or the counterfactual profit ratios, write dedicated, pure R functions.
 - Verify that your Stage 1 probability distributions always sum to 1. Check that the sectoral SBIE weights sum to exactly 100%. Ensure no counterfactual revenue drops below zero. Use these checks as seperate intermediate things to verify that we are not making mistakes
 - It is common to lose ourselves in the programming, but each time we need to check that we are actually doing what the methdology (and the overall goals of the thesis) guide us towards. 
 - Some things in implementation will go different than the methdology, important to flag it immediately and make it really explicit. 
@@ -14,8 +14,7 @@
 - Rely on dplyr, tidyr, and purrr for data manipulation. Keep pipelines (%>%) clean, reading top-to-bottom
 - Write simple, transparent code. Avoid complex tryCatch blocks or excessive error loops. We want the code to "fail fast" and loudly if data is missing or a join fails, rather than silently handling it.
 - In economics, division by zero (e.g., when calculating ETR if pre-tax profit is exactly 0) or handling negative profits (loss-makers) ruins averages. We must establish a strict rule for how pure math functions handle 0 and <0 denominators, keeping it strictly aligned with how the OECD GloBE rules handle losses.
-- testthat for Pure Functions: for the pure mathematical functions (like the piecewise ETR distribution integrals or the logarithmic counterfactual profit ratios), we should write a few formal unit tests using the testthat package. We will feed these functions a "dummy" dataset where we calculate the expected top-up tax by hand, and assert that the R function returns the exact same number. 
+- testthat for Pure Functions: for the pure mathematical functions (like the Beta ETR distribution integrals or the logarithmic counterfactual profit ratios), we should write a few formal unit tests using the testthat package. We will feed these functions a "dummy" dataset where we calculate the expected top-up tax by hand, and assert that the R function returns the exact same number. 
 - Stage 1 (fitting the distributions) is deterministic and independent of the behavioral reallocation in Stage 3. We should explicitly write a rule to save/cache the output of Stage 1 and Stage 2 as .rds files. When running the bootstrap for the Stage 3 semi-elasticities, we shouldn't waste compute power recalculating the Stage 1 ETR distributions 1,000 times.
 - raw data should be untouched, 
 - check in intermediate steps that you did not make any data or economic errors
-

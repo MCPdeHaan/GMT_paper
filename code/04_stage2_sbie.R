@@ -78,6 +78,22 @@ safe_cor <- function(x, y) {
   stats::cor(x[keep], y[keep])
 }
 
+classify_bea_bridge_signal <- function(measure, share_correlation,
+                                       mean_abs_share_gap) {
+  case_when(
+    is.na(share_correlation) | is.na(mean_abs_share_gap) ~
+      "not_evaluable",
+    measure == "total_assets" &
+      (share_correlation < 0.50 | mean_abs_share_gap > 0.10) ~
+      "reject_as_primary_asset_allocator",
+    share_correlation >= 0.70 & mean_abs_share_gap <= 0.09 ~
+      "supportive_external_benchmark",
+    share_correlation >= 0.50 & mean_abs_share_gap <= 0.10 ~
+      "caution_external_benchmark",
+    TRUE ~ "benchmark_only"
+  )
+}
+
 cluster_vcov_lm <- function(fit, cluster) {
   mf <- stats::model.frame(fit)
   used_rows <- suppressWarnings(as.integer(rownames(mf)))
@@ -509,7 +525,7 @@ run_stage2_pipeline <- function() {
     left_join(sectoral_reference_base, by = "affiliate") |>
     tidyr::crossing(transition_rates) |>
     mutate(
-      payroll_share_proxy_source = "fats_payroll_share",
+      sectoral_payroll_share_used = fats_payroll_share,
       sectoral_asset_share_used = sectoral_asset_share,
       sectoral_profit_share_used = sectoral_profit_share,
       sectoral_payroll = fats_payroll_share * total_payroll,
@@ -577,6 +593,67 @@ run_stage2_pipeline <- function() {
           na.rm = TRUE)) {
     stop("Sectoral Stage 2 floor leaves [0, GMT_RATE]")
   }
+
+  sectoral_bridge_source_summary <- bind_rows(
+    stage2_sectoral_matrix |>
+      filter(transition_year == min(SECTORAL_TRANSITION_YEARS)) |>
+      transmute(
+        component = "payroll",
+        source_rule = payroll_share_proxy_source,
+        sector_share = sectoral_payroll_share_used,
+        sectoral_level = sectoral_payroll
+      ),
+    stage2_sectoral_matrix |>
+      filter(transition_year == min(SECTORAL_TRANSITION_YEARS)) |>
+      transmute(
+        component = "assets",
+        source_rule = asset_cell_proxy_source,
+        sector_share = sectoral_asset_share_used,
+        sectoral_level = sectoral_assets
+      ),
+    stage2_sectoral_matrix |>
+      filter(transition_year == min(SECTORAL_TRANSITION_YEARS)) |>
+      transmute(
+        component = "profit",
+        source_rule = profit_share_proxy_source,
+        sector_share = sectoral_profit_share_used,
+        sectoral_level = sectoral_profit_proxy
+      )
+  ) |>
+    group_by(component, source_rule) |>
+    summarise(
+      n_cells = n(),
+      missing_share_cells = sum(is.na(sector_share)),
+      total_sectoral_level = sum(sectoral_level, na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    group_by(component) |>
+    mutate(
+      level_share = safe_divide(
+        total_sectoral_level,
+        sum(total_sectoral_level, na.rm = TRUE)
+      )
+    ) |>
+    ungroup() |>
+    arrange(component, desc(level_share), source_rule)
+
+  sectoral_bridge_country_quality <- stage2_sectoral_matrix |>
+    filter(transition_year == min(SECTORAL_TRANSITION_YEARS)) |>
+    group_by(affiliate, affiliate_name) |>
+    summarise(
+      n_nace = n(),
+      payroll_share_sum = sum(sectoral_payroll_share_used, na.rm = TRUE),
+      asset_share_sum = sum(sectoral_asset_share_used, na.rm = TRUE),
+      profit_share_sum = sum(sectoral_profit_share_used, na.rm = TRUE),
+      missing_payroll_share_cells = sum(is.na(sectoral_payroll_share_used)),
+      missing_asset_share_cells = sum(is.na(sectoral_asset_share_used)),
+      missing_profit_share_cells = sum(is.na(sectoral_profit_share_used)),
+      euklems_stock_coverage_turnover_share =
+        first(euklems_stock_coverage_turnover_share),
+      asset_country_year_source = first(asset_share_proxy_source),
+      .groups = "drop"
+    ) |>
+    arrange(affiliate)
 
   stage2_sectoral_country_summary <- stage2_sectoral_matrix |>
     filter(transition_year %in% c(min(SECTORAL_TRANSITION_YEARS),
@@ -767,6 +844,22 @@ run_stage2_pipeline <- function() {
       ),
       .groups = "drop"
     ) |>
+    mutate(
+      validation_decision = classify_bea_bridge_signal(
+        measure,
+        share_correlation,
+        mean_abs_share_gap
+      ),
+      measurement_interpretation = case_when(
+        validation_decision == "reject_as_primary_asset_allocator" ~
+          "BEA total assets are not used as the sectoral asset allocator",
+        validation_decision == "supportive_external_benchmark" ~
+          "BEA supports the broad direction of the FATS/EUKLEMS bridge",
+        validation_decision == "caution_external_benchmark" ~
+          "BEA is directionally useful but remains a benchmark only",
+        TRUE ~ "BEA remains a benchmark only"
+      )
+    ) |>
     arrange(measure, bea_year)
 
   h5_sample <- stage2_sectoral_matrix |>
@@ -845,6 +938,10 @@ run_stage2_pipeline <- function() {
       "sectoral_reference_affiliates_2022",
       "sectoral_reference_rows_2022",
       "sectoral_transition_rows",
+      "sectoral_bridge_euklems_asset_affiliates_2022",
+      "sectoral_bridge_fats_asset_fallback_affiliates_2022",
+      "bea_total_assets_share_correlation",
+      "bea_total_assets_mean_abs_share_gap",
       "sectoral_h5_capital_intensity_beta",
       "sectoral_h5_capital_intensity_pvalue",
       "sectoral_h5_capital_intensity_pvalue_clustered",
@@ -869,6 +966,20 @@ run_stage2_pipeline <- function() {
       n_distinct(stage2_sectoral_matrix$affiliate),
       sum(stage2_sectoral_matrix$transition_year == SECTORAL_TRANSITION_YEARS[1]),
       nrow(stage2_sectoral_matrix),
+      sum(grepl(
+        "^euklems",
+        sectoral_bridge_country_quality$asset_country_year_source
+      ), na.rm = TRUE),
+      sum(grepl(
+        "^fats",
+        sectoral_bridge_country_quality$asset_country_year_source
+      ), na.rm = TRUE),
+      bea_fats_broad_sector_validation_summary$share_correlation[
+        bea_fats_broad_sector_validation_summary$measure == "total_assets"
+      ][1],
+      bea_fats_broad_sector_validation_summary$mean_abs_share_gap[
+        bea_fats_broad_sector_validation_summary$measure == "total_assets"
+      ][1],
       stage2_sectoral_h5_regression$estimate[
         stage2_sectoral_h5_regression$term == "sectoral_capital_intensity"
       ][1],
@@ -897,6 +1008,10 @@ run_stage2_pipeline <- function() {
             file.path(DIAG, "step4_stage2_payroll_fallback_by_year.csv"))
   write_csv(sectoral_weights_check,
             file.path(DIAG, "step4_stage2_sectoral_weights_check.csv"))
+  write_csv(sectoral_bridge_source_summary,
+            file.path(DIAG, "step4_stage2_sectoral_bridge_source_summary.csv"))
+  write_csv(sectoral_bridge_country_quality,
+            file.path(DIAG, "step4_stage2_sectoral_bridge_country_quality.csv"))
   write_csv(stage2_sectoral_country_summary,
             file.path(DIAG, "step4_stage2_sectoral_country_summary.csv"))
   write_csv(stage2_sectoral_h5_regression,

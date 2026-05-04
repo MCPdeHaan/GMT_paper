@@ -10,20 +10,45 @@ test_that("percentile conditioning clamps and orders quantiles", {
   expect_true(all(diff(q_cond) >= 0))
 })
 
-test_that("shift solver matches the target mean after bounds", {
-  q_cond <- condition_stage1_percentiles(c(0.05, 0.15, 0.25, 0.35, 0.45))
-  shift <- solve_percentile_shift(q_cond, 0.20)
-  q_shift <- apply_percentile_shift(q_cond, shift)
+test_that("constrained beta fit recovers a known beta distribution", {
+  probs <- c(0.05, 0.25, 0.50, 0.75, 0.95)
+  q <- stats::qbeta(probs, 2, 8)
+  fit <- fit_constrained_beta_percentiles(q, target_mean = 0.20)
 
-  expect_equal(mixture_mean_from_quantiles(q_shift), 0.20, tolerance = 1e-10)
+  expect_equal(fit$mean, 0.20, tolerance = 1e-10)
+  expect_equal(fit$alpha, 2, tolerance = 1e-4)
+  expect_equal(fit$beta, 8, tolerance = 1e-4)
+  expect_lt(fit$mae, 1e-5)
 })
 
-test_that("mixture integrals recover the hand-worked example", {
-  q <- c(0.05, 0.15, 0.25, 0.35, 0.45)
+test_that("beta integrals recover the hand-worked uniform example", {
+  shares <- beta_bracket_shares(alpha = 1, beta = 1)
 
-  expect_equal(mixture_mass_below(q, 0.15), 0.25, tolerance = 1e-10)
-  expect_equal(mixture_avg_topup_rate(q, 0.15), 0.065, tolerance = 1e-10)
-  expect_equal(sum(mixture_bracket_shares(q)), 1, tolerance = 1e-10)
+  expect_equal(beta_mass_below(1, 1, 0.15), 0.15, tolerance = 1e-10)
+  expect_equal(beta_avg_topup_rate(1, 1, 0.15), 0.075, tolerance = 1e-10)
+  expect_equal(unname(shares), c(0.15, 0.05, 0.10, 0.70),
+               tolerance = 1e-10)
+  expect_equal(sum(shares), 1, tolerance = 1e-10)
+})
+
+test_that("beta boundary cases behave as degenerate distributions", {
+  fit_zero <- fit_constrained_beta_percentiles(rep(0, 5), target_mean = 0)
+  fit_one <- fit_constrained_beta_percentiles(rep(1, 5), target_mean = 1)
+
+  expect_true(fit_zero$boundary_flag)
+  expect_equal(
+    beta_mass_below(fit_zero$alpha, fit_zero$beta, 0.15, fit_zero$mean),
+    1
+  )
+  expect_equal(
+    beta_avg_topup_rate(fit_zero$alpha, fit_zero$beta, 0.15, fit_zero$mean),
+    0.15
+  )
+  expect_true(fit_one$boundary_flag)
+  expect_equal(
+    beta_mass_below(fit_one$alpha, fit_one$beta, 0.15, fit_one$mean),
+    0
+  )
 })
 
 test_that("direct rule handles zero-low-share partitions", {

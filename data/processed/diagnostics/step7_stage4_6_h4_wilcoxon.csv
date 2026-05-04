@@ -1,2 +1,2 @@
 test,n,mean_delta,median_delta,statistic,p_value_two_sided,p_value_less
-wilcoxon_sbs_minus_universal_stage4_6,2592,-760086718.108659,-159793972.2340082,0,3.54245832e-315,1.77122916e-315
+wilcoxon_sbs_minus_universal_stage4_6,2592,-777165205.5366228,-164765458.72540098,0,3.54245832e-315,1.77122916e-315

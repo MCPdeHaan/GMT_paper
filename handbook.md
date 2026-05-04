@@ -144,6 +144,7 @@
 - Check each time that the writing style is really in line with what is expected from an academic paper
 
 - Avoid AI sounding language
+- do not use constructions with "not this, but yes this" that is often used in ChatGPT language
 - Watch for formulaic sentence patterns: topic sentence → supporting evidence → transition. Vary the structure.
 - Flag phrases like "In this thesis I...", "The goal is to...", "This approach allows...", "It is worth noting that..." — these are common AI filler constructions.
 - Read each paragraph aloud. If it sounds like a template, rewrite it.

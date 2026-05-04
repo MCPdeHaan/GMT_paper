@@ -26,6 +26,9 @@ EU27_ISO3 <- c("AUT", "BEL", "BGR", "CYP", "CZE", "DEU", "DNK", "ESP", "EST",
                "FIN", "FRA", "GRC", "HRV", "HUN", "IRL", "ITA", "LTU", "LUX",
                "LVA", "MLT", "NLD", "POL", "PRT", "ROU", "SVK", "SVN", "SWE")
 T4_POSITIVE_BRACKETS <- c("rate_0_15", "rate_15", "rate_20_30", "rate_30")
+PERCENTILE_PROBS <- c(0.05, 0.25, 0.50, 0.75, 0.95)
+BETA_PRECISION_LOG_BOUNDS <- log(c(1e-4, 1e6))
+BETA_BOUNDARY_EPS <- 1e-8
 
 assert_unique_keys <- function(df, keys, label) {
   n_dup <- df |>
@@ -46,6 +49,13 @@ weighted_mean_available <- function(x, w) {
   stats::weighted.mean(x[keep], w[keep])
 }
 
+safe_cor <- function(x, y, method = "pearson") {
+  keep <- is.finite(x) & is.finite(y)
+  if (sum(keep) < 3) return(NA_real_)
+  if (length(unique(x[keep])) < 2 || length(unique(y[keep])) < 2) return(NA_real_)
+  stats::cor(x[keep], y[keep], method = method)
+}
+
 first_non_missing <- function(x) {
   idx <- which(!is.na(x))[1]
   if (is.na(idx)) return(NA_real_)
@@ -59,112 +69,133 @@ condition_stage1_percentiles <- function(q) {
     cummax()
 }
 
-mixture_mean_from_quantiles <- function(q) {
-  0.05 * q[1] / 2 +
-    0.20 * (q[1] + q[2]) / 2 +
-    0.25 * (q[2] + q[3]) / 2 +
-    0.25 * (q[3] + q[4]) / 2 +
-    0.20 * (q[4] + q[5]) / 2 +
-    0.05 * q[5]
+empty_beta_fit <- function() {
+  list(
+    alpha = NA_real_,
+    beta = NA_real_,
+    precision = NA_real_,
+    mean = NA_real_,
+    sse = NA_real_,
+    mae = NA_real_,
+    max_abs_error = NA_real_,
+    boundary_flag = NA,
+    quantiles = rep(NA_real_, length(PERCENTILE_PROBS))
+  )
 }
 
-apply_percentile_shift <- function(q, delta) {
-  pmin(pmax(q + delta, 0), 1)
+beta_quantiles <- function(probs, alpha, beta) {
+  precision <- alpha + beta
+  mean <- alpha / precision
+
+  if (precision > 1e5) return(rep(mean, length(probs)))
+  suppressWarnings(stats::qbeta(probs, alpha, beta))
 }
 
-solve_percentile_shift <- function(q, target_mean) {
-  if (is.na(target_mean)) return(NA_real_)
+fit_constrained_beta_percentiles <- function(q, target_mean,
+                                             probs = PERCENTILE_PROBS) {
+  if (is.na(target_mean) || any(is.na(q))) return(empty_beta_fit())
 
+  q <- condition_stage1_percentiles(q)
   target_mean <- pmin(pmax(target_mean, 0), 1)
-  objective <- function(delta) {
-    mixture_mean_from_quantiles(apply_percentile_shift(q, delta)) - target_mean
+
+  if (target_mean <= BETA_BOUNDARY_EPS) {
+    q_fit <- rep(0, length(probs))
+    return(list(
+      alpha = NA_real_,
+      beta = NA_real_,
+      precision = NA_real_,
+      mean = 0,
+      sse = sum((q_fit - q)^2),
+      mae = mean(abs(q_fit - q)),
+      max_abs_error = max(abs(q_fit - q)),
+      boundary_flag = TRUE,
+      quantiles = q_fit
+    ))
   }
 
-  lower_val <- objective(-1)
-  upper_val <- objective(1)
-
-  if (lower_val > 0) return(-1)
-  if (upper_val < 0) return(1)
-
-  stats::uniroot(objective, interval = c(-1, 1), tol = 1e-10)$root
-}
-
-interval_mass_below <- function(a, b, mass, threshold) {
-  if (is.na(a) | is.na(b) | is.na(mass)) return(NA_real_)
-  if (b < a) stop("Percentile supports must be weakly increasing")
-
-  if (b == a) {
-    return(if (threshold >= b) mass else 0)
+  if (target_mean >= 1 - BETA_BOUNDARY_EPS) {
+    q_fit <- rep(1, length(probs))
+    return(list(
+      alpha = NA_real_,
+      beta = NA_real_,
+      precision = NA_real_,
+      mean = 1,
+      sse = sum((q_fit - q)^2),
+      mae = mean(abs(q_fit - q)),
+      max_abs_error = max(abs(q_fit - q)),
+      boundary_flag = TRUE,
+      quantiles = q_fit
+    ))
   }
 
-  if (threshold <= a) return(0)
-  if (threshold >= b) return(mass)
+  objective <- function(log_precision) {
+    precision <- exp(log_precision)
+    alpha <- target_mean * precision
+    beta <- (1 - target_mean) * precision
+    q_fit <- beta_quantiles(probs, alpha, beta)
 
-  mass * (threshold - a) / (b - a)
-}
-
-interval_first_moment_below <- function(a, b, mass, threshold) {
-  if (is.na(a) | is.na(b) | is.na(mass)) return(NA_real_)
-  if (b < a) stop("Percentile supports must be weakly increasing")
-
-  if (b == a) {
-    return(if (threshold >= b) mass * b else 0)
+    if (any(!is.finite(q_fit))) return(.Machine$double.xmax)
+    sum((q_fit - q)^2)
   }
 
-  if (threshold <= a) return(0)
-  if (threshold >= b) return(mass * (a + b) / 2)
+  opt <- stats::optimize(objective, interval = BETA_PRECISION_LOG_BOUNDS)
+  precision <- exp(opt$minimum)
+  alpha <- target_mean * precision
+  beta <- (1 - target_mean) * precision
+  q_fit <- beta_quantiles(probs, alpha, beta)
 
-  interval_mass_below(a, b, mass, threshold) * (a + threshold) / 2
+  list(
+    alpha = alpha,
+    beta = beta,
+    precision = precision,
+    mean = alpha / (alpha + beta),
+    sse = sum((q_fit - q)^2),
+    mae = mean(abs(q_fit - q)),
+    max_abs_error = max(abs(q_fit - q)),
+    boundary_flag = FALSE,
+    quantiles = q_fit
+  )
 }
 
-mixture_mass_below <- function(q, threshold = GMT_RATE) {
-  breaks <- c(0, q)
-  masses <- c(0.05, 0.20, 0.25, 0.25, 0.20)
-
-  continuous_mass <- tibble(
-    a = breaks[-length(breaks)],
-    b = breaks[-1],
-    mass = masses
-  ) |>
-    pmap_dbl(~ interval_mass_below(..1, ..2, ..3, threshold)) |>
-    sum()
-
-  upper_point_mass <- if (threshold >= q[5]) 0.05 else 0
-  continuous_mass + upper_point_mass
+beta_mass_below <- function(alpha, beta, threshold = GMT_RATE,
+                            boundary_mean = NA_real_) {
+  if (!is.na(boundary_mean)) return(as.numeric(threshold >= boundary_mean))
+  if (is.na(alpha) || is.na(beta)) return(NA_real_)
+  stats::pbeta(threshold, alpha, beta)
 }
 
-mixture_first_moment_below <- function(q, threshold = GMT_RATE) {
-  breaks <- c(0, q)
-  masses <- c(0.05, 0.20, 0.25, 0.25, 0.20)
+beta_first_moment_below <- function(alpha, beta, threshold = GMT_RATE,
+                                    boundary_mean = NA_real_) {
+  if (!is.na(boundary_mean)) {
+    return(if (threshold >= boundary_mean) boundary_mean else 0)
+  }
+  if (is.na(alpha) || is.na(beta)) return(NA_real_)
 
-  continuous_moment <- tibble(
-    a = breaks[-length(breaks)],
-    b = breaks[-1],
-    mass = masses
-  ) |>
-    pmap_dbl(~ interval_first_moment_below(..1, ..2, ..3, threshold)) |>
-    sum()
-
-  upper_point_moment <- if (threshold >= q[5]) 0.05 * q[5] else 0
-  continuous_moment + upper_point_moment
+  mean <- alpha / (alpha + beta)
+  mean * stats::pbeta(threshold, alpha + 1, beta)
 }
 
-mixture_avg_topup_rate <- function(q, threshold = GMT_RATE) {
-  low_share <- mixture_mass_below(q, threshold)
+beta_avg_topup_rate <- function(alpha, beta, threshold = GMT_RATE,
+                                boundary_mean = NA_real_) {
+  low_share <- beta_mass_below(alpha, beta, threshold, boundary_mean)
   if (is.na(low_share) || low_share <= 0) return(0)
 
-  low_mean_etr <- mixture_first_moment_below(q, threshold) / low_share
+  low_mean_etr <- beta_first_moment_below(
+    alpha, beta, threshold, boundary_mean
+  ) / low_share
   pmax(0, threshold - pmin(pmax(low_mean_etr, 0), threshold))
 }
 
-mixture_mass_between <- function(q, lower, upper) {
-  mixture_mass_below(q, upper) - mixture_mass_below(q, lower)
+beta_mass_between <- function(alpha, beta, lower, upper,
+                              boundary_mean = NA_real_) {
+  beta_mass_below(alpha, beta, upper, boundary_mean) -
+    beta_mass_below(alpha, beta, lower, boundary_mean)
 }
 
-mixture_bracket_shares <- function(q) {
-  rate_0_15 <- mixture_mass_below(q, 0.15)
-  rate_15 <- mixture_mass_between(q, 0.15, 0.20)
-  rate_20_30 <- mixture_mass_between(q, 0.20, 0.30)
+beta_bracket_shares <- function(alpha, beta, boundary_mean = NA_real_) {
+  rate_0_15 <- beta_mass_below(alpha, beta, 0.15, boundary_mean)
+  rate_15 <- beta_mass_between(alpha, beta, 0.15, 0.20, boundary_mean)
+  rate_20_30 <- beta_mass_between(alpha, beta, 0.20, 0.30, boundary_mean)
   rate_30 <- 1 - rate_0_15 - rate_15 - rate_20_30
 
   c(
@@ -415,40 +446,53 @@ run_stage1_pipeline <- function() {
       percentile_conditioning_max_abs_change = max(abs(
         unlist(percentile_conditioned) - unlist(percentile_raw)
       )),
-      percentile_pre_shift_mean = mixture_mean_from_quantiles(
-        unlist(percentile_conditioned)
-      ),
-      percentile_shift = solve_percentile_shift(
+      percentile_beta_fit = list(fit_constrained_beta_percentiles(
         unlist(percentile_conditioned),
         avg_etr_stage1
+      )),
+      percentile_beta_alpha = percentile_beta_fit$alpha,
+      percentile_beta_beta = percentile_beta_fit$beta,
+      percentile_beta_precision = percentile_beta_fit$precision,
+      percentile_beta_mean = percentile_beta_fit$mean,
+      percentile_beta_sse = percentile_beta_fit$sse,
+      percentile_beta_mae = percentile_beta_fit$mae,
+      percentile_beta_max_abs_error = percentile_beta_fit$max_abs_error,
+      percentile_beta_boundary_flag = percentile_beta_fit$boundary_flag,
+      percentile_beta_mean_gap = percentile_beta_mean - avg_etr_stage1,
+      percentile_fitted = list(percentile_beta_fit$quantiles),
+      percentile_beta_boundary_mean = if_else(
+        percentile_beta_boundary_flag,
+        percentile_beta_mean,
+        NA_real_
       ),
-      percentile_shifted = list(
-        if (is.na(percentile_shift)) {
-          unlist(percentile_conditioned)
-        } else {
-          apply_percentile_shift(unlist(percentile_conditioned), percentile_shift)
-        }
+      percentile_low_share = beta_mass_below(
+        percentile_beta_alpha,
+        percentile_beta_beta,
+        GMT_RATE,
+        percentile_beta_boundary_mean
       ),
-      percentile_shifted_mean = mixture_mean_from_quantiles(
-        unlist(percentile_shifted)
+      percentile_topup_rate = beta_avg_topup_rate(
+        percentile_beta_alpha,
+        percentile_beta_beta,
+        GMT_RATE,
+        percentile_beta_boundary_mean
       ),
-      percentile_shift_boundary_flag = !is.na(percentile_shift) &
-        abs(abs(percentile_shift) - 1) <= 1e-10,
-      percentile_shift_mean_gap = percentile_shifted_mean - avg_etr_stage1,
-      percentile_low_share = mixture_mass_below(unlist(percentile_shifted), GMT_RATE),
-      percentile_topup_rate = mixture_avg_topup_rate(unlist(percentile_shifted), GMT_RATE),
       percentile_liability_rate = percentile_low_share * percentile_topup_rate,
       percentile_bracket_shares = list(
-        mixture_bracket_shares(unlist(percentile_shifted))
+        beta_bracket_shares(
+          percentile_beta_alpha,
+          percentile_beta_beta,
+          percentile_beta_boundary_mean
+        )
       )
     ) |>
     ungroup() |>
     mutate(
-      percentile_q5 = map_dbl(percentile_shifted, 1),
-      percentile_q25 = map_dbl(percentile_shifted, 2),
-      percentile_q50 = map_dbl(percentile_shifted, 3),
-      percentile_q75 = map_dbl(percentile_shifted, 4),
-      percentile_q95 = map_dbl(percentile_shifted, 5),
+      percentile_q5 = map_dbl(percentile_fitted, 1),
+      percentile_q25 = map_dbl(percentile_fitted, 2),
+      percentile_q50 = map_dbl(percentile_fitted, 3),
+      percentile_q75 = map_dbl(percentile_fitted, 4),
+      percentile_q95 = map_dbl(percentile_fitted, 5),
       percentile_iqr = percentile_q75 - percentile_q25,
       percentile_rate_0_15 = map_dbl(percentile_bracket_shares, "rate_0_15"),
       percentile_rate_15 = map_dbl(percentile_bracket_shares, "rate_15"),
@@ -464,8 +508,10 @@ run_stage1_pipeline <- function() {
       q5_raw, q25_raw, q50_raw, q75_raw, q95_raw,
       percentile_raw_non_monotone, percentile_raw_out_of_support,
       percentile_conditioning_flag, percentile_conditioning_max_abs_change,
-      percentile_pre_shift_mean, percentile_shift, percentile_shift_boundary_flag,
-      percentile_shifted_mean, percentile_shift_mean_gap,
+      percentile_beta_alpha, percentile_beta_beta, percentile_beta_precision,
+      percentile_beta_mean, percentile_beta_mean_gap,
+      percentile_beta_sse, percentile_beta_mae, percentile_beta_max_abs_error,
+      percentile_beta_boundary_flag,
       percentile_q5, percentile_q25, percentile_q50, percentile_q75, percentile_q95,
       percentile_iqr, percentile_low_share, percentile_topup_rate,
       percentile_liability_rate, percentile_rate_0_15, percentile_rate_15,
@@ -730,8 +776,10 @@ run_stage1_pipeline <- function() {
     ) |>
     mutate(
       low_share_diff = percentile_low_share - direct_low_share,
+      low_share_abs_error = abs(low_share_diff),
       topup_rate_diff = percentile_topup_rate - direct_topup_rate,
       liability_rate_diff = percentile_liability_rate - direct_liability_rate,
+      liability_rate_abs_error = abs(liability_rate_diff),
       liability_rate_rel_diff = safe_divide(
         liability_rate_diff,
         direct_liability_rate
@@ -743,6 +791,50 @@ run_stage1_pipeline <- function() {
           abs(percentile_rate_30 - direct_rate_30)
       )
     )
+
+  crossval_calibration_sample <- crossval_affiliate_year |>
+    filter(
+      is.finite(direct_low_share),
+      is.finite(percentile_low_share)
+    )
+
+  crossval_calibration <- if (
+    nrow(crossval_calibration_sample) >= 3 &&
+      n_distinct(crossval_calibration_sample$percentile_low_share) > 1
+  ) {
+    crossval_calibration_fit <- stats::lm(
+      direct_low_share ~ percentile_low_share + factor(year),
+      data = crossval_calibration_sample
+    )
+
+    crossval_calibration_summary <- summary(crossval_calibration_fit)
+
+    as.data.frame(crossval_calibration_summary$coefficients) |>
+      rownames_to_column("term") |>
+      as_tibble() |>
+      rename(
+        estimate = Estimate,
+        std_error = `Std. Error`,
+        statistic = `t value`,
+        p_value = `Pr(>|t|)`
+      ) |>
+      mutate(
+        n_obs = stats::nobs(crossval_calibration_fit),
+        r_squared = crossval_calibration_summary$r.squared,
+        adj_r_squared = crossval_calibration_summary$adj.r.squared
+      )
+  } else {
+    tibble(
+      term = NA_character_,
+      estimate = NA_real_,
+      std_error = NA_real_,
+      statistic = NA_real_,
+      p_value = NA_real_,
+      n_obs = NA_real_,
+      r_squared = NA_real_,
+      adj_r_squared = NA_real_
+    )
+  }
 
   bilateral_stage1 <- panel |>
     left_join(
@@ -826,8 +918,9 @@ run_stage1_pipeline <- function() {
       "percentile_affiliate_years",
       "percentile_conditioned_affiliate_years",
       "percentile_weight_fallback_affiliate_years",
-      "percentile_shift_boundary_affiliate_years",
-      "percentile_shift_mean_mismatch_affiliate_years",
+      "percentile_beta_boundary_affiliate_years",
+      "percentile_beta_mean_mismatch_affiliate_years",
+      "percentile_beta_fit_mae_mean",
       "bspi_anchor_affiliates_distinct",
       "bspi_validation_affiliates_distinct",
       "bspi_high_tv_affiliates_distinct",
@@ -853,8 +946,9 @@ run_stage1_pipeline <- function() {
       sum(affiliate_year_stage1$percentile_available, na.rm = TRUE),
       sum(affiliate_year_stage1$percentile_conditioning_flag, na.rm = TRUE),
       sum(affiliate_year_stage1$percentile_weight_fallback_used, na.rm = TRUE),
-      sum(affiliate_year_stage1$percentile_shift_boundary_flag, na.rm = TRUE),
-      sum(abs(affiliate_year_stage1$percentile_shift_mean_gap) > 1e-6, na.rm = TRUE),
+      sum(affiliate_year_stage1$percentile_beta_boundary_flag, na.rm = TRUE),
+      sum(abs(affiliate_year_stage1$percentile_beta_mean_gap) > 1e-8, na.rm = TRUE),
+      mean(affiliate_year_stage1$percentile_beta_mae, na.rm = TRUE),
       n_distinct(affiliate_year_stage1$affiliate[
         coalesce(affiliate_year_stage1$bspi_has_anchor, FALSE)
       ]),
@@ -972,15 +1066,17 @@ run_stage1_pipeline <- function() {
       raw_out_of_support = sum(percentile_raw_out_of_support, na.rm = TRUE),
       conditioned = sum(percentile_conditioning_flag, na.rm = TRUE),
       weight_fallback_used = sum(percentile_weight_fallback_used, na.rm = TRUE),
-      shift_boundary_hits = sum(percentile_shift_boundary_flag, na.rm = TRUE),
+      beta_boundary_cells = sum(percentile_beta_boundary_flag, na.rm = TRUE),
       mean_abs_conditioning_change = mean(
         percentile_conditioning_max_abs_change,
         na.rm = TRUE
       ),
-      mean_abs_shift = mean(abs(percentile_shift), na.rm = TRUE),
-      max_abs_shift = max(abs(percentile_shift), na.rm = TRUE),
-      mean_abs_shift_mean_gap = mean(abs(percentile_shift_mean_gap), na.rm = TRUE),
-      max_abs_shift_mean_gap = max(abs(percentile_shift_mean_gap), na.rm = TRUE),
+      mean_beta_fit_mae = mean(percentile_beta_mae, na.rm = TRUE),
+      max_beta_fit_mae = max(percentile_beta_mae, na.rm = TRUE),
+      mean_beta_fit_max_abs_error = mean(percentile_beta_max_abs_error, na.rm = TRUE),
+      max_beta_fit_max_abs_error = max(percentile_beta_max_abs_error, na.rm = TRUE),
+      mean_abs_beta_mean_gap = mean(abs(percentile_beta_mean_gap), na.rm = TRUE),
+      max_abs_beta_mean_gap = max(abs(percentile_beta_mean_gap), na.rm = TRUE),
       .groups = "drop"
     )
 
@@ -1032,17 +1128,25 @@ run_stage1_pipeline <- function() {
       "low_share_median_diff",
       "low_share_mae",
       "low_share_rmse",
+      "low_share_p90_abs_error",
+      "low_share_spearman",
+      "low_share_calibration_slope",
+      "low_share_calibration_pvalue",
+      "low_share_calibration_r_squared",
       "topup_rate_mean_diff",
       "topup_rate_median_diff",
       "liability_rate_mean_diff",
       "liability_rate_median_diff",
       "liability_rate_mae",
       "liability_rate_rmse",
+      "liability_rate_p90_abs_error",
       "liability_rate_rel_diff_mean",
       "liability_rate_rel_diff_median",
       "positive_partition_tv_mean",
       "positive_partition_tv_median",
       "positive_partition_tv_p90",
+      "crossval_low_share_wilcox_pvalue",
+      "crossval_liability_wilcox_pvalue",
       "rel_diff_regression_rows",
       "rel_diff_regression_iqr_beta",
       "rel_diff_regression_iqr_pvalue",
@@ -1055,17 +1159,35 @@ run_stage1_pipeline <- function() {
       median(crossval_affiliate_year$low_share_diff, na.rm = TRUE),
       mean(abs(crossval_affiliate_year$low_share_diff), na.rm = TRUE),
       sqrt(mean(crossval_affiliate_year$low_share_diff^2, na.rm = TRUE)),
+      stats::quantile(crossval_affiliate_year$low_share_abs_error, 0.9,
+                      na.rm = TRUE),
+      safe_cor(crossval_affiliate_year$percentile_low_share,
+               crossval_affiliate_year$direct_low_share,
+               method = "spearman"),
+      crossval_calibration$estimate[
+        crossval_calibration$term == "percentile_low_share"
+      ][1],
+      crossval_calibration$p_value[
+        crossval_calibration$term == "percentile_low_share"
+      ][1],
+      crossval_calibration$r_squared[1],
       mean(crossval_affiliate_year$topup_rate_diff, na.rm = TRUE),
       median(crossval_affiliate_year$topup_rate_diff, na.rm = TRUE),
       mean(crossval_affiliate_year$liability_rate_diff, na.rm = TRUE),
       median(crossval_affiliate_year$liability_rate_diff, na.rm = TRUE),
       mean(abs(crossval_affiliate_year$liability_rate_diff), na.rm = TRUE),
       sqrt(mean(crossval_affiliate_year$liability_rate_diff^2, na.rm = TRUE)),
+      stats::quantile(crossval_affiliate_year$liability_rate_abs_error, 0.9,
+                      na.rm = TRUE),
       mean(crossval_affiliate_year$liability_rate_rel_diff, na.rm = TRUE),
       median(crossval_affiliate_year$liability_rate_rel_diff, na.rm = TRUE),
       mean(crossval_affiliate_year$tv_positive_partition, na.rm = TRUE),
       median(crossval_affiliate_year$tv_positive_partition, na.rm = TRUE),
       stats::quantile(crossval_affiliate_year$tv_positive_partition, 0.9, na.rm = TRUE),
+      stats::wilcox.test(crossval_affiliate_year$low_share_diff, mu = 0,
+                         exact = FALSE)$p.value,
+      stats::wilcox.test(crossval_affiliate_year$liability_rate_diff, mu = 0,
+                         exact = FALSE)$p.value,
       nrow(crossval_regression_sample),
       crossval_regression$estimate[crossval_regression$term == "percentile_iqr"][1],
       crossval_regression$p_value[crossval_regression$term == "percentile_iqr"][1],
@@ -1086,6 +1208,8 @@ run_stage1_pipeline <- function() {
             file.path(DIAG, "step3_stage1_crossval_summary.csv"))
   write_csv(crossval_regression,
             file.path(DIAG, "step3_stage1_crossval_regression.csv"))
+  write_csv(crossval_calibration,
+            file.path(DIAG, "step3_stage1_crossval_calibration.csv"))
   write_csv(crossval_affiliate_year,
             file.path(DIAG, "step3_stage1_crossval_affiliate_year.csv"))
   write_csv(bspi_validation,

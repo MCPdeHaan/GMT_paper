@@ -252,7 +252,7 @@ write_stage1_source_table <- function() {
     mutate(label = recode(
       stage1_distributional_source,
       "direct_t4" = "Direct Table IV",
-      "percentile_fit" = "Percentile fit",
+      "percentile_fit" = "Beta percentile fit",
       "shape_transport" = "BSPI shape transport",
       "avg_only" = "Jurisdiction-average fallback",
       "missing" = "Missing source",
@@ -261,7 +261,7 @@ write_stage1_source_table <- function() {
     select(year, label, pair_years) |>
     pivot_wider(names_from = year, values_from = pair_years, values_fill = 0)
 
-  order_labels <- c("Direct Table IV", "Percentile fit", "BSPI shape transport",
+  order_labels <- c("Direct Table IV", "Beta percentile fit", "BSPI shape transport",
                     "Jurisdiction-average fallback", "Missing source")
 
   body <- branch_wide |>
@@ -452,37 +452,46 @@ write_stage1_crossval_table <- function() {
       "Zero-low-share cells in Table IV",
       "Low-taxed share, median gap",
       "Low-taxed share, mean absolute error",
+      "Low-taxed share, p90 absolute error",
+      "Low-taxed share, Spearman rho",
+      "Calibration slope, direct on fitted",
+      "Calibration R-squared",
       "Liability rate, median gap",
       "Liability rate, mean absolute error",
+      "Liability rate, p90 absolute error",
       "Positive-partition TV, median",
-      "IQR regression coefficient",
-      "IQR regression p-value",
-      "IQR regression R-squared"
+      "Positive-partition TV, p90",
+      "Low-share Wilcoxon p-value"
     )),
     Value = c(
       fmt_int(get("overlap_affiliate_years")),
       fmt_int(get("overlap_zero_low_share_cases")),
       fmt_num(get("low_share_median_diff"), 3),
       fmt_num(get("low_share_mae"), 3),
+      fmt_num(get("low_share_p90_abs_error"), 3),
+      fmt_num(get("low_share_spearman"), 3),
+      fmt_num(get("low_share_calibration_slope"), 2),
+      fmt_num(get("low_share_calibration_r_squared"), 3),
       fmt_num(get("liability_rate_median_diff"), 3),
       fmt_num(get("liability_rate_mae"), 3),
+      fmt_num(get("liability_rate_p90_abs_error"), 3),
       fmt_num(get("positive_partition_tv_median"), 3),
-      fmt_num(get("rel_diff_regression_iqr_beta"), 2),
-      fmt_p(get("rel_diff_regression_iqr_pvalue")),
-      fmt_num(get("rel_diff_regression_r_squared"), 3)
+      fmt_num(get("positive_partition_tv_p90"), 3),
+      fmt_p(get("crossval_low_share_wilcox_pvalue"))
     )
   )
 
   write_latex_table(
     file.path(GEN_TABLES, "stage1_crossval.tex"),
-    caption = "Percentile-fit versus Table IV cross-validation",
-    short_caption = "Percentile-fit versus Table IV cross-validation",
-    label = "tab:stage1_crossval_updated",
+    caption = "Beta percentile fit versus Table IV cross-validation",
+    short_caption = "Beta percentile fit versus Table IV cross-validation",
+    label = "tab:app_stage1_crossval",
     col_spec = "lr",
     header = c("Statistic", "Value"),
     rows = rows,
     notes = paste(
-      "Differences are Table I percentile fit minus Table IV direct observation.",
+      "Differences are Table I constrained-Beta percentile fit minus Table IV direct observation.",
+      "Calibration regresses the direct Table IV low-taxed share on the fitted Table I low-taxed share and year fixed effects.",
       source_note("data/processed/diagnostics/step3_stage1_crossval_summary.csv")
     )
   )
@@ -759,6 +768,17 @@ write_stage3_regression_table <- function() {
 
 write_stage3_iv_table <- function() {
   iv_raw <- read_diag("step5_stage3_tax_endogeneity_diagnostics.csv")
+  if (!"instrument_label" %in% names(iv_raw)) {
+    iv_raw <- iv_raw |>
+      mutate(
+        instrument_label = case_when(
+          str_detect(diagnostic, "simulated") ~
+            "OECD simulated fixed-project EATR",
+          str_detect(diagnostic, "statutory") ~ "Lagged statutory CIT",
+          TRUE ~ "Excluded instrument"
+        )
+      )
+  }
   if (!"weak_instrument_f" %in% names(iv_raw)) {
     iv_raw <- iv_raw |>
       mutate(weak_instrument_f = f_statistic)
@@ -767,19 +787,12 @@ write_stage3_iv_table <- function() {
   iv <- iv_raw |>
     filter(inference == "parent_affiliate_clustered") |>
     mutate(
-      Diagnostic = recode(
-        diagnostic,
-        "lagged_statutory_cit_first_stage_for_cbcr_etr" =
-          "First stage: CbCR ETR",
-        "lagged_statutory_cit_reduced_form_for_profit" =
-          "Reduced form: log profit",
-        "lagged_statutory_cit_2sls_for_profit" =
-          "FE-2SLS: log profit",
-        "statutory_cit_first_stage_for_cbcr_etr" =
-          "First stage: CbCR ETR",
-        "statutory_cit_reduced_form_for_profit" =
-          "Reduced form: log profit",
-        .default = diagnostic
+      Instrument = instrument_label,
+      Diagnostic = case_when(
+        str_detect(diagnostic, "first_stage") ~ "First stage: CbCR ETR",
+        str_detect(diagnostic, "reduced_form") ~ "Reduced form: log profit",
+        str_detect(diagnostic, "2sls") ~ "FE-2SLS: log profit",
+        TRUE ~ diagnostic
       ),
       `Dependent variable` = recode(
         dependent_variable,
@@ -788,10 +801,15 @@ write_stage3_iv_table <- function() {
         .default = dependent_variable
       )
     ) |>
-    arrange(match(Diagnostic,
-                  c("First stage: CbCR ETR", "Reduced form: log profit",
-                    "FE-2SLS: log profit"))) |>
+    arrange(
+      match(Instrument,
+            c("OECD simulated fixed-project EATR", "Lagged statutory CIT")),
+      match(Diagnostic,
+            c("First stage: CbCR ETR", "Reduced form: log profit",
+              "FE-2SLS: log profit"))
+    ) |>
     transmute(
+      Instrument = latex_escape(Instrument),
       Diagnostic = latex_escape(Diagnostic),
       `Dependent variable` = latex_escape(`Dependent variable`),
       Coefficient = paste0(
@@ -806,17 +824,18 @@ write_stage3_iv_table <- function() {
 
   write_latex_table(
     file.path(GEN_TABLES, "stage3_iv_diagnostics.tex"),
-    caption = "Statutory-CIT instrument diagnostics",
-    short_caption = "Statutory-CIT instrument diagnostics",
+    caption = "Tax-code instrument diagnostics",
+    short_caption = "Tax-code instrument diagnostics",
     label = "tab:stage3_iv_diagnostics",
-    col_spec = "llrrrrr",
-    header = c("Diagnostic", "Dependent variable", "Coefficient",
+    col_spec = "lllrrrrr",
+    header = c("Instrument", "Diagnostic", "Dependent variable", "Coefficient",
                "Weak-IV $F$", "$p$-value", "$N$", "Within $R^2$"),
     rows = iv,
     notes = paste(
-      "The table reports a fixed-effect first stage, reduced form and linear FE-2SLS robustness estimate.",
-      "The excluded instrument is the one-year lagged statutory CIT rate of the affiliate jurisdiction.",
-      "The weak-instrument statistic is the parent-and-affiliate clustered first-stage F-statistic for the excluded instrument.",
+      "The table reports fixed-effect first stages, reduced forms and linear FE-2SLS robustness estimates.",
+      "The simulated instrument is the current-year OECD forward-looking effective average tax rate for a fixed composite investment project in the affiliate jurisdiction.",
+      "The statutory benchmark uses the one-year lagged statutory CIT rate of the affiliate jurisdiction.",
+      "The weak-instrument statistic is the parent-and-affiliate clustered first-stage F-statistic for each excluded instrument.",
       "The 2SLS row is not used for the nonlinear counterfactual because one excluded instrument identifies only the linear ETR coefficient.",
       source_note("data/processed/diagnostics/step5_stage3_tax_endogeneity_diagnostics.csv")
     ),
@@ -879,9 +898,40 @@ write_stage46_anova_table <- function() {
     header = c("Effect", "Order", "Share (\\%)"),
     rows = x,
     notes = paste(
-      "Pooled ANOVA decomposition across the 32 legally allocated revenue scenarios, EU27 country-years, 2017 to 2022.",
+      "Pooled orthogonal structural variance decomposition across the 32 legally allocated revenue scenarios, EU27 country-years, 2017 to 2022.",
       source_note("data/processed/diagnostics/step7_stage4_6_anova_pooled.csv")
     )
+  )
+}
+
+write_stage46_shapley_table <- function() {
+  x <- read_diag("step7_stage4_6_shapley_factor_attribution.csv") |>
+    transmute(
+      Factor = latex_escape(factor_label),
+      Mechanism = latex_escape(effect_label),
+      `Main share (\\%)` = fmt_pct(main_eta_squared, 1),
+      `Interaction share (\\%)` = fmt_pct(interaction_eta_squared, 1),
+      `Allocated share (\\%)` = fmt_pct(shapley_eta_squared, 1),
+      `Uncertainty class` = latex_escape(uncertainty_class)
+    )
+
+  write_latex_table(
+    file.path(GEN_TABLES, "stage4_6_shapley_factor_attribution.tex"),
+    caption = "Shapley-style allocation of factorial revenue variance by economic mechanism",
+    short_caption = "Shapley-style allocation of factorial revenue variance",
+    label = "tab:stage4_6_shapley_attribution",
+    col_spec = "L{2.2cm}L{3.2cm}rrrL{4.2cm}",
+    header = c("Factor", "Mechanism", "Main share (\\%)",
+               "Interaction share (\\%)", "Allocated share (\\%)",
+               "Uncertainty class"),
+    rows = x,
+    notes = paste(
+      "Interaction contrasts are allocated equally across the factors that enter them, giving a Shapley-style factor attribution that sums to the full scenario variance.",
+      "The aleatoric label is reserved for bootstrap uncertainty in the estimated behavioural coefficients; the factorial behavioural contrast itself is a scenario contrast.",
+      source_note("data/processed/diagnostics/step7_stage4_6_shapley_factor_attribution.csv")
+    ),
+    size = "\\scriptsize",
+    resize = TRUE
   )
 }
 
@@ -937,6 +987,52 @@ write_stage46_channel_table <- function() {
       source_note("data/processed/diagnostics/step7_stage4_6_preferred_channel_summary.csv")
     )
   )
+}
+
+write_stage1_measurement_error_table <- function() {
+  input_file <- file.path(DIAG, "step9_stage1_measurement_error_preferred_interval.csv")
+  if (!file.exists(input_file)) return(invisible(FALSE))
+
+  x <- read_csv(input_file, show_col_types = FALSE) |>
+    filter(draws >= 100) |>
+    mutate(
+      Regime = recode(factor4_sbs, "universal" = "Universal", "sbs" = "SbS"),
+      Behaviour = recode(factor5_behaviour,
+                         "mechanical" = "Mechanical",
+                         "behavioural" = "Behavioural"),
+      Regime = factor(Regime, levels = c("Universal", "SbS")),
+      Behaviour = factor(Behaviour, levels = c("Mechanical", "Behavioural"))
+    ) |>
+    arrange(Behaviour, Regime) |>
+    transmute(
+      Behaviour = latex_escape(as.character(Behaviour)),
+      Regime = latex_escape(as.character(Regime)),
+      `Baseline (US\\$ bn)` = fmt_num(baseline_eu_revenue_bn, 1),
+      `Median (US\\$ bn)` = fmt_num(p50_bn, 1),
+      `5th pct.` = fmt_num(p05_bn, 1),
+      `95th pct.` = fmt_num(p95_bn, 1),
+      `90\\% width` = fmt_num(p90_width_bn, 1)
+    )
+
+  if (nrow(x) == 0) return(invisible(FALSE))
+
+  write_latex_table(
+    file.path(GEN_TABLES, "stage1_measurement_error_interval.tex"),
+    caption = "Revenue interval from Stage 1 ETR measurement error",
+    short_caption = "Stage 1 ETR measurement-error interval",
+    label = "tab:stage1_measurement_error_interval",
+    col_spec = "llrrrrr",
+    header = c("Behaviour", "Regime", "Baseline (US\\$ bn)",
+               "Median (US\\$ bn)", "5th pct.", "95th pct.", "90\\% width"),
+    rows = x,
+    notes = paste(
+      "Intervals use centred empirical validation residuals from the Table I percentile-fit versus Table IV direct-bracket overlap.",
+      "The reported rows hold the preferred ETR, aggregate SBIE and initial-rate scenario fixed, then vary behaviour and implementation regime.",
+      source_note("data/processed/diagnostics/step9_stage1_measurement_error_preferred_interval.csv")
+    )
+  )
+
+  invisible(TRUE)
 }
 
 write_stage46_country_spread_table <- function() {
@@ -1071,17 +1167,17 @@ write_appendix_tables <- function() {
       `Non-monotone raw` = fmt_int(raw_non_monotone),
       `Out of support` = fmt_int(raw_out_of_support),
       Conditioned = fmt_int(conditioned),
-      `Mean absolute shift` = fmt_num(mean_abs_shift, 3),
-      `Max absolute shift` = fmt_num(max_abs_shift, 3)
+      `Mean beta fit MAE` = fmt_num(mean_beta_fit_mae, 3),
+      `Max beta fit error` = fmt_num(max_beta_fit_max_abs_error, 3)
     )
 
   write_appendix_latex_table(
     file.path(GEN_TABLES, "appendix_stage1_conditioning.tex"),
-    "Stage 1 percentile conditioning diagnostics",
+    "Stage 1 percentile and Beta-fit diagnostics",
     "tab:app_stage1_conditioning",
     "lrrrrrr",
     c("Year", "Affiliate-years", "Non-monotone raw", "Out of support",
-      "Conditioned", "Mean absolute shift", "Max absolute shift"),
+      "Conditioned", "Mean beta fit MAE", "Max beta fit error"),
     conditioning,
     source_note("data/processed/diagnostics/step3_stage1_conditioning_by_year.csv")
   )
@@ -1253,6 +1349,56 @@ write_appendix_tables <- function() {
     source_note("data/processed/diagnostics/step5_stage3_model_robustness.csv")
   )
 
+  tail_support <- read_diag("step5_stage3_etr_tail_support.csv") |>
+    filter(scope == "pooled") |>
+    mutate(
+      Band = recode(
+        tail_band,
+        "below_5pct" = "Below 5\\%",
+        "five_to_15pct" = "5\\% to 15\\%",
+        "at_or_above_15pct" = "15\\% and above"
+      )
+    ) |>
+    transmute(
+      Band,
+      Rows = fmt_int(rows),
+      `Row share (\\%)` = fmt_pct(row_share, 1),
+      `Profit share (\\%)` = fmt_pct(profit_share, 1),
+      Pairs = fmt_int(pairs),
+      Affiliates = fmt_int(affiliates),
+      Parents = fmt_int(parents),
+      `Median ETR (\\%)` = fmt_pct(median_tau, 1)
+    )
+
+  tail_feasibility <- read_diag("step5_stage3_tail_reweighting_feasibility.csv")
+  tail_value <- function(metric) {
+    as.numeric(tail_feasibility$value[tail_feasibility$metric == metric][1])
+  }
+
+  write_appendix_latex_table(
+    file.path(GEN_TABLES, "appendix_stage3_etr_tail_support.tex"),
+    "Stage 3 lower-tail ETR support",
+    "tab:app_stage3_etr_tail_support",
+    "lrrrrrrr",
+    c("ETR band", "Rows", "Row share (\\%)", "Profit share (\\%)",
+      "Pairs", "Affiliates", "Parents", "Median ETR (\\%)"),
+    tail_support,
+    paste(
+      "The table reports the support for the behavioural ETR regressor after winsorisation in the baseline fixed-effect estimation sample.",
+      "An illustrative tail-balanced design that forces the below-5\\% band to 50\\% of weighted rows would use a tail multiplier of",
+      fmt_num(tail_value("tail_balance_tail_weight"), 2),
+      "and a non-tail multiplier of",
+      fmt_num(tail_value("tail_balance_non_tail_weight"), 2),
+      "with effective N equal to",
+      fmt_int(tail_value("tail_balance_effective_n")),
+      paste0("and a design effect of ",
+             fmt_num(tail_value("tail_balance_design_effect"), 2), "."),
+      "This is a support diagnostic, not an inverse-probability-weighted estimator.",
+      source_note(c("data/processed/diagnostics/step5_stage3_etr_tail_support.csv",
+                    "data/processed/diagnostics/step5_stage3_tail_reweighting_feasibility.csv"))
+    )
+  )
+
   behaviour <- read_diag("step5_stage3_behaviour_by_year.csv") |>
     filter(model_spec == "linear", etr_measurement == "distributional") |>
     transmute(
@@ -1275,6 +1421,26 @@ write_appendix_tables <- function() {
       "Reallocation affiliate-years"),
     behaviour,
     source_note("data/processed/diagnostics/step5_stage3_behaviour_by_year.csv")
+  )
+
+  behavioural_design <- read_diag("step5_stage3_behavioural_identification_design.csv") |>
+    transmute(
+      Component = latex_escape(str_to_sentence(str_replace_all(component, "_", " "))),
+      `Baseline treatment` = latex_escape(baseline_treatment),
+      `Identification status` = latex_escape(identification_status),
+      `Data for structural extension` =
+        latex_escape(data_needed_for_structural_extension)
+    )
+
+  write_appendix_latex_table(
+    file.path(GEN_TABLES, "appendix_stage3_behavioural_design.tex"),
+    "Stage 3 behavioural identification design",
+    "tab:app_stage3_behavioural_design",
+    "L{2.7cm}L{4.1cm}L{3.7cm}L{5.1cm}",
+    c("Component", "Baseline treatment", "Identification status",
+      "Data for structural extension"),
+    behavioural_design,
+    source_note("data/processed/diagnostics/step5_stage3_behavioural_identification_design.csv")
   )
 
   stage45_summary <- read_diag("step6_stage4_5_summary.csv") |>
@@ -1404,10 +1570,127 @@ write_appendix_tables <- function() {
     source_note("data/processed/diagnostics/step7_stage4_6_anova_by_country.csv")
   )
 
+  influence_appendix_inputs <- character()
+  influence_summary_path <- file.path(
+    DIAG,
+    "step10_jurisdiction_influence_case_summary.csv"
+  )
+  if (file.exists(influence_summary_path)) {
+    influence <- read_diag("step10_jurisdiction_influence_case_summary.csv") |>
+      arrange(desc(abs(preferred_sbs_behavioural_revenue_pct_change))) |>
+      slice_head(n = 14) |>
+      transmute(
+        Drop = latex_escape(str_to_sentence(leave_dimension)),
+        Jurisdiction = latex_escape(
+          paste0(jurisdiction_name, " (", jurisdiction, ")")
+        ),
+        Reason = latex_escape(
+          target_reason |>
+            str_replace_all("_", " ") |>
+            str_replace_all("\\+", ", ")
+        ),
+        `Profit share (\\%)` = fmt_pct(dropped_stage1_profit_share, 1),
+        `Semi-elasticity` = fmt_num(leave_semielasticity_5, 2),
+        `Stage 1 change (pp)` =
+          fmt_num(100 * stage1_liability_rate_abs_change, 2),
+        `Preferred revenue change (\\%)` =
+          fmt_pct(preferred_sbs_behavioural_revenue_pct_change, 1),
+        `Largest effect` = latex_escape(
+          recode(
+            leave_largest_anova_effect,
+            "x1_etr" = "ETR measurement",
+            "x2_substance" = "Substance specification",
+            "x3_rates" = "SBIE rate endpoint",
+            "x4_sbs" = "SbS regime",
+            "x5_behaviour" = "Behavioural response",
+            .default = leave_largest_anova_effect
+          )
+        )
+      )
+
+    write_appendix_latex_table(
+      file.path(GEN_TABLES, "appendix_jurisdiction_influence_summary.tex"),
+      "Leave-one-jurisdiction influence robustness",
+      "tab:app_jurisdiction_influence_summary",
+      "lllrrrrl",
+      c("Drop", "Jurisdiction", "Reason", "Profit share (\\%)",
+        "Semi-elasticity", "Stage 1 change (pp)",
+        "Preferred revenue change (\\%)", "Largest effect"),
+      influence,
+      paste(
+        "Rows are sorted by the absolute change in preferred-core behavioural SbS EU revenue.",
+        "The preferred core uses distributional ETR measurement, aggregate SBIE and initial carve-out rates.",
+        source_note("data/processed/diagnostics/step10_jurisdiction_influence_case_summary.csv")
+      )
+    )
+
+    influence_anova <- read_diag("step10_jurisdiction_influence_anova_pooled.csv")
+    influence_main <- read_diag("step10_jurisdiction_influence_main_effects.csv")
+    core_effects <- c("x1_etr", "x4_sbs", "x5_behaviour")
+
+    anova_range <- influence_anova |>
+      filter(effect %in% core_effects) |>
+      group_by(effect, effect_label) |>
+      summarise(
+        baseline_eta = eta_squared[case_id == "baseline"][1],
+        min_eta = min(eta_squared[case_id != "baseline"], na.rm = TRUE),
+        max_eta = max(eta_squared[case_id != "baseline"], na.rm = TRUE),
+        .groups = "drop"
+      )
+
+    main_range <- influence_main |>
+      filter(effect %in% core_effects) |>
+      group_by(effect) |>
+      summarise(
+        baseline_main = high_minus_low[case_id == "baseline"][1],
+        min_main = min(high_minus_low[case_id != "baseline"], na.rm = TRUE),
+        max_main = max(high_minus_low[case_id != "baseline"], na.rm = TRUE),
+        .groups = "drop"
+      )
+
+    influence_range <- anova_range |>
+      left_join(main_range, by = "effect") |>
+      arrange(match(effect, core_effects)) |>
+      transmute(
+        Effect = latex_escape(effect_label),
+        `Baseline share (\\%)` = fmt_pct(baseline_eta, 1),
+        `Min share (\\%)` = fmt_pct(min_eta, 1),
+        `Max share (\\%)` = fmt_pct(max_eta, 1),
+        `Baseline main effect` = fmt_bn(baseline_main, 1),
+        `Min main effect` = fmt_bn(min_main, 1),
+        `Max main effect` = fmt_bn(max_main, 1)
+      )
+
+    write_appendix_latex_table(
+      file.path(GEN_TABLES, "appendix_jurisdiction_influence_decomposition.tex"),
+      "Influence range for core decomposition effects",
+      "tab:app_jurisdiction_influence_decomposition",
+      "lrrrrrr",
+      c("Effect", "Baseline share (\\%)", "Min share (\\%)",
+        "Max share (\\%)", "Baseline main effect", "Min main effect",
+        "Max main effect"),
+      influence_range,
+      paste(
+        "Variance-decomposition shares and main effects are recomputed after each leave-one-parent and leave-one-affiliate omission.",
+        "Main effects are cumulative over 2017 to 2022 and expressed in US dollars, billions.",
+        source_note(c(
+          "data/processed/diagnostics/step10_jurisdiction_influence_anova_pooled.csv",
+          "data/processed/diagnostics/step10_jurisdiction_influence_main_effects.csv"
+        ))
+      )
+    )
+
+    influence_appendix_inputs <- c(
+      "\\input{generated/results_tables/appendix_jurisdiction_influence_summary.tex}",
+      "\\input{generated/results_tables/appendix_jurisdiction_influence_decomposition.tex}"
+    )
+  }
+
   appendix_lines <- c(
     "\\subsection{Stage 1 diagnostics}\\label{app:results_stage1}",
     "\\input{generated/results_tables/appendix_stage1_bspi_summary.tex}",
     "\\input{generated/results_tables/appendix_stage1_conditioning.tex}",
+    "\\input{generated/results_tables/stage1_crossval.tex}",
     "",
     "\\subsection{Stage 2 diagnostics}\\label{app:results_stage2}",
     "\\input{generated/results_tables/appendix_stage2_payroll_fallback.tex}",
@@ -1419,7 +1702,9 @@ write_appendix_tables <- function() {
     "\\input{generated/results_tables/appendix_stage3_specification_tests.tex}",
     "\\input{generated/results_tables/appendix_stage3_wald_tests.tex}",
     "\\input{generated/results_tables/appendix_stage3_robustness.tex}",
+    "\\input{generated/results_tables/appendix_stage3_etr_tail_support.tex}",
     "\\input{generated/results_tables/appendix_stage3_behaviour_by_year.tex}",
+    "\\input{generated/results_tables/appendix_stage3_behavioural_design.tex}",
     "",
     "\\subsection{Stage 4.5 allocation diagnostics}\\label{app:results_stage45}",
     "\\input{generated/results_tables/appendix_stage45_summary.tex}",
@@ -1428,7 +1713,8 @@ write_appendix_tables <- function() {
     "",
     "\\subsection{Stage 4.6 decomposition diagnostics}\\label{app:results_stage46}",
     "\\input{generated/results_tables/appendix_stage46_top_scenarios.tex}",
-    "\\input{generated/results_tables/appendix_stage46_country_anova.tex}"
+    "\\input{generated/results_tables/appendix_stage46_country_anova.tex}",
+    influence_appendix_inputs
   )
 
   writeLines(c("% Generated by code/08_generate_results_tables.R",
@@ -1442,7 +1728,6 @@ write_manifest <- function() {
     "\\input{generated/results_tables/stage1_source_coverage.tex}",
     "\\input{generated/results_tables/stage1_rates.tex}",
     "\\input{generated/results_tables/stage1_bspi_validation.tex}",
-    "\\input{generated/results_tables/stage1_crossval.tex}",
     "\\input{generated/results_tables/stage2_aggregate.tex}",
     "\\input{generated/results_tables/stage2_sectoral_sbti.tex}",
     "\\input{generated/results_tables/stage2_h5_regression.tex}",
@@ -1451,11 +1736,17 @@ write_manifest <- function() {
     "\\input{generated/results_tables/stage3_iv_diagnostics.tex}",
     "\\input{generated/results_tables/stage3_semielasticity.tex}",
     "\\input{generated/results_tables/stage4_6_anova.tex}",
+    "\\input{generated/results_tables/stage4_6_shapley_factor_attribution.tex}",
     "\\input{generated/results_tables/stage4_6_main_effects.tex}",
     "\\input{generated/results_tables/preferred_channel.tex}",
+    if (file.exists(file.path(GEN_TABLES,
+                              "stage1_measurement_error_interval.tex"))) {
+      "\\input{generated/results_tables/stage1_measurement_error_interval.tex}"
+    },
     "\\input{generated/results_tables/country_spread.tex}",
     "\\input{generated/results_tables/hypothesis_summary.tex}"
   )
+  lines <- lines[!is.na(lines)]
   writeLines(lines, file.path(GEN, "results_main_tables_manifest.tex"))
 }
 
@@ -1477,8 +1768,10 @@ write_results_tables <- function() {
   write_stage3_semielasticity_table()
 
   write_stage46_anova_table()
+  write_stage46_shapley_table()
   write_stage46_main_effects_table()
   write_stage46_channel_table()
+  write_stage1_measurement_error_table()
   write_stage46_country_spread_table()
   write_hypothesis_summary_table()
 

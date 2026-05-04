@@ -2,28 +2,32 @@
 \begin{table}[H]
 \centering
 \small
-\caption[Percentile-fit versus Table IV cross-validation]{Percentile-fit versus Table IV cross-validation}
-\label{tab:stage1_crossval_updated}
+\caption[Beta percentile fit versus Table IV cross-validation]{Beta percentile fit versus Table IV cross-validation}
+\label{tab:app_stage1_crossval}
 \begin{tabular}{@{}lr@{}}
 \toprule
 Statistic & Value \\
 \midrule
 Overlap affiliate-years & 239 \\
 Zero-low-share cells in Table IV & 40 \\
-Low-taxed share, median gap & 0.084 \\
-Low-taxed share, mean absolute error & 0.309 \\
-Liability rate, median gap & 0.020 \\
-Liability rate, mean absolute error & 0.038 \\
-Positive-partition TV, median & 0.518 \\
-IQR regression coefficient & 2.64 \\
-IQR regression p-value & 0.674 \\
-IQR regression R-squared & 0.010 \\
+Low-taxed share, median gap & 0.153 \\
+Low-taxed share, mean absolute error & 0.308 \\
+Low-taxed share, p90 absolute error & 0.667 \\
+Low-taxed share, Spearman rho & 0.458 \\
+Calibration slope, direct on fitted & 0.67 \\
+Calibration R-squared & 0.181 \\
+Liability rate, median gap & 0.029 \\
+Liability rate, mean absolute error & 0.046 \\
+Liability rate, p90 absolute error & 0.099 \\
+Positive-partition TV, median & 0.546 \\
+Positive-partition TV, p90 & 0.949 \\
+Low-share Wilcoxon p-value & $7.3 \times 10^{-12}$ \\
 \bottomrule
 \end{tabular}
 
 \vspace{0.5em}
 \begin{minipage}{0.96\textwidth}
-\footnotesize\raggedright \textit{Notes:} Differences are Table I percentile fit minus Table IV direct observation. Source: author's calculations based on \path{data/processed/diagnostics/step3_stage1_crossval_summary.csv}.
+\footnotesize\raggedright \textit{Notes:} Differences are Table I constrained-Beta percentile fit minus Table IV direct observation. Calibration regresses the direct Table IV low-taxed share on the fitted Table I low-taxed share and year fixed effects. Source: author's calculations based on \path{data/processed/diagnostics/step3_stage1_crossval_summary.csv}.
 \end{minipage}
 \end{table}
 

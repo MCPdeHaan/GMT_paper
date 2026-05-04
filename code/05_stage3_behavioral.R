@@ -17,12 +17,19 @@ GMT_RATE <- 0.15
 SESH_BANDWIDTH_BASELINE <- 0.02
 SESH_BANDWIDTH_SENSITIVITY <- c(0.01, 0.02, 0.03)
 ETR_WINSOR_PROBS <- c(0.01, 0.99)
+LOW_ETR_TAIL_CUTOFF <- 0.05
+TAIL_REWEIGHT_TARGET_SHARE <- 0.50
 LOG_T0_GRID <- seq(0.001, 0.200, length.out = 60)
 MIN_PAIR_YEARS_FOR_FE <- 2L
-STRATEGIC_MAX_REALLOCATION_SHARE <- 0.65
-STRATEGIC_CHANNEL_PRIOR_TP_IP <- 0.67
-STRATEGIC_CHANNEL_PRIOR_DEBT <- 0.25
-STRATEGIC_CHANNEL_PRIOR_SUBSTANCE <- 0.08
+SIMULATED_ETR_MEASURE <- "EATR"
+SIMULATED_ETR_TAX_BASIS <- "BASELINE"
+SIMULATED_ETR_SCENARIO <- "FIXED"
+SIMULATED_ETR_TAX_TYPE <- "COMPOSITE"
+BEHAVIOURAL_MAX_REALLOCATION_SHARE <- 1
+STRATEGIC_MAX_REALLOCATION_SHARE <- BEHAVIOURAL_MAX_REALLOCATION_SHARE
+DIAGNOSTIC_CHANNEL_PRIOR_TP_IP <- 0.82
+DIAGNOSTIC_CHANNEL_PRIOR_DEBT <- 0.18
+DIAGNOSTIC_CHANNEL_PRIOR_SUBSTANCE <- 0
 
 EU27_ISO3 <- c("AUT", "BEL", "BGR", "CYP", "CZE", "DEU", "DNK", "ESP", "EST",
                "FIN", "FRA", "GRC", "HRV", "HUN", "IRL", "ITA", "LTU", "LUX",
@@ -39,6 +46,10 @@ assert_unique_keys <- function(df, keys, label) {
 
 safe_divide <- function(num, den) {
   if_else(is.na(num) | is.na(den) | den == 0, NA_real_, num / den)
+}
+
+normalise_tax_rate_unit <- function(x) {
+  if_else(!is.na(x) & abs(x) > 1, x / 100, x)
 }
 
 coalesce_zero <- function(x) {
@@ -83,6 +94,166 @@ rank01 <- function(x) {
   }
 
   out
+}
+
+classify_etr_tail_band <- function(tau,
+                                   cutoff = LOW_ETR_TAIL_CUTOFF,
+                                   threshold = GMT_RATE) {
+  case_when(
+    is.na(tau) | !is.finite(tau) ~ "missing",
+    tau < cutoff                 ~ "below_5pct",
+    tau < threshold              ~ "five_to_15pct",
+    TRUE                         ~ "at_or_above_15pct"
+  )
+}
+
+tail_balance_weights <- function(tail_indicator,
+                                 target_tail_share =
+                                   TAIL_REWEIGHT_TARGET_SHARE) {
+  if (target_tail_share <= 0 || target_tail_share >= 1) {
+    stop("Target tail share must lie strictly between zero and one")
+  }
+
+  tail_indicator <- as.logical(tail_indicator)
+  valid <- !is.na(tail_indicator)
+  weights <- rep(NA_real_, length(tail_indicator))
+
+  if (!any(valid)) return(weights)
+
+  observed_tail_share <- mean(tail_indicator[valid])
+  if (observed_tail_share <= 0 || observed_tail_share >= 1) {
+    return(weights)
+  }
+
+  weights[valid & tail_indicator] <- target_tail_share / observed_tail_share
+  weights[valid & !tail_indicator] <-
+    (1 - target_tail_share) / (1 - observed_tail_share)
+  weights
+}
+
+summarise_stage3_etr_tail_support <- function(estimation_sample,
+                                              cutoff = LOW_ETR_TAIL_CUTOFF,
+                                              threshold = GMT_RATE) {
+  base <- estimation_sample |>
+    filter(is.finite(tau)) |>
+    mutate(
+      tail_band = classify_etr_tail_band(tau, cutoff, threshold),
+      tail_band = factor(
+        tail_band,
+        levels = c("below_5pct", "five_to_15pct", "at_or_above_15pct")
+      )
+    )
+
+  summarise_scope <- function(data, scope_label) {
+    data |>
+      mutate(scope = scope_label) |>
+      group_by(scope, year, tail_band) |>
+      summarise(
+        rows = n(),
+        pairs = n_distinct(pair_id),
+        affiliates = n_distinct(affiliate),
+        parents = n_distinct(parent),
+        total_profit = sum(analysis_profit_base, na.rm = TRUE),
+        mean_tau = mean(tau, na.rm = TRUE),
+        median_tau = stats::median(tau, na.rm = TRUE),
+        .groups = "drop_last"
+      ) |>
+      mutate(
+        row_share = rows / sum(rows),
+        profit_share = total_profit / sum(total_profit, na.rm = TRUE)
+      ) |>
+      ungroup()
+  }
+
+  pooled <- base |>
+    mutate(year = NA_integer_) |>
+    summarise_scope("pooled")
+
+  by_year <- summarise_scope(base, "year")
+
+  bind_rows(pooled, by_year) |>
+    arrange(scope, year, tail_band)
+}
+
+summarise_stage3_tail_reweighting_feasibility <- function(
+    estimation_sample,
+    cutoff = LOW_ETR_TAIL_CUTOFF,
+    target_tail_share = TAIL_REWEIGHT_TARGET_SHARE) {
+  base <- estimation_sample |>
+    filter(is.finite(tau)) |>
+    mutate(tail_flag = tau < cutoff)
+
+  weights <- tail_balance_weights(base$tail_flag, target_tail_share)
+
+  pair_support <- base |>
+    group_by(pair_id) |>
+    summarise(
+      has_tail = any(tail_flag, na.rm = TRUE),
+      has_non_tail = any(!tail_flag, na.rm = TRUE),
+      .groups = "drop"
+    )
+
+  affiliate_support <- base |>
+    group_by(affiliate) |>
+    summarise(
+      has_tail = any(tail_flag, na.rm = TRUE),
+      has_non_tail = any(!tail_flag, na.rm = TRUE),
+      .groups = "drop"
+    )
+
+  tail_rows <- sum(base$tail_flag, na.rm = TRUE)
+  total_rows <- nrow(base)
+  tail_profit <- sum(base$analysis_profit_base[base$tail_flag], na.rm = TRUE)
+  total_profit <- sum(base$analysis_profit_base, na.rm = TRUE)
+
+  finite_weights <- weights[is.finite(weights)]
+  effective_n <- if (length(finite_weights) > 0) {
+    sum(finite_weights)^2 / sum(finite_weights^2)
+  } else {
+    NA_real_
+  }
+  max_weight <- if (length(finite_weights) > 0) max(finite_weights) else NA_real_
+
+  tibble(
+    metric = c(
+      "sample_rows",
+      "low_tail_rows",
+      "low_tail_row_share",
+      "low_tail_profit_share",
+      "low_tail_pairs",
+      "low_tail_affiliates",
+      "low_tail_parents",
+      "low_tail_years",
+      "tail_switching_pairs",
+      "tail_switching_pair_share",
+      "tail_switching_affiliates",
+      "tail_balance_target_share",
+      "tail_balance_tail_weight",
+      "tail_balance_non_tail_weight",
+      "tail_balance_max_weight",
+      "tail_balance_effective_n",
+      "tail_balance_design_effect"
+    ),
+    value = c(
+      total_rows,
+      tail_rows,
+      tail_rows / total_rows,
+      tail_profit / total_profit,
+      n_distinct(base$pair_id[base$tail_flag]),
+      n_distinct(base$affiliate[base$tail_flag]),
+      n_distinct(base$parent[base$tail_flag]),
+      n_distinct(base$year[base$tail_flag]),
+      sum(pair_support$has_tail & pair_support$has_non_tail),
+      mean(pair_support$has_tail & pair_support$has_non_tail),
+      sum(affiliate_support$has_tail & affiliate_support$has_non_tail),
+      target_tail_share,
+      first_non_missing(weights[base$tail_flag]),
+      first_non_missing(weights[!base$tail_flag]),
+      max_weight,
+      effective_n,
+      total_rows / effective_n
+    )
+  )
 }
 
 normalise_three_positive <- function(a, b, c) {
@@ -447,11 +618,48 @@ add_affiliate_cit_lag <- function(base_panel) {
     left_join(lagged_rates, by = c("affiliate", "year"))
 }
 
+build_simulated_tax_code_etr <- function(etr_forward) {
+  etr_forward |>
+    filter(
+      measure == SIMULATED_ETR_MEASURE,
+      asset_type == SIMULATED_ETR_TAX_BASIS,
+      etr_scenario == SIMULATED_ETR_SCENARIO,
+      tax_type == SIMULATED_ETR_TAX_TYPE,
+      regime == "_Z"
+    ) |>
+    transmute(
+      affiliate = jurisdiction,
+      year,
+      affiliate_simulated_eatr_unit = normalise_tax_rate_unit(value)
+    ) |>
+    group_by(affiliate, year) |>
+    summarise(
+      affiliate_simulated_eatr_unit =
+        first_non_missing(affiliate_simulated_eatr_unit),
+      .groups = "drop"
+    )
+}
+
+add_affiliate_tax_instruments <- function(base_panel, etr_forward = NULL) {
+  panel <- add_affiliate_cit_lag(base_panel)
+
+  if (is.null(etr_forward)) {
+    return(panel |> mutate(affiliate_simulated_eatr_unit = NA_real_))
+  }
+
+  panel |>
+    left_join(
+      build_simulated_tax_code_etr(etr_forward),
+      by = c("affiliate", "year")
+    )
+}
+
 prepare_estimation_sample <- function(base_panel,
                                       exclude_stale_wages = FALSE,
                                       balanced_pairs_only = FALSE,
-                                      exclude_covid_years = FALSE) {
-  sample <- add_affiliate_cit_lag(base_panel) |>
+                                      exclude_covid_years = FALSE,
+                                      etr_forward = NULL) {
+  sample <- add_affiliate_tax_instruments(base_panel, etr_forward) |>
     filter(
       year %in% MAIN_YEARS,
       has_behavioral_estimation_inputs,
@@ -677,45 +885,52 @@ stage3_model_wald_tests <- function(model_fits) {
   )
 }
 
-build_tax_endogeneity_diagnostics <- function(estimation_sample) {
+build_single_tax_iv_diagnostics <- function(estimation_sample,
+                                            instrument_col,
+                                            instrument,
+                                            instrument_label,
+                                            instrument_note) {
   iv_sample <- estimation_sample |>
-    mutate(statutory_tau_lag1 = affiliate_cit_rate_unit_lag1) |>
-    filter(is.finite(statutory_tau_lag1))
-
+    filter(is.finite(.data[[instrument_col]]))
   exog_cols <- c("log_assets", "log_payroll", "log_gdp_pc", "log_population")
-  first_stage_cols <- c("statutory_tau_lag1", exog_cols)
+  first_stage_cols <- c(instrument_col, exog_cols)
 
   first_stage <- fit_fe_ols(
     iv_sample,
     x_cols = first_stage_cols,
-    model_spec = "first_stage_lagged_statutory_cit",
+    model_spec = paste0("first_stage_", instrument),
     y_col = "tau"
   )
   reduced_form <- fit_fe_ols(
     iv_sample,
     x_cols = first_stage_cols,
-    model_spec = "reduced_form_lagged_statutory_cit",
+    model_spec = paste0("reduced_form_", instrument),
     y_col = "log_profit"
   )
   iv_fit <- fit_fe_2sls(
     iv_sample,
     y_col = "log_profit",
     endogenous_col = "tau",
-    instrument_col = "statutory_tau_lag1",
+    instrument_col = instrument_col,
     exog_cols = exog_cols,
-    model_spec = "linear_2sls_lagged_statutory_cit"
+    model_spec = paste0("linear_2sls_", instrument)
   )
 
   first_stage_rows <- bind_rows(
     first_stage$coefficient_table,
     first_stage$coefficient_table_two_way
   ) |>
-    filter(term == "statutory_tau_lag1") |>
+    filter(term == instrument_col) |>
     mutate(
-      diagnostic = "lagged_statutory_cit_first_stage_for_cbcr_etr",
+      instrument = instrument,
+      instrument_label = instrument_label,
+      diagnostic = paste0(instrument, "_first_stage_for_cbcr_etr"),
       f_statistic = statistic^2,
       n_pairs = first_stage$n_pairs,
-      note = "Excluded-instrument relevance for the FE-2SLS robustness model."
+      note = paste(
+        "Excluded-instrument relevance for the FE-2SLS robustness model.",
+        instrument_note
+      )
     )
 
   weak_f <- first_stage_rows |>
@@ -725,12 +940,17 @@ build_tax_endogeneity_diagnostics <- function(estimation_sample) {
     reduced_form$coefficient_table,
     reduced_form$coefficient_table_two_way
   ) |>
-    filter(term == "statutory_tau_lag1") |>
+    filter(term == instrument_col) |>
     mutate(
-      diagnostic = "lagged_statutory_cit_reduced_form_for_profit",
+      instrument = instrument,
+      instrument_label = instrument_label,
+      diagnostic = paste0(instrument, "_reduced_form_for_profit"),
       f_statistic = statistic^2,
       n_pairs = reduced_form$n_pairs,
-      note = "Reduced form sign check for the excluded instrument."
+      note = paste(
+        "Reduced form sign check for the excluded instrument.",
+        instrument_note
+      )
     )
 
   iv_rows <- bind_rows(
@@ -739,22 +959,79 @@ build_tax_endogeneity_diagnostics <- function(estimation_sample) {
   ) |>
     filter(term == "tau") |>
     mutate(
-      diagnostic = "lagged_statutory_cit_2sls_for_profit",
+      instrument = instrument,
+      instrument_label = instrument_label,
+      diagnostic = paste0(instrument, "_2sls_for_profit"),
       f_statistic = statistic^2,
       n_pairs = iv_fit$n_pairs,
       note = paste(
-        "Linear FE-2SLS estimate instrumenting CbCR ETR with lagged",
-        "affiliate statutory CIT."
+        "Linear FE-2SLS estimate instrumenting CbCR ETR.",
+        instrument_note
       )
     )
 
   bind_rows(first_stage_rows, reduced_form_rows, iv_rows) |>
     left_join(weak_f, by = "inference") |>
     select(
-      diagnostic, model_spec, dependent_variable, inference, term,
-      estimate, std_error, statistic, f_statistic, weak_instrument_f,
-      p_value, n, n_pairs, n_affiliates, n_parents, within_r_squared, note
+      instrument, instrument_label, diagnostic, model_spec,
+      dependent_variable, inference, term, estimate, std_error, statistic,
+      f_statistic, weak_instrument_f, p_value, n, n_pairs, n_affiliates,
+      n_parents, within_r_squared, note
     )
+}
+
+build_tax_endogeneity_diagnostics <- function(estimation_sample) {
+  bind_rows(
+    build_single_tax_iv_diagnostics(
+      estimation_sample,
+      instrument_col = "affiliate_simulated_eatr_unit",
+      instrument = "simulated_tax_code_eatr",
+      instrument_label = "OECD simulated fixed-project EATR",
+      instrument_note = paste(
+        "Instrument is the current-year OECD forward-looking EATR for a",
+        "fixed composite investment project in the affiliate jurisdiction."
+      )
+    ),
+    build_single_tax_iv_diagnostics(
+      estimation_sample,
+      instrument_col = "affiliate_cit_rate_unit_lag1",
+      instrument = "lagged_statutory_cit",
+      instrument_label = "Lagged statutory CIT",
+      instrument_note = paste(
+        "Instrument is the one-year lagged statutory CIT rate of the",
+        "affiliate jurisdiction."
+      )
+    )
+  )
+}
+
+summarise_tax_instrument_coverage <- function(estimation_sample) {
+  instrument_specs <- tribble(
+    ~instrument, ~instrument_label, ~instrument_col,
+    "simulated_tax_code_eatr", "OECD simulated fixed-project EATR",
+    "affiliate_simulated_eatr_unit",
+    "lagged_statutory_cit", "Lagged statutory CIT",
+    "affiliate_cit_rate_unit_lag1"
+  )
+
+  bind_rows(lapply(seq_len(nrow(instrument_specs)), function(i) {
+    col <- instrument_specs$instrument_col[i]
+    z <- estimation_sample[[col]]
+    keep <- is.finite(z)
+
+    tibble(
+      instrument = instrument_specs$instrument[i],
+      instrument_label = instrument_specs$instrument_label[i],
+      estimation_rows = sum(keep),
+      estimation_affiliates = n_distinct(estimation_sample$affiliate[keep]),
+      estimation_parents = n_distinct(estimation_sample$parent[keep]),
+      min_value = min(z[keep], na.rm = TRUE),
+      median_value = stats::median(z[keep], na.rm = TRUE),
+      max_value = max(z[keep], na.rm = TRUE),
+      mean_value = mean(z[keep], na.rm = TRUE),
+      sd_value = stats::sd(z[keep], na.rm = TRUE)
+    )
+  }))
 }
 
 semielasticity_schedule_one <- function(fit, tau_grid,
@@ -1344,7 +1621,7 @@ build_sectoral_factor2_bridge <- function(stage2_bilateral,
     )
 }
 
-add_strategic_behaviour <- function(scenario_panel) {
+add_behavioural_response <- function(scenario_panel) {
   scenario_panel |>
     mutate(
       selected_low_share = if_else(
@@ -1392,13 +1669,11 @@ add_strategic_behaviour <- function(scenario_panel) {
     ungroup() |>
     mutate(
       policy_collection_exposure = case_when(
-        qdmtt_flag ~ 1.00,
-        parent_iir_utpr_flag & !sbs_exempt ~ 0.90,
-        !parent_iir_utpr_flag & !sbs_exempt ~ 0.70,
-        sbs_exempt & !qdmtt_flag ~ 0.25,
-        TRUE ~ 0.70
+        qdmtt_flag ~ 1,
+        sbs_exempt & !qdmtt_flag ~ 0,
+        TRUE ~ 1
       ),
-      strategic_multiplier = 1 +
+      diagnostic_planning_intensity = 1 +
         0.55 * ip_holding_score +
         0.35 * conduit_haven_score +
         0.30 * low_substance_score +
@@ -1415,9 +1690,8 @@ add_strategic_behaviour <- function(scenario_panel) {
       strategic_beta_applied = if_else(
         strategic_response_eligible,
         pmin(
-          static_beta_applied * strategic_multiplier *
-            policy_collection_exposure,
-          STRATEGIC_MAX_REALLOCATION_SHARE
+          static_beta_applied * policy_collection_exposure,
+          BEHAVIOURAL_MAX_REALLOCATION_SHARE
         ),
         0
       ),
@@ -1436,7 +1710,7 @@ add_strategic_behaviour <- function(scenario_panel) {
         factor5_behaviour == "mechanical" ~ "mechanical",
         static_behavioural_regime == "sesh_bunching_topup_zero" ~
           "sesh_bunching_topup_zero",
-        strategic_response_eligible ~ "strategic_profit_reallocation",
+        strategic_response_eligible ~ "semi_elasticity_reallocation",
         factor5_behaviour == "behavioural" ~ "no_low_tax_response",
         TRUE ~ "mechanical"
       ),
@@ -1454,12 +1728,12 @@ add_strategic_behaviour <- function(scenario_panel) {
           strategic_beta_applied,
         0
       ),
-      tp_ip_channel_raw = STRATEGIC_CHANNEL_PRIOR_TP_IP *
+      tp_ip_channel_raw = DIAGNOSTIC_CHANNEL_PRIOR_TP_IP *
         (1 + 0.50 * ip_holding_score + 0.25 * conduit_haven_score),
-      debt_channel_raw = STRATEGIC_CHANNEL_PRIOR_DEBT *
+      debt_channel_raw = DIAGNOSTIC_CHANNEL_PRIOR_DEBT *
         (1 + 0.20 * (1 - ip_holding_score) +
            0.10 * profit_to_assets_score),
-      substance_channel_raw = STRATEGIC_CHANNEL_PRIOR_SUBSTANCE *
+      substance_channel_raw = DIAGNOSTIC_CHANNEL_PRIOR_SUBSTANCE *
         (1 + 1.25 * substance_anchor_score +
            0.50 * as.numeric(factor2_substance == "sectoral_sbie_sbti")),
       behavioural_channel_total =
@@ -1476,6 +1750,8 @@ add_strategic_behaviour <- function(scenario_panel) {
         reallocated_profit * channel_substance_planning_share
     )
 }
+
+add_strategic_behaviour <- add_behavioural_response
 
 build_factorial_revenue <- function(stage2_bilateral,
                                     behavioural_affiliate_year,
@@ -1589,7 +1865,7 @@ build_factorial_revenue <- function(stage2_bilateral,
       sbs_parent_qualified = parent == "USA",
       sbs_exempt = factor4_sbs == "sbs" & sbs_parent_qualified
     ) |>
-    add_strategic_behaviour() |>
+    add_behavioural_response() |>
     mutate(
       qdmtt_topup = if_else(qdmtt_flag, topup_after_behaviour, 0),
       iir_topup = if_else(!qdmtt_flag & parent_iir_utpr_flag & !sbs_exempt,
@@ -2028,11 +2304,119 @@ build_reallocation_matrix <- function(scenario_panel) {
   )
 }
 
+build_behavioural_identification_design <- function() {
+  tribble(
+    ~component, ~baseline_treatment, ~identification_status,
+    ~data_needed_for_structural_extension,
+    "reallocation_share",
+    paste(
+      "Estimated from the CbCR fixed-effect semi-elasticity and applied only",
+      "where a legal collection channel remains active."
+    ),
+    paste(
+      "Identified as a reduced-form profit response, not as a structural",
+      "destination-choice parameter."
+    ),
+    paste(
+      "Private firm-level CbCR or unconsolidated affiliate accounts observed",
+      "around tax shocks, with group identifiers and affiliate balance sheets."
+    ),
+    "low_etr_nonlinearity",
+    paste(
+      "Quadratic and logarithmic semi-elasticity specifications are estimated,",
+      "but the preferred estimator is still chosen by BIC. A lower-tail",
+      "support diagnostic reports below-5 per cent observations and an",
+      "illustrative tail-balanced reweighting design."
+    ),
+    paste(
+      "The current public CbCR panel identifies tax responsiveness more",
+      "credibly than it identifies the curvature of the response at the",
+      "extreme lower ETR tail. Tail upweighting is not treated as IPW because",
+      "the public data do not observe a sampling or treatment-selection",
+      "probability for below-5 per cent ETR cells."
+    ),
+    paste(
+      "MNE-jurisdiction microdata or a quasi-experimental tax shock with dense",
+      "support below 5 per cent, plus a defensible model for the probability",
+      "that an observation enters the lower tail."
+    ),
+    "reallocation_cap",
+    paste(
+      "No discretionary cap is imposed; the response is bounded only to the",
+      "unit interval."
+    ),
+    paste(
+      "A cap below one is not identified from public aggregate CbCR data."
+    ),
+    paste(
+      "Observed post-reform relocation shares from private CbCR or tax-return",
+      "microdata."
+    ),
+    "sesh_notch_bunching",
+    paste(
+      "Implemented as an upper-bound liability filter inside the simplified",
+      "ETR band below 15 per cent."
+    ),
+    paste(
+      "Not structurally identified from the 2017-2022 public CbCR panel,",
+      "which is pre-reform and does not observe a post-SESH density spike."
+    ),
+    paste(
+      "Post-SESH MNE-jurisdiction microdata with simplified ETRs, safe-harbour",
+      "elections and enough support around the 15 per cent threshold to",
+      "estimate missing and excess mass."
+    ),
+    "channel_split",
+    paste(
+      "Diagnostic only. The short-run split uses the Heckemeyer-Overesch",
+      "meta-regression distinction between transfer-pricing or licensing",
+      "and financial-planning channels."
+    ),
+    paste(
+      "The channel split does not affect top-up tax revenue in the legal",
+      "allocation matrix."
+    ),
+    paste(
+      "Royalty, licence, service-fee, interest, intra-group debt and IP",
+      "ownership data by MNE group and affiliate."
+    ),
+    "substance_relocation",
+    paste(
+      "Set to zero in the short-run behavioural response because payroll and",
+      "tangible assets are held fixed in the SBIE calculation."
+    ),
+    paste(
+      "Real activity relocation is a longer-run margin and cannot be separated",
+      "from book-profit shifting in aggregate CbCR."
+    ),
+    paste(
+      "Firm-level employment, payroll, tangible-asset and investment responses",
+      "around anti-avoidance or GMT implementation shocks."
+    ),
+    "destination_matrix",
+    paste(
+      "Uses the Garcia-Bernardo and Jansky activity-weighted formula as a",
+      "profit-conservation diagnostic."
+    ),
+    paste(
+      "Public CbCR does not observe origin-destination flows of shifted profit,",
+      "so PPML or conditional logit would describe profit stocks rather than",
+      "identify counterfactual relocation flows."
+    ),
+    paste(
+      "Origin-destination royalty, interest, service-fee or profit-flow data,",
+      "plus destination choice sets, statutory and effective tax rates,",
+      "withholding taxes, treaty links and anti-avoidance rules."
+    )
+  )
+}
+
 run_stage3_pipeline <- function() {
   base_panel <- readRDS(file.path(IN, "base_panel.rds"))
   stage1_affiliate_year <- readRDS(file.path(IN, "stage1_affiliate_year.rds"))
   stage2_bilateral <- readRDS(file.path(IN, "stage2_bilateral_panel.rds"))
   stage2_sectoral_matrix <- readRDS(file.path(IN, "stage2_sectoral_matrix.rds"))
+  etr_forward <- readRDS(file.path(IN, "etr_forward.rds"))
   pwc_tracker <- readRDS(file.path(IN, "pwc_pillar2_tracker.rds"))
 
   assert_unique_keys(base_panel, c("parent", "affiliate", "year"), "base panel")
@@ -2042,14 +2426,30 @@ run_stage3_pipeline <- function() {
                      c("rate_scenario", "parent", "affiliate", "year"),
                      "stage2 bilateral")
 
-  estimation_sample <- prepare_estimation_sample(base_panel)
-  no_stale_sample <- prepare_estimation_sample(base_panel, exclude_stale_wages = TRUE)
-  balanced_sample <- prepare_estimation_sample(base_panel, balanced_pairs_only = TRUE)
-  no_covid_sample <- prepare_estimation_sample(base_panel, exclude_covid_years = TRUE)
+  estimation_sample <- prepare_estimation_sample(
+    base_panel,
+    etr_forward = etr_forward
+  )
+  no_stale_sample <- prepare_estimation_sample(
+    base_panel,
+    exclude_stale_wages = TRUE,
+    etr_forward = etr_forward
+  )
+  balanced_sample <- prepare_estimation_sample(
+    base_panel,
+    balanced_pairs_only = TRUE,
+    etr_forward = etr_forward
+  )
+  no_covid_sample <- prepare_estimation_sample(
+    base_panel,
+    exclude_covid_years = TRUE,
+    etr_forward = etr_forward
+  )
 
   model_fits <- estimate_stage3_models(estimation_sample)
   model_wald_tests <- stage3_model_wald_tests(model_fits)
   tax_endogeneity_diagnostics <- build_tax_endogeneity_diagnostics(estimation_sample)
+  tax_instrument_coverage <- summarise_tax_instrument_coverage(estimation_sample)
   model_comparison <- build_model_diagnostics(model_fits, "baseline") |>
     select(-sample)
   preferred_model <- model_comparison$model_spec[1]
@@ -2098,6 +2498,15 @@ run_stage3_pipeline <- function() {
       .groups = "drop"
     )
 
+  etr_tail_support <- summarise_stage3_etr_tail_support(estimation_sample)
+  tail_reweighting_feasibility <-
+    summarise_stage3_tail_reweighting_feasibility(estimation_sample)
+  tail_metric <- function(metric_name) {
+    tail_reweighting_feasibility$value[
+      tail_reweighting_feasibility$metric == metric_name
+    ][1]
+  }
+
   behavioural_affiliate_year <- build_behavioural_affiliate_year(
     stage1_affiliate_year,
     model_fits
@@ -2127,6 +2536,7 @@ run_stage3_pipeline <- function() {
   reallocation_objects <- build_reallocation_matrix(
     revenue_objects$scenario_panel
   )
+  behavioural_identification_design <- build_behavioural_identification_design()
 
   behavioural_by_year <- behavioural_affiliate_year |>
     filter(eta == SESH_BANDWIDTH_BASELINE) |>
@@ -2176,20 +2586,20 @@ run_stage3_pipeline <- function() {
       behavioural_avoided_topup = sum(behavioural_avoided_topup, na.rm = TRUE),
       reallocated_profit = sum(reallocated_profit, na.rm = TRUE),
       mean_static_beta = mean(static_beta_applied, na.rm = TRUE),
-      topup_weighted_strategic_beta = weighted_mean_available(
+      topup_weighted_beta_applied = weighted_mean_available(
         beta_applied,
         topup_after_stage2
       ),
-      strategic_multiplier_weighted = weighted_mean_available(
-        strategic_multiplier,
+      diagnostic_multiplier_weighted = weighted_mean_available(
+        diagnostic_planning_intensity,
         topup_after_stage2
       ),
       policy_collection_exposure_weighted = weighted_mean_available(
         policy_collection_exposure,
         topup_after_stage2
       ),
-      strategic_reallocation_rows =
-        sum(behavioural_regime == "strategic_profit_reallocation",
+      semi_elasticity_reallocation_rows =
+        sum(behavioural_regime == "semi_elasticity_reallocation",
             na.rm = TRUE),
       sesh_rows =
         sum(behavioural_regime == "sesh_bunching_topup_zero", na.rm = TRUE),
@@ -2204,16 +2614,16 @@ run_stage3_pipeline <- function() {
       post_behaviour_topup = sum(topup_after_behaviour, na.rm = TRUE),
       behavioural_avoided_topup = sum(behavioural_avoided_topup, na.rm = TRUE),
       reallocated_profit = sum(reallocated_profit, na.rm = TRUE),
-      topup_weighted_strategic_beta = weighted_mean_available(
+      topup_weighted_beta_applied = weighted_mean_available(
         beta_applied,
         topup_after_stage2
       ),
-      strategic_multiplier_weighted = weighted_mean_available(
-        strategic_multiplier,
+      diagnostic_multiplier_weighted = weighted_mean_available(
+        diagnostic_planning_intensity,
         topup_after_stage2
       ),
-      strategic_reallocation_rows =
-        sum(behavioural_regime == "strategic_profit_reallocation",
+      semi_elasticity_reallocation_rows =
+        sum(behavioural_regime == "semi_elasticity_reallocation",
             na.rm = TRUE),
       .groups = "drop"
     )
@@ -2244,16 +2654,21 @@ run_stage3_pipeline <- function() {
       "preferred_model_bic",
       "preferred_model_within_r_squared",
       "preferred_model_tax_terms_wald_pvalue",
+      "simulated_tax_code_eatr_first_stage_f_two_way",
       "lagged_statutory_cit_first_stage_f_two_way",
       "logarithmic_t0",
+      "low_etr_tail_row_share",
+      "low_etr_tail_switching_pairs",
+      "low_etr_tail_balance_effective_n",
+      "low_etr_tail_balance_design_effect",
       "factorial_scenarios",
       "country_year_revenue_rows",
       "pooled_interaction_eta_squared",
       "h4_mean_delta_sbs_minus_universal",
       "reallocation_max_abs_conservation_gap",
-      "preferred_strategic_avoided_topup",
-      "preferred_strategic_reallocated_profit",
-      "preferred_strategic_ordinary_cit_net_recovery"
+      "preferred_behavioural_avoided_topup",
+      "preferred_behavioural_reallocated_profit",
+      "preferred_behavioural_ordinary_cit_net_recovery"
     ),
     value = c(
       nrow(estimation_sample),
@@ -2269,11 +2684,21 @@ run_stage3_pipeline <- function() {
       ][1],
       tax_endogeneity_diagnostics$f_statistic[
         tax_endogeneity_diagnostics$diagnostic ==
+          "simulated_tax_code_eatr_first_stage_for_cbcr_etr" &
+          tax_endogeneity_diagnostics$inference ==
+          "parent_affiliate_clustered"
+      ][1],
+      tax_endogeneity_diagnostics$f_statistic[
+        tax_endogeneity_diagnostics$diagnostic ==
           "lagged_statutory_cit_first_stage_for_cbcr_etr" &
           tax_endogeneity_diagnostics$inference ==
           "parent_affiliate_clustered"
       ][1],
       model_fits$logarithmic$t0,
+      tail_metric("low_tail_row_share"),
+      tail_metric("tail_switching_pairs"),
+      tail_metric("tail_balance_effective_n"),
+      tail_metric("tail_balance_design_effect"),
       n_distinct(revenue_objects$scenario_summary$scenario_id),
       nrow(scenario_country_year),
       sum(anova_objects$pooled$eta_squared[
@@ -2301,12 +2726,18 @@ run_stage3_pipeline <- function() {
             file.path(DIAG, "step5_stage3_model_wald_tests.csv"))
   write_csv(tax_endogeneity_diagnostics,
             file.path(DIAG, "step5_stage3_tax_endogeneity_diagnostics.csv"))
+  write_csv(tax_instrument_coverage,
+            file.path(DIAG, "step5_stage3_tax_instrument_coverage.csv"))
   write_csv(semielasticity_schedule,
             file.path(DIAG, "step5_stage3_semielasticity_schedule.csv"))
   write_csv(robustness_model_comparison,
             file.path(DIAG, "step5_stage3_model_robustness.csv"))
   write_csv(specification_tests,
             file.path(DIAG, "step5_stage3_specification_tests.csv"))
+  write_csv(etr_tail_support,
+            file.path(DIAG, "step5_stage3_etr_tail_support.csv"))
+  write_csv(tail_reweighting_feasibility,
+            file.path(DIAG, "step5_stage3_tail_reweighting_feasibility.csv"))
   write_csv(behavioural_by_year,
             file.path(DIAG, "step5_stage3_behaviour_by_year.csv"))
   write_csv(policy_flags,
@@ -2339,6 +2770,8 @@ run_stage3_pipeline <- function() {
             file.path(DIAG, "step5_stage3_reallocation_channel_summary.csv"))
   write_csv(reallocation_objects$destination_summary,
             file.path(DIAG, "step5_stage3_reallocation_destination_summary.csv"))
+  write_csv(behavioural_identification_design,
+            file.path(DIAG, "step5_stage3_behavioural_identification_design.csv"))
 
   saveRDS(estimation_sample, file.path(OUT, "stage3_estimation_sample.rds"))
   saveRDS(model_comparison, file.path(OUT, "stage3_model_comparison.rds"))
@@ -2346,10 +2779,16 @@ run_stage3_pipeline <- function() {
   saveRDS(model_wald_tests, file.path(OUT, "stage3_model_wald_tests.rds"))
   saveRDS(tax_endogeneity_diagnostics,
           file.path(OUT, "stage3_tax_endogeneity_diagnostics.rds"))
+  saveRDS(tax_instrument_coverage,
+          file.path(OUT, "stage3_tax_instrument_coverage.rds"))
   saveRDS(semielasticity_schedule,
           file.path(OUT, "stage3_semielasticity_schedule.rds"))
   saveRDS(robustness_model_comparison,
           file.path(OUT, "stage3_model_robustness.rds"))
+  saveRDS(etr_tail_support,
+          file.path(OUT, "stage3_etr_tail_support.rds"))
+  saveRDS(tail_reweighting_feasibility,
+          file.path(OUT, "stage3_tail_reweighting_feasibility.rds"))
   saveRDS(behavioural_affiliate_year,
           file.path(OUT, "stage3_behavioral_affiliate_year.rds"))
   saveRDS(revenue_objects$scenario_panel,
@@ -2370,11 +2809,14 @@ run_stage3_pipeline <- function() {
           file.path(OUT, "stage3_reallocation_channel_summary.rds"))
   saveRDS(reallocation_objects$destination_summary,
           file.path(OUT, "stage3_reallocation_destination_summary.rds"))
+  saveRDS(behavioural_identification_design,
+          file.path(OUT, "stage3_behavioural_identification_design.rds"))
   saveRDS(strategy_scenario_summary,
           file.path(OUT, "stage3_strategy_scenario_summary.rds"))
 
   message("\nStep 5 outputs written:")
   message(" - data/processed/stage3_estimation_sample.rds")
+  message(" - data/processed/stage3_etr_tail_support.rds")
   message(" - data/processed/stage3_behavioral_affiliate_year.rds")
   message(" - data/processed/stage3_factorial_pair_year.rds")
   message(" - data/processed/stage3_revenue_by_channel.rds")

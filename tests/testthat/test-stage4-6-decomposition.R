@@ -63,3 +63,25 @@ test_that("Stage 4.6 H4 pairing compares SbS with universal regimes", {
   expect_equal(nrow(h4_pairs), 16)
   expect_true(all(h4_pairs$delta_sbs_minus_universal == -10))
 })
+
+test_that("Stage 4.6 Shapley attribution allocates interactions exactly once", {
+  toy_anova <- tibble::tibble(
+    effect = c("x1_etr", "x1_etr:x4_sbs"),
+    interaction_order = c(1L, 2L),
+    eta_squared = c(0.4, 0.6)
+  )
+
+  shapley <- build_shapley_factor_attribution(toy_anova)
+
+  expect_equal(sum(shapley$shapley_eta_squared), 1, tolerance = 1e-12)
+  expect_equal(
+    shapley$shapley_eta_squared[shapley$effect == "x1_etr"],
+    0.7,
+    tolerance = 1e-12
+  )
+  expect_equal(
+    shapley$shapley_eta_squared[shapley$effect == "x4_sbs"],
+    0.3,
+    tolerance = 1e-12
+  )
+})
