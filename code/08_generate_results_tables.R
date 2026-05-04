@@ -330,10 +330,10 @@ write_stage1_rates_table <- function() {
       tibble(
         row = c(
           "Average rule, low-taxed share",
-          "Average rule, top-up on low-taxed profit",
+          "Average rule, top-up gap",
           "Average rule, liability rate",
           "Distributional rule, low-taxed share",
-          "Distributional rule, top-up on low-taxed profit",
+          "Distributional rule, top-up gap",
           "Distributional rule, liability rate"
         ),
         metric = c(
@@ -370,7 +370,7 @@ write_stage1_rates_table <- function() {
     "\\begin{table}[H]",
     "\\centering",
     "\\small",
-    "\\caption[Stage 1 rates, EU27 and global]{Stage 1 rates before SBIE and behavioural responses. Low-taxed share is low-taxed profit divided by positive corrected profit. Top-up on low-taxed profit is aggregate top-up divided by low-taxed profit. Liability rate is aggregate Stage 1 top-up divided by positive corrected profit. All entries are percentages.}",
+    "\\caption[Stage 1 rates, EU27 and global]{Stage 1 rates before SBIE and behavioural responses. Low-taxed share is low-taxed profit divided by positive corrected profit. The top-up gap is the profit-weighted average distance to the 15 per cent threshold on the measured low-taxed profit mass. Liability rate is aggregate Stage 1 top-up divided by positive corrected profit. All entries are percentages.}",
     "\\label{tab:stage1_rates_updated}",
     "\\begin{tabular}{@{}lrrrrrr@{}}",
     "\\toprule",
