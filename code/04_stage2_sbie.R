@@ -9,19 +9,19 @@
 #    with an SBTI-capacity overlay and a mechanical 2024-2033 transition path.
 library(dplyr); library(tidyr); library(readr); library(tibble)
 
+source(if (file.exists("code/00_helpers.R")) {
+  "code/00_helpers.R"
+} else {
+  file.path("..", "..", "code/00_helpers.R")
+})
+
 IN   <- "data/processed"
 OUT  <- IN
 DIAG <- file.path(OUT, "diagnostics")
 dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
 
-MAIN_YEARS              <- 2017:2022
 SECTORAL_REFERENCE_YEAR <- 2022
 SECTORAL_TRANSITION_YEARS <- 2024:2033
-GMT_RATE <- 0.15
-
-EU27_ISO3 <- c("AUT", "BEL", "BGR", "CYP", "CZE", "DEU", "DNK", "ESP", "EST",
-               "FIN", "FRA", "GRC", "HRV", "HUN", "IRL", "ITA", "LTU", "LUX",
-               "LVA", "MLT", "NLD", "POL", "PRT", "ROU", "SVK", "SVN", "SWE")
 
 STAGE2_ENDPOINTS <- tribble(
   ~rate_scenario, ~sigma_w, ~sigma_a,
@@ -36,46 +36,10 @@ ASSET_COMPONENT_SENSITIVITY <- tribble(
   "plus_25",          1.25
 )
 
-assert_unique_keys <- function(df, keys, label) {
-  n_dup <- df |>
-    count(across(all_of(keys))) |>
-    filter(n > 1) |>
-    nrow()
-
-  if (n_dup > 0) stop(sprintf("%s: %d duplicate key combinations", label, n_dup))
-}
-
-safe_divide <- function(num, den) {
-  if_else(is.na(num) | is.na(den) | den == 0, NA_real_, num / den)
-}
-
-clamp_unit_interval <- function(x) {
-  case_when(
-    is.na(x) ~ NA_real_,
-    TRUE     ~ pmin(pmax(x, 0), 1)
-  )
-}
-
-weighted_mean_available <- function(x, w) {
-  keep <- !is.na(x) & !is.na(w) & w > 0
-  if (!any(keep)) return(NA_real_)
-  stats::weighted.mean(x[keep], w[keep])
-}
-
-coalesce_zero <- function(x) {
-  if_else(is.na(x), 0, x)
-}
-
 nace_broad_group <- function(x) {
   out <- substr(x, 1, 1)
   out[!out %in% LETTERS] <- NA_character_
   out
-}
-
-safe_cor <- function(x, y) {
-  keep <- is.finite(x) & is.finite(y)
-  if (sum(keep) < 2) return(NA_real_)
-  stats::cor(x[keep], y[keep])
 }
 
 classify_bea_bridge_signal <- function(measure, share_correlation,
@@ -837,7 +801,8 @@ run_stage2_pipeline <- function() {
         abs_share_gap,
         bea_sector_share
       ),
-      share_correlation = safe_cor(bea_sector_share, fats_comparator_share),
+      share_correlation = safe_cor(bea_sector_share, fats_comparator_share,
+                                   min_pairs = 2L),
       mean_bea_top_level_coverage_ratio = weighted_mean_available(
         bea_top_level_coverage_ratio,
         bea_share_denominator
@@ -1041,15 +1006,6 @@ run_stage2_pipeline <- function() {
   message(" - data/processed/stage2_affiliate_year.rds")
   message(" - data/processed/stage2_sectoral_matrix.rds")
   message(" - diagnostics/step4_stage2_*.csv")
-}
-
-is_direct_script_run <- function(script_path) {
-  file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
-  if (length(file_arg) == 0) return(FALSE)
-
-  invoked_path <- sub("^--file=", "", file_arg[1])
-  normalizePath(invoked_path, winslash = "/", mustWork = FALSE) ==
-    normalizePath(script_path, winslash = "/", mustWork = FALSE)
 }
 
 if (is_direct_script_run("code/04_stage2_sbie.R")) {

@@ -7,13 +7,17 @@
 # waterfall, and builds the 2^5 revenue scenario matrix.
 library(dplyr); library(tidyr); library(readr); library(purrr); library(tibble); library(stringr)
 
+source(if (file.exists("code/00_helpers.R")) {
+  "code/00_helpers.R"
+} else {
+  file.path("..", "..", "code/00_helpers.R")
+})
+
 IN   <- "data/processed"
 OUT  <- IN
 DIAG <- file.path(OUT, "diagnostics")
 dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
 
-MAIN_YEARS <- 2017:2022
-GMT_RATE <- 0.15
 SESH_BANDWIDTH_BASELINE <- 0.02
 SESH_BANDWIDTH_SENSITIVITY <- c(0.01, 0.02, 0.03)
 ETR_WINSOR_PROBS <- c(0.01, 0.99)
@@ -31,56 +35,13 @@ DIAGNOSTIC_CHANNEL_PRIOR_TP_IP <- 0.82
 DIAGNOSTIC_CHANNEL_PRIOR_DEBT <- 0.18
 DIAGNOSTIC_CHANNEL_PRIOR_SUBSTANCE <- 0
 
-EU27_ISO3 <- c("AUT", "BEL", "BGR", "CYP", "CZE", "DEU", "DNK", "ESP", "EST",
-               "FIN", "FRA", "GRC", "HRV", "HUN", "IRL", "ITA", "LTU", "LUX",
-               "LVA", "MLT", "NLD", "POL", "PRT", "ROU", "SVK", "SVN", "SWE")
-
-assert_unique_keys <- function(df, keys, label) {
-  n_dup <- df |>
-    count(across(all_of(keys))) |>
-    filter(n > 1) |>
-    nrow()
-
-  if (n_dup > 0) stop(sprintf("%s: %d duplicate key combinations", label, n_dup))
-}
-
-safe_divide <- function(num, den) {
-  if_else(is.na(num) | is.na(den) | den == 0, NA_real_, num / den)
-}
-
 normalise_tax_rate_unit <- function(x) {
   if_else(!is.na(x) & abs(x) > 1, x / 100, x)
-}
-
-coalesce_zero <- function(x) {
-  if_else(is.na(x), 0, x)
-}
-
-weighted_mean_available <- function(x, w) {
-  keep <- !is.na(x) & !is.na(w) & w > 0
-  if (!any(keep)) return(NA_real_)
-  stats::weighted.mean(x[keep], w[keep])
-}
-
-first_non_missing <- function(x) {
-  out <- x[!is.na(x)]
-  if (length(out) == 0) return(NA)
-  out[1]
-}
-
-min_date_or_na <- function(x) {
-  x <- as.Date(x)
-  if (all(is.na(x))) return(as.Date(NA))
-  min(x, na.rm = TRUE)
 }
 
 winsorise <- function(x, probs = ETR_WINSOR_PROBS) {
   bounds <- stats::quantile(x, probs, na.rm = TRUE, names = FALSE)
   pmin(pmax(x, bounds[1]), bounds[2])
-}
-
-clamp_unit_interval <- function(x) {
-  pmin(pmax(x, 0), 1)
 }
 
 rank01 <- function(x) {
@@ -1886,15 +1847,10 @@ build_factorial_revenue <- function(stage2_bilateral,
     stop("Stage 3 produced negative post-behaviour top-up tax")
   }
 
-  scenario_vars <- c("scenario_id", "rate_scenario", "factor1_etr",
-                     "factor2_substance", "factor3_rates", "factor4_sbs",
-                     "factor5_behaviour", "x1_etr", "x2_substance",
-                     "x3_rates", "x4_sbs", "x5_behaviour")
-
   qdmtt_revenue <- scenario_panel |>
     filter(affiliate %in% EU27_ISO3) |>
     transmute(
-      across(all_of(scenario_vars)),
+      across(all_of(SCENARIO_VARS)),
       year,
       country = affiliate,
       channel = "QDMTT",
@@ -1904,7 +1860,7 @@ build_factorial_revenue <- function(stage2_bilateral,
   iir_revenue <- scenario_panel |>
     filter(parent %in% EU27_ISO3) |>
     transmute(
-      across(all_of(scenario_vars)),
+      across(all_of(SCENARIO_VARS)),
       year,
       country = parent,
       channel = "IIR",
@@ -1914,7 +1870,7 @@ build_factorial_revenue <- function(stage2_bilateral,
   utpr_revenue <- scenario_panel |>
     filter(affiliate %in% EU27_ISO3) |>
     transmute(
-      across(all_of(scenario_vars)),
+      across(all_of(SCENARIO_VARS)),
       year,
       country = affiliate,
       channel = "UTPR_source_proxy",
@@ -1922,7 +1878,7 @@ build_factorial_revenue <- function(stage2_bilateral,
     )
 
   channel_revenue <- bind_rows(qdmtt_revenue, iir_revenue, utpr_revenue) |>
-    group_by(across(all_of(scenario_vars)), country, year, channel) |>
+    group_by(across(all_of(SCENARIO_VARS)), country, year, channel) |>
     summarise(revenue = sum(revenue, na.rm = TRUE), .groups = "drop")
 
   country_lookup <- stage2_bilateral |>
@@ -1931,10 +1887,10 @@ build_factorial_revenue <- function(stage2_bilateral,
              country_name = affiliate_jurisdiction_name)
 
   scenario_country_year <- channel_revenue |>
-    group_by(across(all_of(scenario_vars)), country, year) |>
+    group_by(across(all_of(SCENARIO_VARS)), country, year) |>
     summarise(revenue = sum(revenue, na.rm = TRUE), .groups = "drop") |>
     complete(
-      nesting(!!!syms(scenario_vars)),
+      nesting(!!!syms(SCENARIO_VARS)),
       country = EU27_ISO3,
       year = MAIN_YEARS,
       fill = list(revenue = 0)
@@ -1943,7 +1899,7 @@ build_factorial_revenue <- function(stage2_bilateral,
     relocate(country_name, .after = country)
 
   scenario_summary <- scenario_country_year |>
-    group_by(across(all_of(scenario_vars))) |>
+    group_by(across(all_of(SCENARIO_VARS))) |>
     summarise(
       eu_revenue = sum(revenue, na.rm = TRUE),
       country_years = n(),
@@ -1959,11 +1915,10 @@ build_factorial_revenue <- function(stage2_bilateral,
   )
 }
 
-compute_factorial_effects_one <- function(df) {
-  factor_cols <- c("x1_etr", "x2_substance", "x3_rates", "x4_sbs", "x5_behaviour")
+compute_stage3_factorial_effects_one <- function(df) {
   design <- df |>
     arrange(scenario_id) |>
-    mutate(across(all_of(factor_cols), ~ if_else(.x == 1L, 1, -1)))
+    mutate(across(all_of(FACTOR_COLS), ~ if_else(.x == 1L, 1, -1)))
 
   y <- design$revenue
   x <- stats::model.matrix(
@@ -1985,10 +1940,10 @@ compute_factorial_effects_one <- function(df) {
     )
 }
 
-compute_factorial_anova <- function(country_year_revenue) {
+compute_stage3_factorial_anova <- function(country_year_revenue) {
   by_country_year <- country_year_revenue |>
     group_by(country, country_name, year) |>
-    group_modify(~ compute_factorial_effects_one(.x)) |>
+    group_modify(~ compute_stage3_factorial_effects_one(.x)) |>
     ungroup()
 
   pooled <- by_country_year |>
@@ -2019,7 +1974,7 @@ compute_factorial_anova <- function(country_year_revenue) {
   )
 }
 
-run_h4_tests <- function(country_year_revenue, scenario_panel) {
+run_stage3_h4_tests <- function(country_year_revenue, scenario_panel) {
   other_factors <- c("rate_scenario", "factor1_etr", "factor2_substance",
                      "factor5_behaviour", "country", "country_name", "year")
 
@@ -2116,15 +2071,10 @@ run_h4_tests <- function(country_year_revenue, scenario_panel) {
 }
 
 build_reallocation_matrix <- function(scenario_panel) {
-  scenario_vars <- c("scenario_id", "rate_scenario", "factor1_etr",
-                     "factor2_substance", "factor3_rates", "factor4_sbs",
-                     "factor5_behaviour", "x1_etr", "x2_substance",
-                     "x3_rates", "x4_sbs", "x5_behaviour")
-
   source_long <- scenario_panel |>
     filter(factor5_behaviour == "behavioural", reallocated_profit > 0) |>
     transmute(
-      across(all_of(scenario_vars)),
+      across(all_of(SCENARIO_VARS)),
       year,
       source_parent = parent,
       source_affiliate = affiliate,
@@ -2142,7 +2092,7 @@ build_reallocation_matrix <- function(scenario_panel) {
     filter(source_reallocated_profit > 0)
 
   source_totals <- source_long |>
-    group_by(across(all_of(scenario_vars)), year, behavioural_channel) |>
+    group_by(across(all_of(SCENARIO_VARS)), year, behavioural_channel) |>
     summarise(
       total_reallocated_profit = sum(source_reallocated_profit, na.rm = TRUE),
       weighted_source_tau = weighted_mean_available(
@@ -2156,7 +2106,7 @@ build_reallocation_matrix <- function(scenario_panel) {
 
   destination_weights <- scenario_panel |>
     filter(analysis_profit_positive > 0) |>
-    group_by(across(all_of(scenario_vars)),
+    group_by(across(all_of(SCENARIO_VARS)),
              year,
              destination = affiliate) |>
     summarise(
@@ -2179,7 +2129,7 @@ build_reallocation_matrix <- function(scenario_panel) {
         coalesce(destination_cit_rate >= GMT_RATE, FALSE) &
         !destination_is_conduit_haven
     ) |>
-    group_by(across(all_of(scenario_vars)), year) |>
+    group_by(across(all_of(SCENARIO_VARS)), year) |>
     mutate(has_high_tax_destination = any(high_tax_destination, na.rm = TRUE)) |>
     filter(high_tax_destination | !has_high_tax_destination) |>
     mutate(
@@ -2207,7 +2157,7 @@ build_reallocation_matrix <- function(scenario_panel) {
 
   matrix <- destination_weights |>
     left_join(source_totals,
-              by = c(scenario_vars, "year"),
+              by = c(SCENARIO_VARS, "year"),
               relationship = "many-to-many") |>
     mutate(
       total_reallocated_profit = coalesce_zero(total_reallocated_profit),
@@ -2224,17 +2174,17 @@ build_reallocation_matrix <- function(scenario_panel) {
     )
 
   scenario_year_keys <- scenario_panel |>
-    distinct(across(all_of(scenario_vars)), year)
+    distinct(across(all_of(SCENARIO_VARS)), year)
 
   source_check <- source_totals |>
-    group_by(across(all_of(scenario_vars)), year) |>
+    group_by(across(all_of(SCENARIO_VARS)), year) |>
     summarise(
       total_reallocated_profit = sum(total_reallocated_profit, na.rm = TRUE),
       .groups = "drop"
     )
 
   allocated_check <- matrix |>
-    group_by(across(all_of(scenario_vars)), year) |>
+    group_by(across(all_of(SCENARIO_VARS)), year) |>
     summarise(
       allocated_profit = sum(reallocated_profit_received, na.rm = TRUE),
       eu27_destination_profit = sum(
@@ -2255,8 +2205,8 @@ build_reallocation_matrix <- function(scenario_panel) {
     )
 
   conservation <- scenario_year_keys |>
-    left_join(source_check, by = c(scenario_vars, "year")) |>
-    left_join(allocated_check, by = c(scenario_vars, "year")) |>
+    left_join(source_check, by = c(SCENARIO_VARS, "year")) |>
+    left_join(allocated_check, by = c(SCENARIO_VARS, "year")) |>
     mutate(
       total_reallocated_profit = coalesce_zero(total_reallocated_profit),
       allocated_profit = coalesce_zero(allocated_profit),
@@ -2272,7 +2222,7 @@ build_reallocation_matrix <- function(scenario_panel) {
   }
 
   channel_summary <- source_totals |>
-    group_by(across(all_of(scenario_vars)), behavioural_channel) |>
+    group_by(across(all_of(SCENARIO_VARS)), behavioural_channel) |>
     summarise(
       reallocated_profit = sum(total_reallocated_profit, na.rm = TRUE),
       source_affiliates = sum(source_affiliates, na.rm = TRUE),
@@ -2282,7 +2232,7 @@ build_reallocation_matrix <- function(scenario_panel) {
 
   destination_summary <- matrix |>
     filter(behavioural_channel != "none") |>
-    group_by(across(all_of(scenario_vars)),
+    group_by(across(all_of(SCENARIO_VARS)),
              destination,
              destination_name,
              destination_is_eu27,
@@ -2528,8 +2478,10 @@ run_stage3_pipeline <- function() {
     preferred_model
   )
 
-  anova_objects <- compute_factorial_anova(revenue_objects$country_year_revenue)
-  h4_objects <- run_h4_tests(
+  anova_objects <- compute_stage3_factorial_anova(
+    revenue_objects$country_year_revenue
+  )
+  h4_objects <- run_stage3_h4_tests(
     revenue_objects$country_year_revenue,
     revenue_objects$scenario_panel
   )
@@ -2573,13 +2525,8 @@ run_stage3_pipeline <- function() {
       .groups = "drop"
     )
 
-  scenario_vars <- c("scenario_id", "rate_scenario", "factor1_etr",
-                     "factor2_substance", "factor3_rates", "factor4_sbs",
-                     "factor5_behaviour", "x1_etr", "x2_substance",
-                     "x3_rates", "x4_sbs", "x5_behaviour")
-
   strategy_scenario_summary <- revenue_objects$scenario_panel |>
-    group_by(across(all_of(scenario_vars))) |>
+    group_by(across(all_of(SCENARIO_VARS))) |>
     summarise(
       pre_behaviour_topup = sum(topup_after_stage2, na.rm = TRUE),
       post_behaviour_topup = sum(topup_after_behaviour, na.rm = TRUE),
@@ -2825,15 +2772,6 @@ run_stage3_pipeline <- function() {
   message(" - data/processed/stage3_reallocation_*")
   message(" - data/processed/stage3_anova_*.rds")
   message(" - diagnostics/step5_stage3_*.csv")
-}
-
-is_direct_script_run <- function(script_path) {
-  file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
-  if (length(file_arg) == 0) return(FALSE)
-
-  invoked_path <- sub("^--file=", "", file_arg[1])
-  normalizePath(invoked_path, winslash = "/", mustWork = FALSE) ==
-    normalizePath(script_path, winslash = "/", mustWork = FALSE)
 }
 
 if (is_direct_script_run("code/05_stage3_behavioral.R")) {

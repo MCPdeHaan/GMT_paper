@@ -11,13 +11,11 @@ library(purrr)
 library(tibble)
 library(stringr)
 
-source_pipeline_script <- function(path) {
-  if (file.exists(path)) {
-    source(path)
-  } else {
-    source(file.path("..", "..", path))
-  }
-}
+source(if (file.exists("code/00_helpers.R")) {
+  "code/00_helpers.R"
+} else {
+  file.path("..", "..", "code/00_helpers.R")
+})
 
 source_pipeline_script("code/05_stage3_behavioral.R")
 stage3_estimate_models <- estimate_stage3_models
@@ -41,7 +39,6 @@ OUT <- IN
 DIAG <- file.path(OUT, "diagnostics")
 dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
 
-MAIN_YEARS <- 2017:2022
 DEFAULT_TOP_N <- 8L
 NAMED_INFLUENCE_JURISDICTIONS <- c(
   "USA", "NLD", "IRL", "LUX", "DEU", "FRA", "CHE", "SGP"
@@ -55,10 +52,6 @@ PREFERRED_CORE_FILTER <- rlang::expr(
     factor2_substance == "aggregate_sbie" &
     rate_scenario == "initial"
 )
-
-safe_divide_local <- function(num, den) {
-  if_else(is.na(num) | is.na(den) | den == 0, NA_real_, num / den)
-}
 
 is_jurisdiction_code <- function(x) {
   str_detect(x, "^[A-Z]{3}$") & !x %in% AGGREGATE_CODES
@@ -133,9 +126,9 @@ summarise_stage1_liability <- function(stage1_bilateral, case_id_value) {
       distributional_topup_tax =
         sum(stage1_topup_tax_distributional, na.rm = TRUE),
       average_liability_rate =
-        safe_divide_local(average_topup_tax, positive_profit),
+        safe_divide(average_topup_tax, positive_profit),
       distributional_liability_rate =
-        safe_divide_local(distributional_topup_tax, positive_profit),
+        safe_divide(distributional_topup_tax, positive_profit),
       pair_years = n(),
       parents = n_distinct(parent),
       affiliates = n_distinct(affiliate),
@@ -179,9 +172,9 @@ summarise_case_dropped_mass <- function(stage1_bilateral, estimation_sample,
   bind_cols(dropped_stage1, total_stage1, dropped_stage3_rows) |>
     mutate(
       dropped_stage1_profit_share =
-        safe_divide_local(dropped_stage1_profit, total_stage1_profit),
+        safe_divide(dropped_stage1_profit, total_stage1_profit),
       dropped_stage1_topup_share =
-        safe_divide_local(dropped_stage1_topup, total_stage1_topup)
+        safe_divide(dropped_stage1_topup, total_stage1_topup)
     )
 }
 
@@ -461,19 +454,19 @@ normalise_case_summary <- function(cases, jurisdiction_lookup, dropped_mass,
       semielasticity_5_abs_change =
         leave_semielasticity_5 - baseline_semielasticity_5,
       semielasticity_5_pct_change =
-        safe_divide_local(semielasticity_5_abs_change,
+        safe_divide(semielasticity_5_abs_change,
                           baseline_semielasticity_5),
       stage1_liability_rate_abs_change =
         leave_stage1_distributional_liability_rate -
         baseline_stage1_distributional_liability_rate,
       stage1_liability_rate_pct_change =
-        safe_divide_local(stage1_liability_rate_abs_change,
+        safe_divide(stage1_liability_rate_abs_change,
                           baseline_stage1_distributional_liability_rate),
       preferred_sbs_behavioural_revenue_abs_change =
         as.numeric(leave_preferred_sbs_behavioural_revenue) -
         as.numeric(baseline_preferred_sbs_behavioural_revenue),
       preferred_sbs_behavioural_revenue_pct_change =
-        safe_divide_local(preferred_sbs_behavioural_revenue_abs_change,
+        safe_divide(preferred_sbs_behavioural_revenue_abs_change,
                           as.numeric(baseline_preferred_sbs_behavioural_revenue)),
       largest_anova_effect_stable =
         leave_largest_anova_effect == baseline_largest_anova_effect,
@@ -665,15 +658,6 @@ run_jurisdiction_influence_suite <- function(top_n = DEFAULT_TOP_N) {
     anova_pooled = anova_pooled,
     main_effects = main_effects
   ))
-}
-
-is_direct_script_run <- function(script_path) {
-  file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
-  if (length(file_arg) == 0) return(FALSE)
-
-  invoked_path <- sub("^--file=", "", file_arg[1])
-  normalizePath(invoked_path, winslash = "/", mustWork = FALSE) ==
-    normalizePath(script_path, winslash = "/", mustWork = FALSE)
 }
 
 if (is_direct_script_run("code/10_jurisdiction_influence_robustness.R")) {

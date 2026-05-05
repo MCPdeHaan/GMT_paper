@@ -1,0 +1,13 @@
+metric,value
+calibration_affiliate_years,239
+low_mean_etr_calibration_affiliate_years,199
+low_share_raw_bias_table_iv_minus_table_i,-0.1736492956080165
+low_share_raw_sd,0.3678995997381592
+low_share_raw_p05,-0.7550588957752891
+low_share_raw_p50,-0.15333171061184203
+low_share_raw_p95,0.410802264670279
+low_mean_etr_raw_bias_table_iv_minus_table_i,0.016869896423489548
+low_mean_etr_raw_sd,0.042023621088726995
+low_mean_etr_raw_p05,-0.04862079232218949
+low_mean_etr_raw_p50,0.016757007931858803
+low_mean_etr_raw_p95,0.08126059957263199

@@ -8,44 +8,16 @@
 # UTPR allocation.
 library(dplyr); library(tidyr); library(readr); library(tibble); library(stringr)
 
+source(if (file.exists("code/00_helpers.R")) {
+  "code/00_helpers.R"
+} else {
+  file.path("..", "..", "code/00_helpers.R")
+})
+
 IN   <- "data/processed"
 OUT  <- IN
 DIAG <- file.path(OUT, "diagnostics")
 dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
-
-MAIN_YEARS <- 2017:2022
-EU27_ISO3 <- c("AUT", "BEL", "BGR", "CYP", "CZE", "DEU", "DNK", "ESP", "EST",
-               "FIN", "FRA", "GRC", "HRV", "HUN", "IRL", "ITA", "LTU", "LUX",
-               "LVA", "MLT", "NLD", "POL", "PRT", "ROU", "SVK", "SVN", "SWE")
-
-SCENARIO_VARS <- c(
-  "scenario_id", "rate_scenario", "factor1_etr", "factor2_substance",
-  "factor3_rates", "factor4_sbs", "factor5_behaviour", "x1_etr",
-  "x2_substance", "x3_rates", "x4_sbs", "x5_behaviour"
-)
-
-assert_unique_keys <- function(df, keys, label) {
-  n_dup <- df |>
-    count(across(all_of(keys))) |>
-    filter(n > 1) |>
-    nrow()
-
-  if (n_dup > 0) stop(sprintf("%s: %d duplicate key combinations", label, n_dup))
-}
-
-safe_divide <- function(num, den) {
-  if_else(is.na(num) | is.na(den) | den == 0, NA_real_, num / den)
-}
-
-coalesce_zero <- function(x) {
-  if_else(is.na(x), 0, x)
-}
-
-first_non_missing <- function(x) {
-  out <- x[!is.na(x)]
-  if (length(out) == 0) return(NA)
-  out[1]
-}
 
 compute_utpr_raw_weight <- function(employee_share, asset_share) {
   case_when(
@@ -462,7 +434,7 @@ build_policy_ambiguity_diagnostics <- function(source_panel, revenue_global) {
     )
 }
 
-run_h4_tests <- function(revenue_country_year_eu27, source_panel) {
+run_stage4_5_h4_tests <- function(revenue_country_year_eu27, source_panel) {
   other_factors <- c("rate_scenario", "factor1_etr", "factor2_substance",
                      "factor5_behaviour", "country", "country_name", "year")
 
@@ -591,7 +563,7 @@ run_stage4_5_pipeline <- function() {
     allocation_objects$revenue_by_channel_global
   )
 
-  h4_objects <- run_h4_tests(
+  h4_objects <- run_stage4_5_h4_tests(
     allocation_objects$revenue_country_year_eu27,
     source_panel
   )
@@ -726,15 +698,6 @@ run_stage4_5_pipeline <- function() {
   message(" - data/processed/stage4_5_revenue_country_year.rds")
   message(" - data/processed/stage4_5_utpr_parent_year_weights.rds")
   message(" - diagnostics/step6_stage4_5_*.csv")
-}
-
-is_direct_script_run <- function(script_path) {
-  file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
-  if (length(file_arg) == 0) return(FALSE)
-
-  invoked_path <- sub("^--file=", "", file_arg[1])
-  normalizePath(invoked_path, winslash = "/", mustWork = FALSE) ==
-    normalizePath(script_path, winslash = "/", mustWork = FALSE)
 }
 
 if (is_direct_script_run("code/06_stage4_5_revenue_allocation_sbs.R")) {

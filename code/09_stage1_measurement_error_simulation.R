@@ -7,13 +7,11 @@
 # Table IV low-tax bracket observations.
 library(dplyr); library(tidyr); library(readr); library(purrr); library(tibble)
 
-source_pipeline_script <- function(path) {
-  if (file.exists(path)) {
-    source(path)
-  } else {
-    source(file.path("..", "..", path))
-  }
-}
+source(if (file.exists("code/00_helpers.R")) {
+  "code/00_helpers.R"
+} else {
+  file.path("..", "..", "code/00_helpers.R")
+})
 
 source_pipeline_script("code/04_stage2_sbie.R")
 source_pipeline_script("code/05_stage3_behavioral.R")
@@ -678,15 +676,6 @@ parse_int_arg <- function(flag, default) {
   hit <- args[grepl(paste0("^", flag, "="), args)]
   if (length(hit) == 0) return(default)
   as.integer(sub(paste0("^", flag, "="), "", hit[1]))
-}
-
-is_direct_script_run <- function(script_path) {
-  file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
-  if (length(file_arg) == 0) return(FALSE)
-
-  invoked_path <- sub("^--file=", "", file_arg[1])
-  normalizePath(invoked_path, winslash = "/", mustWork = FALSE) ==
-    normalizePath(script_path, winslash = "/", mustWork = FALSE)
 }
 
 if (is_direct_script_run("code/09_stage1_measurement_error_simulation.R")) {

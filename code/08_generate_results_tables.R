@@ -11,16 +11,16 @@ library(readr)
 library(stringr)
 library(tibble)
 
+source(if (file.exists("code/00_helpers.R")) {
+  "code/00_helpers.R"
+} else {
+  file.path("..", "..", "code/00_helpers.R")
+})
+
 IN <- "data/processed"
 DIAG <- file.path(IN, "diagnostics")
 GEN <- "writing/generated"
 GEN_TABLES <- file.path(GEN, "results_tables")
-
-EU27_ISO3 <- c("AUT", "BEL", "BGR", "CYP", "CZE", "DEU", "DNK", "ESP", "EST",
-               "FIN", "FRA", "GRC", "HRV", "HUN", "IRL", "ITA", "LTU", "LUX",
-               "LVA", "MLT", "NLD", "POL", "PRT", "ROU", "SVK", "SVN", "SWE")
-
-SELECTED_COUNTRIES <- c("NLD", "IRL", "LUX", "DEU", "FRA")
 
 read_diag <- function(file) {
   path <- file.path(DIAG, file)
@@ -1782,15 +1782,6 @@ write_results_tables <- function() {
   message(" - writing/generated/results_tables/*.tex")
   message(" - writing/generated/results_appendix_tables.tex")
   message(" - writing/generated/results_main_tables_manifest.tex")
-}
-
-is_direct_script_run <- function(script_path) {
-  file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
-  if (length(file_arg) == 0) return(FALSE)
-
-  invoked_path <- sub("^--file=", "", file_arg[1])
-  normalizePath(invoked_path, winslash = "/", mustWork = FALSE) ==
-    normalizePath(script_path, winslash = "/", mustWork = FALSE)
 }
 
 if (is_direct_script_run("code/08_generate_results_tables.R")) {

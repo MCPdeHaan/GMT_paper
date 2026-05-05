@@ -12,14 +12,19 @@
 # behavioural reallocations.
 library(dplyr); library(tidyr); library(purrr); library(readr); library(stringr); library(tibble)
 
+source(if (file.exists("code/00_helpers.R")) {
+  "code/00_helpers.R"
+} else {
+  file.path("..", "..", "code/00_helpers.R")
+})
+
 IN   <- "data/processed"
 OUT  <- IN
 DIAG <- file.path(OUT, "diagnostics")
 dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
 
 CORE_YEARS       <- 2016:2022
-ESTIMATION_YEARS <- 2017:2022
-GMT_RATE         <- 0.15
+ESTIMATION_YEARS <- MAIN_YEARS
 EMPLOYEES_PER_ENTITY_CAP <- 100000
 EUKLEMS_STOCK_COVERAGE_THRESHOLD <- 0.75
 
@@ -40,9 +45,6 @@ BSPI_IMPUTE_YEARS     <- 2017:2018
 
 AGGREGATE_AFFILIATES <- c("A", "A_O", "E", "E_O", "F", "F_O",
                           "S", "S_O", "W", "W_O", "WXD", "STLS")
-EU27_ISO3 <- c("AUT","BEL","BGR","CYP","CZE","DEU","DNK","ESP","EST","FIN","FRA",
-               "GRC","HRV","HUN","IRL","ITA","LTU","LUX","LVA","MLT","NLD","POL",
-               "PRT","ROU","SVK","SVN","SWE")
 PANELAI_PERCENTILES <- c("etr_p5_panelai", "etr_p25_panelai", "etr_p50_panelai",
                          "etr_p75_panelai", "etr_p95_panelai")
 T_PERCENTILES <- c("etr_p5", "etr_p25", "etr_p50", "etr_p75", "etr_p95")
@@ -58,23 +60,6 @@ normalize_code <- function(x) {
     x == "XKX" ~ "XKV",
     TRUE       ~ x
   )
-}
-
-assert_unique_keys <- function(df, keys, label) {
-  n_dup <- df |>
-    count(across(all_of(keys))) |>
-    filter(n > 1) |>
-    nrow()
-
-  if (n_dup > 0) stop(sprintf("%s: %d duplicate key combinations", label, n_dup))
-}
-
-left_join_checked <- function(x, y, by, label) {
-  n_before <- nrow(x)
-  assert_unique_keys(y, unname(by), label)
-  out <- left_join(x, y, by = by)
-  if (nrow(out) != n_before) stop(sprintf("%s changed row count", label))
-  out
 }
 
 sum_or_na <- function(x) {
@@ -98,12 +83,6 @@ pick_first_non_missing <- function(x) {
   x[idx[1]]
 }
 
-min_date_or_na <- function(x) {
-  x <- as.Date(x)
-  if (all(is.na(x))) return(as.Date(NA))
-  min(x, na.rm = TRUE)
-}
-
 build_year_nearest_lookup <- function(target_keys, candidates, value_col, source_col) {
   target_keys |>
     rename(jurisdiction = affiliate) |>
@@ -123,10 +102,6 @@ build_year_nearest_lookup <- function(target_keys, candidates, value_col, source
       affiliate_wage_year     = source_year,
       affiliate_wage_year_gap = year_gap
     )
-}
-
-safe_divide <- function(num, den) {
-  if_else(is.na(num) | is.na(den) | den == 0, NA_real_, num / den)
 }
 
 normalise_share <- function(x) {

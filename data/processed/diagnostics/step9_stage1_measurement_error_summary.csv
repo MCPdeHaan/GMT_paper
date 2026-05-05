@@ -1,0 +1,8 @@
+metric,value
+draws,500
+seed,20260503
+preferred_model,linear
+max_allocation_conservation_gap,0.00091552734375
+scenario_interval_rows,32
+preferred_interval_rows,4
+preferred_country_year_interval_rows,648

@@ -6,24 +6,18 @@
 # the final object for the 2^5 counterfactual decomposition.
 library(dplyr); library(tidyr); library(readr); library(tibble); library(stringr)
 
+source(if (file.exists("code/00_helpers.R")) {
+  "code/00_helpers.R"
+} else {
+  file.path("..", "..", "code/00_helpers.R")
+})
+
 IN   <- "data/processed"
 OUT  <- IN
 DIAG <- file.path(OUT, "diagnostics")
 GEN  <- "writing/generated"
 dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
 dir.create(GEN, showWarnings = FALSE, recursive = TRUE)
-
-MAIN_YEARS <- 2017:2022
-SELECTED_COUNTRIES <- c("NLD", "IRL", "LUX", "DEU", "FRA")
-
-SCENARIO_VARS <- c(
-  "scenario_id", "rate_scenario", "factor1_etr", "factor2_substance",
-  "factor3_rates", "factor4_sbs", "factor5_behaviour", "x1_etr",
-  "x2_substance", "x3_rates", "x4_sbs", "x5_behaviour"
-)
-
-FACTOR_COLS <- c("x1_etr", "x2_substance", "x3_rates", "x4_sbs",
-                 "x5_behaviour")
 
 FACTOR_LABELS <- c(
   x1_etr = "ETR measurement",
@@ -60,23 +54,6 @@ FACTOR_TAXONOMY <- tribble(
   "Panel-estimated semi-elasticity and SESH liability filter",
   "Behavioural specification; aleatoric only under coefficient bootstrap"
 )
-
-assert_unique_keys <- function(df, keys, label) {
-  n_dup <- df |>
-    count(across(all_of(keys))) |>
-    filter(n > 1) |>
-    nrow()
-
-  if (n_dup > 0) stop(sprintf("%s: %d duplicate key combinations", label, n_dup))
-}
-
-safe_divide <- function(num, den) {
-  if_else(is.na(num) | is.na(den) | den == 0, NA_real_, num / den)
-}
-
-coalesce_zero <- function(x) {
-  if_else(is.na(x), 0, x)
-}
 
 label_effect <- function(effect) {
   parts <- strsplit(effect, ":", fixed = TRUE)
@@ -827,12 +804,6 @@ run_stage4_6_pipeline <- function() {
                         scenario_spread_country,
                         preferred_behavioural_outputs$channel_summary)
 
-  results_table_script <- file.path("code", "08_generate_results_tables.R")
-  if (file.exists(results_table_script)) {
-    source(results_table_script)
-    write_results_tables()
-  }
-
   message("\nStep 7 outputs written:")
   message(" - data/processed/stage4_6_anova_*.rds")
   message(" - data/processed/stage4_6_shapley_factor_attribution.rds")
@@ -841,17 +812,6 @@ run_stage4_6_pipeline <- function() {
   message(" - data/processed/stage4_6_preferred_*.rds")
   message(" - diagnostics/step7_stage4_6_*.csv")
   message(" - writing/generated/stage4_6_results_tables.tex")
-  message(" - writing/generated/results_tables/*.tex")
-  message(" - writing/generated/results_appendix_tables.tex")
-}
-
-is_direct_script_run <- function(script_path) {
-  file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
-  if (length(file_arg) == 0) return(FALSE)
-
-  invoked_path <- sub("^--file=", "", file_arg[1])
-  normalizePath(invoked_path, winslash = "/", mustWork = FALSE) ==
-    normalizePath(script_path, winslash = "/", mustWork = FALSE)
 }
 
 if (is_direct_script_run("code/07_stage4_6_revenue_pipeline_decomposition.R")) {

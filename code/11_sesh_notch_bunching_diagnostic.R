@@ -6,13 +6,11 @@
 # bunching diagnostic. It does not identify realised post-SESH bunching.
 library(dplyr); library(tidyr); library(readr); library(purrr); library(tibble)
 
-source_pipeline_script <- function(path) {
-  if (file.exists(path)) {
-    source(path)
-  } else {
-    source(file.path("..", "..", path))
-  }
-}
+source(if (file.exists("code/00_helpers.R")) {
+  "code/00_helpers.R"
+} else {
+  file.path("..", "..", "code/00_helpers.R")
+})
 
 source_pipeline_script("code/05_stage3_behavioral.R")
 
@@ -290,15 +288,6 @@ run_sesh_notch_bunching_diagnostic <- function() {
     summary = summary,
     assignments = assignments
   ))
-}
-
-is_direct_script_run <- function(script_path) {
-  file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
-  if (length(file_arg) == 0) return(FALSE)
-
-  invoked_path <- sub("^--file=", "", file_arg[1])
-  normalizePath(invoked_path, winslash = "/", mustWork = FALSE) ==
-    normalizePath(script_path, winslash = "/", mustWork = FALSE)
 }
 
 if (is_direct_script_run("code/11_sesh_notch_bunching_diagnostic.R")) {

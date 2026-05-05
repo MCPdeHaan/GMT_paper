@@ -6,15 +6,18 @@
 # calculated, no datasets are merged.
 library(dplyr); library(tidyr); library(readr); library(purrr); library(stringr); library(tibble); library(xml2)
 
+source(if (file.exists("code/00_helpers.R")) {
+  "code/00_helpers.R"
+} else {
+  file.path("..", "..", "code/00_helpers.R")
+})
+
 RAW <- "data/raw"
 OUT <- "data/processed"
 DIAG <- file.path(OUT, "diagnostics")
 dir.create(OUT, showWarnings = FALSE, recursive = TRUE)
 dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
 
-EU27_ISO3 <- c("AUT","BEL","BGR","CYP","CZE","DEU","DNK","ESP","EST","FIN","FRA",
-               "GRC","HRV","HUN","IRL","ITA","LTU","LUX","LVA","MLT","NLD","POL",
-               "PRT","ROU","SVK","SVN","SWE")
 # Eurostat publishes inward FATS using its own 2-letter codes (UK, EL = Greece).
 # EU27_ISO2 keeps the 27 Member States in Eurostat code system for the FATS coverage check.
 EU27_ISO2 <- c("AT","BE","BG","CY","CZ","DE","DK","EE","EL","ES","FI","FR",
@@ -94,15 +97,6 @@ panel_suffix <- function(p) {
   case_when(p == "PANELAI"  ~ "_panelai",
             p == "PANELAII" ~ "_panelaii",
             TRUE            ~ "")
-}
-
-assert_unique_keys <- function(df, keys, label) {
-  n_dup <- df |> count(across(all_of(keys))) |> filter(n > 1) |> nrow()
-  if (n_dup > 0) stop(sprintf("%s: %d duplicate key combinations", label, n_dup))
-}
-
-safe_divide <- function(num, den) {
-  if_else(is.na(num) | is.na(den) | den == 0, NA_real_, num / den)
 }
 
 # Append a one-row tibble to the diagnostics list
@@ -246,6 +240,7 @@ parse_bea_country_industry_sheet <- function(path, sheet_name, measure, unit,
   values
 }
 
+message("[1/15] CbCR Table I")
 # 1. CbCR Table I: aggregate totals and within-jurisdiction ETR percentiles
 t1_raw <- read_oecd(file.path(RAW, "oecd_cbcr/cbcr_table1_aggregate_totals.csv")) |>
   rename(parent = REF_AREA, affiliate = COUNTERPART_AREA, year = TIME_PERIOD,
@@ -892,8 +887,10 @@ add_diag("cit_revenue", "rows", nrow(cit_revenue))
 diagnostics_df <- bind_rows(diagnostics)
 write_csv(diagnostics_df, file.path(DIAG, "summary.csv"))
 
-message("\nDiagnostics summary:")
-print(diagnostics_df, n = Inf)
-
-message(sprintf("\nDone. %d intermediate files written to %s/",
+message(sprintf(
+  "\nDiagnostics summary written to %s (%d rows)",
+  file.path(DIAG, "summary.csv"),
+  nrow(diagnostics_df)
+))
+message(sprintf("Done. %d intermediate files written to %s/",
                 length(list.files(OUT, pattern = "\\.rds$")), OUT))

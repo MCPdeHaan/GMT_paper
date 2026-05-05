@@ -7,60 +7,29 @@
 # and average top-up rate back to the bilateral corrected profit base.
 library(dplyr); library(tidyr); library(readr); library(purrr); library(tibble)
 
+source(if (file.exists("code/00_helpers.R")) {
+  "code/00_helpers.R"
+} else {
+  file.path("..", "..", "code/00_helpers.R")
+})
+
 IN   <- "data/processed"
 OUT  <- IN
 DIAG <- file.path(OUT, "diagnostics")
 dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
 
-MAIN_YEARS            <- 2017:2022
 DIRECT_YEARS          <- 2019:2022
 PERCENTILE_YEARS      <- 2021:2022
 BSPI_ANCHOR_YEARS     <- 2019:2020
 BSPI_VALIDATION_YEARS <- 2021:2022
 BSPI_IMPUTE_YEARS     <- 2017:2018
 BSPI_TV_FLAG          <- 0.39
-GMT_RATE              <- 0.15
 ZETA_LOSS_OFFSET      <- 0.05
 
-EU27_ISO3 <- c("AUT", "BEL", "BGR", "CYP", "CZE", "DEU", "DNK", "ESP", "EST",
-               "FIN", "FRA", "GRC", "HRV", "HUN", "IRL", "ITA", "LTU", "LUX",
-               "LVA", "MLT", "NLD", "POL", "PRT", "ROU", "SVK", "SVN", "SWE")
 T4_POSITIVE_BRACKETS <- c("rate_0_15", "rate_15", "rate_20_30", "rate_30")
 PERCENTILE_PROBS <- c(0.05, 0.25, 0.50, 0.75, 0.95)
 BETA_PRECISION_LOG_BOUNDS <- log(c(1e-4, 1e6))
 BETA_BOUNDARY_EPS <- 1e-8
-
-assert_unique_keys <- function(df, keys, label) {
-  n_dup <- df |>
-    count(across(all_of(keys))) |>
-    filter(n > 1) |>
-    nrow()
-
-  if (n_dup > 0) stop(sprintf("%s: %d duplicate key combinations", label, n_dup))
-}
-
-safe_divide <- function(num, den) {
-  if_else(is.na(num) | is.na(den) | den == 0, NA_real_, num / den)
-}
-
-weighted_mean_available <- function(x, w) {
-  keep <- !is.na(x) & !is.na(w) & w > 0
-  if (!any(keep)) return(NA_real_)
-  stats::weighted.mean(x[keep], w[keep])
-}
-
-safe_cor <- function(x, y, method = "pearson") {
-  keep <- is.finite(x) & is.finite(y)
-  if (sum(keep) < 3) return(NA_real_)
-  if (length(unique(x[keep])) < 2 || length(unique(y[keep])) < 2) return(NA_real_)
-  stats::cor(x[keep], y[keep], method = method)
-}
-
-first_non_missing <- function(x) {
-  idx <- which(!is.na(x))[1]
-  if (is.na(idx)) return(NA_real_)
-  x[idx]
-}
 
 condition_stage1_percentiles <- function(q) {
   q |>
@@ -1222,15 +1191,6 @@ run_stage1_pipeline <- function() {
   message(" - data/processed/stage1_affiliate_year.rds")
   message(" - data/processed/stage1_bilateral_panel.rds")
   message(" - diagnostics/step3_stage1_*.csv")
-}
-
-is_direct_script_run <- function(script_path) {
-  file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
-  if (length(file_arg) == 0) return(FALSE)
-
-  invoked_path <- sub("^--file=", "", file_arg[1])
-  normalizePath(invoked_path, winslash = "/", mustWork = FALSE) ==
-    normalizePath(script_path, winslash = "/", mustWork = FALSE)
 }
 
 if (is_direct_script_run("code/03_stage1_etr.R")) {

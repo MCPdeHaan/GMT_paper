@@ -337,7 +337,7 @@ test_that("factorial effects recover a single active main effect", {
       revenue = 10 + 5 * x1_etr
     )
 
-  effects <- compute_factorial_effects_one(toy)
+  effects <- compute_stage3_factorial_effects_one(toy)
   dominant <- effects |>
     arrange(desc(ss)) |>
     slice(1)
