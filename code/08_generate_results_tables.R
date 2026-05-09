@@ -241,6 +241,175 @@ metric_value <- function(df, metric) {
   value[1]
 }
 
+finite_values <- function(x) {
+  x[is.finite(x)]
+}
+
+safe_median <- function(x) {
+  x <- finite_values(x)
+  if (length(x) == 0) return(NA_real_)
+  stats::median(x)
+}
+
+describe_vector <- function(label, x, digits = 2) {
+  x <- finite_values(x)
+  if (length(x) == 0) {
+    return(tibble(
+      Variable = latex_escape(label),
+      `$N$` = "",
+      Mean = "",
+      SD = "",
+      P25 = "",
+      Median = "",
+      P75 = ""
+    ))
+  }
+
+  tibble(
+    Variable = latex_escape(label),
+    `$N$` = fmt_int(length(x)),
+    Mean = fmt_num(mean(x), digits),
+    SD = fmt_num(ifelse(length(x) > 1, stats::sd(x), NA_real_), digits),
+    P25 = fmt_num(stats::quantile(x, 0.25, names = FALSE), digits),
+    Median = fmt_num(stats::median(x), digits),
+    P75 = fmt_num(stats::quantile(x, 0.75, names = FALSE), digits)
+  )
+}
+
+write_data_descriptive_tables <- function() {
+  panel <- read_processed("stage1_bilateral_panel.rds") |>
+    filter(year %in% MAIN_YEARS)
+
+  positive_panel <- panel |>
+    filter(analysis_profit_positive > 0)
+
+  coverage_by_year <- panel |>
+    group_by(year) |>
+    summarise(
+      pair_years = n(),
+      parents = n_distinct(parent),
+      affiliates = n_distinct(affiliate),
+      positive_pair_years = sum(analysis_profit_positive > 0, na.rm = TRUE),
+      eu27_pair_years = sum(affiliate_is_eu27, na.rm = TRUE),
+      corrected_profit = sum(analysis_profit_positive, na.rm = TRUE),
+      lowtax_profit = sum(stage1_lowtax_profit_distributional, na.rm = TRUE),
+      median_etr = safe_median(
+        etr_panelai_stage1[analysis_profit_positive > 0]
+      ),
+      .groups = "drop"
+    ) |>
+    transmute(
+      Year = fmt_year(year),
+      `Pair-years` = fmt_int(pair_years),
+      Parents = fmt_int(parents),
+      Affiliates = fmt_int(affiliates),
+      `Positive pairs` = fmt_int(positive_pair_years),
+      `EU27 pairs` = fmt_int(eu27_pair_years),
+      `Profit` = fmt_bn(corrected_profit, 1),
+      `Low-taxed profit` = fmt_bn(lowtax_profit, 1),
+      `Median ETR` = fmt_pct(median_etr, 1)
+    )
+
+  coverage_total <- panel |>
+    summarise(
+      pair_years = n(),
+      parents = n_distinct(parent),
+      affiliates = n_distinct(affiliate),
+      positive_pair_years = sum(analysis_profit_positive > 0, na.rm = TRUE),
+      eu27_pair_years = sum(affiliate_is_eu27, na.rm = TRUE),
+      corrected_profit = sum(analysis_profit_positive, na.rm = TRUE),
+      lowtax_profit = sum(stage1_lowtax_profit_distributional, na.rm = TRUE),
+      median_etr = safe_median(
+        etr_panelai_stage1[analysis_profit_positive > 0]
+      )
+    ) |>
+    transmute(
+      Year = "Pooled",
+      `Pair-years` = fmt_int(pair_years),
+      Parents = fmt_int(parents),
+      Affiliates = fmt_int(affiliates),
+      `Positive pairs` = fmt_int(positive_pair_years),
+      `EU27 pairs` = fmt_int(eu27_pair_years),
+      `Profit` = fmt_bn(corrected_profit, 1),
+      `Low-taxed profit` = fmt_bn(lowtax_profit, 1),
+      `Median ETR` = fmt_pct(median_etr, 1)
+    )
+
+  write_latex_table(
+    file.path(GEN_TABLES, "data_panel_coverage.tex"),
+    caption = "Analytical panel coverage by fiscal year",
+    short_caption = "Analytical panel coverage by fiscal year",
+    label = "tab:data_panel_coverage",
+    col_spec = "lrrrrrrrr",
+    header = c("Year", "Pair-years", "Parents", "Affiliates",
+               "Positive pairs", "EU27 pairs", "Profit (US\\$ bn)",
+               "Low-taxed profit (US\\$ bn)", "Median ETR"),
+    rows = bind_rows(coverage_by_year, coverage_total),
+    notes = paste(
+      "The sample is the 2017 to 2022 analytical Stage 1 parent-affiliate-year panel.",
+      "Profit and low-taxed profit are corrected positive Panel A-I profit under the preferred distributional measurement branch, expressed in US dollars, billions.",
+      "Median ETR is the bounded Panel A-I ETR among positive-profit observations.",
+      source_note("data/processed/stage1_bilateral_panel.rds")
+    ),
+    size = "\\scriptsize",
+    resize = TRUE
+  )
+
+  summary_rows <- bind_rows(
+    describe_vector("Corrected profit (US$ m)",
+                    positive_panel$analysis_profit_positive / 1e6, 1),
+    describe_vector("Tax accrued (US$ m)",
+                    positive_panel$tax_accrued_panelai / 1e6, 1),
+    describe_vector("Tangible assets (US$ m)",
+                    positive_panel$assets_sbie / 1e6, 1),
+    describe_vector("Employees (000s)",
+                    positive_panel$employees_sbie / 1e3, 2),
+    describe_vector("Payroll proxy (US$ m)",
+                    positive_panel$payroll_sbie / 1e6, 1),
+    describe_vector("Bounded ETR (%)",
+                    100 * positive_panel$etr_panelai_stage1, 1),
+    describe_vector("Average-rule low-taxed share (%)",
+                    100 * positive_panel$average_low_share, 1),
+    describe_vector("Distributional low-taxed share (%)",
+                    100 * positive_panel$stage1_distributional_low_share, 1),
+    describe_vector("Distributional top-up gap (%)",
+                    100 * positive_panel$stage1_distributional_topup_rate, 1),
+    describe_vector("Holding entity share (%)",
+                    100 * positive_panel$holding_share_panelai, 1),
+    describe_vector("Affiliate GDP per capita (US$ 000s)",
+                    positive_panel$affiliate_gdp_pc_usd / 1000, 1),
+    describe_vector("Affiliate population (millions)",
+                    positive_panel$affiliate_population / 1e6, 1)
+  )
+
+  write_latex_table(
+    file.path(GEN_TABLES, "data_summary_statistics.tex"),
+    caption = "Summary statistics for positive-profit analytical pair-years",
+    short_caption = "Summary statistics for analytical pair-years",
+    label = "tab:data_summary_statistics",
+    col_spec = "lrrrrrr",
+    header = c("Variable", "$N$", "Mean", "SD", "P25", "Median", "P75"),
+    rows = summary_rows,
+    notes = paste(
+      "The sample is restricted to positive-profit analytical pair-years because these observations define the relevant denominator for ETR measurement, low-taxed-profit measurement and the Hines-Rice estimation sample.",
+      "Percent variables are reported in percentage points. Monetary variables are in current US dollars after the stated scaling.",
+      "The summary deliberately reports quartiles rather than minima and maxima because CbCR cells are highly right-skewed and extreme cells are better treated in influence diagnostics.",
+      source_note("data/processed/stage1_bilateral_panel.rds")
+    ),
+    size = "\\scriptsize",
+    resize = TRUE
+  )
+
+  writeLines(
+    c(
+      "% Generated by code/08_generate_results_tables.R",
+      "\\input{generated/results_tables/data_panel_coverage.tex}",
+      "\\input{generated/results_tables/data_summary_statistics.tex}"
+    ),
+    file.path(GEN, "data_descriptive_tables.tex")
+  )
+}
+
 write_profit_correction_table <- function() {
   correction <- read_diag("step2_profit_correction_by_year.csv") |>
     filter(year %in% MAIN_YEARS) |>
@@ -1934,6 +2103,8 @@ write_manifest <- function() {
 write_results_tables <- function() {
   dir.create(GEN_TABLES, showWarnings = FALSE, recursive = TRUE)
 
+  write_data_descriptive_tables()
+
   write_profit_correction_table()
   write_stage1_source_table()
   write_stage1_rates_table()
@@ -1961,6 +2132,7 @@ write_results_tables <- function() {
   write_manifest()
 
   message("\nStep 8 outputs written:")
+  message(" - writing/generated/data_descriptive_tables.tex")
   message(" - writing/generated/results_tables/*.tex")
   message(" - writing/generated/results_appendix_tables.tex")
   message(" - writing/generated/results_main_tables_manifest.tex")
