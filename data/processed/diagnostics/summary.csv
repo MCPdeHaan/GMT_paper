@@ -9,6 +9,7 @@ cbcr_t1,missing_etr_p50_panelai_share,0.833
 cbcr_t1,etr_p50_panelai_first_year_with_data,2021
 cbcr_t1,profit_adj_missing_pre2021,12068
 cbcr_t1,profit_adj_present_2021_2022,33
+cbcr_t1,profit_adj_ratio_observed_country_like,36
 cbcr_t1,zero_profit_panelai_tax_positive,8
 cbcr_t1,eu27_present_as_affiliate,27
 cbcr_t2,rows,13423

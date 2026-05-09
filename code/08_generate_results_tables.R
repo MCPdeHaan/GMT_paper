@@ -115,9 +115,7 @@ coef_cell <- function(estimate, std_error, p_value, digits = 3) {
 }
 
 source_note <- function(files) {
-  paste0("Source: author's calculations based on ",
-         paste(sprintf("\\path{%s}", files), collapse = " and "),
-         ".")
+  ""
 }
 
 normalise_factor_label <- function(x) {
@@ -241,6 +239,188 @@ metric_value <- function(df, metric) {
   value <- df$value[df$metric == metric]
   if (length(value) == 0) return(NA_character_)
   value[1]
+}
+
+write_profit_correction_table <- function() {
+  correction <- read_diag("step2_profit_correction_by_year.csv") |>
+    filter(year %in% MAIN_YEARS) |>
+    mutate(
+      reduction = uncorrected_profit - corrected_profit,
+      reduction_rate = safe_divide(reduction, uncorrected_profit)
+    )
+
+  support <- read_diag("cbcr_t1_profit_adj_support_by_year.csv") |>
+    filter(year %in% MAIN_YEARS)
+
+  panel <- read_processed("base_panel.rds") |>
+    filter(year %in% MAIN_YEARS,
+           !is.na(profit_adj_ratio_observed),
+           !is.na(holding_share_panelai),
+           profit_panelai > 0) |>
+    mutate(profit_adj_ratio_bounded = pmin(pmax(profit_adj_ratio_observed, 0), 1))
+
+  branch <- correction |>
+    group_by(profit_correction_source_baseline) |>
+    summarise(
+      cells = sum(rows),
+      uncorrected_profit = sum(uncorrected_profit, na.rm = TRUE),
+      corrected_profit = sum(corrected_profit, na.rm = TRUE),
+      reduction = sum(reduction, na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    mutate(
+      reduction_rate = safe_divide(reduction, uncorrected_profit),
+      reduction_share = safe_divide(reduction, sum(reduction, na.rm = TRUE)),
+      label = recode(
+        profit_correction_source_baseline,
+        "observed_profit_adj" = "Observed PROFIT\\_ADJ",
+        "domestic_upe_hugger" = "Domestic UPE correction",
+        "uncorrected_foreign" = "Uncorrected foreign cells",
+        .default = profit_correction_source_baseline
+      ),
+      order = match(
+        profit_correction_source_baseline,
+        c("observed_profit_adj", "domestic_upe_hugger", "uncorrected_foreign")
+      )
+    ) |>
+    arrange(order)
+
+  total <- branch |>
+    summarise(
+      label = "Total preferred correction",
+      cells = sum(cells),
+      uncorrected_profit = sum(uncorrected_profit),
+      corrected_profit = sum(corrected_profit),
+      reduction = sum(reduction),
+      reduction_rate = safe_divide(reduction, uncorrected_profit),
+      reduction_share = 1
+    )
+
+  effect_rows <- bind_rows(branch, total) |>
+    transmute(
+      label,
+      cells = fmt_int(cells),
+      uncorrected = fmt_bn(uncorrected_profit, 1),
+      corrected = fmt_bn(corrected_profit, 1),
+      reduction = fmt_bn(reduction, 1),
+      reduction_rate = fmt_pct(reduction_rate, 1),
+      reduction_share = fmt_pct(reduction_share, 1)
+    )
+
+  observed_total <- support |>
+    summarise(
+      cells_with_profit_adj = sum(cells_with_profit_adj, na.rm = TRUE),
+      parents_with_profit_adj = max(parents_with_profit_adj, na.rm = TRUE),
+      affiliates_with_profit_adj = sum(affiliates_with_profit_adj, na.rm = TRUE),
+      median_ratio = median(median_profit_adj_ratio, na.rm = TRUE),
+      min_ratio = min(min_profit_adj_ratio, na.rm = TRUE),
+      max_ratio = max(max_profit_adj_ratio, na.rm = TRUE)
+    )
+
+  fit <- if (nrow(panel) >= 10) {
+    summary(stats::lm(profit_adj_ratio_bounded ~ holding_share_panelai,
+                      data = panel))
+  } else {
+    NULL
+  }
+
+  beta <- if (!is.null(fit)) fit$coefficients["holding_share_panelai", "Estimate"] else NA_real_
+  se <- if (!is.null(fit)) fit$coefficients["holding_share_panelai", "Std. Error"] else NA_real_
+  p_value <- if (!is.null(fit)) fit$coefficients["holding_share_panelai", "Pr(>|t|)"] else NA_real_
+  r_squared <- if (!is.null(fit)) fit$r.squared else NA_real_
+
+  diagnostic_rows <- tibble(
+    label = c(
+      "Observed adjusted-profit cells",
+      "Parents with observed adjusted profit",
+      "Affiliate observations with adjusted profit",
+      "Median adjusted-to-unadjusted ratio",
+      "Observed ratio range",
+      "Holding-share slope",
+      "Holding-share regression R-squared"
+    ),
+    cells = c(
+      fmt_int(observed_total$cells_with_profit_adj),
+      fmt_int(observed_total$parents_with_profit_adj),
+      fmt_int(observed_total$affiliates_with_profit_adj),
+      fmt_num(observed_total$median_ratio, 3),
+      paste0(fmt_num(observed_total$min_ratio, 3), " to ",
+             fmt_num(observed_total$max_ratio, 3)),
+      coef_cell(beta, se, p_value, 3),
+      fmt_num(r_squared, 3)
+    ),
+    uncorrected = "",
+    corrected = "",
+    reduction = "",
+    reduction_rate = "",
+    reduction_share = ""
+  )
+
+  lines <- c(
+    "\\begin{table}[H]",
+    "\\centering",
+    "\\scriptsize",
+    "\\caption[Profit-base correction effects]{Profit-base correction effects and diagnostic support, 2017 to 2022}",
+    "\\label{tab:profit_correction_effects}",
+    "\\resizebox{\\textwidth}{!}{%",
+    "\\begin{tabular}{@{}lrrrrrr@{}}",
+    "\\toprule",
+    "Correction branch & Cells & Uncorrected profit & Corrected profit & Reduction & Reduction rate & Share of reduction \\\\",
+    "\\midrule",
+    "\\multicolumn{7}{l}{\\textit{Panel A: implemented economic effect, USD billions}} \\\\"
+  )
+
+  for (i in seq_len(nrow(effect_rows))) {
+    lines <- c(lines, paste0(
+      effect_rows$label[i], " & ",
+      effect_rows$cells[i], " & ",
+      effect_rows$uncorrected[i], " & ",
+      effect_rows$corrected[i], " & ",
+      effect_rows$reduction[i], " & ",
+      effect_rows$reduction_rate[i], " & ",
+      effect_rows$reduction_share[i], " \\\\"
+    ))
+  }
+
+  lines <- c(
+    lines,
+    "\\addlinespace",
+    "\\multicolumn{7}{l}{\\textit{Panel B: support for not estimating a full-panel adjusted-profit model}} \\\\"
+  )
+
+  for (i in seq_len(nrow(diagnostic_rows))) {
+    lines <- c(lines, paste0(
+      diagnostic_rows$label[i], " & ",
+      diagnostic_rows$cells[i], " & ",
+      diagnostic_rows$uncorrected[i], " & ",
+      diagnostic_rows$corrected[i], " & ",
+      diagnostic_rows$reduction[i], " & ",
+      diagnostic_rows$reduction_rate[i], " & ",
+      diagnostic_rows$reduction_share[i], " \\\\"
+    ))
+  }
+
+  lines <- c(
+    lines,
+    "\\bottomrule",
+    "\\end{tabular}",
+    "}",
+    "",
+    "\\vspace{0.5em}",
+    "\\begin{minipage}{0.96\\textwidth}",
+    paste0(
+      "\\footnotesize\\raggedright \\textit{Notes:} Profit amounts are Panel A-I positive-profit CbCR profit in USD billions. ",
+      "Panel B reports the direct support for adjusted-profit modelling. The holding-share slope comes from an OLS regression of the bounded observed adjusted-to-unadjusted profit ratio on the holding-company entity share; standard error in parentheses. ",
+      "The small and country-concentrated adjusted-profit sample is treated as diagnostic evidence rather than as a donor sample for full-panel imputation. ",
+      source_note(c("data/processed/diagnostics/step2_profit_correction_by_year.csv",
+                    "data/processed/diagnostics/cbcr_t1_profit_adj_support_by_year.csv",
+                    "data/processed/base_panel.rds"))
+    ),
+    "\\end{minipage}",
+    "\\end{table}"
+  )
+
+  write_custom_table(file.path(GEN_TABLES, "profit_correction_effects.tex"), lines)
 }
 
 write_stage1_source_table <- function() {
@@ -1725,6 +1905,7 @@ write_appendix_tables <- function() {
 write_manifest <- function() {
   lines <- c(
     "% Generated by code/08_generate_results_tables.R",
+    "\\input{generated/results_tables/profit_correction_effects.tex}",
     "\\input{generated/results_tables/stage1_source_coverage.tex}",
     "\\input{generated/results_tables/stage1_rates.tex}",
     "\\input{generated/results_tables/stage1_bspi_validation.tex}",
@@ -1753,6 +1934,7 @@ write_manifest <- function() {
 write_results_tables <- function() {
   dir.create(GEN_TABLES, showWarnings = FALSE, recursive = TRUE)
 
+  write_profit_correction_table()
   write_stage1_source_table()
   write_stage1_rates_table()
   write_stage1_bspi_table()

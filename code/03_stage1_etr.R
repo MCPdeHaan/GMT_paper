@@ -251,11 +251,21 @@ run_stage1_pipeline <- function() {
         na.rm = TRUE
       ),
       avg_profit_denominator = sum(
+        analysis_profit_base[!is.na(profit_panelai) &
+                               profit_panelai > 0 &
+                               !is.na(analysis_profit_base) &
+                               analysis_profit_base > 0],
+        na.rm = TRUE
+      ),
+      avg_profit_denominator_uncorrected = sum(
         profit_panelai[!is.na(profit_panelai) & profit_panelai > 0],
         na.rm = TRUE
       ),
       avg_tax_numerator = sum(
-        tax_accrued_panelai[!is.na(profit_panelai) & profit_panelai > 0],
+        tax_accrued_panelai[!is.na(profit_panelai) &
+                              profit_panelai > 0 &
+                              !is.na(analysis_profit_base) &
+                              analysis_profit_base > 0],
         na.rm = TRUE
       ),
       affiliate_cit_rate = first_non_missing(affiliate_cit_rate),
@@ -267,6 +277,10 @@ run_stage1_pipeline <- function() {
         avg_profit_denominator > 0,
         avg_tax_numerator / avg_profit_denominator,
         NA_real_
+      ),
+      avg_profit_denominator_correction_rate = safe_divide(
+        avg_profit_denominator_uncorrected - avg_profit_denominator,
+        avg_profit_denominator_uncorrected
       ),
       affiliate_etr_cap_stage1 = case_when(
         !is.na(affiliate_cit_rate_unit) ~
@@ -899,6 +913,9 @@ run_stage1_pipeline <- function() {
       "hybrid_avg_only_affiliate_years",
       "hybrid_shape_transport_strict_fallback_affiliate_years",
       "hybrid_shape_transport_strict_fallback_affiliates_distinct",
+      "avg_etr_anchor_uncorrected_profit_denominator",
+      "avg_etr_anchor_corrected_profit_denominator",
+      "avg_etr_anchor_profit_correction_rate",
       "crossval_affiliate_years",
       "crossval_zero_low_share_cases",
       "crossval_wilcox_low_share_pvalue",
@@ -936,6 +953,13 @@ run_stage1_pipeline <- function() {
       n_distinct(affiliate_year_stage1$affiliate[
         affiliate_year_stage1$stage1_distributional_source_strict == "avg_only_high_tv"
       ]),
+      sum(affiliate_year_stage1$avg_profit_denominator_uncorrected, na.rm = TRUE),
+      sum(affiliate_year_stage1$avg_profit_denominator, na.rm = TRUE),
+      safe_divide(
+        sum(affiliate_year_stage1$avg_profit_denominator_uncorrected, na.rm = TRUE) -
+          sum(affiliate_year_stage1$avg_profit_denominator, na.rm = TRUE),
+        sum(affiliate_year_stage1$avg_profit_denominator_uncorrected, na.rm = TRUE)
+      ),
       nrow(crossval_affiliate_year),
       sum(crossval_affiliate_year$direct_zero_low_share_flag, na.rm = TRUE),
       stats::wilcox.test(crossval_affiliate_year$low_share_diff, mu = 0,

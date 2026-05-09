@@ -49,9 +49,10 @@ PANELAI_PERCENTILES <- c("etr_p5_panelai", "etr_p25_panelai", "etr_p50_panelai",
                          "etr_p75_panelai", "etr_p95_panelai")
 T_PERCENTILES <- c("etr_p5", "etr_p25", "etr_p50", "etr_p75", "etr_p95")
 
-# Literature-based conduit / haven set used in the bilateral overlay.
-# These are the jurisdictions explicitly identified in the thesis discussion of
-# Garcia-Bernardo et al. and related conduit-country evidence.
+# Literature-based conduit / haven set retained as an exposure diagnostic.
+# The preferred profit correction no longer applies a mechanical foreign
+# conduit haircut, because the public CbCR data do not identify ownership-chain
+# equity income in foreign affiliate cells.
 CONDUIT_HAVENS <- c("BMU", "CYM", "IRL", "LUX", "NLD",
                     "CHE", "SGP", "HKG", "PRI", "GBR")
 
@@ -116,9 +117,9 @@ row_min_or_na <- function(...) {
   out
 }
 
-# =============================================================================
+
 # 1. Load cleaned inputs
-# =============================================================================
+
 t1 <- readRDS(file.path(IN, "cbcr_table1.rds"))
 t2 <- readRDS(file.path(IN, "cbcr_table2.rds"))
 t3 <- readRDS(file.path(IN, "cbcr_table3.rds"))
@@ -151,9 +152,9 @@ cbcr_requirements <- readRDS(file.path(IN, "cbcr_requirements.rds")) |>
   mutate(jurisdiction = normalize_code(jurisdiction))
 pwc_tracker <- readRDS(file.path(IN, "pwc_pillar2_tracker.rds"))
 
-# =============================================================================
+
 # 2. Core bilateral spine and CbCR merges
-# =============================================================================
+
 panel <- t1 |>
   filter(year %in% CORE_YEARS,
          !affiliate %in% AGGREGATE_AFFILIATES) |>
@@ -277,9 +278,9 @@ panel <- panel |>
                                     "year" = "year"),
                     label = "join T6")
 
-# =============================================================================
+
 # 3. Supplementary datasets added on their natural keys
-# =============================================================================
+
 
 # Jurisdiction metadata
 jurisdiction_lookup <- wb_classifications |>
@@ -559,9 +560,9 @@ panel <- panel |>
   left_join_checked(pwc_parent, by = c("parent" = "parent"),
                     label = "join parent PwC policy")
 
-# =============================================================================
+
 # 4. Deterministic imputations and corrected profit bases
-# =============================================================================
+
 # OECD CbCR "EARNINGS" is accumulated earnings, not payroll. The SBIE payroll
 # input is therefore proxied from employee counts and the affiliate-year wage
 # benchmark rather than taken from the CbCR monetary measures.
@@ -699,25 +700,21 @@ panel <- panel |>
     profit_panelai_corrected_baseline = case_when(
       !is.na(profit_adj_panelai) ~ profit_adj_panelai,
       is_domestic                ~ profit_panelai * (1 - domestic_correction_rate_baseline),
-      parent != "USA" & affiliate_is_conduit_haven ~ profit_panelai * 0.90,
       TRUE                       ~ profit_panelai
     ),
     profit_panelai_corrected_aggressive = case_when(
       !is.na(profit_adj_panelai) ~ profit_adj_panelai,
       is_domestic                ~ profit_panelai * (1 - domestic_correction_rate_aggressive),
-      parent != "USA" & affiliate_is_conduit_haven ~ profit_panelai * 0.90,
       TRUE                       ~ profit_panelai
     ),
     profit_correction_source_baseline = case_when(
       !is.na(profit_adj_panelai) ~ "observed_profit_adj",
       is_domestic                ~ "domestic_upe_hugger",
-      parent != "USA" & affiliate_is_conduit_haven ~ "conduit_overlay_10pct",
       TRUE                       ~ "uncorrected_foreign"
     ),
     profit_correction_source_aggressive = case_when(
       !is.na(profit_adj_panelai) ~ "observed_profit_adj",
       is_domestic                ~ "domestic_upe_hugger_cap",
-      parent != "USA" & affiliate_is_conduit_haven ~ "conduit_overlay_10pct",
       TRUE                       ~ "uncorrected_foreign"
     ),
     profit_correction_rate_baseline = safe_divide(
@@ -815,9 +812,9 @@ panel <- panel |>
   ) |>
   select(-bspi_tier_raw)
 
-# =============================================================================
+
 # 5. Sectoral FATS, EUKLEMS and BEA sidecars for later SBIE work
-# =============================================================================
+
 fats_geo_map <- tribble(
   ~geo, ~affiliate,
   "AT", "AUT", "BE", "BEL", "BG", "BGR", "CY", "CYP", "CZ", "CZE",
@@ -1419,9 +1416,9 @@ global_intan_eu27_macro <- global_intan_annual |>
     global_intan_non_natacc_share
   )
 
-# =============================================================================
+
 # 6. Diagnostics and outputs
-# =============================================================================
+
 panel_summary <- tibble(
   metric = c(
     "rows",

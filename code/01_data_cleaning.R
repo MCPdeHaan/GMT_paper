@@ -106,6 +106,16 @@ add_diag <- function(dataset, metric, value) {
     tibble(dataset = dataset, metric = metric, value = as.character(value))
 }
 
+min_or_na <- function(x) {
+  if (all(is.na(x))) return(NA_real_)
+  min(x, na.rm = TRUE)
+}
+
+max_or_na <- function(x) {
+  if (all(is.na(x))) return(NA_real_)
+  max(x, na.rm = TRUE)
+}
+
 excel_col_to_int <- function(ref) {
   letters <- str_replace_all(ref, "[0-9]", "")
   vapply(strsplit(letters, ""), function(x) {
@@ -284,6 +294,12 @@ add_diag("cbcr_t1", "profit_adj_missing_pre2021",
          sum(is.na(cbcr_t1$profit_adj_panelai) & cbcr_t1$year < 2021))
 add_diag("cbcr_t1", "profit_adj_present_2021_2022",
          sum(!is.na(cbcr_t1$profit_adj_panelai) & cbcr_t1$year >= 2021))
+add_diag("cbcr_t1", "profit_adj_ratio_observed_country_like",
+         sum(!is.na(cbcr_t1$profit_adj_panelai) &
+               !is.na(cbcr_t1$profit_panelai) &
+               cbcr_t1$profit_panelai > 0 &
+               !cbcr_t1$affiliate %in% c("A", "A_O", "E", "E_O", "F", "F_O",
+                                          "S", "S_O", "W", "W_O", "WXD", "STLS")))
 add_diag("cbcr_t1", "zero_profit_panelai_tax_positive",
          sum(cbcr_t1$profit_panelai == 0 & cbcr_t1$tax_accrued_panelai > 0,
              na.rm = TRUE))
@@ -296,9 +312,38 @@ write_csv(
   file.path(DIAG, "cbcr_t1_parent_coverage_by_year.csv")
 )
 
-# =============================================================================
+profit_adj_support <- cbcr_t1 |>
+  filter(!affiliate %in% c("A", "A_O", "E", "E_O", "F", "F_O",
+                           "S", "S_O", "W", "W_O", "WXD", "STLS"),
+         !is.na(profit_panelai),
+         profit_panelai > 0) |>
+  mutate(
+    profit_adj_ratio = profit_adj_panelai / profit_panelai,
+    holding_share = act_holding_panelai / entities_count_panelai,
+    profit_adj_ratio_bounded = pmin(pmax(profit_adj_ratio, 0), 1)
+  ) |>
+  group_by(year) |>
+  summarise(
+    country_like_positive_profit_cells = n(),
+    cells_with_profit_adj = sum(!is.na(profit_adj_ratio)),
+    parents_with_profit_adj = n_distinct(parent[!is.na(profit_adj_ratio)]),
+    affiliates_with_profit_adj = n_distinct(affiliate[!is.na(profit_adj_ratio)]),
+    median_profit_adj_ratio = median(profit_adj_ratio_bounded, na.rm = TRUE),
+    min_profit_adj_ratio = min_or_na(profit_adj_ratio_bounded),
+    max_profit_adj_ratio = max_or_na(profit_adj_ratio_bounded),
+    median_holding_share_with_profit_adj =
+      median(holding_share[!is.na(profit_adj_ratio)], na.rm = TRUE),
+    .groups = "drop"
+  )
+
+write_csv(
+  profit_adj_support,
+  file.path(DIAG, "cbcr_t1_profit_adj_support_by_year.csv")
+)
+
+
 # 2. CbCR Table II: interquartile means
-# =============================================================================
+
 message("[2/15] CbCR Table II")
 t2_raw <- read_oecd(file.path(RAW, "oecd_cbcr/cbcr_table2_interquartile_means.csv")) |>
   rename(parent = REF_AREA, affiliate = COUNTERPART_AREA, year = TIME_PERIOD,
@@ -314,9 +359,9 @@ assert_unique_keys(cbcr_t2, c("parent", "affiliate", "year"), "T2")
 saveRDS(cbcr_t2, file.path(OUT, "cbcr_table2.rds"))
 add_diag("cbcr_t2", "rows", nrow(cbcr_t2))
 
-# =============================================================================
+
 # 3. CbCR Table III: ETR brackets at MNE-group level
-# =============================================================================
+
 message("[3/15] CbCR Table III")
 t3_raw <- read_oecd(file.path(RAW, "oecd_cbcr/cbcr_table3_etr_aggregates.csv")) |>
   rename(parent = REF_AREA, affiliate = COUNTERPART_AREA, year = TIME_PERIOD,
@@ -335,9 +380,9 @@ assert_unique_keys(cbcr_t3,
 saveRDS(cbcr_t3, file.path(OUT, "cbcr_table3.rds"))
 add_diag("cbcr_t3", "rows", nrow(cbcr_t3))
 
-# =============================================================================
+
 # 4. CbCR Table IV: ETR brackets at subsidiary level (the GMT-critical table)
-# =============================================================================
+
 message("[4/15] CbCR Table IV")
 t4_raw <- read_oecd(file.path(RAW, "oecd_cbcr/cbcr_table4_etr_aggregates_alt.csv")) |>
   rename(parent = REF_AREA, affiliate = COUNTERPART_AREA, year = TIME_PERIOD,
@@ -409,9 +454,9 @@ t4_coverage <- cbcr_t4 |>
             .groups = "drop")
 write_csv(t4_coverage, file.path(DIAG, "cbcr_t4_coverage_by_year.csv"))
 
-# =============================================================================
+
 # 5. CbCR Table V: MNE size distribution percentiles
-# =============================================================================
+
 message("[5/15] CbCR Table V")
 t5_raw <- read_oecd(file.path(RAW, "oecd_cbcr/cbcr_table5_mne_size_distribution.csv")) |>
   rename(parent = REF_AREA, year = TIME_PERIOD, measure = MEASURE,
@@ -427,9 +472,9 @@ assert_unique_keys(cbcr_t5, c("parent", "year"), "T5")
 saveRDS(cbcr_t5, file.path(OUT, "cbcr_table5.rds"))
 add_diag("cbcr_t5", "rows", nrow(cbcr_t5))
 
-# =============================================================================
+
 # 6. CbCR Table VI: financial aggregates by MNE size class (2022 only)
-# =============================================================================
+
 message("[6/15] CbCR Table VI")
 t6_raw <- read_oecd(file.path(RAW, "oecd_cbcr/cbcr_table6_mne_size_aggregates.csv")) |>
   rename(parent = REF_AREA, affiliate = COUNTERPART_AREA, year = TIME_PERIOD,
@@ -448,9 +493,9 @@ assert_unique_keys(cbcr_t6,
 saveRDS(cbcr_t6, file.path(OUT, "cbcr_table6.rds"))
 add_diag("cbcr_t6", "rows", nrow(cbcr_t6))
 
-# =============================================================================
+
 # 7. OECD statutory CIT rates (central + combined)
-# =============================================================================
+
 message("[7/15] OECD statutory CIT rates")
 cit_stat_raw <- read_oecd(file.path(RAW, "oecd_tax_rates/oecd_statutory_cit_rates.csv"))
 # Filter to MEASURE = "CIT" (the headline statutory CIT rate); the file also
@@ -481,9 +526,9 @@ cit_dividend <- div_raw |>
 saveRDS(cit_dividend, file.path(OUT, "cit_dividend.rds"))
 add_diag("cit_dividend", "rows", nrow(cit_dividend))
 
-# =============================================================================
+
 # 8. OECD forward-looking ETRs (kept long; many scenario / asset dimensions)
-# =============================================================================
+
 message("[8/15] OECD forward-looking ETRs")
 read_etr <- function(path, scenario) {
   read_oecd(path) |>
@@ -502,9 +547,9 @@ etr_forward <- bind_rows(
 saveRDS(etr_forward, file.path(OUT, "etr_forward.rds"))
 add_diag("etr_forward", "rows", nrow(etr_forward))
 
-# =============================================================================
+
 # 9. OECD wages: average annual wages (PPP USD) + hourly earnings (kept long)
-# =============================================================================
+
 message("[9/15] OECD wages")
 wages_oecd <- read_oecd(file.path(RAW, "oecd_wages/oecd_avg_annual_wages.csv")) |>
   filter(MEASURE == "WG", AGGREGATION_OPERATION == "MEAN") |>
@@ -555,9 +600,9 @@ ilo_hourly <- read_oecd(file.path(RAW, "ilo_wages/ilo_hourly_earnings.csv")) |>
 saveRDS(ilo_hourly, file.path(OUT, "wages_ilo_hourly.rds"))
 add_diag("wages_ilo_hourly", "rows", nrow(ilo_hourly))
 
-# =============================================================================
+
 # 10. World Bank: income classifications, GDP per capita, population
-# =============================================================================
+
 message("[10/15] World Bank")
 wb_raw <- read_csv(file.path(RAW, "world_bank/wb_income_classifications.csv"),
                    show_col_types = FALSE)
@@ -601,9 +646,9 @@ wb_pop <- read_csv(file.path(RAW, "world_bank/wb_population.csv"),
 saveRDS(wb_pop, file.path(OUT, "wb_population.rds"))
 add_diag("wb_population", "rows", nrow(wb_pop))
 
-# =============================================================================
+
 # 11. Eurostat inward FATS: pre/post-2021 split (structural break in 2021)
-# =============================================================================
+
 message("[11/15] Eurostat FATS")
 fats_raw <- read_csv(
   file.path(RAW, "eurostat_fats/fats_inward_eu_full.csv.gz"),
@@ -647,9 +692,9 @@ fats_coverage <- fats_post2021 |>
   arrange(geo, year)
 write_csv(fats_coverage, file.path(DIAG, "fats_post2021_eu27_coverage.csv"))
 
-# =============================================================================
+
 # 12. EUKLEMS & INTANProd: sectoral capital stocks
-# =============================================================================
+
 message("[12/15] EUKLEMS & INTANProd")
 euklems_capital_raw <- read_csv(
   file.path(RAW, "euklems_intanprod/capital_accounts.csv"),
@@ -725,9 +770,9 @@ euklems_coverage <- euklems_sector_capital |>
   arrange(jurisdiction, year)
 write_csv(euklems_coverage, file.path(DIAG, "euklems_sector_capital_coverage.csv"))
 
-# =============================================================================
+
 # 13. Global INTAN-Invest: country-level robustness data
-# =============================================================================
+
 message("[13/15] Global INTAN-Invest")
 global_intan_annual <- read_csv(
   file.path(RAW, "global_intan_invest/annual_extrapolated_estimates.csv"),
@@ -759,9 +804,9 @@ add_diag("global_intan_invest_annual", "rows", nrow(global_intan_annual))
 add_diag("global_intan_invest_annual", "year_range",
          paste(range(global_intan_annual$year), collapse = "-"))
 
-# =============================================================================
+
 # 14. BEA US MNE benchmark: country by industry tables
-# =============================================================================
+
 message("[14/15] BEA US MNE benchmark")
 bea_assets_xlsx <- convert_xls_to_xlsx(file.path(RAW, "bea_mne/bea_mofa_assets.xls"))
 bea_employment_xlsx <- convert_xls_to_xlsx(file.path(RAW, "bea_mne/bea_mofa_employment.xls"))
@@ -824,9 +869,9 @@ bea_us_mne_coverage <- bea_us_mne_country_industry |>
   arrange(measure, year)
 write_csv(bea_us_mne_coverage, file.path(DIAG, "bea_us_mne_country_industry_coverage.csv"))
 
-# =============================================================================
+
 # 15. Pillar Two trackers + BEPS rules + CIT revenue
-# =============================================================================
+
 message("[15/15] PwC tracker, BEPS rules, CIT revenue")
 pwc <- read_csv(file.path(RAW, "pillar2_qdmtt/pwc_pillar2_tracker.csv"),
                 show_col_types = FALSE)
@@ -881,9 +926,9 @@ cit_revenue <- read_oecd(file.path(RAW, "oecd_cts_additional/oecd_cit_revenue_gd
 saveRDS(cit_revenue, file.path(OUT, "cit_revenue.rds"))
 add_diag("cit_revenue", "rows", nrow(cit_revenue))
 
-# =============================================================================
+
 # Diagnostics summary
-# =============================================================================
+
 diagnostics_df <- bind_rows(diagnostics)
 write_csv(diagnostics_df, file.path(DIAG, "summary.csv"))
 

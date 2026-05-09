@@ -2,7 +2,7 @@ metric,value
 sample_rows,8971
 low_tail_rows,1569
 low_tail_row_share,0.17489688997882064
-low_tail_profit_share,0.10074583768324154
+low_tail_profit_share,0.10401902196409556
 low_tail_pairs,735
 low_tail_affiliates,129
 low_tail_parents,38
