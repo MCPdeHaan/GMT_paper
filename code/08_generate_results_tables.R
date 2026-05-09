@@ -177,9 +177,14 @@ write_latex_table <- function(file, caption, label, col_spec, header, rows,
 
   tabular_start <- sprintf("\\begin{tabular}{@{}%s@{}}", col_spec)
   tabular_end <- "\\end{tabular}"
-  if (resize) {
-    tabular_start <- c("\\resizebox{\\textwidth}{!}{%", tabular_start)
-    tabular_end <- c(tabular_end, "}")
+  if (!identical(resize, FALSE)) {
+    if (isTRUE(resize)) {
+      tabular_start <- c("\\resizebox{\\textwidth}{!}{%", tabular_start)
+      tabular_end <- c(tabular_end, "}")
+    } else if (identical(resize, "max")) {
+      tabular_start <- c("\\begin{adjustbox}{max width=\\textwidth,center}", tabular_start)
+      tabular_end <- c(tabular_end, "\\end{adjustbox}")
+    }
   }
 
   lines <- c(
@@ -231,7 +236,7 @@ write_appendix_latex_table <- function(file, caption, label, col_spec, header,
     notes = notes,
     short_caption = short_caption,
     size = "\\scriptsize",
-    resize = TRUE
+    resize = "max"
   )
 }
 
@@ -1193,6 +1198,173 @@ write_stage3_iv_table <- function() {
   )
 }
 
+write_stage3_econometric_scorecard_table <- function() {
+  model <- read_diag("step5_stage3_model_comparison.csv") |>
+    arrange(bic_rank)
+  wald <- read_diag("step5_stage3_model_wald_tests.csv") |>
+    filter(inference == "parent_affiliate_clustered")
+  iv <- read_diag("step5_stage3_tax_endogeneity_diagnostics.csv") |>
+    filter(inference == "parent_affiliate_clustered")
+  spec <- read_diag("step5_stage3_specification_tests.csv")
+  tail <- read_diag("step5_stage3_etr_tail_support.csv") |>
+    filter(scope == "pooled")
+  robustness <- read_diag("step5_stage3_model_robustness.csv")
+
+  preferred <- model |> slice(1)
+  log_model <- model |> filter(model_spec == "logarithmic")
+  quad_model <- model |> filter(model_spec == "quadratic")
+  linear_wald <- wald |> filter(model_spec == "linear") |> slice(1)
+  log_wald <- wald |> filter(model_spec == "logarithmic") |> slice(1)
+  quad_wald <- wald |> filter(model_spec == "quadratic") |> slice(1)
+
+  simulated_first <- iv |>
+    filter(diagnostic == "simulated_tax_code_eatr_first_stage_for_cbcr_etr") |>
+    slice(1)
+  simulated_2sls <- iv |>
+    filter(diagnostic == "simulated_tax_code_eatr_2sls_for_profit") |>
+    slice(1)
+  statutory_first <- iv |>
+    filter(diagnostic == "lagged_statutory_cit_first_stage_for_cbcr_etr") |>
+    slice(1)
+  statutory_2sls <- iv |>
+    filter(diagnostic == "lagged_statutory_cit_2sls_for_profit") |>
+    slice(1)
+
+  below_5 <- tail |> filter(tail_band == "below_5pct") |> slice(1)
+  five_to_15 <- tail |> filter(tail_band == "five_to_15pct") |> slice(1)
+
+  stable_samples <- robustness |>
+    group_by(sample) |>
+    slice_min(bic_rank, n = 1, with_ties = FALSE) |>
+    ungroup()
+  linear_stable <- stable_samples |>
+    filter(model_spec == "linear") |>
+    summarise(n = n(), .groups = "drop") |>
+    pull(n)
+  total_stable <- nrow(stable_samples)
+
+  influence_path <- file.path(DIAG, "step10_jurisdiction_influence_case_summary.csv")
+  if (file.exists(influence_path)) {
+    influence <- read_csv(influence_path, show_col_types = FALSE)
+    influence_result <- paste0(
+      "Leave-one semi-elasticity range ",
+      fmt_num(min(influence$leave_semielasticity_5, na.rm = TRUE), 2),
+      "--",
+      fmt_num(max(influence$leave_semielasticity_5, na.rm = TRUE), 2),
+      "; preferred model stable in ",
+      fmt_int(sum(influence$preferred_model_stable, na.rm = TRUE)),
+      " of ",
+      fmt_int(nrow(influence)),
+      " cases; revenue change ",
+      fmt_pct(min(influence$preferred_sbs_behavioural_revenue_pct_change,
+                  na.rm = TRUE), 1),
+      "\\% to ",
+      fmt_pct(max(influence$preferred_sbs_behavioural_revenue_pct_change,
+                  na.rm = TRUE), 1),
+      "\\%."
+    )
+  } else {
+    influence_result <- "Leave-one-jurisdiction diagnostics not yet generated."
+  }
+
+  rows <- tibble(
+    Diagnostic = c(
+      "Preferred fixed-effect model",
+      "Joint tax-term tests",
+      "Non-nested nonlinear tests",
+      "Tax-code IV diagnostics",
+      "Low-ETR support",
+      "Sample robustness",
+      "Jurisdiction influence"
+    ),
+    Result = c(
+      paste0(
+        latex_escape(str_to_sentence(preferred$model_spec[1])),
+        "; $N=$", fmt_int(preferred$n[1]),
+        "; pairs $=$ ", fmt_int(preferred$n_pairs[1]),
+        "; within $R^2=$ ", fmt_num(preferred$within_r_squared[1], 4),
+        "; $\\Delta$BIC log $=$ ", fmt_num(log_model$delta_bic[1], 2),
+        ", quadratic $=$ ", fmt_num(quad_model$delta_bic[1], 2), "."
+      ),
+      paste0(
+        "Linear $F=$ ", fmt_num(linear_wald$f_statistic[1], 2),
+        ", $p=$ ", fmt_p(linear_wald$p_value[1]),
+        "; quadratic $p=$ ", fmt_p(quad_wald$p_value[1]),
+        "; logarithmic $p=$ ", fmt_p(log_wald$p_value[1]), "."
+      ),
+      paste0(
+        "Vuong $p=$ ",
+        fmt_p(spec$p_value[spec$test == "vuong_gaussian_observation_ll"][1]),
+        "; Clarke $p=$ ",
+        fmt_p(spec$p_value[spec$test == "clarke_sign"][1]),
+        "; J-test $p=$ ",
+        fmt_p(spec$p_value[spec$test == "davidson_mackinnon_j"][1]),
+        " and ",
+        fmt_p(spec$p_value[spec$test == "davidson_mackinnon_j"][2]), "."
+      ),
+      paste0(
+        "First-stage $F=$ ", fmt_num(simulated_first$weak_instrument_f[1], 2),
+        " for simulated EATR and ",
+        fmt_num(statutory_first$weak_instrument_f[1], 2),
+        " for lagged statutory CIT; 2SLS $p=$ ",
+        fmt_p(simulated_2sls$p_value[1]), " and ",
+        fmt_p(statutory_2sls$p_value[1]), "."
+      ),
+      paste0(
+        "Below 5\\% ETR: ",
+        fmt_pct(below_5$row_share[1], 1),
+        "\\% of rows and ",
+        fmt_pct(below_5$profit_share[1], 1),
+        "\\% of profit; 5--15\\% ETR: ",
+        fmt_pct(five_to_15$row_share[1], 1),
+        "\\% of rows."
+      ),
+      paste0(
+        "Linear is BIC-preferred in ",
+        fmt_int(linear_stable),
+        " of ",
+        fmt_int(total_stable),
+        " reported samples; the balanced-pair sample selects logarithmic."
+      ),
+      influence_result
+    ),
+    Reading = c(
+      "The tax-profit relationship is visible after pair and year fixed effects, but the extra nonlinear parameters add little baseline fit.",
+      "The tax terms are jointly relevant under two-way clustered inference.",
+      "The logarithmic form is stronger than the quadratic form, but these tests do not overturn the linear BIC choice.",
+      "External tax-code variation is relevant, yet the reduced-form profit response is too imprecise to replace the fixed-effect estimate.",
+      "The GMT-relevant tail is present, while extreme lower-tail curvature remains weakly supported.",
+      "The baseline coefficient survives standard sample cuts, with curvature becoming stronger only in the balanced subset.",
+      "The behavioural coefficient is stable; final revenue remains exposed to high-leverage jurisdictions."
+    )
+  )
+
+  write_latex_table(
+    file.path(GEN_TABLES, "stage3_econometric_scorecard.tex"),
+    caption = "Econometric diagnostics for the behavioural stage",
+    short_caption = "Econometric diagnostics for the behavioural stage",
+    label = "tab:stage3_econometric_scorecard",
+    col_spec = "L{3.2cm}L{5.4cm}L{6.2cm}",
+    header = c("Diagnostic", "Result", "Reading"),
+    rows = rows,
+    notes = paste(
+      "The table compacts the formal diagnostics that support the Stage 3 behavioural counterfactual.",
+      "It is generated from the same fixed-effect, IV, model-selection, tail-support and influence outputs used in the appendix.",
+      source_note(c(
+        "data/processed/diagnostics/step5_stage3_model_comparison.csv",
+        "data/processed/diagnostics/step5_stage3_model_wald_tests.csv",
+        "data/processed/diagnostics/step5_stage3_tax_endogeneity_diagnostics.csv",
+        "data/processed/diagnostics/step5_stage3_specification_tests.csv",
+        "data/processed/diagnostics/step5_stage3_etr_tail_support.csv",
+        "data/processed/diagnostics/step5_stage3_model_robustness.csv",
+        "data/processed/diagnostics/step10_jurisdiction_influence_case_summary.csv"
+      ))
+    ),
+    size = "\\scriptsize",
+    resize = TRUE
+  )
+}
+
 write_stage3_semielasticity_table <- function() {
   x <- read_diag("step5_stage3_semielasticity_schedule.csv") |>
     filter(inference == "parent_affiliate_clustered", tau %in% c(0.05, 0.10)) |>
@@ -1404,7 +1576,8 @@ write_stage46_country_spread_table <- function() {
     header = c("Country", "Minimum", "Maximum", "Spread"),
     rows = x,
     notes = paste(
-      "Amounts are cumulative over 2017 to 2022 and expressed in US dollars, billions.",
+      "Amounts are cumulative collector-country revenue over 2017 to 2022, expressed in US dollars, billions.",
+      "Country totals combine QDMTT source-country revenue, IIR parent-country revenue and UTPR revenue allocated by the substance key.",
       source_note("data/processed/diagnostics/step7_stage4_6_scenario_spread_country.csv")
     )
   )
@@ -2084,6 +2257,7 @@ write_manifest <- function() {
     "\\input{generated/results_tables/stage3_model_comparison.tex}",
     "\\input{generated/results_tables/stage3_regression_table.tex}",
     "\\input{generated/results_tables/stage3_iv_diagnostics.tex}",
+    "\\input{generated/results_tables/stage3_econometric_scorecard.tex}",
     "\\input{generated/results_tables/stage3_semielasticity.tex}",
     "\\input{generated/results_tables/stage4_6_anova.tex}",
     "\\input{generated/results_tables/stage4_6_shapley_factor_attribution.tex}",
@@ -2118,6 +2292,7 @@ write_results_tables <- function() {
   write_stage3_model_table()
   write_stage3_regression_table()
   write_stage3_iv_table()
+  write_stage3_econometric_scorecard_table()
   write_stage3_semielasticity_table()
 
   write_stage46_anova_table()
