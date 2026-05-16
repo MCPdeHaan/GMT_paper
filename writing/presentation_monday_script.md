@@ -1,23 +1,18 @@
 
 ## Slide 1, Title, about 45 seconds
 
-Good morning. This presentation gives a progress update on the thesis.
+Good morning. My thesis studies the Global Minimum Tax, also known as Pillar Two, using Country-by-Country Reporting data. The central question is simple: why do revenue estimates for the Global Minimum Tax differ so much?
 
-The thesis studies the Global Minimum Tax, also known as Pillar Two, using Country-by-Country Reporting data. The central question is simple: why do revenue estimates for the Global Minimum Tax differ so much?
-
-That question matters because the policy is often discussed as one international reform with one fiscal effect. In practice, the estimate depends on three objects: which profit is low-taxed, how much remains after substance relief and behaviour, and which jurisdiction can collect the top-up tax.
-
-So the presentation is an empirical economics presentation about measurement, estimation and decomposition.
+That question matters because the policy is often discussed as one international reform with one fiscal effect. In practice, the estimate depends on three objects: which profit is low-taxed, how much remains after substance relief and behaviour, and which country can collect the top-up tax.
 
 ## Slide 2, Core Claim, about 1 minute and 20 seconds
 
-The core claim is that Global Minimum Tax revenue uncertainty cannot be understood as a behavioural elasticity problem alone.
+This thesis explains that the existing estimates that were made about the revenue of the Global Minimum tax differ. Since they measure different things. 
 
 Behaviour is part of the story. If multinationals shift less profit into low-tax jurisdictions after the reform, the base changes. That is the standard profit-shifting channel, and it is estimated in the thesis.
 
-But there is a prior measurement problem. Before behaviour can be modelled, the analysis must decide what the low-taxed base is, which taxes count, how much is shielded by payroll and tangible assets, and which tax jurisdiction has the legal right to collect.
+Before behaviour can be modelled, the analysis must decide what the low-taxed base is, which taxes count, how much is shielded by payroll and tangible assets, and which tax country has the legal right to collect.
 
-Those questions define the empirical object.
 
 That is why the thesis is split into two layers. The measurement framework translates Pillar Two into variables. The methodology estimates behaviour, compares modelling choices and decomposes the scenario spread.
 
@@ -41,7 +36,7 @@ So the project is an empirical framework with tax rules as the accounting archit
 
 The data structure follows the same discipline. Each source has one job.
 
-The main source is anonymised and aggregated Country-by-Country Reporting data. These data observe profit, tax, payroll, tangible assets and revenue by parent and affiliate jurisdiction.
+The main source is anonymised and aggregated Country-by-Country Reporting data. These data observe profit, tax, payroll, tangible assets and revenue by parent and affiliate country.
 
 Table I provides the bilateral panel. It is used for the econometric part because it gives repeated parent-affiliate observations over 2017 to 2022.
 
@@ -65,7 +60,7 @@ The third step is the substance shield. The Substance-Based Income Exclusion pro
 
 The fourth step is the behavioural filter. The observed pre-reform base is adjusted because the reform changes the incentive to report profit in very low-tax jurisdictions.
 
-The final step is allocation. A dollar of top-up tax can be collected domestically through a Qualified Domestic Minimum Top-up Tax, by the parent jurisdiction through the Income Inclusion Rule, or residually through the Undertaxed Profits Rule.
+The final step is allocation. A dollar of top-up tax can be collected domestically through a Qualified Domestic Minimum Top-up Tax, by the parent country through the Income Inclusion Rule, or residually through the Undertaxed Profits Rule.
 
 The value of the framework is that it makes the analysis auditable. Each empirical choice is attached to one place in the pipeline.
 
@@ -73,15 +68,15 @@ The value of the framework is that it makes the analysis auditable. Each empiric
 
 Stage 1 measures the low-taxed profit mass.
 
-The key issue is that a jurisdiction average can hide the relevant base. If one part of profit is taxed at 5 percent and another part at 25 percent, the average may look acceptable. Pillar Two is concerned with the part below the threshold.
+The key issue is that a country average can hide the relevant base. If one part of profit is taxed at 5 percent and another part at 25 percent, the average may look acceptable. Pillar Two is concerned with the part below the threshold.
 
 For that reason, the thesis uses a hierarchy of evidence.
 
 Where Table IV directly observes effective-tax-rate brackets, that information is used first. It is closest to the object that has to be measured.
 
-Where direct brackets are not available, a distribution is fitted within the country-pair cell. This estimates the mass below the threshold instead of treating the whole jurisdiction as one average.
+Where direct brackets are not available, a distribution is fitted within the country-pair cell. This estimates the mass below the threshold instead of treating the whole country as one average.
 
-Only where the data do not support the distributional approach does the model fall back on a jurisdiction-average method.
+Only where the data do not support the distributional approach does the model fall back on a country-average method.
 
 The logic is therefore direct bracket evidence first, modelled distributions second, averages only as a final fallback.
 
@@ -103,13 +98,13 @@ This stage therefore gives the thesis an economic interpretation beyond a global
 
 The econometric part estimates the behavioural filter in the pipeline.
 
-The model follows the Hines-Rice profit-shifting tradition. The dependent variable is reported profit in a CbCR parent-affiliate cell. The key tax variable captures the incentive to report profit in the affiliate jurisdiction.
+The model follows the Hines-Rice profit-shifting tradition. The dependent variable is reported profit in a CbCR parent-affiliate cell. The key tax variable captures the incentive to report profit in the affiliate country.
 
 Three functional forms are estimated: linear, quadratic and logarithmic. The initial expectation was that profit shifting might be sharply nonlinear at very low effective tax rates. The Bayesian Information Criterion tests whether that flexibility is supported by the panel.
 
 Parent-affiliate pair fixed effects absorb persistent bilateral differences, such as commercial ties, treaty networks or stable reporting patterns. Year fixed effects absorb common shocks over time.
 
-The standard errors are clustered by parent jurisdiction and affiliate jurisdiction. That reflects the fact that observations are not independent within reporting countries or host countries.
+The standard errors are clustered by parent country and affiliate country. That reflects the fact that observations are not independent within reporting countries or host countries.
 
 The interpretation is deliberately modest. The estimate is not a firm-level causal effect. It is a CbCR-cell semi-elasticity of reported profit, conditional on pair fixed effects, year fixed effects and controls.
 
@@ -149,9 +144,9 @@ Across the 32 scenarios, effective tax rate measurement explains 62.2 percent of
 
 The spread in credible revenue estimates is driven mainly by two questions.
 
-First, does the data strategy identify the low-taxed base, or does it hide low-taxed profit inside jurisdiction averages?
+First, does the data strategy identify the low-taxed base, or does it hide low-taxed profit inside country averages?
 
-Second, which jurisdiction has the legal right to collect once the base has been measured?
+Second, which country has the legal right to collect once the base has been measured?
 
 The behavioural coefficient matters, but it does not explain most scenario variance. A behavioural adjustment can be economically meaningful in levels and still explain only a small share of the cross-scenario spread.
 
@@ -161,7 +156,7 @@ That is the main answer emerging from the thesis at this stage.
 
 The third result translates the decomposition into revenue magnitudes. Across the scenario space, cumulative EU collector-country revenue over 2017 to 2022 ranges from about 125.8 billion to 553.9 billion US dollars.
 
-The main positive contribution comes from effective tax rate measurement. Moving from the jurisdiction-average benchmark to the direct or distribution-sensitive approach raises the average estimate by about 205.6 billion dollars.
+The main positive contribution comes from effective tax rate measurement. Moving from the country-average benchmark to the direct or distribution-sensitive approach raises the average estimate by about 205.6 billion dollars.
 
 The Side-by-Side regime reduces the estimate by about 117.3 billion dollars. The behavioural response reduces it by about 47.1 billion dollars. The sectoral substance specification reduces it by about 42.6 billion dollars. The SBIE rate endpoint adds about 9.0 billion dollars.
 
@@ -215,7 +210,7 @@ The contribution is therefore not one preferred revenue number. It is the explan
 
 Let me close with the main message.
 
-Global Minimum Tax revenue estimation is not only a question of how firms respond. It is also a question of what is counted, how low-taxed profit is measured, and which jurisdiction can collect.
+Global Minimum Tax revenue estimation is not only a question of how firms respond. It is also a question of what is counted, how low-taxed profit is measured, and which country can collect.
 
 That is why the thesis separates the measurement framework from the methodology.
 
