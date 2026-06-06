@@ -1365,6 +1365,210 @@ write_stage3_econometric_scorecard_table <- function() {
   )
 }
 
+write_stage3_reliability_scorecard_table <- function() {
+  model <- read_diag("step5_stage3_model_comparison.csv") |>
+    arrange(bic_rank)
+  coefficients <- read_diag("step5_stage3_coefficients.csv")
+  wald <- read_diag("step5_stage3_model_wald_tests.csv")
+  iv <- read_diag("step5_stage3_tax_endogeneity_diagnostics.csv") |>
+    filter(inference == "parent_affiliate_clustered")
+  tail <- read_diag("step5_stage3_etr_tail_support.csv") |>
+    filter(scope == "pooled")
+
+  preferred <- model |> slice(1)
+  log_model <- model |> filter(model_spec == "logarithmic")
+  quad_model <- model |> filter(model_spec == "quadratic")
+
+  linear_two_way <- coefficients |>
+    filter(model_spec == "linear", term == "tau",
+           inference == "parent_affiliate_clustered") |>
+    slice(1)
+  linear_affiliate <- coefficients |>
+    filter(model_spec == "linear", term == "tau",
+           inference == "affiliate_clustered") |>
+    slice(1)
+
+  simulated_first <- iv |>
+    filter(diagnostic == "simulated_tax_code_eatr_first_stage_for_cbcr_etr") |>
+    slice(1)
+  statutory_first <- iv |>
+    filter(diagnostic == "lagged_statutory_cit_first_stage_for_cbcr_etr") |>
+    slice(1)
+  simulated_reduced <- iv |>
+    filter(diagnostic == "simulated_tax_code_eatr_reduced_form_for_profit") |>
+    slice(1)
+  statutory_reduced <- iv |>
+    filter(diagnostic == "lagged_statutory_cit_reduced_form_for_profit") |>
+    slice(1)
+  simulated_2sls <- iv |>
+    filter(diagnostic == "simulated_tax_code_eatr_2sls_for_profit") |>
+    slice(1)
+  statutory_2sls <- iv |>
+    filter(diagnostic == "lagged_statutory_cit_2sls_for_profit") |>
+    slice(1)
+
+  below_5 <- tail |> filter(tail_band == "below_5pct") |> slice(1)
+  five_to_15 <- tail |> filter(tail_band == "five_to_15pct") |> slice(1)
+
+  influence_path <- file.path(DIAG, "step10_jurisdiction_influence_case_summary.csv")
+  if (file.exists(influence_path)) {
+    influence <- read_csv(influence_path, show_col_types = FALSE)
+
+    influence_summary <- influence |>
+      group_by(leave_dimension) |>
+      summarise(
+        cases = n(),
+        min_semi = min(leave_semielasticity_5, na.rm = TRUE),
+        max_semi = max(leave_semielasticity_5, na.rm = TRUE),
+        stable = sum(preferred_model_stable, na.rm = TRUE),
+        min_revenue_change =
+          min(preferred_sbs_behavioural_revenue_pct_change, na.rm = TRUE),
+        max_revenue_change =
+          max(preferred_sbs_behavioural_revenue_pct_change, na.rm = TRUE),
+        .groups = "drop"
+      )
+
+    affiliate_influence <- influence_summary |>
+      filter(leave_dimension == "affiliate") |>
+      slice(1)
+    parent_influence <- influence_summary |>
+      filter(leave_dimension == "parent") |>
+      slice(1)
+
+    affiliate_result <- paste0(
+      "Affiliate omissions: semi-elasticity ",
+      fmt_num(affiliate_influence$min_semi[1], 2), "--",
+      fmt_num(affiliate_influence$max_semi[1], 2),
+      "; model stable in ", fmt_int(affiliate_influence$stable[1]),
+      " of ", fmt_int(affiliate_influence$cases[1]),
+      "; preferred revenue change ",
+      fmt_pct(affiliate_influence$min_revenue_change[1], 1), "\\% to ",
+      fmt_pct(affiliate_influence$max_revenue_change[1], 1), "\\%."
+    )
+
+    parent_result <- paste0(
+      "Parent omissions: semi-elasticity ",
+      fmt_num(parent_influence$min_semi[1], 2), "--",
+      fmt_num(parent_influence$max_semi[1], 2),
+      "; model stable in ", fmt_int(parent_influence$stable[1]),
+      " of ", fmt_int(parent_influence$cases[1]),
+      "; preferred revenue change ",
+      fmt_pct(parent_influence$min_revenue_change[1], 1), "\\% to ",
+      fmt_pct(parent_influence$max_revenue_change[1], 1), "\\%."
+    )
+  } else {
+    affiliate_result <- "Leave-one-affiliate diagnostics not yet generated."
+    parent_result <- "Leave-one-parent diagnostics not yet generated."
+  }
+
+  rows <- tibble(
+    Diagnostic = c(
+      "Preferred FE estimate",
+      "Model selection",
+      "Clustered inference",
+      "FE-2SLS first stage",
+      "Reduced forms and 2SLS",
+      "Low-ETR tail support",
+      "Leave-one affiliate",
+      "Leave-one parent",
+      "Final decision"
+    ),
+    Result = c(
+      paste0(
+        "$\\hat{\\beta}_{\\tau}=$ ",
+        fmt_num(linear_two_way$estimate[1], 3),
+        "; semi-elasticity $=$ ",
+        fmt_num(-linear_two_way$estimate[1], 2),
+        "; $N=$ ", fmt_int(preferred$n[1]),
+        "; pairs $=$ ", fmt_int(preferred$n_pairs[1]),
+        "; within $R^2=$ ", fmt_num(preferred$within_r_squared[1], 4),
+        "."
+      ),
+      paste0(
+        "BIC selects linear; $\\Delta$BIC log $=$ ",
+        fmt_num(log_model$delta_bic[1], 2),
+        " and quadratic $=$ ",
+        fmt_num(quad_model$delta_bic[1], 2),
+        "; tax-term Wald $p=$ ",
+        fmt_p(preferred$tax_terms_joint_p_value_two_way[1]),
+        "."
+      ),
+      paste0(
+        "Two-way clustered SE for ETR $=$ ",
+        fmt_num(linear_two_way$std_error[1], 3),
+        " ($p=$ ", fmt_p(linear_two_way$p_value[1]),
+        "); affiliate-clustered SE $=$ ",
+        fmt_num(linear_affiliate$std_error[1], 3),
+        " ($p=$ ", fmt_p(linear_affiliate$p_value[1]), ")."
+      ),
+      paste0(
+        "Simulated EATR: coefficient ",
+        fmt_num(simulated_first$estimate[1], 3),
+        ", $F=$ ", fmt_num(simulated_first$weak_instrument_f[1], 2),
+        "; lagged statutory CIT: coefficient ",
+        fmt_num(statutory_first$estimate[1], 3),
+        ", $F=$ ", fmt_num(statutory_first$weak_instrument_f[1], 2),
+        "."
+      ),
+      paste0(
+        "Reduced-form signs are negative but imprecise: simulated EATR ",
+        fmt_num(simulated_reduced$estimate[1], 3),
+        " ($p=$ ", fmt_p(simulated_reduced$p_value[1]),
+        "), lagged CIT ",
+        fmt_num(statutory_reduced$estimate[1], 3),
+        " ($p=$ ", fmt_p(statutory_reduced$p_value[1]),
+        "); FE-2SLS $p=$ ",
+        fmt_p(simulated_2sls$p_value[1]), " and ",
+        fmt_p(statutory_2sls$p_value[1]), "."
+      ),
+      paste0(
+        "Below 5\\% ETR: ", fmt_pct(below_5$row_share[1], 1),
+        "\\% of rows and ", fmt_pct(below_5$profit_share[1], 1),
+        "\\% of profit; 5--15\\% ETR: ",
+        fmt_pct(five_to_15$row_share[1], 1), "\\% of rows."
+      ),
+      affiliate_result,
+      parent_result,
+      "Use the behavioural input as a scenario coefficient; do not make it the causal centrepiece."
+    ),
+    Weight = c(
+      "Moderate: the sign and magnitude are economically interpretable.",
+      "Moderate: the public panel prefers a parsimonious linear response.",
+      "Useful: two-way clustering is the main inference; affiliate clustering is a less conservative comparison.",
+      "Limited: the instruments are relevant enough for diagnostics.",
+      "Weak for causal replacement: reduced forms and 2SLS are too imprecise.",
+      "Limited for curvature: the low-rate tail exists but does not strongly identify nonlinear extrapolation.",
+      "Moderate for the coefficient; weaker for final revenue because conduit jurisdictions are influential.",
+      "Moderate for the coefficient; model selection changes in one parent omission.",
+      "The revenue decomposition should carry more interpretive weight than the behavioural module."
+    )
+  )
+
+  write_latex_table(
+    file.path(GEN_TABLES, "stage3_reliability_scorecard.tex"),
+    caption = "Reliability scorecard for the behavioural module",
+    short_caption = "Reliability scorecard for the behavioural module",
+    label = "tab:stage3_reliability_scorecard",
+    col_spec = "L{3.0cm}L{6.3cm}L{5.4cm}",
+    header = c("Diagnostic", "Result", "Weight for interpretation"),
+    rows = rows,
+    notes = paste(
+      "The scorecard reports whether the behavioural module is usable for the revenue counterfactual.",
+      "The preferred estimate is the linear two-way fixed-effect Hines-Rice coefficient with parent-and-affiliate clustered inference.",
+      "The final row states the evidentiary decision used in the thesis.",
+      source_note(c(
+        "data/processed/diagnostics/step5_stage3_coefficients.csv",
+        "data/processed/diagnostics/step5_stage3_model_comparison.csv",
+        "data/processed/diagnostics/step5_stage3_tax_endogeneity_diagnostics.csv",
+        "data/processed/diagnostics/step5_stage3_etr_tail_support.csv",
+        "data/processed/diagnostics/step10_jurisdiction_influence_case_summary.csv"
+      ))
+    ),
+    size = "\\scriptsize",
+    resize = TRUE
+  )
+}
+
 write_stage3_semielasticity_table <- function() {
   x <- read_diag("step5_stage3_semielasticity_schedule.csv") |>
     filter(inference == "parent_affiliate_clustered", tau %in% c(0.05, 0.10)) |>
@@ -1579,6 +1783,85 @@ write_stage46_country_spread_table <- function() {
       "Amounts are cumulative collector-country revenue over 2017 to 2022, expressed in US dollars, billions.",
       "Country totals combine QDMTT source-country revenue, IIR parent-country revenue and UTPR revenue allocated by the substance key.",
       source_note("data/processed/diagnostics/step7_stage4_6_scenario_spread_country.csv")
+    )
+  )
+}
+
+format_available_pct <- function(x, digits = 1) {
+  ifelse(is.na(x), "", paste0(fmt_pct(x, digits), "\\%"))
+}
+
+write_stage46_fiscal_salience_tables <- function() {
+  fiscal <- read_diag("step7_stage4_6_fiscal_salience_country.csv")
+
+  table_rows <- fiscal |>
+    filter(country %in% SELECTED_FISCAL_COUNTRIES) |>
+    arrange(match(country, SELECTED_FISCAL_COUNTRIES)) |>
+    transmute(
+      Country = latex_escape(country_name),
+      `Revenue` = fmt_bn(preferred_revenue, 1),
+      `Revenue/CIT 1200` = format_available_pct(revenue_to_cit_1200, 1),
+      `Revenue/CIT 1210` = format_available_pct(revenue_to_cit_1210, 1),
+      `Revenue/GDP` = format_available_pct(revenue_to_gdp, 2),
+      `Revenue per resident` = fmt_int(revenue_per_capita),
+      `Spread/CIT` = format_available_pct(scenario_spread_to_cit_1200, 1),
+      `SbS loss/CIT` = format_available_pct(sbs_loss_to_cit_1200, 1),
+      `QDMTT/revenue` = format_available_pct(qdmtt_preserved_share, 1)
+    )
+
+  write_latex_table(
+    file.path(GEN_TABLES, "country_fiscal_salience.tex"),
+    caption = "Fiscal salience of preferred behavioural SbS revenue, selected countries",
+    short_caption = "Fiscal salience of preferred behavioural SbS revenue",
+    label = "tab:country_fiscal_salience",
+    col_spec = "lrrrrrrrr",
+    header = c("Country", "Revenue", "Revenue/CIT 1200",
+               "Revenue/CIT 1210", "Revenue/GDP",
+               "Revenue per resident", "Spread/CIT", "SbS loss/CIT",
+               "QDMTT/revenue"),
+    rows = table_rows,
+    notes = paste(
+      "Amounts are cumulative over 2017 to 2022.",
+      "Revenue is preferred behavioural SbS collector-country revenue, expressed in US dollars, billions.",
+      "The main corporate-income-tax denominator is OECD revenue category T\\_1200, corporate taxes on income, profits and capital gains of corporations.",
+      "T\\_1210 is reported as a narrower sensitivity where the processed OECD object has full coverage.",
+      "GDP is World Bank GDP per capita multiplied by population; per-resident revenue divides cumulative revenue by average population over 2017 to 2022.",
+      "Hungary is included as the smaller high-salience country because it has the highest preferred revenue-to-CIT ratio among smaller EU Member States with populated T\\_1200 data.",
+      source_note("data/processed/diagnostics/step7_stage4_6_fiscal_salience_country.csv")
+    ),
+    size = "\\scriptsize",
+    resize = "max"
+  )
+
+  appendix_rows <- fiscal |>
+    arrange(desc(revenue_to_cit_1200), country_name) |>
+    transmute(
+      Country = latex_escape(country_name),
+      `Revenue` = fmt_bn(preferred_revenue, 1),
+      `Revenue/CIT 1200` = format_available_pct(revenue_to_cit_1200, 1),
+      `Revenue/CIT 1210` = format_available_pct(revenue_to_cit_1210, 1),
+      `Revenue/GDP` = format_available_pct(revenue_to_gdp, 2),
+      `Revenue per resident` = fmt_int(revenue_per_capita),
+      `Spread/CIT` = format_available_pct(scenario_spread_to_cit_1200, 1),
+      `SbS loss/CIT` = format_available_pct(sbs_loss_to_cit_1200, 1),
+      `QDMTT/revenue` = format_available_pct(qdmtt_preserved_share, 1),
+      `T1200 years` = fmt_int(cit_1200_years),
+      `T1210 years` = fmt_int(cit_1210_years)
+    )
+
+  write_appendix_latex_table(
+    file.path(GEN_TABLES, "appendix_country_fiscal_salience_full.tex"),
+    "Fiscal salience of preferred behavioural SbS revenue, full EU sample",
+    "tab:app_country_fiscal_salience_full",
+    "lrrrrrrrrrr",
+    c("Country", "Revenue", "Revenue/CIT 1200", "Revenue/CIT 1210",
+      "Revenue/GDP", "Revenue per resident", "Spread/CIT",
+      "SbS loss/CIT", "QDMTT/revenue", "T1200 years", "T1210 years"),
+    appendix_rows,
+    paste(
+      "Rows are sorted by preferred revenue as a share of OECD T\\_1200 corporate tax revenue.",
+      "Blank T\\_1210 ratios indicate that the narrower OECD category does not have full 2017 to 2022 coverage in the processed object.",
+      source_note("data/processed/diagnostics/step7_stage4_6_fiscal_salience_country.csv")
     )
   )
 }
@@ -2224,6 +2507,7 @@ write_appendix_tables <- function() {
     "\\subsection{Stage 4.6 decomposition diagnostics}\\label{app:results_stage46}",
     "\\input{generated/results_tables/appendix_stage46_top_scenarios.tex}",
     "\\input{generated/results_tables/appendix_stage46_country_anova.tex}",
+    "\\input{generated/results_tables/appendix_country_fiscal_salience_full.tex}",
     influence_appendix_inputs
   )
 
@@ -2245,6 +2529,7 @@ write_manifest <- function() {
     "\\input{generated/results_tables/stage3_model_comparison.tex}",
     "\\input{generated/results_tables/stage3_regression_table.tex}",
     "\\input{generated/results_tables/stage3_iv_diagnostics.tex}",
+    "\\input{generated/results_tables/stage3_reliability_scorecard.tex}",
     "\\input{generated/results_tables/stage3_econometric_scorecard.tex}",
     "\\input{generated/results_tables/stage3_semielasticity.tex}",
     "\\input{generated/results_tables/stage4_6_anova.tex}",
@@ -2256,6 +2541,7 @@ write_manifest <- function() {
       "\\input{generated/results_tables/stage1_measurement_error_interval.tex}"
     },
     "\\input{generated/results_tables/country_spread.tex}",
+    "\\input{generated/results_tables/country_fiscal_salience.tex}",
     "\\input{generated/results_tables/hypothesis_summary.tex}"
   )
   lines <- lines[!is.na(lines)]
@@ -2280,6 +2566,7 @@ write_results_tables <- function() {
   write_stage3_model_table()
   write_stage3_regression_table()
   write_stage3_iv_table()
+  write_stage3_reliability_scorecard_table()
   write_stage3_econometric_scorecard_table()
   write_stage3_semielasticity_table()
 
@@ -2289,6 +2576,7 @@ write_results_tables <- function() {
   write_stage46_channel_table()
   write_stage1_measurement_error_table()
   write_stage46_country_spread_table()
+  write_stage46_fiscal_salience_tables()
   write_hypothesis_summary_table()
 
   write_appendix_tables()

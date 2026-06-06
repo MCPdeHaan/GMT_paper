@@ -467,6 +467,155 @@ build_preferred_outputs <- function(revenue_country_year, revenue_by_channel,
   )
 }
 
+build_cit_revenue_denominators <- function(cit_revenue) {
+  cit_revenue |>
+    filter(
+      jurisdiction %in% EU27_ISO3,
+      year %in% MAIN_YEARS,
+      measure == "TAX_REV",
+      sector == "S13",
+      revenue_classification %in% c("T_1200", "T_1210"),
+      unit == "USD"
+    ) |>
+    transmute(
+      country = jurisdiction,
+      year,
+      revenue_classification,
+      cit_revenue_usd = value * 1e9
+    ) |>
+    pivot_wider(
+      names_from = revenue_classification,
+      values_from = cit_revenue_usd,
+      names_prefix = "cit_revenue_"
+    )
+}
+
+build_macro_denominators <- function(wb_gdp, wb_population) {
+  wb_gdp |>
+    select(jurisdiction, year, gdp_pc_usd) |>
+    inner_join(
+      wb_population |> select(jurisdiction, year, population),
+      by = c("jurisdiction", "year")
+    ) |>
+    filter(jurisdiction %in% EU27_ISO3, year %in% MAIN_YEARS) |>
+    transmute(
+      country = jurisdiction,
+      year,
+      gdp_usd = gdp_pc_usd * population,
+      population
+    )
+}
+
+build_preferred_channel_country_year <- function(revenue_by_channel,
+                                                 behaviour = "behavioural") {
+  revenue_by_channel |>
+    filter_preferred_core(behaviour = behaviour) |>
+    group_by(country, country_name, year, factor4_sbs, channel) |>
+    summarise(revenue = sum(revenue, na.rm = TRUE), .groups = "drop") |>
+    pivot_wider(names_from = channel, values_from = revenue, values_fill = 0)
+}
+
+build_fiscal_salience_country_year <- function(preferred_country_year,
+                                               preferred_channel_country_year,
+                                               scenario_spread_country_year,
+                                               cit_revenue,
+                                               wb_gdp,
+                                               wb_population) {
+  preferred_sbs <- preferred_country_year |>
+    filter(factor4_sbs == "sbs") |>
+    select(country, country_name, year, preferred_revenue = revenue)
+
+  preferred_universal <- preferred_country_year |>
+    filter(factor4_sbs == "universal") |>
+    select(country, year, universal_revenue = revenue)
+
+  qdmtt <- preferred_channel_country_year |>
+    filter(factor4_sbs == "sbs") |>
+    transmute(
+      country,
+      year,
+      qdmtt_revenue = coalesce_zero(QDMTT)
+    )
+
+  preferred_sbs |>
+    left_join_checked(
+      preferred_universal,
+      by = c("country", "year"),
+      label = "preferred universal revenue denominator"
+    ) |>
+    left_join_checked(
+      qdmtt,
+      by = c("country", "year"),
+      label = "preferred QDMTT country-year revenue"
+    ) |>
+    left_join_checked(
+      scenario_spread_country_year |> select(country, year, scenario_spread),
+      by = c("country", "year"),
+      label = "country-year scenario spread denominator"
+    ) |>
+    left_join_checked(
+      build_cit_revenue_denominators(cit_revenue),
+      by = c("country", "year"),
+      label = "OECD CIT revenue denominator"
+    ) |>
+    left_join_checked(
+      build_macro_denominators(wb_gdp, wb_population),
+      by = c("country", "year"),
+      label = "World Bank macro denominator"
+    ) |>
+    mutate(
+      sbs_revenue_loss = universal_revenue - preferred_revenue,
+      revenue_to_cit_1200 =
+        safe_divide(preferred_revenue, cit_revenue_T_1200),
+      revenue_to_cit_1210 =
+        safe_divide(preferred_revenue, cit_revenue_T_1210),
+      revenue_to_gdp = safe_divide(preferred_revenue, gdp_usd),
+      revenue_per_capita = safe_divide(preferred_revenue, population),
+      scenario_spread_to_cit_1200 =
+        safe_divide(scenario_spread, cit_revenue_T_1200),
+      sbs_loss_to_cit_1200 =
+        safe_divide(sbs_revenue_loss, cit_revenue_T_1200),
+      qdmtt_preserved_share =
+        safe_divide(qdmtt_revenue, preferred_revenue)
+    ) |>
+    arrange(country, year)
+}
+
+build_fiscal_salience_country <- function(fiscal_country_year) {
+  fiscal_country_year |>
+    group_by(country, country_name) |>
+    summarise(
+      preferred_revenue = sum(preferred_revenue, na.rm = TRUE),
+      universal_revenue = sum(universal_revenue, na.rm = TRUE),
+      sbs_revenue_loss = sum(sbs_revenue_loss, na.rm = TRUE),
+      qdmtt_revenue = sum(qdmtt_revenue, na.rm = TRUE),
+      scenario_spread = sum(scenario_spread, na.rm = TRUE),
+      cit_1200_years = sum(!is.na(cit_revenue_T_1200)),
+      cit_1210_years = sum(!is.na(cit_revenue_T_1210)),
+      cit_revenue_T_1200 = sum(cit_revenue_T_1200, na.rm = FALSE),
+      cit_revenue_T_1210 = sum(cit_revenue_T_1210, na.rm = FALSE),
+      gdp_usd = sum(gdp_usd, na.rm = FALSE),
+      average_population = mean(population, na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    mutate(
+      revenue_to_cit_1200 =
+        safe_divide(preferred_revenue, cit_revenue_T_1200),
+      revenue_to_cit_1210 =
+        safe_divide(preferred_revenue, cit_revenue_T_1210),
+      revenue_to_gdp = safe_divide(preferred_revenue, gdp_usd),
+      revenue_per_capita =
+        safe_divide(preferred_revenue, average_population),
+      scenario_spread_to_cit_1200 =
+        safe_divide(scenario_spread, cit_revenue_T_1200),
+      sbs_loss_to_cit_1200 =
+        safe_divide(sbs_revenue_loss, cit_revenue_T_1200),
+      qdmtt_preserved_share =
+        safe_divide(qdmtt_revenue, preferred_revenue)
+    ) |>
+    arrange(desc(revenue_to_cit_1200))
+}
+
 build_hypothesis_summary <- function(anova_pooled, h4_summary) {
   main_effects <- anova_pooled |>
     filter(interaction_order == 1) |>
@@ -642,6 +791,9 @@ run_stage4_6_pipeline <- function() {
   revenue_country_year <- readRDS(file.path(IN, "stage4_5_revenue_country_year.rds"))
   revenue_by_channel <- readRDS(file.path(IN, "stage4_5_revenue_by_channel.rds"))
   conservation <- readRDS(file.path(IN, "stage4_5_allocation_conservation.rds"))
+  cit_revenue <- readRDS(file.path(IN, "cit_revenue.rds"))
+  wb_gdp <- readRDS(file.path(IN, "wb_gdp.rds"))
+  wb_population <- readRDS(file.path(IN, "wb_population.rds"))
 
   validation_summary <- validate_revenue_inputs(
     revenue_country_year,
@@ -679,6 +831,22 @@ run_stage4_6_pipeline <- function() {
     revenue_country_year,
     revenue_by_channel,
     behaviour = "behavioural"
+  )
+  preferred_behavioural_channel_country_year <-
+    build_preferred_channel_country_year(
+      revenue_by_channel,
+      behaviour = "behavioural"
+    )
+  fiscal_salience_country_year <- build_fiscal_salience_country_year(
+    preferred_behavioural_outputs$country_year,
+    preferred_behavioural_channel_country_year,
+    scenario_spread_country_year,
+    cit_revenue,
+    wb_gdp,
+    wb_population
+  )
+  fiscal_salience_country <- build_fiscal_salience_country(
+    fiscal_salience_country_year
   )
   hypothesis_summary <- build_hypothesis_summary(anova_objects$pooled,
                                                  h4_summary)
@@ -765,6 +933,12 @@ run_stage4_6_pipeline <- function() {
   write_csv(preferred_behavioural_outputs$country_year,
             file.path(DIAG,
                       "step7_stage4_6_preferred_behavioural_country_year.csv"))
+  write_csv(fiscal_salience_country_year,
+            file.path(DIAG,
+                      "step7_stage4_6_fiscal_salience_country_year.csv"))
+  write_csv(fiscal_salience_country,
+            file.path(DIAG,
+                      "step7_stage4_6_fiscal_salience_country.csv"))
 
   saveRDS(scenario_summary, file.path(OUT, "stage4_6_scenario_summary.rds"))
   saveRDS(scenario_spread_country_year,
@@ -796,6 +970,10 @@ run_stage4_6_pipeline <- function() {
   saveRDS(preferred_behavioural_outputs$channel_summary,
           file.path(OUT,
                     "stage4_6_preferred_behavioural_channel_summary.rds"))
+  saveRDS(fiscal_salience_country_year,
+          file.path(OUT, "stage4_6_fiscal_salience_country_year.rds"))
+  saveRDS(fiscal_salience_country,
+          file.path(OUT, "stage4_6_fiscal_salience_country.rds"))
   saveRDS(hypothesis_summary,
           file.path(OUT, "stage4_6_hypothesis_summary.rds"))
 
@@ -810,6 +988,7 @@ run_stage4_6_pipeline <- function() {
   message(" - data/processed/stage4_6_uncertainty_summary.rds")
   message(" - data/processed/stage4_6_scenario_spread_*.rds")
   message(" - data/processed/stage4_6_preferred_*.rds")
+  message(" - data/processed/stage4_6_fiscal_salience_*.rds")
   message(" - diagnostics/step7_stage4_6_*.csv")
   message(" - writing/generated/stage4_6_results_tables.tex")
 }

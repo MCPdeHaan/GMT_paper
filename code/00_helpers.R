@@ -13,6 +13,7 @@ EU27_ISO3 <- c(
 )
 
 SELECTED_COUNTRIES <- c("NLD", "IRL", "LUX", "DEU", "FRA")
+SELECTED_FISCAL_COUNTRIES <- c("DEU", "FRA", "NLD", "IRL", "LUX", "HUN")
 
 SCENARIO_VARS <- c(
   "scenario_id", "rate_scenario", "factor1_etr", "factor2_substance",
