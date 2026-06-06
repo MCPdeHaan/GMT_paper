@@ -975,8 +975,8 @@ write_stage2_h5_table <- function() {
 
   write_latex_table(
     file.path(GEN_TABLES, "stage2_h5_regression.tex"),
-    caption = "H5 sectoral capital-intensity regression",
-    short_caption = "H5 sectoral capital-intensity regression",
+    caption = "Sectoral capital-intensity regression",
+    short_caption = "Sectoral capital-intensity regression",
     label = "tab:stage2_h5_regression",
     col_spec = "lrrrrr",
     header = c("Specification", "Coefficient", "Cluster SE", "$p$-value",
@@ -1589,41 +1589,29 @@ write_hypothesis_summary_table <- function() {
   semi <- read_diag("step5_stage3_semielasticity_schedule.csv") |>
     filter(model_spec == "logarithmic", inference == "parent_affiliate_clustered",
            tau == 0.05)
-  h5 <- read_diag("step4_stage2_sectoral_h5_regression_clustered.csv") |>
-    filter(term == "sectoral_capital_intensity")
 
-  h1_model <- str_to_sentence(model$model_spec[1])
-  h1_p <- fmt_p(model$tax_terms_joint_p_value_two_way[1])
-  h1_log <- fmt_num(semi$semi_elasticity[1], 2)
+  h4_model <- str_to_sentence(model$model_spec[1])
+  h4_log <- fmt_num(semi$semi_elasticity[1], 2)
   h2_share <- fmt_pct(as.numeric(metric_value(h, "largest_main_effect_eta_squared")), 1)
-  h3_share <- fmt_pct(as.numeric(metric_value(h, "interaction_eta_squared")), 1)
-  h4_delta <- fmt_bn(abs(as.numeric(metric_value(h, "h4_mean_delta_sbs_minus_universal"))), 3)
-  h4_p <- fmt_p(as.numeric(metric_value(h, "h4_wilcoxon_less_p_value")))
-  h5_unweighted <- h5 |> filter(model_variant == "unweighted")
-  h5_weighted <- h5 |> filter(model_variant == "profit_weighted")
 
   rows <- tibble(
     Hypothesis = latex_escape(c("H1", "H2", "H3", "H4", "H5")),
     `Main result` = c(
-      paste0("Tax terms are jointly significant; baseline BIC selects ",
-             latex_escape(h1_model), "; logarithmic 5\\% semi-elasticity is ",
-             h1_log, "."),
+      "The distributional branch raises the EU27 Stage 1 liability rate relative to the jurisdiction-average rule in every year from 2017 to 2022.",
       paste0("ETR measurement explains ", h2_share,
              "\\% of pooled scenario variance."),
-      paste0("All interaction terms together explain ", h3_share,
-             "\\% of scenario variance."),
-      paste0("SbS reduces paired country-year revenue by US\\$",
-             h4_delta, " bn on average; Wilcoxon $p$ = ", h4_p, "."),
-      paste0("Capital intensity coefficient is negative; clustered $p$ = ",
-             fmt_p(h5_unweighted$p_value[1]), " unweighted and ",
-             fmt_p(h5_weighted$p_value[1]), " profit-weighted.")
+      "The SbS regime explains 25.4\\% of pooled scenario variance and reduces preferred-core EU revenue by US\\$169.4 bn through the UTPR channel.",
+      paste0("Tax terms are jointly significant; baseline BIC selects ",
+             latex_escape(h4_model), "; logarithmic 5\\% semi-elasticity is ",
+             h4_log, "."),
+      "Luxembourg, the Netherlands and Ireland rank highest on fiscal salience; Luxembourg is the clearest SbS-exposed non-QDMTT case."
     ),
     Interpretation = latex_escape(c(
-      "Partly supported, but nonlinear dominance is too strong for the current baseline.",
       "Supported.",
-      "Not supported under the 10 per cent threshold.",
       "Supported.",
-      "Supported, subject to the FATS-sector proxy caveat."
+      "Supported. SbS is the second-largest variance source and materially changes collection channels.",
+      "Supported in its cautious form: the panel supports a negative tax-profit relationship, but not a sharply nonlinear lower-tail specification.",
+      "Supported as a policy-profile classification, conditional on available CIT, GDP and population denominators."
     ))
   )
 
@@ -1636,10 +1624,10 @@ write_hypothesis_summary_table <- function() {
     header = c("Hypothesis", "Main result", "Interpretation"),
     rows = rows,
     notes = paste(
-      "The table is generated from the Stage 2, Stage 3 and Stage 4.6 diagnostics.",
+      "The table summarises the evidence reported in the Stage 1 to Stage 4.6 diagnostics and the country fiscal-exposure calculations in Section \\ref{sec:results_sbs}.",
       source_note(c("data/processed/stage4_6_hypothesis_summary.rds",
                     "data/processed/diagnostics/step5_stage3_model_comparison.csv",
-                    "data/processed/diagnostics/step4_stage2_sectoral_h5_regression_clustered.csv"))
+                    "data/processed/diagnostics/step7_stage4_6_preferred_behavioural_country_year.csv"))
     )
   )
 }
@@ -2038,7 +2026,7 @@ write_appendix_tables <- function() {
 
   write_appendix_latex_table(
     file.path(GEN_TABLES, "appendix_stage45_h4_regression.tex"),
-    "H4 country-level heterogeneity regression",
+    "Country-level Side-by-Side allocation regression",
     "tab:app_stage45_h4_regression",
     "lrrrrr",
     c("Term", "Estimate", "SE", "Statistic", "$p$-value", "$R^2$"),
