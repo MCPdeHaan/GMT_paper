@@ -870,24 +870,47 @@ bea_us_mne_coverage <- bea_us_mne_country_industry |>
 write_csv(bea_us_mne_coverage, file.path(DIAG, "bea_us_mne_country_industry_coverage.csv"))
 
 
-# 15. Pillar Two trackers + BEPS rules + CIT revenue
+# 15. Pillar Two Central Record + BEPS rules + CIT revenue
 
-message("[15/15] PwC tracker, BEPS rules, CIT revenue")
-pwc <- read_csv(file.path(RAW, "pillar2_qdmtt/pwc_pillar2_tracker.csv"),
-                show_col_types = FALSE)
-# The PwC export carries a leading BOM and many trailing empty columns.
-pwc_clean <- pwc |>
-  select(territory = 1, requirement = `Requirement`,
-         requirement_group = `Requirement Group`,
-         p2_start = `P2 Start`, p2_end = `P2 End`,
-         fy_start_mths_plus = `FY Start Mths+`,
-         days_plus = `Days+`, mths_plus = `Mths+`,
-         year = Year, month = Month, day = Day,
-         caveat = Caveat, description = Description, status = Status) |>
-  filter(!is.na(territory))
-saveRDS(pwc_clean, file.path(OUT, "pwc_pillar2_tracker.rds"))
-add_diag("pwc_pillar2_tracker", "rows", nrow(pwc_clean))
-add_diag("pwc_pillar2_tracker", "territories", n_distinct(pwc_clean$territory))
+message("[15/15] OECD Central Record, BEPS rules, CIT revenue")
+oecd_central_record <- read_csv(
+  file.path(RAW, "pillar2_qdmtt/oecd_central_record_2026_05.csv"),
+  show_col_types = FALSE,
+  col_types = cols(
+    jurisdiction = col_character(),
+    jurisdiction_name = col_character(),
+    rule_type = col_character(),
+    effective_date = col_date(),
+    qdmtt_safe_harbour = col_logical(),
+    table_current_as = col_date(),
+    source_note = col_character()
+  )
+) |>
+  filter(!is.na(jurisdiction), !is.na(rule_type))
+
+if (nrow(oecd_central_record) != 95) {
+  stop("OECD Central Record tracker should contain 95 rule rows")
+}
+if (n_distinct(oecd_central_record$jurisdiction,
+               oecd_central_record$rule_type) != nrow(oecd_central_record)) {
+  stop("OECD Central Record tracker has duplicate jurisdiction-rule rows")
+}
+if (!setequal(unique(oecd_central_record$rule_type),
+              c("qualified_iir", "qualified_qdmtt", "qualified_sbs"))) {
+  stop("OECD Central Record tracker has unexpected rule types")
+}
+
+saveRDS(oecd_central_record,
+        file.path(OUT, "oecd_pillar2_central_record.rds"))
+add_diag("oecd_pillar2_central_record", "rows", nrow(oecd_central_record))
+add_diag("oecd_pillar2_central_record", "jurisdictions",
+         n_distinct(oecd_central_record$jurisdiction))
+add_diag("oecd_pillar2_central_record", "qualified_iir_rows",
+         sum(oecd_central_record$rule_type == "qualified_iir"))
+add_diag("oecd_pillar2_central_record", "qualified_qdmtt_rows",
+         sum(oecd_central_record$rule_type == "qualified_qdmtt"))
+add_diag("oecd_pillar2_central_record", "qualified_sbs_rows",
+         sum(oecd_central_record$rule_type == "qualified_sbs"))
 
 # OECD BEPS rules: five panel rule types stacked, kept long with a `rule` key.
 # Values are categorical ("Yes"/"No"/regime label), so OBS_VALUE stays character.

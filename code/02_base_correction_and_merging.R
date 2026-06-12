@@ -150,7 +150,8 @@ beps_rules <- readRDS(file.path(IN, "beps_rules.rds")) |>
   mutate(jurisdiction = normalize_code(jurisdiction))
 cbcr_requirements <- readRDS(file.path(IN, "cbcr_requirements.rds")) |>
   mutate(jurisdiction = normalize_code(jurisdiction))
-pwc_tracker <- readRDS(file.path(IN, "pwc_pillar2_tracker.rds"))
+oecd_central_record <- readRDS(file.path(IN, "oecd_pillar2_central_record.rds")) |>
+  mutate(jurisdiction = normalize_code(jurisdiction))
 
 
 # 2. Core bilateral spine and CbCR merges
@@ -433,97 +434,33 @@ cbcr_req_parent <- cbcr_req_summary |>
   rename_with(~ paste0("parent_", .x), -jurisdiction) |>
   rename(parent = jurisdiction)
 
-# PwC Pillar Two tracker reduced to earliest effective dates.
-pwc_map <- tribble(
-  ~territory, ~jurisdiction,
-  "Australia", "AUS",
-  "Austria", "AUT",
-  "Bahrain", "BHR",
-  "Barbados", "BRB",
-  "Belgium", "BEL",
-  "Bulgaria", "BGR",
-  "Canada", "CAN",
-  "Croatia", "HRV",
-  "Cyprus", "CYP",
-  "Czech Republic", "CZE",
-  "Denmark", "DNK",
-  "Finland", "FIN",
-  "France", "FRA",
-  "Germany", "DEU",
-  "Gibraltar", "GIB",
-  "Greece", "GRC",
-  "Guernsey", "GGY",
-  "Hong Kong", "HKG",
-  "Hungary", "HUN",
-  "Indonesia", "IDN",
-  "Ireland", "IRL",
-  "Isle of Man", "IMN",
-  "Italy", "ITA",
-  "Japan", "JPN",
-  "Jersey", "JEY",
-  "Kenya", "KEN",
-  "Kuwait", "KWT",
-  "Liechtenstein", "LIE",
-  "Lithuania", "LTU",
-  "Luxembourg", "LUX",
-  "Malaysia", "MYS",
-  "Mauritius", "MUS",
-  "Netherlands", "NLD",
-  "New Zealand", "NZL",
-  "North Macedonia", "MKD",
-  "Norway", "NOR",
-  "Poland", "POL",
-  "Portugal", "PRT",
-  "Romania", "ROU",
-  "Singapore", "SGP",
-  "Slovakia", "SVK",
-  "Slovenia", "SVN",
-  "South Africa", "ZAF",
-  "South Korea", "KOR",
-  "Spain", "ESP",
-  "Sweden", "SWE",
-  "Switzerland", "CHE",
-  "Thailand", "THA",
-  "Turkey", "TUR",
-  "UAE", "ARE",
-  "UK", "GBR",
-  "Uruguay", "URY",
-  "Vietnam", "VNM"
-)
-
-if (n_distinct(pwc_map$territory) != 53) stop("PwC territory map is incomplete")
-
-pwc_joined <- pwc_tracker |>
-  left_join(pwc_map, by = "territory")
-
-if (any(is.na(pwc_joined$jurisdiction))) stop("PwC tracker has unmapped territories")
-
-pwc_summary <- pwc_joined |>
-  mutate(requirement_group = case_when(
-    requirement_group == "Top-up tax" ~ "topup_tax",
-    requirement_group == "GIR"        ~ "gir",
-    requirement_group == "QDMTT"      ~ "qdmtt",
-    TRUE                              ~ NA_character_
-  )) |>
-  filter(!is.na(jurisdiction), !is.na(requirement_group)) |>
-  group_by(jurisdiction, requirement_group) |>
-  summarise(start_date = min_date_or_na(p2_start), .groups = "drop") |>
+# OECD Central Record reduced to earliest qualified effective dates.
+oecd_summary <- oecd_central_record |>
+  filter(rule_type %in% c("qualified_iir", "qualified_qdmtt", "qualified_sbs")) |>
+  group_by(jurisdiction, rule_type) |>
+  summarise(start_date = min_date_or_na(effective_date), .groups = "drop") |>
   pivot_wider(
-    names_from  = requirement_group,
+    names_from = rule_type,
     values_from = start_date,
-    names_prefix = "pwc_"
+    names_prefix = "oecd_"
   ) |>
   mutate(
-    pwc_qdmtt_by_2026 = !is.na(pwc_qdmtt) & pwc_qdmtt <= as.Date("2026-01-01"),
-    pwc_gir_by_2026   = !is.na(pwc_gir) & pwc_gir <= as.Date("2026-01-01"),
-    pwc_topup_by_2026 = !is.na(pwc_topup_tax) & pwc_topup_tax <= as.Date("2026-01-01")
+    oecd_qdmtt_by_2026 =
+      !is.na(oecd_qualified_qdmtt) &
+      oecd_qualified_qdmtt <= as.Date("2026-01-01"),
+    oecd_iir_by_2026 =
+      !is.na(oecd_qualified_iir) &
+      oecd_qualified_iir <= as.Date("2026-01-01"),
+    oecd_sbs_by_2026 =
+      !is.na(oecd_qualified_sbs) &
+      oecd_qualified_sbs <= as.Date("2026-01-01")
   )
 
-pwc_affiliate <- pwc_summary |>
+oecd_affiliate <- oecd_summary |>
   rename_with(~ paste0("affiliate_", .x), -jurisdiction) |>
   rename(affiliate = jurisdiction)
 
-pwc_parent <- pwc_summary |>
+oecd_parent <- oecd_summary |>
   rename_with(~ paste0("parent_", .x), -jurisdiction) |>
   rename(parent = jurisdiction)
 
@@ -555,10 +492,10 @@ panel <- panel |>
                     label = "join parent BEPS") |>
   left_join_checked(cbcr_req_parent, by = c("parent" = "parent"),
                     label = "join parent CbCR requirements") |>
-  left_join_checked(pwc_affiliate, by = c("affiliate" = "affiliate"),
-                    label = "join affiliate PwC policy") |>
-  left_join_checked(pwc_parent, by = c("parent" = "parent"),
-                    label = "join parent PwC policy")
+  left_join_checked(oecd_affiliate, by = c("affiliate" = "affiliate"),
+                    label = "join affiliate OECD Central Record policy") |>
+  left_join_checked(oecd_parent, by = c("parent" = "parent"),
+                    label = "join parent OECD Central Record policy")
 
 
 # 4. Deterministic imputations and corrected profit bases

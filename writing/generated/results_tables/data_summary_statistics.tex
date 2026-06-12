@@ -5,29 +5,44 @@
 \caption[Summary statistics for analytical pair-years]{Summary statistics for positive-profit analytical pair-years}
 \label{tab:data_summary_statistics}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}lrrrrrr@{}}
+\begin{tabular}{@{}lrrrrrrrr@{}}
 \toprule
-Variable & $N$ & Mean & SD & P25 & Median & P75 \\
+Variable & $N$ & Mean & SD & P10 & P25 & Median & P75 & P90 \\
 \midrule
-Corrected profit (US\$ m) & 11,872 & 2,927.8 & 25,869.5 & 11.7 & 77.1 & 530.8 \\
-Tax accrued (US\$ m) & 11,858 & 602.8 & 7,705.0 & 0.7 & 7.9 & 65.9 \\
-Tangible assets (US\$ m) & 11,869 & 3,529.5 & 42,906.6 & 5.3 & 71.9 & 511.9 \\
-Employees (000s) & 11,850 & 13.41 & 137.48 & 0.08 & 0.65 & 3.49 \\
-Payroll proxy (US\$ m) & 10,596 & 705.1 & 9,089.1 & 2.2 & 19.1 & 115.1 \\
-Bounded ETR (\%) & 11,496 & 15.6 & 12.3 & 6.0 & 14.9 & 22.8 \\
-Average-rule low-taxed share (\%) & 11,872 & 46.0 & 49.8 & 0.0 & 0.0 & 100.0 \\
-Distributional low-taxed share (\%) & 11,872 & 48.2 & 35.8 & 17.6 & 39.8 & 88.1 \\
-Distributional top-up gap (\%) & 11,872 & 8.6 & 4.2 & 6.2 & 9.2 & 11.7 \\
-Holding entity share (\%) & 9,676 & 11.0 & 46.5 & 0.0 & 3.9 & 12.7 \\
-Affiliate GDP per capita (US\$ 000s) & 11,531 & 26.8 & 28.6 & 5.0 & 15.5 & 43.7 \\
-Affiliate population (millions) & 11,659 & 77.6 & 227.0 & 5.4 & 17.2 & 53.2 \\
+\addlinespace
+\multicolumn{9}{l}{\textit{Panel A: Scale variables}} \\
+Corrected profit (US\$ m) & 11,872 & 2,927.8 & 25,869.5 & 1.7 & 11.7 & 77.1 & 530.8 & 2,654.9 \\
+Tax accrued (US\$ m) & 11,858 & 602.8 & 7,705.0 & 0.0 & 0.7 & 7.9 & 65.9 & 385.1 \\
+\addlinespace
+\multicolumn{9}{l}{\textit{Panel B: Tax and low-taxed-profit variables}} \\
+Bounded ETR (\%) & 11,496 & 15.6 & 12.3 & 0.2 & 6.0 & 14.9 & 22.8 & 30.0 \\
+Affiliate statutory CIT rate (\%) & 10,070 & 19.8 & 8.8 & 9.0 & 15.0 & 20.0 & 25.0 & 30.0 \\
+Average-rule low-taxed share (\%) & 11,872 & 46.0 & 49.8 & 0.0 & 0.0 & 0.0 & 100.0 & 100.0 \\
+Distributional low-taxed share (\%) & 11,872 & 48.2 & 35.8 & 0.0 & 17.6 & 39.8 & 88.1 & 100.0 \\
+Distributional top-up gap (\%) & 11,872 & 8.6 & 4.2 & 0.0 & 6.2 & 9.2 & 11.7 & 14.1 \\
+\addlinespace
+\multicolumn{9}{l}{\textit{Panel C: Substance variables}} \\
+Tangible assets (US\$ m) & 11,869 & 3,529.5 & 42,906.6 & 0.0 & 5.3 & 71.9 & 511.9 & 2,642.1 \\
+Employees (000s) & 11,850 & 13.41 & 137.48 & 0.00 & 0.08 & 0.65 & 3.49 & 14.39 \\
+Payroll proxy (US\$ m) & 10,596 & 705.1 & 9,089.1 & 0.1 & 2.2 & 19.1 & 115.1 & 584.0 \\
+\addlinespace
+\multicolumn{9}{l}{\textit{Panel D: Controls and activity composition}} \\
+Holding entity share (\%) & 9,676 & 11.0 & 46.5 & 0.0 & 0.0 & 3.9 & 12.7 & 26.4 \\
+Affiliate GDP per capita (US\$ 000s) & 11,531 & 26.8 & 28.6 & 2.2 & 5.0 & 15.5 & 43.7 & 63.5 \\
+Affiliate population (millions) & 11,659 & 77.6 & 227.0 & 1.3 & 5.4 & 17.2 & 53.2 & 127.0 \\
+\addlinespace
+\multicolumn{9}{l}{\textit{Panel E: Measurement support}} \\
+Direct Table IV support (\%) & 11,872 & 63.5 & 48.1 & 0.0 & 0.0 & 100.0 & 100.0 & 100.0 \\
+Table I percentile-fit support (\%) & 11,872 & 3.7 & 18.8 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 \\
+BSPI shape-transport support (\%) & 11,872 & 26.4 & 44.1 & 0.0 & 0.0 & 0.0 & 100.0 & 100.0 \\
+Jurisdiction-average fallback support (\%) & 11,872 & 6.4 & 24.5 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 \\
 \bottomrule
 \end{tabular}
 }
 
 \vspace{0.5em}
 \begin{minipage}{0.96\textwidth}
-\footnotesize\raggedright \textit{Notes:} The sample is restricted to positive-profit analytical pair-years because these observations define the relevant denominator for ETR measurement, low-taxed-profit measurement and the Hines-Rice estimation sample. Percent variables are reported in percentage points. Monetary variables are in current US dollars after the stated scaling. The summary deliberately reports quartiles rather than minima and maxima because CbCR cells are highly right-skewed and extreme cells are better treated in influence diagnostics. 
+\footnotesize\raggedright \textit{Notes:} The sample is restricted to positive-profit analytical pair-years because these observations define the relevant denominator for ETR measurement, low-taxed-profit measurement and the Hines-Rice estimation sample. Percent variables are reported in percentage points. Monetary variables are in current US dollars after the stated scaling. The summary deliberately emphasises medians and percentiles because CbCR cells are highly right-skewed and extreme cells are better treated in influence diagnostics.
 \end{minipage}
 \end{table}
 

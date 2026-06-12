@@ -44,8 +44,11 @@ global_intan_invest_annual,year_range,1995-2024
 bea_us_mne_country_industry,rows,38368
 bea_us_mne_country_industry,eu27_country_rows,8704
 bea_us_mne_country_industry,suppressed_cells,4794
-pwc_pillar2_tracker,rows,328
-pwc_pillar2_tracker,territories,53
+oecd_pillar2_central_record,rows,95
+oecd_pillar2_central_record,jurisdictions,54
+oecd_pillar2_central_record,qualified_iir_rows,44
+oecd_pillar2_central_record,qualified_qdmtt_rows,50
+oecd_pillar2_central_record,qualified_sbs_rows,1
 beps_rules,rows,8627
 beps_rules,rule_types,5
 cbcr_requirements,rows,493

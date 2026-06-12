@@ -1356,153 +1356,57 @@ build_behavioural_affiliate_year <- function(stage1_affiliate_year,
   )
 }
 
-build_policy_flags <- function(pwc_tracker) {
-  pwc_map <- tribble(
-    ~territory, ~jurisdiction,
-    "Australia", "AUS",
-    "Austria", "AUT",
-    "Bahrain", "BHR",
-    "Barbados", "BRB",
-    "Belgium", "BEL",
-    "Bulgaria", "BGR",
-    "Canada", "CAN",
-    "Croatia", "HRV",
-    "Cyprus", "CYP",
-    "Czech Republic", "CZE",
-    "Denmark", "DNK",
-    "Finland", "FIN",
-    "France", "FRA",
-    "Germany", "DEU",
-    "Gibraltar", "GIB",
-    "Greece", "GRC",
-    "Guernsey", "GGY",
-    "Hong Kong", "HKG",
-    "Hungary", "HUN",
-    "Indonesia", "IDN",
-    "Ireland", "IRL",
-    "Isle of Man", "IMN",
-    "Italy", "ITA",
-    "Japan", "JPN",
-    "Jersey", "JEY",
-    "Kenya", "KEN",
-    "Kuwait", "KWT",
-    "Liechtenstein", "LIE",
-    "Lithuania", "LTU",
-    "Luxembourg", "LUX",
-    "Malaysia", "MYS",
-    "Mauritius", "MUS",
-    "Netherlands", "NLD",
-    "New Zealand", "NZL",
-    "North Macedonia", "MKD",
-    "Norway", "NOR",
-    "Poland", "POL",
-    "Portugal", "PRT",
-    "Romania", "ROU",
-    "Singapore", "SGP",
-    "Slovakia", "SVK",
-    "Slovenia", "SVN",
-    "South Africa", "ZAF",
-    "South Korea", "KOR",
-    "Spain", "ESP",
-    "Sweden", "SWE",
-    "Switzerland", "CHE",
-    "Thailand", "THA",
-    "Turkey", "TUR",
-    "UAE", "ARE",
-    "UK", "GBR",
-    "Uruguay", "URY",
-    "Vietnam", "VNM"
-  )
-
-  pwc_tracker |>
-    left_join(pwc_map, by = "territory") |>
-    filter(!is.na(jurisdiction)) |>
-    mutate(
-      requirement_clean = str_to_lower(str_squish(requirement)),
-      group_clean = str_to_lower(str_squish(requirement_group)),
-      qdmtt_row = group_clean == "qdmtt" |
-        str_detect(requirement_clean, "^qdmtt|^dmtt|\\(qdmtt|\\bdmtt\\b") |
-        (group_clean == "top-up tax" &
-           str_detect(requirement_clean, "qdmtt|dmtt")),
-      iir_explicit_row = str_detect(
-        requirement_clean,
-        "iir|income inclusion"
-      ),
-      utpr_explicit_row = str_detect(
-        requirement_clean,
-        "utpr|undertaxed"
-      ),
-      iir_utpr_explicit_row = iir_explicit_row | utpr_explicit_row,
-      broad_topup_row = group_clean == "top-up tax" &
-        !qdmtt_row & !iir_utpr_explicit_row,
-      iir_utpr_row = iir_utpr_explicit_row | broad_topup_row
-    ) |>
-    group_by(jurisdiction, territory) |>
+build_policy_flags <- function(oecd_central_record) {
+  oecd_central_record |>
+    filter(rule_type %in% c("qualified_iir", "qualified_qdmtt", "qualified_sbs")) |>
+    group_by(jurisdiction, jurisdiction_name) |>
     summarise(
-      qdmtt_start = min_date_or_na(p2_start[qdmtt_row]),
-      iir_utpr_start = min_date_or_na(p2_start[iir_utpr_row]),
-      iir_start = min_date_or_na(p2_start[iir_explicit_row]),
-      utpr_start = min_date_or_na(p2_start[utpr_explicit_row]),
-      iir_utpr_explicit_start =
-        min_date_or_na(p2_start[iir_utpr_explicit_row]),
-      broad_topup_start = min_date_or_na(p2_start[broad_topup_row]),
-      qdmtt_rule_rows = sum(qdmtt_row, na.rm = TRUE),
-      iir_utpr_rule_rows = sum(iir_utpr_row, na.rm = TRUE),
-      iir_explicit_rule_rows = sum(iir_explicit_row, na.rm = TRUE),
-      utpr_explicit_rule_rows = sum(utpr_explicit_row, na.rm = TRUE),
-      broad_topup_rule_rows = sum(broad_topup_row, na.rm = TRUE),
+      qdmtt_start = min_date_or_na(effective_date[rule_type == "qualified_qdmtt"]),
+      iir_start = min_date_or_na(effective_date[rule_type == "qualified_iir"]),
+      sbs_start = min_date_or_na(effective_date[rule_type == "qualified_sbs"]),
+      qdmtt_rule_rows = sum(rule_type == "qualified_qdmtt", na.rm = TRUE),
+      iir_rule_rows = sum(rule_type == "qualified_iir", na.rm = TRUE),
+      sbs_rule_rows = sum(rule_type == "qualified_sbs", na.rm = TRUE),
+      qdmtt_table_current_as =
+        min_date_or_na(table_current_as[rule_type == "qualified_qdmtt"]),
+      iir_table_current_as =
+        min_date_or_na(table_current_as[rule_type == "qualified_iir"]),
+      sbs_table_current_as =
+        min_date_or_na(table_current_as[rule_type == "qualified_sbs"]),
       .groups = "drop"
     ) |>
     mutate(
-      qdmtt_by_2026 = !is.na(qdmtt_start) &
-        qdmtt_start <= as.Date("2026-01-01"),
-      iir_utpr_by_2026 = !is.na(iir_utpr_start) &
-        iir_utpr_start <= as.Date("2026-01-01"),
-      iir_by_2026 = !is.na(iir_start) &
-        iir_start <= as.Date("2026-01-01"),
-      utpr_by_2026 = !is.na(utpr_start) &
-        utpr_start <= as.Date("2026-01-01"),
-      iir_utpr_explicit_by_2026 = !is.na(iir_utpr_explicit_start) &
-        iir_utpr_explicit_start <= as.Date("2026-01-01"),
-      broad_topup_by_2026 = !is.na(broad_topup_start) &
-        broad_topup_start <= as.Date("2026-01-01"),
-      iir_utpr_ambiguous_by_2026 =
-        iir_utpr_by_2026 & !iir_utpr_explicit_by_2026
+      qdmtt_by_2026 =
+        !is.na(qdmtt_start) & qdmtt_start <= as.Date("2026-01-01"),
+      iir_by_2026 =
+        !is.na(iir_start) & iir_start <= as.Date("2026-01-01"),
+      sbs_by_2026 =
+        !is.na(sbs_start) & sbs_start <= as.Date("2026-01-01"),
+      iir_utpr_start = iir_start,
+      utpr_start = iir_start,
+      iir_utpr_by_2026 = iir_by_2026,
+      utpr_by_2026 = iir_by_2026,
+      iir_utpr_explicit_start = iir_start,
+      iir_utpr_explicit_by_2026 = iir_by_2026,
+      broad_topup_start = as.Date(NA),
+      broad_topup_by_2026 = FALSE,
+      iir_utpr_ambiguous_by_2026 = FALSE,
+      iir_utpr_rule_rows = iir_rule_rows,
+      iir_explicit_rule_rows = iir_rule_rows,
+      utpr_explicit_rule_rows = NA_integer_,
+      broad_topup_rule_rows = 0L
     )
 }
 
-build_policy_tracker_diagnostics <- function(pwc_tracker) {
-  pwc_tracker |>
-    mutate(
-      requirement_clean = str_to_lower(str_squish(requirement)),
-      group_clean = str_to_lower(str_squish(requirement_group)),
-      qdmtt_text = str_detect(requirement_clean, "qdmtt|\\bdmtt\\b"),
-      iir_text = str_detect(
-        requirement_clean,
-        "iir|income inclusion"
-      ),
-      utpr_text = str_detect(
-        requirement_clean,
-        "utpr|undertaxed"
-      ),
-      iir_utpr_text = str_detect(
-        requirement_clean,
-        "iir|utpr|income inclusion|undertaxed"
-      ),
-      broad_topup_text = group_clean == "top-up tax" &
-        !qdmtt_text & !iir_utpr_text
-    ) |>
+build_policy_tracker_diagnostics <- function(oecd_central_record) {
+  oecd_central_record |>
     count(
-      group_clean,
-      requirement_clean,
-      qdmtt_text,
-      iir_text,
-      utpr_text,
-      iir_utpr_text,
-      broad_topup_text,
+      rule_type,
+      table_current_as,
+      qdmtt_safe_harbour,
       name = "rows"
     ) |>
-    arrange(desc(broad_topup_text), group_clean, requirement_clean)
+    arrange(rule_type, table_current_as)
 }
 
 build_sectoral_factor2_bridge <- function(stage2_bilateral,
@@ -1768,6 +1672,7 @@ build_factorial_revenue <- function(stage2_bilateral,
            parent_policy_iir_utpr_by_2026 = iir_utpr_by_2026,
            parent_policy_iir_by_2026 = iir_by_2026,
            parent_policy_utpr_by_2026 = utpr_by_2026,
+           parent_policy_sbs_by_2026 = sbs_by_2026,
            parent_policy_iir_utpr_explicit_by_2026 =
              iir_utpr_explicit_by_2026,
            parent_policy_iir_utpr_ambiguous_by_2026 =
@@ -1807,23 +1712,15 @@ build_factorial_revenue <- function(stage2_bilateral,
         coalesce(static_behavioural_liability_filter, 1),
       static_behavioural_regime =
         coalesce(static_behavioural_regime, "no_low_tax_response"),
-      qdmtt_flag = coalesce(
-        affiliate_policy_qdmtt_by_2026,
-        affiliate_pwc_qdmtt_by_2026,
-        FALSE
-      ),
-      parent_iir_utpr_flag = coalesce(
-        parent_policy_iir_utpr_by_2026,
-        parent_pwc_topup_by_2026,
-        FALSE
-      ),
+      qdmtt_flag = coalesce(affiliate_policy_qdmtt_by_2026, FALSE),
+      parent_iir_utpr_flag = coalesce(parent_policy_iir_utpr_by_2026, FALSE),
       parent_iir_utpr_explicit_flag = coalesce(
         parent_policy_iir_utpr_explicit_by_2026,
         FALSE
       ),
       parent_iir_utpr_ambiguous_flag =
         parent_iir_utpr_flag & !parent_iir_utpr_explicit_flag,
-      sbs_parent_qualified = parent == "USA",
+      sbs_parent_qualified = coalesce(parent_policy_sbs_by_2026, FALSE),
       sbs_exempt = factor4_sbs == "sbs" & sbs_parent_qualified
     ) |>
     add_behavioural_response() |>
@@ -2367,7 +2264,7 @@ run_stage3_pipeline <- function() {
   stage2_bilateral <- readRDS(file.path(IN, "stage2_bilateral_panel.rds"))
   stage2_sectoral_matrix <- readRDS(file.path(IN, "stage2_sectoral_matrix.rds"))
   etr_forward <- readRDS(file.path(IN, "etr_forward.rds"))
-  pwc_tracker <- readRDS(file.path(IN, "pwc_pillar2_tracker.rds"))
+  oecd_central_record <- readRDS(file.path(IN, "oecd_pillar2_central_record.rds"))
 
   assert_unique_keys(base_panel, c("parent", "affiliate", "year"), "base panel")
   assert_unique_keys(stage1_affiliate_year, c("affiliate", "year"),
@@ -2462,8 +2359,8 @@ run_stage3_pipeline <- function() {
     model_fits
   )
 
-  policy_flags <- build_policy_flags(pwc_tracker)
-  policy_tracker_diagnostics <- build_policy_tracker_diagnostics(pwc_tracker)
+  policy_flags <- build_policy_flags(oecd_central_record)
+  policy_tracker_diagnostics <- build_policy_tracker_diagnostics(oecd_central_record)
   sectoral_bridge <- build_sectoral_factor2_bridge(
     stage2_bilateral,
     stage1_affiliate_year,

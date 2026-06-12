@@ -160,6 +160,33 @@ normalise_term_label <- function(x) {
   )
 }
 
+normalise_typology_feature_label <- function(x) {
+  recode(
+    x,
+    "preferred_revenue" = "Preferred revenue",
+    "scenario_spread" = "Scenario spread",
+    "revenue_to_cit_1200" = "Revenue/CIT",
+    "revenue_to_gdp" = "Revenue/GDP",
+    "revenue_per_capita" = "Revenue per resident",
+    "etr_measurement_main_effect" = "ETR measurement effect",
+    "sbs_regime_main_effect" = "SbS effect",
+    "substance_specification_main_effect" = "Substance effect",
+    "behavioural_response_main_effect" = "Behavioural effect",
+    "qdmtt_share" = "QDMTT share",
+    "residual_iir_utpr_exposure" = "Residual IIR/UTPR",
+    "sbs_extinguished_share" = "SbS extinguished share",
+    "high_risk_imputation_share" = "High-risk imputation",
+    "direct_t4_lowtax_share" = "Direct Table IV share",
+    .default = str_to_sentence(str_replace_all(x, "_", " "))
+  )
+}
+
+format_typology_feature_list <- function(x) {
+  vapply(str_split(x, ";\\s*"), function(features) {
+    paste(normalise_typology_feature_label(features), collapse = "; ")
+  }, character(1))
+}
+
 write_latex_table <- function(file, caption, label, col_spec, header, rows,
                               notes = NULL, short_caption = NULL,
                               size = "\\small", resize = FALSE) {
@@ -204,6 +231,7 @@ write_latex_table <- function(file, caption, label, col_spec, header, rows,
   )
 
   if (!is.null(notes) && nzchar(notes)) {
+    notes <- trimws(notes)
     lines <- c(
       lines,
       "",
@@ -264,9 +292,11 @@ describe_vector <- function(label, x, digits = 2) {
       `$N$` = "",
       Mean = "",
       SD = "",
+      P10 = "",
       P25 = "",
       Median = "",
-      P75 = ""
+      P75 = "",
+      P90 = ""
     ))
   }
 
@@ -275,18 +305,138 @@ describe_vector <- function(label, x, digits = 2) {
     `$N$` = fmt_int(length(x)),
     Mean = fmt_num(mean(x), digits),
     SD = fmt_num(ifelse(length(x) > 1, stats::sd(x), NA_real_), digits),
+    P10 = fmt_num(stats::quantile(x, 0.10, names = FALSE), digits),
     P25 = fmt_num(stats::quantile(x, 0.25, names = FALSE), digits),
     Median = fmt_num(stats::median(x), digits),
-    P75 = fmt_num(stats::quantile(x, 0.75, names = FALSE), digits)
+    P75 = fmt_num(stats::quantile(x, 0.75, names = FALSE), digits),
+    P90 = fmt_num(stats::quantile(x, 0.90, names = FALSE), digits)
   )
 }
 
 write_data_descriptive_tables <- function() {
+  base_panel <- read_processed("base_panel.rds")
   panel <- read_processed("stage1_bilateral_panel.rds") |>
     filter(year %in% MAIN_YEARS)
+  estimation <- read_processed("stage3_estimation_sample.rds")
 
   positive_panel <- panel |>
     filter(analysis_profit_positive > 0)
+
+  raw_t1_path <- file.path("data", "raw", "oecd_cbcr",
+                           "cbcr_table1_aggregate_totals.csv")
+  raw_t1 <- read_csv(
+    raw_t1_path,
+    col_select = c(REF_AREA, COUNTERPART_AREA, TIME_PERIOD),
+    show_col_types = FALSE
+  )
+
+  count_cells <- function(df) {
+    tibble(
+      cells = nrow(df),
+      parents = n_distinct(df$parent),
+      affiliates = n_distinct(df$affiliate)
+    )
+  }
+
+  base_counts <- count_cells(base_panel)
+  panel_counts <- count_cells(panel)
+  positive_counts <- count_cells(positive_panel)
+  eu27_counts <- count_cells(filter(panel, affiliate_is_eu27))
+  estimation_counts <- count_cells(estimation)
+
+  sample_rows <- tibble(
+    Sample = c(
+      "Raw OECD Table I records",
+      "Country parent-affiliate-year cells",
+      "2017--2022 analytical panel",
+      "EU27 affiliate slice",
+      "Positive-profit tax sample",
+      "Behavioural estimation sample"
+    ),
+    `Rows/cells` = c(
+      fmt_int(nrow(raw_t1)),
+      fmt_int(base_counts$cells),
+      fmt_int(panel_counts$cells),
+      fmt_int(eu27_counts$cells),
+      fmt_int(positive_counts$cells),
+      fmt_int(estimation_counts$cells)
+    ),
+    Parents = c(
+      fmt_int(n_distinct(raw_t1$REF_AREA)),
+      fmt_int(base_counts$parents),
+      fmt_int(panel_counts$parents),
+      fmt_int(eu27_counts$parents),
+      fmt_int(positive_counts$parents),
+      fmt_int(estimation_counts$parents)
+    ),
+    Affiliates = c(
+      fmt_int(n_distinct(raw_t1$COUNTERPART_AREA)),
+      fmt_int(base_counts$affiliates),
+      fmt_int(panel_counts$affiliates),
+      fmt_int(eu27_counts$affiliates),
+      fmt_int(positive_counts$affiliates),
+      fmt_int(estimation_counts$affiliates)
+    ),
+    `Share of panel` = c(
+      "",
+      "",
+      "100.0",
+      fmt_pct(eu27_counts$cells / panel_counts$cells, 1),
+      fmt_pct(positive_counts$cells / panel_counts$cells, 1),
+      fmt_pct(estimation_counts$cells / panel_counts$cells, 1)
+    ),
+    `Main use` = c(
+      "Raw source",
+      "Reshaped bilateral panel",
+      "Simulation frame",
+      "EU source-country results",
+      "ETRs and top-up gaps",
+      "Hines--Rice semi-elasticity"
+    )
+  )
+
+  sample_line <- function(r) {
+    paste0(
+      latex_escape(r[["Sample"]]), " & ",
+      r[["Rows/cells"]], " & ",
+      r[["Parents"]], " & ",
+      r[["Affiliates"]], " & ",
+      r[["Share of panel"]], " & ",
+      latex_escape(r[["Main use"]]), " \\\\"
+    )
+  }
+
+  sample_lines <- c(
+    "\\multicolumn{6}{@{}l}{\\textit{Panel A: source construction}} \\\\",
+    apply(as.matrix(sample_rows[1:3, ]), 1, sample_line),
+    "\\addlinespace[0.2em]",
+    "\\multicolumn{6}{@{}l}{\\textit{Panel B: analysis samples}} \\\\",
+    apply(as.matrix(sample_rows[4:6, ]), 1, sample_line)
+  )
+
+  write_custom_table(
+    file.path(GEN_TABLES, "data_sample_construction.tex"),
+    c(
+      "\\begin{table}[H]",
+      "\\centering",
+      "\\scriptsize",
+      "\\caption[Sample construction]{Sample construction and empirical objects}",
+      "\\label{tab:data_sample_construction}",
+      "\\begin{tabularx}{\\textwidth}{@{}L{4.0cm}rrrrX@{}}",
+      "\\toprule",
+      "Sample & Obs. & Parents & Affiliates & Share (\\%) & Main use \\\\",
+      "\\midrule",
+      sample_lines,
+      "\\bottomrule",
+      "\\end{tabularx}",
+      "",
+      "\\vspace{0.5em}",
+      "\\begin{minipage}{0.96\\textwidth}",
+      "\\footnotesize\\raggedright \\textit{Notes:} Obs. reports raw SDMX records in the first line and parent-affiliate-year cells thereafter. Share is relative to the 2017--2022 analytical panel and is not reported for pre-panel source rows. The EU27 affiliate slice is a geographic subset, not a sequential attrition step. The Panel A-I positive-profit restriction is defined in Appendix \\ref{app:CbCR} and detailed in Appendix \\ref{app:measurement_framework}; the behavioural sample filters are reported in Appendix Table \\ref{tab:app_stage3_sample_summary}.",
+      "\\end{minipage}",
+      "\\end{table}"
+    )
+  )
 
   coverage_by_year <- panel |>
     group_by(year) |>
@@ -360,54 +510,93 @@ write_data_descriptive_tables <- function() {
     resize = TRUE
   )
 
-  summary_rows <- bind_rows(
-    describe_vector("Corrected profit (US$ m)",
-                    positive_panel$analysis_profit_positive / 1e6, 1),
-    describe_vector("Tax accrued (US$ m)",
-                    positive_panel$tax_accrued_panelai / 1e6, 1),
-    describe_vector("Tangible assets (US$ m)",
-                    positive_panel$assets_sbie / 1e6, 1),
-    describe_vector("Employees (000s)",
-                    positive_panel$employees_sbie / 1e3, 2),
-    describe_vector("Payroll proxy (US$ m)",
-                    positive_panel$payroll_sbie / 1e6, 1),
-    describe_vector("Bounded ETR (%)",
-                    100 * positive_panel$etr_panelai_stage1, 1),
-    describe_vector("Average-rule low-taxed share (%)",
-                    100 * positive_panel$average_low_share, 1),
-    describe_vector("Distributional low-taxed share (%)",
-                    100 * positive_panel$stage1_distributional_low_share, 1),
-    describe_vector("Distributional top-up gap (%)",
-                    100 * positive_panel$stage1_distributional_topup_rate, 1),
-    describe_vector("Holding entity share (%)",
-                    100 * positive_panel$holding_share_panelai, 1),
-    describe_vector("Affiliate GDP per capita (US$ 000s)",
-                    positive_panel$affiliate_gdp_pc_usd / 1000, 1),
-    describe_vector("Affiliate population (millions)",
-                    positive_panel$affiliate_population / 1e6, 1)
+  summary_blocks <- list(
+    "Panel A: Scale variables" = bind_rows(
+      describe_vector("Corrected profit (US$ m)",
+                      positive_panel$analysis_profit_positive / 1e6, 1),
+      describe_vector("Tax accrued (US$ m)",
+                      positive_panel$tax_accrued_panelai / 1e6, 1)
+    ),
+    "Panel B: Tax and low-taxed-profit variables" = bind_rows(
+      describe_vector("Bounded ETR (%)",
+                      100 * positive_panel$etr_panelai_stage1, 1),
+      describe_vector("Affiliate statutory CIT rate (%)",
+                      positive_panel$affiliate_cit_rate, 1),
+      describe_vector("Average-rule low-taxed share (%)",
+                      100 * positive_panel$average_low_share, 1),
+      describe_vector("Distributional low-taxed share (%)",
+                      100 * positive_panel$stage1_distributional_low_share, 1),
+      describe_vector("Distributional top-up gap (%)",
+                      100 * positive_panel$stage1_distributional_topup_rate, 1)
+    ),
+    "Panel C: Substance variables" = bind_rows(
+      describe_vector("Tangible assets (US$ m)",
+                      positive_panel$assets_sbie / 1e6, 1),
+      describe_vector("Employees (000s)",
+                      positive_panel$employees_sbie / 1e3, 2),
+      describe_vector("Payroll proxy (US$ m)",
+                      positive_panel$payroll_sbie / 1e6, 1)
+    ),
+    "Panel D: Controls and activity composition" = bind_rows(
+      describe_vector("Holding entity share (%)",
+                      100 * positive_panel$holding_share_panelai, 1),
+      describe_vector("Affiliate GDP per capita (US$ 000s)",
+                      positive_panel$affiliate_gdp_pc_usd / 1000, 1),
+      describe_vector("Affiliate population (millions)",
+                      positive_panel$affiliate_population / 1e6, 1)
+    ),
+    "Panel E: Measurement support" = bind_rows(
+      describe_vector("Direct Table IV support (%)",
+                      100 * as.numeric(positive_panel$stage1_distributional_source == "direct_t4"), 1),
+      describe_vector("Table I percentile-fit support (%)",
+                      100 * as.numeric(positive_panel$stage1_distributional_source == "percentile_fit"), 1),
+      describe_vector("BSPI shape-transport support (%)",
+                      100 * as.numeric(positive_panel$stage1_distributional_source == "shape_transport"), 1),
+      describe_vector("Jurisdiction-average fallback support (%)",
+                      100 * as.numeric(positive_panel$stage1_distributional_source == "avg_only"), 1)
+    )
   )
 
-  write_latex_table(
+  summary_row_lines <- unlist(Map(function(title, rows) {
+    c(
+      "\\addlinespace",
+      sprintf("\\multicolumn{9}{l}{\\textit{%s}} \\\\", title),
+      apply(as.matrix(rows), 1, function(r) {
+        paste0(paste(r, collapse = " & "), " \\\\")
+      })
+    )
+  }, names(summary_blocks), summary_blocks), use.names = FALSE)
+
+  write_custom_table(
     file.path(GEN_TABLES, "data_summary_statistics.tex"),
-    caption = "Summary statistics for positive-profit analytical pair-years",
-    short_caption = "Summary statistics for analytical pair-years",
-    label = "tab:data_summary_statistics",
-    col_spec = "lrrrrrr",
-    header = c("Variable", "$N$", "Mean", "SD", "P25", "Median", "P75"),
-    rows = summary_rows,
-    notes = paste(
-      "The sample is restricted to positive-profit analytical pair-years because these observations define the relevant denominator for ETR measurement, low-taxed-profit measurement and the Hines-Rice estimation sample.",
-      "Percent variables are reported in percentage points. Monetary variables are in current US dollars after the stated scaling.",
-      "The summary deliberately reports quartiles rather than minima and maxima because CbCR cells are highly right-skewed and extreme cells are better treated in influence diagnostics.",
-      source_note("data/processed/stage1_bilateral_panel.rds")
-    ),
-    size = "\\scriptsize",
-    resize = TRUE
+    c(
+      "\\begin{table}[H]",
+      "\\centering",
+      "\\scriptsize",
+      "\\caption[Summary statistics for analytical pair-years]{Summary statistics for positive-profit analytical pair-years}",
+      "\\label{tab:data_summary_statistics}",
+      "\\resizebox{\\textwidth}{!}{%",
+      "\\begin{tabular}{@{}lrrrrrrrr@{}}",
+      "\\toprule",
+      "Variable & $N$ & Mean & SD & P10 & P25 & Median & P75 & P90 \\\\",
+      "\\midrule",
+      summary_row_lines,
+      "\\bottomrule",
+      "\\end{tabular}",
+      "}",
+      "",
+      "\\vspace{0.5em}",
+      "\\begin{minipage}{0.96\\textwidth}",
+      "\\footnotesize\\raggedright \\textit{Notes:} The sample is restricted to positive-profit analytical pair-years because these observations define the relevant denominator for ETR measurement, low-taxed-profit measurement and the Hines-Rice estimation sample. Percent variables are reported in percentage points. Monetary variables are in current US dollars after the stated scaling. The summary deliberately emphasises medians and percentiles because CbCR cells are highly right-skewed and extreme cells are better treated in influence diagnostics.",
+      "\\end{minipage}",
+      "\\end{table}"
+    )
   )
 
   writeLines(
     c(
       "% Generated by code/08_generate_results_tables.R",
+      "\\input{generated/results_tables/data_sample_construction.tex}",
       "\\input{generated/results_tables/data_panel_coverage.tex}",
       "\\input{generated/results_tables/data_summary_statistics.tex}"
     ),
@@ -447,9 +636,9 @@ write_profit_correction_table <- function() {
       reduction_share = safe_divide(reduction, sum(reduction, na.rm = TRUE)),
       label = recode(
         profit_correction_source_baseline,
-        "observed_profit_adj" = "Observed PROFIT\\_ADJ",
-        "domestic_upe_hugger" = "Domestic UPE correction",
-        "uncorrected_foreign" = "Uncorrected foreign cells",
+        "observed_profit_adj" = "OECD adjusted-profit cells",
+        "domestic_upe_hugger" = "Domestic ultimate-parent cells",
+        "uncorrected_foreign" = "Foreign affiliates unchanged",
         .default = profit_correction_source_baseline
       ),
       order = match(
@@ -461,7 +650,7 @@ write_profit_correction_table <- function() {
 
   total <- branch |>
     summarise(
-      label = "Total preferred correction",
+      label = "Total preferred base",
       cells = sum(cells),
       uncorrected_profit = sum(uncorrected_profit),
       corrected_profit = sum(corrected_profit),
@@ -510,8 +699,8 @@ write_profit_correction_table <- function() {
       "Affiliate observations with adjusted profit",
       "Median adjusted-to-unadjusted ratio",
       "Observed ratio range",
-      "Holding-share slope",
-      "Holding-share regression R-squared"
+      "Holding-share coefficient",
+      "Ratio-regression $R^2$"
     ),
     cells = c(
       fmt_int(observed_total$cells_with_profit_adj),
@@ -534,17 +723,19 @@ write_profit_correction_table <- function() {
     "\\begin{table}[H]",
     "\\centering",
     "\\scriptsize",
-    "\\caption[Profit-base correction effects]{Profit-base correction effects and diagnostic support, 2017 to 2022}",
+    "\\caption[Profit-base correction]{Correction from public CbCR profit to the preferred profit base, 2017 to 2022}",
     "\\label{tab:profit_correction_effects}",
-    "\\resizebox{\\textwidth}{!}{%",
-    "\\begin{tabular}{@{}lrrrrrr@{}}",
+    "\\begin{tabularx}{\\textwidth}{@{}>{\\raggedright\\arraybackslash}Xrrrrrr@{}}",
     "\\toprule",
-    "Correction branch & Cells & Uncorrected profit & Corrected profit & Reduction & Reduction rate & Share of reduction \\\\",
+    "Profit category & Cells & Unadjusted & Corrected & Reduction & Reduction (\\%) & Share (\\%) \\\\",
     "\\midrule",
-    "\\multicolumn{7}{l}{\\textit{Panel A: implemented economic effect, USD billions}} \\\\"
+    "\\multicolumn{7}{@{}l}{\\textit{Panel A: profit-base adjustment, USD billions}} \\\\"
   )
 
   for (i in seq_len(nrow(effect_rows))) {
+    if (i == nrow(effect_rows)) {
+      lines <- c(lines, "\\midrule")
+    }
     lines <- c(lines, paste0(
       effect_rows$label[i], " & ",
       effect_rows$cells[i], " & ",
@@ -558,34 +749,31 @@ write_profit_correction_table <- function() {
 
   lines <- c(
     lines,
-    "\\addlinespace",
-    "\\multicolumn{7}{l}{\\textit{Panel B: support for not estimating a full-panel adjusted-profit model}} \\\\"
+    "\\addlinespace[0.5em]",
+    "\\multicolumn{7}{@{}l}{\\textit{Panel B: support for broader adjusted-profit imputation}} \\\\",
+    "\\multicolumn{6}{@{}l}{Statistic} & Value \\\\",
+    "\\midrule"
   )
 
   for (i in seq_len(nrow(diagnostic_rows))) {
     lines <- c(lines, paste0(
-      diagnostic_rows$label[i], " & ",
-      diagnostic_rows$cells[i], " & ",
-      diagnostic_rows$uncorrected[i], " & ",
-      diagnostic_rows$corrected[i], " & ",
-      diagnostic_rows$reduction[i], " & ",
-      diagnostic_rows$reduction_rate[i], " & ",
-      diagnostic_rows$reduction_share[i], " \\\\"
+      "\\multicolumn{6}{@{}l}{", diagnostic_rows$label[i], "} & ",
+      diagnostic_rows$cells[i], " \\\\"
     ))
   }
 
   lines <- c(
     lines,
     "\\bottomrule",
-    "\\end{tabular}",
-    "}",
+    "\\end{tabularx}",
     "",
     "\\vspace{0.5em}",
     "\\begin{minipage}{0.96\\textwidth}",
     paste0(
-      "\\footnotesize\\raggedright \\textit{Notes:} Profit amounts are Panel A-I positive-profit CbCR profit in USD billions. ",
-      "Panel B reports the direct support for adjusted-profit modelling. The holding-share slope comes from an OLS regression of the bounded observed adjusted-to-unadjusted profit ratio on the holding-company entity share; standard error in parentheses. ",
-      "The small and country-concentrated adjusted-profit sample is treated as diagnostic evidence rather than as a donor sample for full-panel imputation. ",
+      "\\footnotesize\\raggedright \\textit{Notes:} Panel A is restricted to positive-profit analytical cells and reports current USD billions. ",
+      "Unadjusted profit is public CbCR profit before the preferred accounting correction; corrected profit is the profit base used downstream. ",
+      "Panel B uses cells with observed OECD adjusted profit. The holding-share coefficient is from an OLS regression of the bounded observed adjusted-to-unadjusted profit ratio on the holding-company entity share; the standard error is in parentheses. ",
+      "The diagnostic is reported to document the evidence constraint; it is not used for full-panel imputation. ",
       source_note(c("data/processed/diagnostics/step2_profit_correction_by_year.csv",
                     "data/processed/diagnostics/cbcr_t1_profit_adj_support_by_year.csv",
                     "data/processed/base_panel.rds"))
@@ -1762,8 +1950,8 @@ write_stage1_measurement_error_table <- function() {
 
 write_stage46_country_spread_table <- function() {
   x <- read_diag("step7_stage4_6_scenario_spread_country.csv") |>
-    filter(country %in% SELECTED_COUNTRIES) |>
-    arrange(match(country, SELECTED_COUNTRIES)) |>
+    filter(country %in% COUNTRY_CASE_COUNTRIES) |>
+    arrange(match(country, COUNTRY_CASE_COUNTRIES)) |>
     transmute(
       Country = latex_escape(country_name),
       Minimum = fmt_bn(min_revenue, 1),
@@ -1791,8 +1979,35 @@ format_available_pct <- function(x, digits = 1) {
   ifelse(is.na(x), "", paste0(fmt_pct(x, digits), "\\%"))
 }
 
+fmt_pct_compact <- function(x, digits = 1) {
+  trimws(fmt_pct(x, digits))
+}
+
+format_imputation_reliance <- function(x) {
+  label <- case_when(
+    is.na(x) ~ "",
+    x >= 0.50 ~ "Heavy",
+    x >= 0.25 ~ "Moderate",
+    x > 0 ~ "Limited",
+    TRUE ~ "None"
+  )
+  ifelse(is.na(x), "", paste0(label, " (", fmt_pct_compact(x, 1), "\\%)"))
+}
+
 write_stage46_fiscal_salience_tables <- function() {
-  fiscal <- read_diag("step7_stage4_6_fiscal_salience_country.csv")
+  country_spread <- read_diag("step7_stage4_6_scenario_spread_country.csv") |>
+    transmute(country, cumulative_scenario_spread = scenario_spread)
+
+  fiscal <- read_diag("step7_stage4_6_fiscal_salience_country.csv") |>
+    left_join_checked(
+      country_spread,
+      by = "country",
+      label = "country fiscal salience cumulative spread"
+    ) |>
+    mutate(
+      scenario_spread_to_cit_1200 =
+        safe_divide(cumulative_scenario_spread, cit_revenue_T_1200)
+    )
 
   table_rows <- fiscal |>
     filter(country %in% SELECTED_FISCAL_COUNTRIES) |>
@@ -1826,8 +2041,12 @@ write_stage46_fiscal_salience_tables <- function() {
       "The main corporate-income-tax denominator is OECD revenue category T\\_1200, corporate taxes on income, profits and capital gains of corporations.",
       "T\\_1210 is reported as a narrower sensitivity where the processed OECD object has full coverage.",
       "GDP is World Bank GDP per capita multiplied by population; per-resident revenue divides cumulative revenue by average population over 2017 to 2022.",
+      "Spread/CIT uses the spread of cumulative country revenue across the 32 scenarios.",
       "Hungary is included as the smaller high-salience country because it has the highest preferred revenue-to-CIT ratio among smaller EU Member States with populated T\\_1200 data.",
-      source_note("data/processed/diagnostics/step7_stage4_6_fiscal_salience_country.csv")
+      source_note(c(
+        "data/processed/diagnostics/step7_stage4_6_fiscal_salience_country.csv",
+        "data/processed/diagnostics/step7_stage4_6_scenario_spread_country.csv"
+      ))
     ),
     size = "\\scriptsize",
     resize = "max"
@@ -1861,40 +2080,362 @@ write_stage46_fiscal_salience_tables <- function() {
     paste(
       "Rows are sorted by preferred revenue as a share of OECD T\\_1200 corporate tax revenue.",
       "Blank T\\_1210 ratios indicate that the narrower OECD category does not have full 2017 to 2022 coverage in the processed object.",
-      source_note("data/processed/diagnostics/step7_stage4_6_fiscal_salience_country.csv")
+      "Spread/CIT uses the spread of cumulative country revenue across the 32 scenarios.",
+      source_note(c(
+        "data/processed/diagnostics/step7_stage4_6_fiscal_salience_country.csv",
+        "data/processed/diagnostics/step7_stage4_6_scenario_spread_country.csv"
+      ))
+    )
+  )
+}
+
+write_stage46_country_policy_matrix <- function() {
+  features <- read_diag("step7_stage4_6_country_typology_feature_matrix.csv")
+  fiscal <- read_diag("step7_stage4_6_fiscal_salience_country.csv") |>
+    select(country, cit_revenue_T_1200)
+  country_spread <- read_diag("step7_stage4_6_scenario_spread_country.csv") |>
+    transmute(country, cumulative_scenario_spread = scenario_spread)
+
+  dominant_effect <- read_diag("step7_stage4_6_anova_by_country.csv") |>
+    filter(interaction_order == 1, !is.na(eta_squared)) |>
+    group_by(country) |>
+    slice_max(eta_squared, n = 1, with_ties = FALSE) |>
+    ungroup() |>
+    transmute(
+      country,
+      dominant_channel = effect_label,
+      dominant_share = eta_squared
+    )
+
+  matrix_rows <- features |>
+    left_join_checked(
+      fiscal,
+      by = "country",
+      label = "country policy matrix fiscal salience"
+    ) |>
+    left_join_checked(
+      country_spread,
+      by = "country",
+      label = "country policy matrix cumulative spread"
+    ) |>
+    left_join_checked(
+      dominant_effect,
+      by = "country",
+      label = "country policy matrix dominant effect"
+    ) |>
+    arrange(country_name) |>
+    transmute(
+      Country = latex_escape(country_name),
+      `Preferred revenue` = fmt_bn(preferred_revenue, 1),
+      `Revenue/CIT` = format_available_pct(revenue_to_cit_1200, 1),
+      `Spread` = fmt_bn(cumulative_scenario_spread, 1),
+      `Spread/CIT` =
+        format_available_pct(
+          safe_divide(cumulative_scenario_spread, cit_revenue_T_1200), 1
+        ),
+      `Dominant channel` = ifelse(
+        scenario_spread <= 0 | is.na(dominant_channel),
+        "None",
+        paste0(latex_escape(dominant_channel), " (",
+               fmt_pct_compact(dominant_share, 1), "\\%)")
+      ),
+      `QDMTT protected` = format_available_pct(qdmtt_share, 1),
+      `SbS extinguished` = format_available_pct(sbs_extinguished_share, 1),
+      `Imputed measurement` =
+        format_imputation_reliance(high_risk_imputation_share)
+    )
+
+  write_appendix_latex_table(
+    file.path(GEN_TABLES, "appendix_country_policy_matrix.tex"),
+    "Country policy matrix, full EU sample",
+    "tab:app_country_policy_matrix",
+    "lrrrrlrrl",
+    c("Country", "Preferred revenue", "Revenue/CIT", "Spread",
+      "Spread/CIT", "Dominant channel", "QDMTT protected",
+      "SbS extinguished", "Imputed measurement"),
+    matrix_rows,
+    paste(
+      "Preferred revenue is cumulative 2017 to 2022 collector-country revenue under the behavioural SbS scenario, expressed in US dollars, billions.",
+      "Revenue/CIT and Spread/CIT use OECD T\\_1200 corporate tax revenue where full coverage is available.",
+      "Spread is the spread of cumulative country revenue across the 32 scenarios.",
+      "The dominant channel is the largest country-level main-effect share in the 32-scenario factorial decomposition.",
+      "QDMTT protected is the preferred revenue share collected through Qualified Domestic Minimum Top-up Taxes.",
+      "SbS extinguished is the preferred universal revenue share lost under the Side-by-Side regime.",
+      "Imputed measurement reports the share of Stage 1 distributional low-taxed profit that comes from high-risk imputation branches or a high-TV BSPI flag.",
+      source_note(c(
+        "data/processed/diagnostics/step7_stage4_6_country_typology_feature_matrix.csv",
+        "data/processed/diagnostics/step7_stage4_6_anova_by_country.csv",
+        "data/processed/diagnostics/step7_stage4_6_fiscal_salience_country.csv",
+        "data/processed/diagnostics/step7_stage4_6_scenario_spread_country.csv"
+      ))
+    )
+  )
+}
+
+write_stage46_measurement_sample_table <- function() {
+  samples <- read_diag("step7_stage4_6_measurement_sample_summary.csv") |>
+    transmute(
+      Sample = latex_escape(sample_label),
+      `ETR` = format_available_pct(etr_measurement_allocated_eta, 1),
+      `SbS` = format_available_pct(sbs_regime_allocated_eta, 1),
+      `Substance` =
+        format_available_pct(substance_specification_allocated_eta, 1),
+      `Behaviour` =
+        format_available_pct(behavioural_response_allocated_eta, 1),
+      `Interaction` = format_available_pct(interaction_eta, 1),
+      `Preferred revenue` = fmt_bn(preferred_behavioural_sbs_revenue, 1),
+      `Scenario range` = paste0(
+        fmt_bn(eu_revenue_min, 1),
+        "--",
+        fmt_bn(eu_revenue_max, 1)
+      )
+    )
+
+  write_latex_table(
+    file.path(GEN_TABLES, "stage46_measurement_sample_decomposition.tex"),
+    caption = "Decomposition stability across higher-measurement windows",
+    short_caption = "Decomposition stability across higher-measurement windows",
+    label = "tab:stage46_measurement_sample_decomposition",
+    col_spec = "L{3.7cm}rrrrrrr",
+    header = c("Sample", "ETR", "SbS", "Substance", "Behaviour",
+               "Interaction", "Preferred revenue", "Scenario range"),
+    rows = samples,
+    notes = paste(
+      "ETR, SbS, substance and behaviour columns report Shapley-style allocated shares of the pooled 32-scenario variance.",
+      "Interaction reports the unallocated ANOVA interaction share before Shapley redistribution.",
+      "Preferred revenue is cumulative behavioural preferred-core SbS EU revenue in US dollars, billions.",
+      "Scenario range reports the minimum and maximum cumulative EU revenue across the 32 scenarios in US dollars, billions.",
+      source_note("data/processed/diagnostics/step7_stage4_6_measurement_sample_summary.csv")
+    ),
+    size = "\\scriptsize",
+    resize = "max"
+  )
+
+  appendix_samples <- read_diag("step7_stage4_6_measurement_sample_summary.csv") |>
+    transmute(
+      Sample = latex_escape(sample_label),
+      `ETR main` = format_available_pct(etr_measurement_eta, 1),
+      `SbS main` = format_available_pct(sbs_regime_eta, 1),
+      `Substance main` = format_available_pct(substance_specification_eta, 1),
+      `Behaviour main` = format_available_pct(behavioural_response_eta, 1),
+      `Interaction` = format_available_pct(interaction_eta, 1),
+      `Direct Table IV` = format_available_pct(direct_t4_lowtax_share, 1),
+      `High-risk branch` = format_available_pct(high_risk_imputation_share, 1),
+      `Overlap cells` = fmt_int(overlap_affiliate_years)
+    )
+
+  write_latex_table(
+    file.path(GEN_TABLES, "appendix_stage46_measurement_sample_decomposition.tex"),
+    caption = "Decomposition-window robustness diagnostics",
+    short_caption = "Decomposition-window robustness diagnostics",
+    label = "tab:app_stage46_measurement_sample_decomposition",
+    col_spec = "L{3.7cm}rrrrrrrr",
+    header = c("Sample", "ETR main", "SbS main", "Substance main",
+               "Behaviour main", "Interaction", "Direct Table IV",
+               "High-risk branch", "Overlap cells"),
+    rows = appendix_samples,
+    notes = paste(
+      "Main columns report raw main-effect shares of the pooled 32-scenario ANOVA.",
+      "Interaction is the aggregate share of all non-main effects.",
+      "Direct Table IV and high-risk branch columns report EU affiliate low-taxed profit shares in the Stage 1 distributional branch.",
+      "Overlap cells are affiliate-year validation cells with both percentile and direct Table IV support.",
+      source_note("data/processed/diagnostics/step7_stage4_6_measurement_sample_summary.csv")
+    ),
+    size = "\\scriptsize",
+    resize = "max"
+  )
+}
+
+write_country_typology_tables <- function() {
+  pca <- read_diag("step7_stage4_6_country_typology_pca_summary.csv") |>
+    filter(component %in% c("PC1", "PC2", "PC3")) |>
+    transmute(
+      Component = latex_escape(component),
+      `Variance` = format_available_pct(variance_share, 1),
+      `Cumulative` = format_available_pct(cumulative_share, 1),
+      `Dominant dimension` = latex_escape(interpreted_dimension),
+      `Largest loadings` =
+        latex_escape(format_typology_feature_list(top_features))
+    )
+
+  write_latex_table(
+    file.path(GEN_TABLES, "country_typology_pca.tex"),
+    caption = "PCA of the country typology feature matrix",
+    short_caption = "PCA of the country typology feature matrix",
+    label = "tab:country_typology_pca",
+    col_spec = "lrrL{3.0cm}L{6.0cm}",
+    header = c("Component", "Variance", "Cumulative",
+               "Dominant dimension", "Largest loadings"),
+    rows = pca,
+    notes = paste(
+      "The PCA is run on standardised country-level features.",
+      "Revenue amounts, scenario spread and per-resident revenue enter in logs; signed main-effect amounts enter as signed log magnitudes.",
+      "Cyprus' missing OECD T\\_1200 corporate-tax denominator and undefined channel shares for the four zero-revenue countries are median-imputed only for PCA scaling.",
+      source_note("data/processed/diagnostics/step7_stage4_6_country_typology_pca_summary.csv")
+    ),
+    size = "\\scriptsize",
+    resize = "max"
+  )
+
+  profiles <- read_diag("step7_stage4_6_country_typology_cluster_profiles.csv")
+  stability <- read_diag("step7_stage4_6_country_typology_cluster_stability.csv")
+  selected_stability <- stability |>
+    filter(selected) |>
+    slice_head(n = 1)
+
+  profile_rows <- profiles |>
+    transmute(
+      Type = latex_escape(paste0(typology_id, ": ", policy_type)),
+      Countries = latex_escape(countries),
+      `n` = fmt_int(n_countries),
+      `Revenue` = fmt_bn(preferred_revenue, 1),
+      `Revenue/CIT` = format_available_pct(mean_revenue_to_cit_1200, 1),
+      `QDMTT` = format_available_pct(mean_qdmtt_share, 1),
+      `Residual` = format_available_pct(mean_residual_iir_utpr_exposure, 1),
+      `SbS extinguished` = format_available_pct(mean_sbs_extinguished_share, 1),
+      `Imputation risk` = format_available_pct(mean_high_risk_imputation_share, 1)
+    )
+
+  write_latex_table(
+    file.path(GEN_TABLES, "country_typology_clusters.tex"),
+    caption = "Policy-facing country typology from PCA-informed clustering",
+    short_caption = "Policy-facing country typology",
+    label = "tab:country_typology_clusters",
+    col_spec = "L{3.2cm}L{4.8cm}rrrrrrr",
+    header = c("Type", "Countries", "n", "Revenue", "Revenue/CIT",
+               "QDMTT", "Residual", "SbS extinguished",
+               "Imputation risk"),
+    rows = profile_rows,
+    notes = paste(
+      "Four clusters are selected because the jitter stability score is",
+      paste0(fmt_pct(selected_stability$stability_score, 1), "\\%,"),
+      "the smallest cluster contains",
+      fmt_int(selected_stability$min_cluster_size),
+      "countries, and the four-cluster solution separates conduit hubs, QDMTT-protected smaller states, residual IIR/UTPR exposure states and zero-current-exposure states.",
+      "Revenue is preferred behavioural SbS revenue in US dollars, billions.",
+      "Revenue/CIT uses OECD T\\_1200 where available; cluster means ignore missing denominators.",
+      source_note(c("data/processed/diagnostics/step7_stage4_6_country_typology_cluster_profiles.csv",
+                    "data/processed/diagnostics/step7_stage4_6_country_typology_cluster_stability.csv"))
+    ),
+    size = "\\scriptsize",
+    resize = "max"
+  )
+
+  feature_rows <- read_diag(
+    "step7_stage4_6_country_typology_feature_matrix.csv"
+  ) |>
+    left_join(
+      read_diag("step7_stage4_6_country_typology_clusters.csv") |>
+        select(country, typology_id),
+      by = "country"
+    ) |>
+    arrange(typology_id, country_name) |>
+    transmute(
+      Type = latex_escape(typology_id),
+      Country = latex_escape(country_name),
+      `Revenue` = fmt_bn(preferred_revenue, 1),
+      `Spread` = fmt_bn(scenario_spread, 1),
+      `Revenue/CIT` = format_available_pct(revenue_to_cit_1200, 1),
+      `ETR effect` = fmt_bn(etr_measurement_main_effect, 1),
+      `SbS effect` = fmt_bn(sbs_regime_main_effect, 1),
+      `QDMTT` = format_available_pct(qdmtt_share, 1),
+      `Residual` = format_available_pct(residual_iir_utpr_exposure, 1),
+      `Imputation risk` = format_available_pct(high_risk_imputation_share, 1)
+    )
+
+  write_appendix_latex_table(
+    file.path(GEN_TABLES, "appendix_country_typology_features.tex"),
+    "Country typology feature matrix, full EU sample",
+    "tab:app_country_typology_features",
+    "llrrrrrrrr",
+    c("Type", "Country", "Revenue", "Spread", "Revenue/CIT",
+      "ETR effect", "SbS effect", "QDMTT", "Residual",
+      "Imputation risk"),
+    feature_rows,
+    paste(
+      "Revenue, spread and main-effect columns are cumulative over 2017 to 2022 and expressed in US dollars, billions.",
+      "Main effects are signed into policy-exposure magnitudes: distributional minus average ETR measurement, universal minus SbS revenue loss, aggregate minus sectoral substance exposure and mechanical minus behavioural revenue.",
+      source_note("data/processed/diagnostics/step7_stage4_6_country_typology_feature_matrix.csv")
+    )
+  )
+
+  stability_rows <- stability |>
+    transmute(
+      `k` = fmt_int(k),
+      `Stability` = format_available_pct(stability_score, 1),
+      `Minimum` = format_available_pct(stability_min, 1),
+      `Smallest cluster` = fmt_int(min_cluster_size),
+      `Cluster sizes` = latex_escape(cluster_sizes),
+      `Selected` = fmt_bool(selected)
+    )
+
+  write_appendix_latex_table(
+    file.path(GEN_TABLES, "appendix_country_typology_cluster_stability.tex"),
+    "Cluster stability diagnostics for the country typology",
+    "tab:app_country_typology_cluster_stability",
+    "rrrrlr",
+    c("k", "Stability", "Minimum", "Smallest cluster",
+      "Cluster sizes", "Selected"),
+    stability_rows,
+    paste(
+      "Stability is the mean country-pair co-assignment agreement after 200 small jitter perturbations of the standardised feature matrix.",
+      "The selected four-cluster solution is chosen by stability and interpretability, not by a mechanical elbow rule.",
+      source_note("data/processed/diagnostics/step7_stage4_6_country_typology_cluster_stability.csv")
     )
   )
 }
 
 write_hypothesis_summary_table <- function() {
   h <- read_processed("stage4_6_hypothesis_summary.rds")
+  anova <- read_diag("step7_stage4_6_anova_pooled.csv")
+  stage46_summary <- read_diag("step7_stage4_6_summary.csv")
   model <- read_diag("step5_stage3_model_comparison.csv") |> arrange(bic_rank)
   semi <- read_diag("step5_stage3_semielasticity_schedule.csv") |>
     filter(model_spec == "logarithmic", inference == "parent_affiliate_clustered",
            tau == 0.05)
+  pca <- read_diag("step7_stage4_6_country_typology_pca_summary.csv") |>
+    filter(component == "PC1")
+  stability <- read_diag("step7_stage4_6_country_typology_cluster_stability.csv") |>
+    filter(selected) |>
+    slice_head(n = 1)
 
   h4_model <- str_to_sentence(model$model_spec[1])
   h4_log <- fmt_num(semi$semi_elasticity[1], 2)
   h2_share <- fmt_pct(as.numeric(metric_value(h, "largest_main_effect_eta_squared")), 1)
+  h3_share <- fmt_pct(
+    anova$eta_squared[anova$effect == "x4_sbs" &
+                        anova$interaction_order == 1L][1],
+    1
+  )
+  h3_sbs_loss <- (
+    as.numeric(metric_value(stage46_summary, "preferred_universal_revenue")) -
+      as.numeric(metric_value(stage46_summary, "preferred_sbs_revenue"))
+  ) / 1e9
+  h5_pca_share <- fmt_pct(pca$variance_share[1], 1)
+  h5_stability <- fmt_pct(stability$stability_score[1], 1)
 
   rows <- tibble(
     Hypothesis = latex_escape(c("H1", "H2", "H3", "H4", "H5")),
     `Main result` = c(
-      "The distributional branch raises the EU27 Stage 1 liability rate relative to the jurisdiction-average rule in every year from 2017 to 2022.",
-      paste0("ETR measurement explains ", h2_share,
-             "\\% of pooled scenario variance."),
-      "The SbS regime explains 25.4\\% of pooled scenario variance and reduces preferred-core EU revenue by US\\$169.4 bn through the UTPR channel.",
+	      "The distributional branch raises the EU27 Stage 1 liability rate relative to the jurisdiction-average rule in every year from 2017 to 2022.",
+	      paste0("ETR measurement explains ", h2_share,
+	             "\\% of pooled scenario variance."),
+	      paste0("The SbS regime explains ", h3_share,
+	             "\\% of pooled scenario variance and reduces preferred-core EU revenue by US\\$",
+	             fmt_num(h3_sbs_loss, 1), " bn through the UTPR channel."),
       paste0("Tax terms are jointly significant; baseline BIC selects ",
              latex_escape(h4_model), "; logarithmic 5\\% semi-elasticity is ",
              h4_log, "."),
-      "Luxembourg, the Netherlands and Ireland rank highest on fiscal salience; Luxembourg is the clearest SbS-exposed non-QDMTT case."
+      paste0("PC1 explains ", h5_pca_share,
+             "\\% of typology variation and the selected four-cluster solution has ",
+             h5_stability, "\\% jitter stability.")
     ),
     Interpretation = latex_escape(c(
       "Supported.",
       "Supported.",
       "Supported. SbS is the second-largest variance source and materially changes collection channels.",
       "Supported in its cautious form: the panel supports a negative tax-profit relationship, but not a sharply nonlinear lower-tail specification.",
-      "Supported as a policy-profile classification, conditional on available CIT, GDP and population denominators."
+      "Supported. Member States separate into high-salience conduit hubs, QDMTT-protected smaller exposures, residual IIR/UTPR exposure states and zero-current-exposure states."
     ))
   )
 
@@ -1910,7 +2451,8 @@ write_hypothesis_summary_table <- function() {
       "The table summarises the evidence reported in the Stage 1 to Stage 4.6 diagnostics and the country fiscal-exposure calculations in Section \\ref{sec:results_sbs}.",
       source_note(c("data/processed/stage4_6_hypothesis_summary.rds",
                     "data/processed/diagnostics/step5_stage3_model_comparison.csv",
-                    "data/processed/diagnostics/step7_stage4_6_preferred_behavioural_country_year.csv"))
+                    "data/processed/diagnostics/step7_stage4_6_country_typology_pca_summary.csv",
+                    "data/processed/diagnostics/step7_stage4_6_country_typology_cluster_stability.csv"))
     )
   )
 }
@@ -2490,6 +3032,11 @@ write_appendix_tables <- function() {
     "\\input{generated/results_tables/appendix_stage2_asset_sensitivity.tex}",
     "",
     "\\subsection{Stage 3 diagnostics}\\label{app:results_stage3}",
+    "\\input{generated/results_tables/stage3_model_comparison.tex}",
+    "\\input{generated/results_tables/stage3_regression_table.tex}",
+    "\\input{generated/results_tables/stage3_iv_diagnostics.tex}",
+    "\\input{generated/results_tables/stage3_econometric_scorecard.tex}",
+    "\\input{generated/results_tables/stage3_semielasticity.tex}",
     "\\input{generated/results_tables/appendix_stage3_sample_summary.tex}",
     "\\input{generated/results_tables/appendix_stage3_tax_coefficients.tex}",
     "\\input{generated/results_tables/appendix_stage3_specification_tests.tex}",
@@ -2505,9 +3052,13 @@ write_appendix_tables <- function() {
     "\\input{generated/results_tables/appendix_stage45_h4_regression.tex}",
     "",
     "\\subsection{Stage 4.6 decomposition diagnostics}\\label{app:results_stage46}",
+    "\\input{generated/results_tables/appendix_stage46_measurement_sample_decomposition.tex}",
     "\\input{generated/results_tables/appendix_stage46_top_scenarios.tex}",
     "\\input{generated/results_tables/appendix_stage46_country_anova.tex}",
+    "\\input{generated/results_tables/appendix_country_policy_matrix.tex}",
     "\\input{generated/results_tables/appendix_country_fiscal_salience_full.tex}",
+    "\\input{generated/results_tables/appendix_country_typology_features.tex}",
+    "\\input{generated/results_tables/appendix_country_typology_cluster_stability.tex}",
     influence_appendix_inputs
   )
 
@@ -2540,8 +3091,11 @@ write_manifest <- function() {
                               "stage1_measurement_error_interval.tex"))) {
       "\\input{generated/results_tables/stage1_measurement_error_interval.tex}"
     },
+    "\\input{generated/results_tables/stage46_measurement_sample_decomposition.tex}",
     "\\input{generated/results_tables/country_spread.tex}",
     "\\input{generated/results_tables/country_fiscal_salience.tex}",
+    "\\input{generated/results_tables/country_typology_pca.tex}",
+    "\\input{generated/results_tables/country_typology_clusters.tex}",
     "\\input{generated/results_tables/hypothesis_summary.tex}"
   )
   lines <- lines[!is.na(lines)]
@@ -2575,8 +3129,11 @@ write_results_tables <- function() {
   write_stage46_main_effects_table()
   write_stage46_channel_table()
   write_stage1_measurement_error_table()
+  write_stage46_measurement_sample_table()
   write_stage46_country_spread_table()
   write_stage46_fiscal_salience_tables()
+  write_stage46_country_policy_matrix()
+  write_country_typology_tables()
   write_hypothesis_summary_table()
 
   write_appendix_tables()

@@ -55,6 +55,59 @@ FACTOR_TAXONOMY <- tribble(
   "Behavioural specification; aleatoric only under coefficient bootstrap"
 )
 
+TYPOLOGY_FEATURES <- c(
+  "preferred_revenue",
+  "scenario_spread",
+  "revenue_to_cit_1200",
+  "revenue_to_gdp",
+  "revenue_per_capita",
+  "etr_measurement_main_effect",
+  "sbs_regime_main_effect",
+  "substance_specification_main_effect",
+  "behavioural_response_main_effect",
+  "qdmtt_share",
+  "residual_iir_utpr_exposure",
+  "sbs_extinguished_share",
+  "high_risk_imputation_share"
+)
+
+TYPOLOGY_LOG_FEATURES <- c(
+  "preferred_revenue",
+  "scenario_spread",
+  "revenue_per_capita"
+)
+
+TYPOLOGY_SIGNED_LOG_FEATURES <- c(
+  "etr_measurement_main_effect",
+  "sbs_regime_main_effect",
+  "substance_specification_main_effect",
+  "behavioural_response_main_effect"
+)
+
+TYPOLOGY_FEATURE_GROUPS <- tribble(
+  ~feature, ~policy_dimension,
+  "preferred_revenue", "Fiscal scale",
+  "scenario_spread", "Fiscal scale",
+  "revenue_to_cit_1200", "Fiscal scale",
+  "revenue_to_gdp", "Fiscal scale",
+  "revenue_per_capita", "Fiscal scale",
+  "etr_measurement_main_effect", "Measurement risk",
+  "substance_specification_main_effect", "Measurement risk",
+  "behavioural_response_main_effect", "Measurement risk",
+  "high_risk_imputation_share", "Measurement risk",
+  "sbs_regime_main_effect", "Legal allocation",
+  "qdmtt_share", "Legal allocation",
+  "residual_iir_utpr_exposure", "Legal allocation",
+  "sbs_extinguished_share", "Legal allocation"
+)
+
+DECOMPOSITION_SAMPLES <- tribble(
+  ~sample_id, ~sample_label, ~start_year, ~end_year,
+  "baseline_2017_2022", "2017--2022 baseline full public panel", 2017L, 2022L,
+  "high_measurement_2019_2022", "2019--2022 high-measurement panel", 2019L, 2022L,
+  "strict_overlap_2021_2022", "2021--2022 strict Table IV overlap window", 2021L, 2022L
+)
+
 label_effect <- function(effect) {
   parts <- strsplit(effect, ":", fixed = TRUE)
   vapply(
@@ -616,6 +669,496 @@ build_fiscal_salience_country <- function(fiscal_country_year) {
     arrange(desc(revenue_to_cit_1200))
 }
 
+build_stage1_imputation_exposure <- function(stage1_bilateral) {
+  stage1_bilateral |>
+    filter(affiliate %in% EU27_ISO3, year %in% MAIN_YEARS) |>
+    mutate(
+      high_risk_imputation_branch =
+        stage1_distributional_source %in%
+        c("shape_transport", "percentile_fit", "avg_only") |
+        coalesce(bspi_high_tv_flag, FALSE),
+      lowtax_distributional_row =
+        coalesce_zero(stage1_lowtax_profit_distributional)
+    ) |>
+    group_by(country = affiliate,
+             country_name = affiliate_jurisdiction_name) |>
+    summarise(
+      lowtax_distributional =
+        sum(lowtax_distributional_row, na.rm = TRUE),
+      high_risk_imputation_lowtax =
+        sum(if_else(high_risk_imputation_branch,
+                    lowtax_distributional_row, 0), na.rm = TRUE),
+      direct_t4_lowtax =
+        sum(if_else(stage1_distributional_source == "direct_t4",
+                    lowtax_distributional_row, 0), na.rm = TRUE),
+      high_risk_imputation_share =
+        safe_divide(high_risk_imputation_lowtax, lowtax_distributional),
+      direct_t4_lowtax_share =
+        safe_divide(direct_t4_lowtax, lowtax_distributional),
+      .groups = "drop"
+    )
+}
+
+build_country_typology_feature_matrix <- function(fiscal_salience_country,
+                                                  main_effects_by_country,
+                                                  preferred_channel_country_year,
+                                                  stage1_bilateral) {
+  effect_features <- main_effects_by_country |>
+    select(country, effect, high_minus_low) |>
+    pivot_wider(names_from = effect, values_from = high_minus_low)
+
+  channel_exposure <- preferred_channel_country_year |>
+    filter(factor4_sbs == "sbs") |>
+    group_by(country, country_name) |>
+    summarise(
+      qdmtt_revenue = sum(coalesce_zero(QDMTT), na.rm = TRUE),
+      iir_revenue = sum(coalesce_zero(IIR), na.rm = TRUE),
+      utpr_revenue = sum(coalesce_zero(UTPR), na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    mutate(
+      preferred_channel_revenue =
+        qdmtt_revenue + iir_revenue + utpr_revenue,
+      residual_iir_utpr_exposure =
+        safe_divide(iir_revenue + utpr_revenue,
+                    preferred_channel_revenue)
+    )
+
+  imputation_exposure <- build_stage1_imputation_exposure(stage1_bilateral)
+
+  fiscal_salience_country |>
+    left_join_checked(
+      effect_features,
+      by = "country",
+      label = "country typology main effects"
+    ) |>
+    left_join_checked(
+      channel_exposure |>
+        select(country, residual_iir_utpr_exposure),
+      by = "country",
+      label = "country typology channel exposure"
+    ) |>
+    left_join_checked(
+      imputation_exposure |>
+        select(country, high_risk_imputation_share,
+               direct_t4_lowtax_share),
+      by = "country",
+      label = "country typology Stage 1 exposure"
+    ) |>
+    transmute(
+      country,
+      country_name,
+      preferred_revenue,
+      scenario_spread,
+      revenue_to_cit_1200,
+      revenue_to_gdp,
+      revenue_per_capita,
+      etr_measurement_main_effect = x1_etr,
+      sbs_regime_main_effect = -x4_sbs,
+      substance_specification_main_effect = -x2_substance,
+      behavioural_response_main_effect = -x5_behaviour,
+      qdmtt_share = qdmtt_preserved_share,
+      residual_iir_utpr_exposure,
+      sbs_extinguished_share =
+        safe_divide(sbs_revenue_loss, universal_revenue),
+      high_risk_imputation_share,
+      direct_t4_lowtax_share
+    ) |>
+    mutate(
+      across(c(qdmtt_share, residual_iir_utpr_exposure,
+               sbs_extinguished_share, high_risk_imputation_share,
+               direct_t4_lowtax_share), nan_to_na)
+    ) |>
+    arrange(country)
+}
+
+prepare_typology_matrix <- function(feature_matrix) {
+  transformed <- feature_matrix |>
+    select(all_of(TYPOLOGY_FEATURES)) |>
+    mutate(
+      across(all_of(TYPOLOGY_LOG_FEATURES), log1p),
+      across(all_of(TYPOLOGY_SIGNED_LOG_FEATURES), signed_log1p)
+    )
+
+  imputation_summary <- tibble(
+    feature = TYPOLOGY_FEATURES,
+    missing_values =
+      vapply(transformed[TYPOLOGY_FEATURES],
+             function(x) sum(is.na(x)), integer(1)),
+    imputation_value =
+      vapply(transformed[TYPOLOGY_FEATURES],
+             function(x) median(x, na.rm = TRUE), numeric(1))
+  )
+
+  imputed <- transformed
+  for (feature in TYPOLOGY_FEATURES) {
+    fill_value <- imputation_summary$imputation_value[
+      imputation_summary$feature == feature
+    ]
+    imputed[[feature]][is.na(imputed[[feature]])] <- fill_value
+  }
+
+  scaled <- scale(as.matrix(imputed[TYPOLOGY_FEATURES]))
+  list(
+    transformed = transformed,
+    imputed = imputed,
+    scaled = scaled,
+    imputation_summary = imputation_summary
+  )
+}
+
+top_loading_features <- function(loadings, component, n = 4L) {
+  loadings |>
+    transmute(feature, loading = .data[[component]]) |>
+    arrange(desc(abs(loading))) |>
+    slice_head(n = n) |>
+    pull(feature) |>
+    paste(collapse = "; ")
+}
+
+run_country_typology_pca <- function(feature_matrix) {
+  prepared <- prepare_typology_matrix(feature_matrix)
+  pca <- stats::prcomp(prepared$scaled, center = FALSE, scale. = FALSE)
+
+  variance <- pca$sdev^2
+  pca_summary <- tibble(
+    component = paste0("PC", seq_along(variance)),
+    variance_share = variance / sum(variance),
+    cumulative_share = cumsum(variance / sum(variance))
+  )
+
+  loadings <- as.data.frame(pca$rotation) |>
+    rownames_to_column("feature") |>
+    as_tibble()
+
+  scores <- as.data.frame(pca$x) |>
+    mutate(country = feature_matrix$country,
+           country_name = feature_matrix$country_name) |>
+    relocate(country, country_name)
+
+  component_diagnostics <- bind_rows(lapply(
+    paste0("PC", 1:3),
+    function(component) {
+      dimension_strength <- loadings |>
+        select(feature, loading = all_of(component)) |>
+        left_join(TYPOLOGY_FEATURE_GROUPS, by = "feature") |>
+        group_by(policy_dimension) |>
+        summarise(abs_loading = sum(abs(loading), na.rm = TRUE),
+                  .groups = "drop") |>
+        arrange(desc(abs_loading))
+
+      tibble(
+        component = component,
+        interpreted_dimension = dimension_strength$policy_dimension[1],
+        fiscal_scale_loading = dimension_strength$abs_loading[
+          match("Fiscal scale", dimension_strength$policy_dimension)
+        ],
+        legal_allocation_loading = dimension_strength$abs_loading[
+          match("Legal allocation", dimension_strength$policy_dimension)
+        ],
+        measurement_risk_loading = dimension_strength$abs_loading[
+          match("Measurement risk", dimension_strength$policy_dimension)
+        ],
+        top_features = top_loading_features(loadings, component)
+      )
+    }
+  )) |>
+    mutate(across(ends_with("_loading"), ~ if_else(is.na(.x), 0, .x)))
+
+  pca_summary <- pca_summary |>
+    left_join(component_diagnostics, by = "component")
+
+  list(
+    pca = pca,
+    summary = pca_summary,
+    loadings = loadings,
+    scores = scores,
+    imputation_summary = prepared$imputation_summary,
+    scaled = prepared$scaled
+  )
+}
+
+pairwise_cluster_agreement <- function(reference_cluster, comparison_cluster) {
+  reference_same <- outer(reference_cluster, reference_cluster, `==`)
+  comparison_same <- outer(comparison_cluster, comparison_cluster, `==`)
+  mean(
+    reference_same[upper.tri(reference_same)] ==
+      comparison_same[upper.tri(comparison_same)]
+  )
+}
+
+build_cluster_stability <- function(scaled_matrix,
+                                    k_values = 2:4,
+                                    draws = 200L,
+                                    jitter_sd = 0.05,
+                                    seed = 20260606L) {
+  bind_rows(lapply(k_values, function(k) {
+    set.seed(seed + k)
+    baseline <- stats::kmeans(scaled_matrix, centers = k, nstart = 100)
+
+    stability_draws <- replicate(draws, {
+      jittered <- scaled_matrix +
+        matrix(stats::rnorm(length(scaled_matrix), 0, jitter_sd),
+               nrow = nrow(scaled_matrix))
+      candidate <- stats::kmeans(jittered, centers = k, nstart = 20)
+      pairwise_cluster_agreement(baseline$cluster, candidate$cluster)
+    })
+
+    cluster_sizes <- tabulate(baseline$cluster, nbins = k)
+    tibble(
+      k = k,
+      stability_score = mean(stability_draws),
+      stability_min = min(stability_draws),
+      min_cluster_size = min(cluster_sizes),
+      max_cluster_size = max(cluster_sizes),
+      total_withinss = sum(baseline$withinss),
+      cluster_sizes = paste(cluster_sizes, collapse = "/"),
+      selected = k == 4L,
+      selection_reason = if_else(
+        k == 4L,
+        "Selected: stable, no single-country clusters, and separates conduit hubs, QDMTT-protected smaller states, residual-exposure states and zero-current-exposure states.",
+        ""
+      )
+    )
+  }))
+}
+
+label_cluster_profile <- function(total_revenue, mean_revenue_to_cit,
+                                  mean_qdmtt_share) {
+  case_when(
+    total_revenue <= 0 ~ "No preferred current exposure",
+    !is.na(mean_revenue_to_cit) & mean_revenue_to_cit >= 0.30 ~
+      "High-salience conduit hubs",
+    !is.na(mean_qdmtt_share) & mean_qdmtt_share >= 0.80 ~
+      "QDMTT-protected smaller exposure",
+    TRUE ~ "Residual IIR/UTPR and measurement exposure"
+  )
+}
+
+run_country_typology_clusters <- function(feature_matrix,
+                                          scaled_matrix,
+                                          selected_k = 4L,
+                                          seed = 20260606L) {
+  set.seed(seed)
+  cluster_fit <- stats::kmeans(scaled_matrix, centers = selected_k,
+                               nstart = 100)
+
+  country_clusters <- feature_matrix |>
+    mutate(cluster_id = cluster_fit$cluster)
+
+  cluster_profiles <- country_clusters |>
+    group_by(cluster_id) |>
+    summarise(
+      countries = paste(country, collapse = ", "),
+      n_countries = n(),
+      preferred_revenue = sum(preferred_revenue, na.rm = TRUE),
+      scenario_spread = sum(scenario_spread, na.rm = TRUE),
+      mean_revenue_to_cit_1200 = mean(revenue_to_cit_1200, na.rm = TRUE),
+      mean_revenue_to_gdp = mean(revenue_to_gdp, na.rm = TRUE),
+      mean_qdmtt_share = mean(qdmtt_share, na.rm = TRUE),
+      mean_residual_iir_utpr_exposure =
+        mean(residual_iir_utpr_exposure, na.rm = TRUE),
+      mean_sbs_extinguished_share =
+        mean(sbs_extinguished_share, na.rm = TRUE),
+      mean_high_risk_imputation_share =
+        mean(high_risk_imputation_share, na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    mutate(
+      across(where(is.numeric), nan_to_na),
+      policy_type = label_cluster_profile(
+        preferred_revenue,
+        mean_revenue_to_cit_1200,
+        mean_qdmtt_share
+      ),
+      policy_order = case_when(
+        policy_type == "High-salience conduit hubs" ~ 1L,
+        policy_type == "QDMTT-protected smaller exposure" ~ 2L,
+        policy_type == "Residual IIR/UTPR and measurement exposure" ~ 3L,
+        TRUE ~ 4L
+      )
+    ) |>
+    arrange(policy_order, desc(preferred_revenue)) |>
+    mutate(typology_id = paste0("T", row_number())) |>
+    select(typology_id, cluster_id, policy_type, everything(), -policy_order)
+
+  country_clusters <- country_clusters |>
+    left_join(
+      cluster_profiles |>
+        select(cluster_id, typology_id, policy_type),
+      by = "cluster_id"
+    ) |>
+    arrange(typology_id, country)
+
+  list(
+    fit = cluster_fit,
+    clusters = country_clusters,
+    profiles = cluster_profiles
+  )
+}
+
+build_measurement_sample_coverage <- function(stage1_bilateral,
+                                              stage1_affiliate_year,
+                                              years) {
+  eu_bilateral <- stage1_bilateral |>
+    filter(affiliate %in% EU27_ISO3, year %in% years) |>
+    mutate(
+      lowtax_distributional =
+        coalesce_zero(stage1_lowtax_profit_distributional),
+      high_risk_imputation_branch =
+        stage1_distributional_source %in%
+        c("shape_transport", "percentile_fit", "avg_only") |
+        coalesce(bspi_high_tv_flag, FALSE)
+    )
+
+  lowtax_total <- sum(eu_bilateral$lowtax_distributional, na.rm = TRUE)
+  direct_t4_lowtax <- sum(if_else(
+    eu_bilateral$stage1_distributional_source == "direct_t4",
+    eu_bilateral$lowtax_distributional,
+    0
+  ), na.rm = TRUE)
+  high_risk_lowtax <- sum(if_else(
+    eu_bilateral$high_risk_imputation_branch,
+    eu_bilateral$lowtax_distributional,
+    0
+  ), na.rm = TRUE)
+
+  overlap_affiliate_years <- stage1_affiliate_year |>
+    filter(
+      affiliate %in% EU27_ISO3,
+      year %in% years,
+      stage1_positive_profit_flag,
+      coalesce(direct_available, FALSE),
+      coalesce(percentile_available, FALSE)
+    ) |>
+    nrow()
+
+  tibble(
+    direct_t4_lowtax_share =
+      safe_divide(direct_t4_lowtax, lowtax_total),
+    high_risk_imputation_share =
+      safe_divide(high_risk_lowtax, lowtax_total),
+    overlap_affiliate_years = overlap_affiliate_years
+  )
+}
+
+build_measurement_sample_decomposition <- function(revenue_country_year,
+                                                   stage1_bilateral,
+                                                   stage1_affiliate_year) {
+  sample_anova <- bind_rows(lapply(seq_len(nrow(DECOMPOSITION_SAMPLES)),
+                                   function(i) {
+    sample_def <- DECOMPOSITION_SAMPLES[i, ]
+    sample_revenue <- revenue_country_year |>
+      filter(year >= sample_def$start_year,
+             year <= sample_def$end_year)
+
+    compute_factorial_anova(sample_revenue)$pooled |>
+      mutate(
+        sample_id = sample_def$sample_id,
+        sample_label = sample_def$sample_label,
+        start_year = sample_def$start_year,
+        end_year = sample_def$end_year
+      ) |>
+      relocate(sample_id, sample_label, start_year, end_year)
+  }))
+
+  sample_main_effects <- sample_anova |>
+    filter(interaction_order == 1L) |>
+    group_by(sample_id) |>
+    arrange(desc(eta_squared), .by_group = TRUE) |>
+    mutate(main_effect_rank = row_number()) |>
+    ungroup()
+
+  sample_summary <- bind_rows(lapply(seq_len(nrow(DECOMPOSITION_SAMPLES)),
+                                     function(i) {
+    sample_def <- DECOMPOSITION_SAMPLES[i, ]
+    sample_revenue <- revenue_country_year |>
+      filter(year >= sample_def$start_year,
+             year <= sample_def$end_year)
+    scenario_summary <- build_scenario_summary(sample_revenue)
+    coverage <- build_measurement_sample_coverage(
+      stage1_bilateral,
+      stage1_affiliate_year,
+      sample_def$start_year:sample_def$end_year
+    )
+	    main_effects <- sample_main_effects |>
+	      filter(sample_id == sample_def$sample_id) |>
+	      arrange(main_effect_rank)
+	    allocated_effects <- build_shapley_factor_attribution(
+	      sample_anova |> filter(sample_id == sample_def$sample_id)
+	    )
+	    interaction_eta <- sample_anova |>
+	      filter(sample_id == sample_def$sample_id, interaction_order >= 2L) |>
+	      summarise(value = sum(eta_squared, na.rm = TRUE), .groups = "drop") |>
+	      pull(value)
+	    preferred_revenue <- sample_revenue |>
+	      filter_preferred_core(behaviour = "behavioural") |>
+	      filter(factor4_sbs == "sbs") |>
+	      summarise(value = sum(revenue, na.rm = TRUE), .groups = "drop") |>
+	      pull(value)
+
+	    tibble(
+	      sample_id = sample_def$sample_id,
+	      sample_label = sample_def$sample_label,
+	      start_year = sample_def$start_year,
+      end_year = sample_def$end_year,
+      country_years = n_distinct(sample_revenue$country) *
+        n_distinct(sample_revenue$year),
+      eu_revenue_min = min(scenario_summary$eu_revenue, na.rm = TRUE),
+      eu_revenue_max = max(scenario_summary$eu_revenue, na.rm = TRUE),
+      eu_revenue_spread =
+        max(scenario_summary$eu_revenue, na.rm = TRUE) -
+        min(scenario_summary$eu_revenue, na.rm = TRUE),
+      etr_measurement_eta = main_effects$eta_squared[
+        match("x1_etr", main_effects$effect)
+      ],
+      sbs_regime_eta = main_effects$eta_squared[
+        match("x4_sbs", main_effects$effect)
+      ],
+      substance_specification_eta = main_effects$eta_squared[
+        match("x2_substance", main_effects$effect)
+      ],
+	      behavioural_response_eta = main_effects$eta_squared[
+	        match("x5_behaviour", main_effects$effect)
+	      ],
+	      sbie_rate_endpoint_eta = main_effects$eta_squared[
+	        match("x3_rates", main_effects$effect)
+	      ],
+	      etr_measurement_allocated_eta =
+	        allocated_effects$shapley_eta_squared[
+	          match("x1_etr", allocated_effects$effect)
+	        ],
+	      sbs_regime_allocated_eta =
+	        allocated_effects$shapley_eta_squared[
+	          match("x4_sbs", allocated_effects$effect)
+	        ],
+	      substance_specification_allocated_eta =
+	        allocated_effects$shapley_eta_squared[
+	          match("x2_substance", allocated_effects$effect)
+	        ],
+	      behavioural_response_allocated_eta =
+	        allocated_effects$shapley_eta_squared[
+	          match("x5_behaviour", allocated_effects$effect)
+	        ],
+	      sbie_rate_endpoint_allocated_eta =
+	        allocated_effects$shapley_eta_squared[
+	          match("x3_rates", allocated_effects$effect)
+	        ],
+	      interaction_eta = interaction_eta,
+	      preferred_behavioural_sbs_revenue = preferred_revenue,
+	      main_effect_ranking =
+	        paste(main_effects$effect_label, collapse = " > ")
+	    ) |>
+      bind_cols(coverage)
+  }))
+
+  list(
+    anova = sample_anova,
+    main_effects = sample_main_effects,
+    summary = sample_summary
+  )
+}
+
 build_hypothesis_summary <- function(anova_pooled, h4_summary) {
   main_effects <- anova_pooled |>
     filter(interaction_order == 1) |>
@@ -660,6 +1203,14 @@ format_bn <- function(x, digits = 1) {
 
 format_pct <- function(x, digits = 1) {
   formatC(100 * x, format = "f", digits = digits)
+}
+
+signed_log1p <- function(x) {
+  sign(x) * log1p(abs(x))
+}
+
+nan_to_na <- function(x) {
+  if_else(is.nan(x), NA_real_, x)
 }
 
 write_generated_latex <- function(anova_pooled, preferred_channel_summary,
@@ -794,6 +1345,8 @@ run_stage4_6_pipeline <- function() {
   cit_revenue <- readRDS(file.path(IN, "cit_revenue.rds"))
   wb_gdp <- readRDS(file.path(IN, "wb_gdp.rds"))
   wb_population <- readRDS(file.path(IN, "wb_population.rds"))
+  stage1_bilateral <- readRDS(file.path(IN, "stage1_bilateral_panel.rds"))
+  stage1_affiliate_year <- readRDS(file.path(IN, "stage1_affiliate_year.rds"))
 
   validation_summary <- validate_revenue_inputs(
     revenue_country_year,
@@ -848,6 +1401,29 @@ run_stage4_6_pipeline <- function() {
   fiscal_salience_country <- build_fiscal_salience_country(
     fiscal_salience_country_year
   )
+  country_typology_feature_matrix <- build_country_typology_feature_matrix(
+    fiscal_salience_country,
+    main_effects_by_country,
+    preferred_behavioural_channel_country_year,
+    stage1_bilateral
+  )
+  country_typology_pca <- run_country_typology_pca(
+    country_typology_feature_matrix
+  )
+  country_typology_stability <- build_cluster_stability(
+    country_typology_pca$scaled
+  )
+  country_typology_clusters <- run_country_typology_clusters(
+    country_typology_feature_matrix,
+    country_typology_pca$scaled,
+    selected_k = 4L
+  )
+  measurement_sample_decomposition <-
+    build_measurement_sample_decomposition(
+      revenue_country_year,
+      stage1_bilateral,
+      stage1_affiliate_year
+    )
   hypothesis_summary <- build_hypothesis_summary(anova_objects$pooled,
                                                  h4_summary)
 
@@ -939,6 +1515,39 @@ run_stage4_6_pipeline <- function() {
   write_csv(fiscal_salience_country,
             file.path(DIAG,
                       "step7_stage4_6_fiscal_salience_country.csv"))
+  write_csv(country_typology_feature_matrix,
+            file.path(DIAG,
+                      "step7_stage4_6_country_typology_feature_matrix.csv"))
+  write_csv(country_typology_pca$summary,
+            file.path(DIAG,
+                      "step7_stage4_6_country_typology_pca_summary.csv"))
+  write_csv(country_typology_pca$loadings,
+            file.path(DIAG,
+                      "step7_stage4_6_country_typology_pca_loadings.csv"))
+  write_csv(country_typology_pca$scores,
+            file.path(DIAG,
+                      "step7_stage4_6_country_typology_pca_scores.csv"))
+  write_csv(country_typology_pca$imputation_summary,
+            file.path(DIAG,
+                      "step7_stage4_6_country_typology_imputation.csv"))
+  write_csv(country_typology_stability,
+            file.path(DIAG,
+                      "step7_stage4_6_country_typology_cluster_stability.csv"))
+  write_csv(country_typology_clusters$clusters,
+            file.path(DIAG,
+                      "step7_stage4_6_country_typology_clusters.csv"))
+  write_csv(country_typology_clusters$profiles,
+            file.path(DIAG,
+                      "step7_stage4_6_country_typology_cluster_profiles.csv"))
+  write_csv(measurement_sample_decomposition$anova,
+            file.path(DIAG,
+                      "step7_stage4_6_measurement_sample_anova.csv"))
+  write_csv(measurement_sample_decomposition$main_effects,
+            file.path(DIAG,
+                      "step7_stage4_6_measurement_sample_main_effects.csv"))
+  write_csv(measurement_sample_decomposition$summary,
+            file.path(DIAG,
+                      "step7_stage4_6_measurement_sample_summary.csv"))
 
   saveRDS(scenario_summary, file.path(OUT, "stage4_6_scenario_summary.rds"))
   saveRDS(scenario_spread_country_year,
@@ -974,6 +1583,28 @@ run_stage4_6_pipeline <- function() {
           file.path(OUT, "stage4_6_fiscal_salience_country_year.rds"))
   saveRDS(fiscal_salience_country,
           file.path(OUT, "stage4_6_fiscal_salience_country.rds"))
+  saveRDS(country_typology_feature_matrix,
+          file.path(OUT, "stage4_6_country_typology_feature_matrix.rds"))
+  saveRDS(country_typology_pca$summary,
+          file.path(OUT, "stage4_6_country_typology_pca_summary.rds"))
+  saveRDS(country_typology_pca$loadings,
+          file.path(OUT, "stage4_6_country_typology_pca_loadings.rds"))
+  saveRDS(country_typology_pca$scores,
+          file.path(OUT, "stage4_6_country_typology_pca_scores.rds"))
+  saveRDS(country_typology_pca$imputation_summary,
+          file.path(OUT, "stage4_6_country_typology_imputation.rds"))
+  saveRDS(country_typology_stability,
+          file.path(OUT, "stage4_6_country_typology_cluster_stability.rds"))
+  saveRDS(country_typology_clusters$clusters,
+          file.path(OUT, "stage4_6_country_typology_clusters.rds"))
+  saveRDS(country_typology_clusters$profiles,
+          file.path(OUT, "stage4_6_country_typology_cluster_profiles.rds"))
+  saveRDS(measurement_sample_decomposition$anova,
+          file.path(OUT, "stage4_6_measurement_sample_anova.rds"))
+  saveRDS(measurement_sample_decomposition$main_effects,
+          file.path(OUT, "stage4_6_measurement_sample_main_effects.rds"))
+  saveRDS(measurement_sample_decomposition$summary,
+          file.path(OUT, "stage4_6_measurement_sample_summary.rds"))
   saveRDS(hypothesis_summary,
           file.path(OUT, "stage4_6_hypothesis_summary.rds"))
 
@@ -989,6 +1620,8 @@ run_stage4_6_pipeline <- function() {
   message(" - data/processed/stage4_6_scenario_spread_*.rds")
   message(" - data/processed/stage4_6_preferred_*.rds")
   message(" - data/processed/stage4_6_fiscal_salience_*.rds")
+  message(" - data/processed/stage4_6_country_typology_*.rds")
+  message(" - data/processed/stage4_6_measurement_sample_*.rds")
   message(" - diagnostics/step7_stage4_6_*.csv")
   message(" - writing/generated/stage4_6_results_tables.tex")
 }

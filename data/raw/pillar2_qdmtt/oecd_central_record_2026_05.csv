@@ -1,0 +1,96 @@
+jurisdiction,jurisdiction_name,rule_type,effective_date,qdmtt_safe_harbour,table_current_as,source_note
+AUS,Australia,qualified_iir,2024-01-01,,2026-05-01,OECD Central Record interactive page
+AUT,Austria,qualified_iir,2023-12-31,,2026-05-01,OECD Central Record interactive page
+BEL,Belgium,qualified_iir,2023-12-31,,2026-05-01,OECD Central Record interactive page
+BGR,Bulgaria,qualified_iir,2023-12-31,,2026-05-01,OECD Central Record interactive page
+CAN,Canada,qualified_iir,2023-12-31,,2026-05-01,OECD Central Record interactive page
+HRV,Croatia,qualified_iir,2023-12-31,,2026-05-01,OECD Central Record interactive page
+CZE,Czechia,qualified_iir,2023-12-31,,2026-05-01,OECD Central Record interactive page
+DNK,Denmark,qualified_iir,2023-12-31,,2026-05-01,OECD Central Record interactive page
+FIN,Finland,qualified_iir,2023-12-31,,2026-05-01,OECD Central Record interactive page
+FRA,France,qualified_iir,2023-12-31,,2026-05-01,OECD Central Record interactive page
+DEU,Germany,qualified_iir,2023-12-31,,2026-05-01,OECD Central Record interactive page
+GIB,Gibraltar,qualified_iir,2025-01-01,,2026-05-01,OECD Central Record interactive page
+GRC,Greece,qualified_iir,2023-12-31,,2026-05-01,OECD Central Record interactive page
+GGY,Guernsey,qualified_iir,2025-01-01,,2026-05-01,OECD Central Record interactive page
+HKG,Hong Kong (China),qualified_iir,2025-01-01,,2026-05-01,OECD Central Record interactive page
+HUN,Hungary,qualified_iir,2023-12-31,,2026-05-01,OECD Central Record interactive page
+IDN,Indonesia,qualified_iir,2025-01-01,,2026-05-01,OECD Central Record interactive page
+IRL,Ireland,qualified_iir,2023-12-31,,2026-05-01,OECD Central Record interactive page
+IMN,Isle of Man,qualified_iir,2025-01-01,,2026-05-01,OECD Central Record interactive page
+ITA,Italy,qualified_iir,2023-12-31,,2026-05-01,OECD Central Record interactive page
+JPN,Japan,qualified_iir,2024-04-01,,2026-05-01,OECD Central Record interactive page
+JEY,Jersey,qualified_iir,2025-01-01,,2026-05-01,OECD Central Record interactive page
+KOR,Korea,qualified_iir,2024-01-01,,2026-05-01,OECD Central Record interactive page
+LIE,Liechtenstein,qualified_iir,2024-01-01,,2026-05-01,OECD Central Record interactive page
+LUX,Luxembourg,qualified_iir,2023-12-31,,2026-05-01,OECD Central Record interactive page
+MYS,Malaysia,qualified_iir,2025-01-01,,2026-05-01,OECD Central Record interactive page
+NLD,Netherlands,qualified_iir,2023-12-31,,2026-05-01,OECD Central Record interactive page
+NZL,New Zealand,qualified_iir,2025-01-01,,2026-05-01,OECD Central Record interactive page
+MKD,North Macedonia,qualified_iir,2024-01-01,,2026-05-01,OECD Central Record interactive page
+NOR,Norway,qualified_iir,2024-01-01,,2026-05-01,OECD Central Record interactive page
+POL,Poland,qualified_iir,2024-01-01,,2026-05-01,OECD Central Record interactive page; elective IIR in 2024
+PRT,Portugal,qualified_iir,2024-01-01,,2026-05-01,OECD Central Record interactive page
+QAT,Qatar,qualified_iir,2025-01-01,,2026-05-01,OECD Central Record interactive page; self-certification based on draft secondary legislation
+ROU,Romania,qualified_iir,2023-12-31,,2026-05-01,OECD Central Record interactive page
+SGP,Singapore,qualified_iir,2025-01-01,,2026-05-01,OECD Central Record interactive page
+SVN,Slovenia,qualified_iir,2023-12-31,,2026-05-01,OECD Central Record interactive page
+ZAF,South Africa,qualified_iir,2024-01-01,,2026-05-01,OECD Central Record interactive page
+ESP,Spain,qualified_iir,2023-12-31,,2026-05-01,OECD Central Record interactive page
+SWE,Sweden,qualified_iir,2023-12-31,,2026-05-01,OECD Central Record interactive page
+CHE,Switzerland,qualified_iir,2025-01-01,,2026-05-01,OECD Central Record interactive page
+THA,Thailand,qualified_iir,2025-01-01,,2026-05-01,OECD Central Record interactive page
+TUR,Turkiye,qualified_iir,2024-01-01,,2026-05-01,OECD Central Record interactive page
+GBR,United Kingdom,qualified_iir,2023-12-31,,2026-05-01,OECD Central Record interactive page
+VNM,Viet Nam,qualified_iir,2024-01-01,,2026-05-01,OECD Central Record interactive page
+AUS,Australia,qualified_qdmtt,2024-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+AUT,Austria,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+BHS,Bahamas,qualified_qdmtt,2024-01-01,TRUE,2026-05-01,OECD Central Record interactive page; conditional DMTT in 2024
+BHR,Bahrain,qualified_qdmtt,2025-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+BRB,Barbados,qualified_qdmtt,2024-01-01,TRUE,2026-05-01,OECD Central Record interactive page; conditional DMTT in 2024
+BEL,Belgium,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+BRA,Brazil,qualified_qdmtt,2025-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+BGR,Bulgaria,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+CAN,Canada,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+HRV,Croatia,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+CZE,Czechia,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+DNK,Denmark,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+FIN,Finland,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+FRA,France,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+DEU,Germany,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+GIB,Gibraltar,qualified_qdmtt,2024-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+GRC,Greece,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+GGY,Guernsey,qualified_qdmtt,2025-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+HKG,Hong Kong (China),qualified_qdmtt,2025-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+HUN,Hungary,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+IDN,Indonesia,qualified_qdmtt,2025-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+IRL,Ireland,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+IMN,Isle of Man,qualified_qdmtt,2025-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+ITA,Italy,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+JPN,Japan,qualified_qdmtt,2026-04-01,TRUE,2026-05-01,OECD Central Record interactive page
+KEN,Kenya,qualified_qdmtt,2025-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+KWT,Kuwait,qualified_qdmtt,2025-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+LIE,Liechtenstein,qualified_qdmtt,2024-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+LUX,Luxembourg,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+MYS,Malaysia,qualified_qdmtt,2025-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+NLD,Netherlands,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+MKD,North Macedonia,qualified_qdmtt,2024-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+NOR,Norway,qualified_qdmtt,2024-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+OMN,Oman,qualified_qdmtt,2025-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+POL,Poland,qualified_qdmtt,2024-01-01,TRUE,2026-05-01,OECD Central Record interactive page; elective DMTT in 2024
+PRT,Portugal,qualified_qdmtt,2024-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+QAT,Qatar,qualified_qdmtt,2025-01-01,TRUE,2026-05-01,OECD Central Record interactive page; self-certification based on draft secondary legislation
+ROU,Romania,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+SGP,Singapore,qualified_qdmtt,2025-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+SVK,Slovak Republic,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+SVN,Slovenia,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+ZAF,South Africa,qualified_qdmtt,2024-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+ESP,Spain,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+SWE,Sweden,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+CHE,Switzerland,qualified_qdmtt,2024-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+THA,Thailand,qualified_qdmtt,2025-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+TUR,Turkiye,qualified_qdmtt,2024-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+ARE,United Arab Emirates,qualified_qdmtt,2025-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+GBR,United Kingdom,qualified_qdmtt,2023-12-31,TRUE,2026-05-01,OECD Central Record interactive page
+VNM,Viet Nam,qualified_qdmtt,2024-01-01,TRUE,2026-05-01,OECD Central Record interactive page
+USA,United States,qualified_sbs,2026-01-01,,2026-01-05,OECD Central Record interactive page

@@ -172,3 +172,10 @@
 - Anchor notation in a single reference table (Table \ref{tab:notation}) and resist redefining symbols across sections. When a new symbol is introduced locally, remind the reader of it in words: "$\phi$, the ratio of the substance carve-out to profit".
 - SAt the end of each major section, one sentence recaps what was established and what the next section will do. This is not a summary; it is a navigation aid.
 
+## Additional feedback in terms of writing style and audience
+The “problem” with Adriaan is that he doesn't understand what you are doing. Of course, he knows all the statistical methods and techniques, better than I do, but he lacks a clear explanation. In short, ask yourself “And why then…” and always try to write this down in clear language. He is not a tax expert; naturally, he knows a lot about economics and will have a clear picture of the role of taxes on the economy, but he is not an expert. Most readers of your paper won't be experts either; they might be policy officers looking for clear solutions or arguments for their problems. Or they want to reproduce something using a good example. Your paper must fulfill that function (too).
+
+So, it is important to first write down clearly and simply why you are doing what you are doing. No difficult concepts; those will come later in your document. For example, you could describe that: “by switching various policy decisions ‘on or off’ in the model, the effect of a specific combination of decisions is simulated based on previous results.” After that, you can refer to the simulation and explain which model, what the advantages and disadvantages are, etc.
+
+A brief conclusion: “An intelligent person can do something complex, but a wise person makes it look simple!”
+

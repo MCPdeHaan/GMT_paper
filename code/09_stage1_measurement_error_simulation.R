@@ -484,7 +484,7 @@ run_stage1_measurement_error_simulation <- function(
     file.path(IN, "stage3_behavioral_affiliate_year.rds")
   )
   model_comparison <- readRDS(file.path(IN, "stage3_model_comparison.rds"))
-  pwc_tracker <- readRDS(file.path(IN, "pwc_pillar2_tracker.rds"))
+  oecd_central_record <- readRDS(file.path(IN, "oecd_pillar2_central_record.rds"))
   crossval_affiliate_year <- read_csv(
     file.path(DIAG, "step3_stage1_crossval_affiliate_year.csv"),
     show_col_types = FALSE
@@ -495,7 +495,7 @@ run_stage1_measurement_error_simulation <- function(
     slice(1) |>
     pull(model_spec)
 
-  policy_flags <- build_policy_flags(pwc_tracker)
+  policy_flags <- build_policy_flags(oecd_central_record)
   calibration <- calibrate_stage1_measurement_error(crossval_affiliate_year)
   stage1_draws <- draw_stage1_measurement_error(
     stage1_affiliate_year,

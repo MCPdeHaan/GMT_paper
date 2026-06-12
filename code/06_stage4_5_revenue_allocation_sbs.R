@@ -115,13 +115,13 @@ build_collector_activity <- function(stage3_panel) {
       affiliate_policy_utpr_by_2026,
       affiliate_policy_iir_utpr_explicit_by_2026,
       affiliate_policy_iir_utpr_ambiguous_by_2026,
-      affiliate_pwc_topup_by_2026
+      affiliate_oecd_iir_by_2026
     ) |>
     mutate(
       collector_is_eu27 = collector %in% EU27_ISO3,
       collector_utpr_flag = coalesce(
         affiliate_policy_iir_utpr_by_2026,
-        affiliate_pwc_topup_by_2026,
+        affiliate_oecd_iir_by_2026,
         FALSE
       ),
       collector_utpr_explicit_flag = coalesce(
