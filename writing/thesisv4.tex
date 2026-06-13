@@ -507,9 +507,9 @@ The raw CbCR panel is cleaned into a bilateral panel. The full 2017--2022 analyt
 
 \input{generated/results_tables/data_sample_construction.tex}
 
-\subsubsection{Double-counting}\label{sec:doublecounting}
+\subsubsection{Correction for double-counted profit}\label{sec:doublecounting}
 
-Public CbCR profit data suffer from double counting through intra-group dividends and ownership chains. For example, when a German parent owns a Dutch holding company that in turn owns an Irish operating subsidiary, the Irish subsidiary's profits may appear in both the German CbCR filing, through the ultimate parent, and in the Dutch profits, through the intermediate holding company. \citet{blouin2023} show why this problem matters for profit-shifting estimates: the tax numerator is usually not inflated in the same way, so double-counted profit mechanically depresses effective tax rates (ETRs). \citet{garcia-bernardo2022a} and \citet{hugger2026} correct the problem with richer reconciliation information than the public OECD CbCR panel provides.
+An effective tax rate (ETR) is a ratio: current-year income tax accrued \emph{divided} by profit. If profit is counted twice but tax is not, the measured ETR becomes too low even when the underlying tax position has not changed. Public CbCR profit data can suffer from this problem through intra-group dividends and ownership chains. Suppose a German ultimate parent owns a Dutch holding company, which in turn owns an Irish operating subsidiary. The Irish operating profit may be reported once as Irish affiliate profit and again as Dutch holding-company profit if the Dutch entity records dividend or participation income from the Irish subsidiary.\citet{blouin2023} show why this matters for profit-shifting estimates: the tax numerator is usually not inflated in the same way, so double-counted profit mechanically depresses ETRs. \citet{garcia-bernardo2022a} and \citet{hugger2026} correct the problem with richer reconciliation data
 
 Let $\pi_{pjt}$ denote reported CbCR profit for parent jurisdiction $p$, affiliate jurisdiction $j$ and year $t$, and let $\pi^{adj}_{pjt}$ denote the OECD adjusted-profit field where it is reported. The correction is a measurement model for the domestic ultimate-parent correction share $\rho_{pt}$, not a fitted causal model of dividend flows. Public CbCR alone does not identify the unobserved dividend component. The paper therefore combines four signals in a bounded parent-year reconciliation model: observed OECD adjusted-profit cells, official country-note evidence, the US macro reconciliation in \citet{garcia-bernardo2022a}, and a low-precision public domestic-versus-foreign ETR parity diagnostic following the logic in \citet{hugger2026}. Appendix Section \ref{sec:profit_correction_reproducibility} gives the model and validation.
 
@@ -1264,20 +1264,13 @@ The thesis therefore answers the research question as follows. In public 2017--2
 \setcounter{figure}{0}
 \setcounter{equation}{0}
 
-\section*{Guide to the appendices}\label{app:guide}
-\addcontentsline{toc}{section}{Guide to the appendices}
-
-The appendices follow the same order as the paper. Appendix \ref{app:data} is the data audit: it is needed if the reader wants to understand the units, raw source roles, CbCR architecture and construction of the merged bilateral panel. Appendix \ref{app:stage1_measurement} supports the central measurement claim and is the most important appendix for the decomposition result. Appendix \ref{app:stage2_substance} documents the substance and sectoral bridge, which is needed for the SBIE and SBTI exposure results. Appendix \ref{app:stage3_behaviour} contains the behavioural econometrics and should be read when assessing the semi-elasticity rather than taking it as a scenario coefficient. Appendix \ref{app:stage4_allocation} supports the allocation and variance-decomposition results. Appendix \ref{app:country_policy} is useful for country-specific policy interpretation, but is not required to follow the EU-level decomposition. Appendix \ref{app:online} is a replication map rather than part of the reader appendix.
-
-The distinction is intentionally strict. Material is included in the reader appendix only when it is cited from the main text or needed to audit a main table, equation or diagnostic. Material that is useful only for rerunning the code, inspecting logs, or reading full machine outputs belongs in the online appendix map.
-
 \section{Data construction and source audit}\label{app:data}
 
-This appendix supports Section \ref{sec:data}. It is the place to check whether the objects used later in the revenue model are measured at the right level of aggregation. It does not contain the Stage 1 to Stage 4 result tables; those appear in the pipeline appendices below.
+This appendix supports Section \ref{sec:data}. 
 
 \subsection{Source provenance}\label{app:source_provenance}
 
-All data sources used in the appendix are public or script-retrieved. The OECD CbCR tables, OECD statutory CIT rates, OECD forward-looking ETRs and OECD BEPS implementation indicators are collected through the OECD SDMX REST endpoint \url{https://sdmx.oecd.org/public/rest/data}. Eurostat inward FATS is collected through the Eurostat SDMX endpoint \url{https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data}. ILO wage data are collected through the ILO SDMX endpoint \url{https://sdmx.ilo.org/rest/data}. World Bank GDP, population and country-classification data are collected through \url{https://api.worldbank.org/v2/}. BEA U.S. MNE benchmark files are collected from the published BEA file URLs and the BEA API endpoint \url{https://apps.bea.gov/api/data}. EUKLEMS \& INTANProd files are collected from the public download links recorded in \path{code/collect_all_data.py}. Pillar Two legal allocation status is taken from the \href{https://www.oecd.org/content/dam/oecd/en/topics/policy-sub-issues/global-minimum-tax/administrative-guidance-globe-rules-pillar-two-central-record-legislation-transitional-qualified-status.pdf}{OECD Central Record PDF}. Exact source URLs, raw filenames and access timestamps are part of the online appendix because these databases are regularly updated.
+All data sources used in the appendix are public. The OECD CbCR tables, OECD statutory CIT rates, OECD forward-looking ETRs and OECD BEPS implementation indicators are collected through the OECD SDMX REST endpoint \url{https://sdmx.oecd.org/public/rest/data}. Eurostat inward FATS is collected through the Eurostat SDMX endpoint \url{https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data}. ILO wage data are collected through the ILO SDMX endpoint \url{https://sdmx.ilo.org/rest/data}. World Bank GDP, population and country-classification data are collected through \url{https://api.worldbank.org/v2/}. BEA U.S. MNE benchmark files are collected from the published BEA file URLs and the BEA API endpoint \url{https://apps.bea.gov/api/data}. EUKLEMS \& INTANProd files are collected from the public download links recorded in \path{code/collect_all_data.py}. Pillar Two legal allocation status is taken from the \href{https://www.oecd.org/content/dam/oecd/en/topics/policy-sub-issues/global-minimum-tax/administrative-guidance-globe-rules-pillar-two-central-record-legislation-transitional-qualified-status.pdf}{OECD Central Record PDF}.
 
 \subsection{Unit of observation}\label{app:unit_obs}
 
@@ -1359,7 +1352,6 @@ VI & MNE group size classes, 2022 only & No ETR bracket & Financial and activity
 
 \subsubsection{Profit reconciliation model}\label{sec:profit_correction_reproducibility}
 
-\paragraph{Estimand.}
 The profit correction is audited separately because it changes the denominator of every later ETR and top-up calculation. The estimand is not a causal effect and not a fitted dividend-flow model. It is the parent-year share of reported domestic UPE profit that should be removed because it represents dividends, participation income or holding-chain profit already counted elsewhere:
 \begin{equation}\label{eq:profit_reconciliation_estimand}
 \rho_{pt}
@@ -1369,8 +1361,7 @@ The profit correction is audited separately because it changes the denominator o
 \end{equation}
 Public CbCR identifies the single-counted denominator only where OECD adjusted profit is observed. Everywhere else the problem is partially identified measurement error. This is why the baseline in equation \eqref{eq:profit_reconciliation_branch} corrects domestic UPE cells and leaves foreign affiliate cells unchanged. \citet{hugger2026} place the main correction on UPE-jurisdiction profit, while noting that affiliate-to-affiliate dividend chains may remain. Moving those foreign-chain corrections into the preferred branch would require ownership-chain information that public aggregate CbCR does not contain.
 
-\paragraph{Evidence sources.}
-The evidence hierarchy is stored in \path{data/manual/profit_correction_anchors.csv} and expanded to parent-year signals in \path{code/02a_profit_reconciliation_model.R}. The strongest public signal is observed OECD adjusted profit. For any supported group $G$,
+The strongest public signal is observed OECD adjusted profit. For any supported group $G$,
 \[
 \widehat{\rho}^{adj}_{G}
 =1-
@@ -1400,7 +1391,6 @@ The 55.5\% cap belongs to this public comparison method in \citet{hugger2026}; i
 
 \input{generated/results_tables/profit_correction_evidence_table.tex}
 
-\paragraph{Model.}
 Each evidence row is written as $(p,t,s)$ with signal $\rho_{spt}$, source type $s$, profit weight and source standard error. The implemented model transforms the bounded correction rate to a logit scale,
 \[
 y_{spt}
@@ -1428,8 +1418,7 @@ Table \ref{tab:profit_correction_parent_year_top20} reports the largest parent-l
 
 \input{generated/results_tables/profit_correction_parent_year_top20.tex}
 
-\paragraph{Validation and propagation.}
-The validation uses three checks. First, high-credibility signals are held out one source-parent-year at a time and predicted from the remaining evidence. Second, \path{data/processed/diagnostics/profit_correction_domestic_foreign_etr_balance.csv} compares four specifications: uncorrected profit, the earlier static benchmark, parity-only and the hybrid model. This check asks whether the correction moves domestic and foreign ETRs into a more plausible range without mechanically forcing equality. Third, the revenue sensitivity propagates 500 draws of $\rho_{pt}$ through two objects: a pre-SBIE top-up proxy and the preferred behavioural SbS Stage 4.6 panel. The final-revenue propagation keeps distributional low-tax shares, behavioural filters and legal allocation weights fixed, then recomputes the preferred profit denominator and SBIE filter under each draw. It is therefore a conditional profit-correction interval, not a replacement for the main factorial scenario spread.
+The validation uses three checks. First, high-credibility signals are held out one source-parent-year at a time and predicted from the remaining evidence. Second, four specifications are compared: uncorrected profit, the earlier static benchmark, parity-only and the hybrid model. This check asks whether the correction moves domestic and foreign ETRs into a more plausible range without mechanically forcing equality. Third, the revenue sensitivity propagates 500 draws of $\rho_{pt}$ through two objects: a pre-SBIE top-up proxy and the preferred behavioural SbS Stage 4.6 panel. The final-revenue propagation keeps distributional low-tax shares, behavioural filters and legal allocation weights fixed, then recomputes the preferred profit denominator and SBIE filter under each draw. It is therefore a conditional profit-correction interval, not a replacement for the main factorial scenario spread.
 
 The domestic-versus-foreign diagnostic is not treated as a loss function. In the realised panel, parity-only gives the smallest profit-weighted absolute domestic-foreign ETR gap, 1.8 percentage points, because it is constructed to close that gap. The hybrid model leaves a larger absolute gap, 11.0 percentage points, and a positive mean gap, 9.6 percentage points. That result is informative: the external anchors imply larger domestic UPE corrections than the public parity proxy would support, especially for the United States. The model therefore prioritises higher-credibility reconciliation evidence over a public-data equality condition that is only weakly identifying.
 
@@ -1472,7 +1461,6 @@ No usable Stage 1 source & 185 & Pair-year cells left without a valid source for
 \bottomrule
 \end{tabularx}
 \begin{flushleft}
-\footnotesize\textit{Source:} Pipeline diagnostics in \path{data/processed/diagnostics/step2_panel_summary.csv}, \path{data/processed/diagnostics/step3_stage1_summary.csv}, and \path{data/processed/diagnostics/step3_stage1_pair_year_branch_by_year.csv}.
 \end{flushleft}
 \end{table}
 
@@ -1786,11 +1774,5 @@ This appendix supports Section \ref{sec:results_sbs}. It is useful for readers w
 \input{generated/results_tables/appendix_country_typology_features.tex}
 \input{generated/results_tables/appendix_country_typology_cluster_stability.tex}
 
-\clearpage
-\section{Online appendix map}\label{app:online}
-
-The online appendix is the replication layer. It should contain the full run order for \path{code/01_data_cleaning.R} through \path{code/11_sesh_notch_bunching_diagnostic.R}, the session information for the R and Python environments, checksums or timestamps for raw source files, and the log files needed to reproduce the generated tables in \path{writing/generated/}. It should also contain source-download metadata for regularly updated databases, including the OECD CbCR tables, OECD forward-looking ETRs, OECD statutory CIT rates, Eurostat FATS, EUKLEMS \& INTANProd, OECD and ILO wage data, World Bank macro variables, BEPS implementation indicators and Pillar Two implementation records.
-
-Auxiliary output belongs online when it is not cited from the main text. This includes full country-by-year revenue matrices, raw jurisdiction-influence runs, machine-readable versions of all diagnostics, suppressed-cell bridge logs, full SESH density-bin output and exploratory specifications that were rejected before the scorecard stage. The reader appendix above remains the citation layer. The online appendix remains the reproducibility layer.
 
 \end{document}
