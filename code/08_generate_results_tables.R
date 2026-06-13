@@ -681,8 +681,7 @@ write_profit_correction_table <- function() {
     "\\begin{tabularx}{\\textwidth}{@{}>{\\raggedright\\arraybackslash}Xrrrrrr@{}}",
     "\\toprule",
     "Category & Cells & Reported & Corrected & Reduction & Rate (\\%) & Share (\\%) \\\\",
-    "\\midrule",
-    "\\multicolumn{7}{@{}l}{\\textit{Profit-base adjustment, USD billions}} \\\\"
+    "\\midrule"
   )
 
   for (i in seq_len(nrow(effect_rows))) {
@@ -710,7 +709,7 @@ write_profit_correction_table <- function() {
     paste0(
       "\\footnotesize\\raggedright \\textit{Notes:} Positive-profit analytical cells, current USD billions. ",
       "Reported profit is public CbCR profit before correction. Corrected profit is the reconciliation branch used downstream. ",
-      "Share is the share of the total profit reduction, not the share of reported profit. Domestic model rows are model-shrunk domestic UPE cells."
+      "Share is the share of the total profit reduction. Domestic model rows are model-shrunk domestic UPE cells."
     ),
     "\\end{minipage}",
     "\\end{table}"
