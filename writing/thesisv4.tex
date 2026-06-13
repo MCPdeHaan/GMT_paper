@@ -528,7 +528,7 @@ The Global Minimum Tax first identifies low-taxed profit, but it does not apply 
 
 CbCR reports tangible assets and employees by host country, but it does not report payroll. Payroll is therefore reconstructed by multiplying the number of employees in each affiliate-year cell by a country-year wage benchmark. The wage hierarchy uses additional \emph{OECD average annual wage} data where available, \emph{ILO earnings} data where OECD coverage is missing, and the nearest available year for the same jurisdiction when no contemporaneous wage observation exists (only 3.9\% of the cases).
 
-The sectoral bridge addresses a separate data problem. CbCR observes profit, tax, employees and tangible assets by host country, but not by sector. Eurostat \emph{inward FATS} and \emph{EUKLEMS} \& \emph{INTANProd} observe activity by NACE sector for foreign-controlled enterprises in EU Member States, but they do not report corporate tax liabilities. No dataset therefore observes both the tax base and the sectoral structure of the activities that generate it. The sectoral bridge is used only to allocate country-level CbCR aggregates across sectors. This reconciliation follows the logic of macro profit-shifting work that combines FATS information with national accounts data \citep{torslov2023}.
+The sectoral bridge addresses a separate data problem. CbCR observes profit, tax, employees and tangible assets by host country, but not by sector. Eurostat \emph{inward FATS} and \emph{EUKLEMS \& INTANProd} observe activity by NACE sector for foreign-controlled enterprises in EU Member States, but they do not report corporate tax liabilities. No dataset therefore observes both the tax base and the sectoral structure of the activities that generate it. The sectoral bridge is used only to allocate country-level CbCR aggregates across sectors. This reconciliation follows the logic of macro profit-shifting work that combines FATS information with national accounts data \citep{torslov2023}.
 
 The allocation uses the most direct sectoral variable available for each component of the model. Payroll is allocated with FATS personnel costs where possible, with employment-scaled and turnover-scaled shares as fallbacks when personnel costs are suppressed. Tangible assets are allocated with EUKLEMS tangible capital stock. Where capital-stock coverage is incomplete, FATS investment is used as a fallback. The profit denominator is allocated with FATS gross operating surplus, with value added and turnover as fallbacks. These shares distribute the CbCR country aggregates across EU host-country sectors for the SBIE and SBTI exposure analysis.
 
@@ -546,62 +546,65 @@ Table \ref{tab:data_panel_coverage} gives the first descriptive overview. Covera
 
 \input{generated/results_tables/data_panel_coverage.tex}
 
-Table \ref{tab:data_summary_statistics} gives the second descriptive lesson. The panel is highly skewed. The mean corrected-profit cell is US\$2.9 billion, the median is US\$77.1 million and the 90th percentile is US\$2.7 billion. A small number of large cells carries much of the revenue weight, so influence diagnostics are necessary later in the paper. The median bounded ETR is 14.9\%, almost exactly at the GMT threshold. Measurement around the threshold is therefore economically decisive: it determines which profit enters the GMT base.
+Table \ref{tab:data_summary_statistics} presents the summary statistics. The panel is highly skewed. The mean corrected-profit cell is US\$2.9 billion, the median is US\$77.1 million and the 90th percentile is US\$2.7 billion. A small number of large cells carries much of the revenue weight, so influence diagnostics are necessary later in the paper. The median bounded ETR is 14.9\%, almost exactly at the GMT threshold. Measurement around the threshold is therefore economically decisive: it determines which profit enters the GMT base.
 
 \input{generated/results_tables/data_summary_statistics.tex}
 
 The contrast between average and distributional measurement is the main data fact. The average rule classifies 49.6\% of positive-profit cells as below the GMT threshold, yet its median low-taxed share is zero because it treats each affiliate jurisdiction as all below or all above the threshold. The distributional low-taxed share has a median of 39.8\% and a 75th percentile of 88.1\%. In aggregate, the distributional branch raises measured low-taxed profit from US\$11.3 trillion to US\$15.3 trillion and raises pre-SBIE top-up tax from US\$843.1 billion to US\$1.48 trillion. The difference is larger for liability than for the base because the distributional branch identifies profit further below the threshold: the median top-up gap on the low-taxed slice is 9.2 percentage points.
 
-The EU27 slice shows the fiscal relevance of the measurement problem. EU affiliates account for US\$6.3 trillion in corrected positive profit and US\$3.2 trillion in low-taxed profit, a low-taxed share of 50.7\%. The four largest EU low-taxed-profit affiliate jurisdictions in the panel are the Netherlands, Ireland, Luxembourg and Germany; together they account for 69.0\% of EU low-taxed profit. The first three are expected from the profit-shifting literature. Germany is different: it appears because a large real economy can contain substantial low-taxed mass inside a high average-tax environment. This is precisely the case where jurisdiction averages lose information.
+The EU27 slice shows the fiscal relevance of the measurement problem. EU affiliates account for US\$6.3 trillion in corrected positive profit and US\$3.2 trillion in low-taxed profit, a low-taxed share of 50.7\%. The four largest EU low-taxed-profit affiliate jurisdictions in the panel are the Netherlands, Ireland, Luxembourg and Germany; together they account for 69.0\% of EU low-taxed profit. The first three are consistent with the profit-shifting literature, which repeatedly identifies the Netherlands, Ireland and Luxembourg as important low-tax or tax-haven locations for multinational profits \citep{clausing2016,garcia-bernardo2021,garcia-bernardo2024}. Germany is different: it appears because a large real economy can contain substantial low-taxed mass inside a high average-tax environment. This is precisely the case where jurisdiction averages lose information.
 
 \subsection{Data limitations and implications for identification}\label{sec:data_limitations}
 
-These limitations define the identification boundary. Public CbCR is aggregated, so the paper estimates uncertainty in public-data revenue estimates rather than exact statutory liability under confidential GloBE filings. Firm-level ETR distributions are observed only through bracket and percentile summaries. CbCR profit before tax differs from GloBE income; the correction reduces visible double counting, although it cannot reproduce the full statutory base. Payroll is proxied, so the SBIE and SBTI layers carry measurement error that is separate from the low-taxed-profit measurement. The sectoral decomposition is an exposure bridge based on FATS and EUKLEMS shares rather than observed sectoral tax liabilities. Finally, the panel is pre-implementation, so behavioural responses, safe-harbour elections and legal allocation outcomes are counterfactual. The credible claim is therefore a ranked decomposition of public-data uncertainty. A point estimate alone would overstate what the public data can identify.
+These limitations define the identification boundary and place the paper in the CbCR-based revenue-estimation literature. Public CbCR improves cross-country coverage but remains anonymised and aggregated by design, which is why the OECD presents it as a monitoring instrument rather than a substitute for confidential tax filings data \citep{oecd2025a}. Firm-level ETR distributions are observed only through bracket and percentile summaries, so the distributional branch follows the same partial-observation logic as the recent low-taxed-profit literature \citep{hugger2026}. CbCR profit before tax differs from GloBE income, and CbCR tax accrued differs from adjusted covered taxes. The correction reduces visible double counting, but it cannot reproduce the full GloBE base or the deferred-tax adjustments discussed in the accounting literature \citep{blouin2023,hanlon2023}. Payroll is proxied, so the SBIE and SBTI layers carry measurement error that is separate from the low-taxed-profit measurement, and this matters because the GMT literature shows that substance relief can materially reduce the effective floor \citep{devereux2023,schjelderup2024}. The sectoral decomposition is therefore an exposure bridge based on FATS and EUKLEMS shares rather than observed sectoral tax liabilities. Finally, the panel is pre-implementation, so behavioural responses, safe-harbour elections and legal allocation outcomes are counterfactual, as in the pre-reform revenue studies that rely on CbCR and simulated rule application \citep{barake2022,boukal2026}. The credible claim is therefore a ranked decomposition of public-data uncertainty. A point estimate alone would overstate what the public data can identify.
 
-The key source-specific bias is aggregation. A jurisdiction-average ETR is informative about the tax system faced by reported profit in that jurisdiction, yet it cannot show whether low-taxed and high-taxed affiliates coexist inside the same country. This matters directly for the GMT because the reform applies to the low-taxed part of the profit distribution. \citet{hugger2026} show that 53.2\% of global low-taxed profit is located in jurisdictions whose average ETR exceeds 15\%. Table IV therefore changes the empirical object: the paper can measure the low-taxed mass rather than infer it from a jurisdiction average.
-
+The key source-specific bias is aggregation. A jurisdiction-average ETR is informative about the tax system faced by reported profit in that jurisdiction, yet it cannot show whether low-taxed and high-taxed affiliates coexist inside the same country. This is precisely the margin on which jurisdiction-average GMT estimates differ from newer distributional evidence. \citet{barake2022} use jurisdiction-average ETRs and acknowledge that within-country heterogeneity can bias the measured GMT base, while \citet{hugger2026} show that 53.2\% of global low-taxed profit is located in jurisdictions whose average ETR exceeds 15\%. The bias matters directly for the GMT because the reform applies to the low-taxed part of the profit distribution rather than to the jurisdiction average. 
 
 \section{Measurement framework}\label{sec:measurement_framework}
 
-The cleaned panel from Section \ref{sec:data} supplies corrected profit, tax accrued, employees, tangible assets, payroll proxies and measurement-support indicators. Four quantities are constructed here for use in the revenue model: the low-taxed profit share, the average top-up gap, the SBIE shield and the sectoral SBTI exposure index. Behavioural responses, collection-right assignment and variance decomposition are addressed in Section \ref{sec:methodology}.
+The cleaned CbCR panel from Section \ref{sec:data} provides the accounting inputs needed to approximate GMT revenue, but it is not a Pillar Two tax return. This section converts public CbCR into a set of measurement objects that correspond closely to the design of the Global Minimum Tax, which forms the basis of the methodolgy in Section \ref{sec:methodology}.
 
-\subsection{Overview: from corrected profit to measurable top-up liability}\label{sec:measurement_overview}
+\subsection{From corrected profit to measurable top-up liability}\label{sec:measurement_overview}
 
-Public CbCR is a pre-reform accounting panel. It does not report GloBE income, covered taxes, qualifying tax incentives or safe-harbour elections. The measurement task is to convert the corrected positive-profit base $\pi^{*}_{p,j,t}$ into a measurable low-taxed liability base, keeping the distinction between measured low-taxed profit and final revenue explicit throughout.
+The starting point is the corrected positive-profit base $\pi^{*}_{p,j,t}$ from equation \eqref{eq:profit_reconciliation_branch}. This is the public-data denominator after the double-counting correction in Section \ref{sec:doublecounting}. It is indexed by parent jurisdiction $p$, affiliate jurisdiction $j$ and year $t$. The affiliate jurisdiction matters for measuring low-taxed profit and substance. The parent jurisdiction is retained because the allocation rules in Section \ref{sec:sbs} later determine whether source, parent or other implementing jurisdictions collect the top-up tax.
 
-Let $T=0.15$ denote the Pillar Two threshold. For each affiliate jurisdiction and year, the Stage 1 measurement branch $e$ supplies two objects: the share of profit below the threshold, $s_{j,t}^{<T,e}$, and the average shortfall from the threshold inside that low-taxed part, $\bar{\delta}_{j,t}^{\text{top},e}$. Low-taxed profit is a base object:
+Let $T=0.15$ denote the minimum rate. A measurement branch $e$ is one way of using public data to approximate the same object: the distribution of ETRs faced by profit in affiliate jurisdiction $j$ in year $t$. Each branch supplies two quantities. The first is the share of corrected profit taxed below the threshold, $s_{j,t}^{<T,e}$. This converts corrected bilateral profit into measured low-taxed profit:
 \begin{equation}\label{eq:lowtax_profit}
 \ell_{p,j,t}^{e}=s_{j,t}^{<T,e}\pi^{*}_{p,j,t}.
 \end{equation}
-Top-up liability is smaller and requires the average gap:
+The second quantity is the average shortfall from the 15\% floor inside the low-taxed part, $\bar{\delta}_{j,t}^{\text{top},e}$. This gap is needed because low-taxed profit is not the same as liability. A dollar of profit taxed at 14\% and a dollar of profit taxed at 2\% both enter $\ell_{p,j,t}^{e}$, but the second dollar has a much larger top-up gap. The pre-SBIE liability rate on corrected profit is therefore:
 \begin{equation}\label{eq:liability_rate}
 \lambda_{j,t}^{e}=s_{j,t}^{<T,e}\bar{\delta}_{j,t}^{\text{top},e}.
 \end{equation}
-A cell can therefore contain low-taxed profit without generating the same amount of liability as another cell with the same low-taxed share. The liability also depends on how far the low-taxed part sits below 15\%, how much profit is shielded by the SBIE, and the later behavioural and legal filters.
+Multiplying $\pi^{*}_{p,j,t}$ by $\lambda_{j,t}^{e}$ gives mechanical top-up liability before the substance shield. After the SBIE is applied, the measured liability that enters the behavioural and allocation modules is:
+\begin{equation}\label{eq:mechanical_liability}
+M_{p,j,t}^{e,a}=\pi^{*}_{p,j,t}\lambda_{j,t}^{e}\left(1-\bar{\phi}_{p,j,t}^{a}\right),
+\end{equation}
+where $a$ indexes the substance branch and SBIE rate schedule. Equation \eqref{eq:mechanical_liability} is the organising equation for this section. Stage 1 measures $\lambda_{j,t}^{e}$, Stage 2 measures $\bar{\phi}_{p,j,t}^{a}$, and Section \ref{sec:methodology} then adds behavioural reallocation, legal collection rights and the factorial decomposition.
 
 \subsection{Measuring low-taxed profit}\label{sec:etr_measurement}\label{sec:etr_calc}\label{sec:distributional}
 
-The basic CbCR ETR proxy divides tax accrued by positive pre-tax profit:
+The basic public-data ETR proxy divides current-year income tax accrued by positive corrected pre-tax profit:
 \begin{equation}\label{eq:etr}
-\tau_{p,j,t}=\frac{\theta_{p,j,t}}{\pi_{p,j,t}},\quad \pi_{p,j,t}>0.
+\tau_{p,j,t}=\frac{\theta_{p,j,t}}{\pi^{*}_{p,j,t}},\quad \pi^{*}_{p,j,t}>0.
 \end{equation}
-Tax accrued is used because it is the closest public CbCR proxy for current-period covered taxes, although GloBE covered taxes differ from CbCR tax accrued and require legal adjustments that public data cannot reproduce \citep{hanlon2023}. Detailed denominator filters, ETR bounding rules and percentile conditioning are documented in Appendix \ref{app:measurement_framework}.
+Tax accrued is used because it is the closest public CbCR proxy for current-period covered taxes. This is an approximation: GloBE covered taxes differ from CbCR tax accrued and require legal adjustments that public data cannot reproduce \citep{oecd2025,hanlon2023}. Detailed denominator filters, treatment of negative ETRs, high-ETR caps and percentile conditioning are documented in Appendix \ref{app:measurement_framework}.
 
-The jurisdiction-average rule collapses all parent-reported profit in affiliate jurisdiction $j$ into one ETR:
+A first route compresses all parent-reported profit in affiliate jurisdiction $j$ into one profit-weighted average ETR:
 \begin{equation}\label{eq:avg_etr}
 \bar{\tau}_{j,t}=\frac{\sum_p \theta_{p,j,t}}{\sum_p \pi^{*}_{p,j,t}}.
 \end{equation}
-It then applies a binary threshold rule:
+It then applies a binary rule:
 \begin{equation}\label{eq:average_lowtax_share}
 s_{j,t}^{<T,\text{avg}}=\mathbb{1}\{\bar{\tau}_{j,t}<T\}.
 \end{equation}
-This rule is transparent but coarse. If the average ETR is 16\%, the rule assigns no low-taxed profit to the jurisdiction, even if a substantial part of profit inside the jurisdiction is taxed below 15\%. This is the central measurement loss in jurisdiction-average GMT revenue estimates. \citet{hugger2026} show that 53.2\% of globally low-taxed profit sits in jurisdictions whose average ETR exceeds 15\%, so the average rule can miss the mass that the reform targets.
+This average rule is transparent and close to the first generation of public-data revenue simulations \citep{barake2022}. Its weakness is conceptual rather than computational. It asks whether the average jurisdiction is below the floor, while the policy object is the profit mass below the floor. If a jurisdiction has an average ETR of 16\%, equation \eqref{eq:average_lowtax_share} assigns zero low-taxed profit, even if a substantial share of affiliates inside that jurisdiction is taxed below 15\%. This concern is empirically material: \citet{hugger2026} show that 53.2\% of globally low-taxed profit is located in jurisdictions whose average ETR exceeds 15\%.
 
-The distributional branch replaces the binary average rule with a within-jurisdiction ETR distribution. If $F_{j,t}^{e}$ is the ETR distribution implied by branch $e$, the low-taxed share is:
+The distributional route keeps the 15\% threshold but changes the question. Instead of asking whether the average jurisdiction is below the floor, it asks what share of profit inside the jurisdiction is below the floor. Let $F_{j,t}^{e}$ denote the profit-weighted ETR distribution implied by branch $e$, so that $F_{j,t}^{e}(\tau)$ is the share of corrected profit with an ETR no higher than $\tau$. The low-taxed share is:
 \begin{equation}\label{eq:lowtax_share}
 s_{j,t}^{<T,e}=F_{j,t}^{e}(T).
 \end{equation}
-The corresponding average top-up gap is:
+The corresponding top-up gap is the average distance to the 15\% floor, conditional on being below the floor:
 \begin{equation}\label{eq:topup_gap}
 \bar{\delta}_{j,t}^{\text{top},e}=
 \begin{cases}
@@ -609,26 +612,40 @@ The corresponding average top-up gap is:
 0 & \text{if } s_{j,t}^{<T,e}=0.
 \end{cases}
 \end{equation}
-For direct Table IV support, $F_{j,t}^{e}$ is the observed bracket distribution and the below-15\% mean ETR is computed from tax and profit in that bracket. For Table I support, $F_{j,t}^{e}$ is a fitted bounded distribution. For the average fallback, $F_{j,t}^{e}$ degenerates into the binary rule in \eqref{eq:average_lowtax_share}.
+The numerator is the missing tax per dollar of corrected profit in the low-taxed tail. Dividing by $s_{j,t}^{<T,e}$ converts that missing-tax mass into the average top-up gap within the tail. Multiplying it back by $s_{j,t}^{<T,e}$ in equation \eqref{eq:liability_rate} gives the unconditional liability rate on corrected profit.
+
+The key empirical choice is how $F_{j,t}^{e}$ is measured. The thesis uses the source hierarchy introduced in Section \ref{sec:within-jurisdiction}. Direct Table IV is preferred whenever it is available because it reports subsidiary-level ETR brackets, including the \code{RATE\_0-15} bracket that corresponds to the GMT threshold. Table I percentiles are used where Table IV is absent but the five ETR percentiles are populated; Appendix Section \ref{sec:percentile_fit_appendix} fits a bounded, mean-constrained distribution to those percentiles. BSPI shape transport extends distributional support to 2017--2018 by carrying the 2019--2020 Table IV bracket profile backward only where the affiliate profile passes the 2021--2022 hold-out stability test in Appendix Section \ref{sec:bspi}. The jurisdiction-average rule is retained as the fallback when no distributional source exists:
+\begin{equation}\label{eq:hybrid}
+s_{j,t}^{<T,\text{hyb}} =
+\begin{cases}
+\dfrac{\pi_{j,t}^{<T,\text{IV}}}{\pi_{j,t}^{\text{all,IV}}} & \text{direct Table IV bracket observation},\\[8pt]
+\tilde{F}_{j,t}(T) & \text{Table I percentile fit},\\[4pt]
+\bar{s}_{j}^{<T,\text{BSPI}} & \text{validated BSPI shape transport},\\[4pt]
+\mathbb{1}\{\bar{\tau}_{j,t}<T\} & \text{jurisdiction-average fallback}.
+\end{cases}
+\end{equation}
+The hierarchy is this section's measurement contribution. It brings the within-jurisdiction insight in \citet{hugger2026} into a public-data revenue framework, while keeping the transparent jurisdiction-average branch used in earlier public simulations as an explicit comparison rather than as the maintained assumption \citep{barake2022}. The branches differ in data support, not in the policy object: each estimates the share of profit below 15\% and the corresponding average gap to the floor. The realised source coverage is reported in Table \ref{tab:stage1_source_updated}. The direct Table IV branch covers most positive-profit cells after 2019, while the 2017--2018 estimates necessarily rely more heavily on BSPI. This is why the results later report both full-window and higher-measurement-window decompositions.
 
 \subsection{Measuring the substance shield and effective tax floor}\label{sec:SBIE}\label{sec:floor}\label{sec:payroll_imputation}
 
-The SBIE converts low-taxed profit into excess profit. It shields a return to payroll and tangible assets before the top-up tax is applied. In the public-data implementation, the bilateral shield is:
+Stage 1 measures liability before substance. Stage 2 asks how much of that liability survives the SBIE. The SBIE is not a tax credit and not a correction to the ETR numerator. It removes a formulaic return on payroll and tangible assets from the base on which the top-up tax is charged. This distinction matters because the headline 15\% minimum is not the effective tax floor on total profit once substance is positive. \citet{devereux2023} show that the SBIE can materially reduce the effective floor for in-scope EU subsidiaries, and \citet{schjelderup2024} formalise the same mechanism as a production-subsidy margin inside Pillar Two.
+
+In the public-data implementation, the bilateral shield is:
 \begin{equation}\label{eq:sbie}
 \text{SBIE}_{p,j,t}=\sigma_W(t)\hat{W}_{p,j,t}+\sigma_A(t)A_{p,j,t},
 \end{equation}
-where $\hat{W}_{p,j,t}$ is the wage-based payroll proxy constructed in Section \ref{sec:substance_data}, and $A_{p,j,t}$ is CbCR tangible assets. The carve-out rates are evaluated at the initial transition endpoint and the long-run endpoint in the revenue scenarios. The corresponding shield ratio is:
+where $\hat{W}_{p,j,t}=N_{p,j,t}\bar{w}_{j,t}$ is the wage-based payroll proxy constructed in Section \ref{sec:substance_data}, and $A_{p,j,t}$ is CbCR tangible assets. Payroll has to be reconstructed because public CbCR reports employees but not current-period payroll. The carve-out rates $\sigma_W(t)$ and $\sigma_A(t)$ are evaluated at the initial transition endpoint and the long-run endpoint in the revenue scenarios. The corresponding shield ratio is:
 \begin{equation}\label{eq:sbie_ratio}
 \bar{\phi}_{p,j,t}=\min\!\left\{1,\frac{\text{SBIE}_{p,j,t}}{\pi^{*}_{p,j,t}}\right\}.
 \end{equation}
-This ratio is applied to the Stage 1 low-taxed liability as an excess-profit filter. It is deliberately measured against corrected positive profit, matching the implemented Stage 2 object, rather than against low-taxed profit alone.
+This ratio is bounded by one and applied to the Stage 1 liability as the excess-profit filter in equation \eqref{eq:mechanical_liability}. It is measured against corrected positive profit, not against low-taxed profit alone, because the public substance inputs are observed at the same bilateral level as corrected profit. The choice is transparent but approximate. A confidential GloBE return would apply the SBIE at MNE-group jurisdiction level after legal adjustments to GloBE income and covered taxes; public CbCR can only approximate the same mechanism.
 
-The headline 15\% rate is therefore not the effective floor on total profit. For an affiliate with pre-reform ETR $\tau_{p,j}<T$ and shield ratio $\phi_{p,j}$, total tax after the top-up is:
+For intuition, consider a single low-taxed affiliate with pre-reform ETR $\tau_{p,j}<T$ and shield ratio $\phi_{p,j}=\text{SBIE}_{p,j}/\pi_{p,j}$. Total tax after the top-up is:
 \begin{equation}\label{eq:total_tax}
 \text{Tax} = \underbrace{\tau_{p,j} \cdot \pi_{p,j}}_{\text{local CIT}} + \underbrace{(T - \tau_{p,j}) \cdot (\pi_{p,j} - \text{SBIE}_{p,j})}_{\text{top-up tax}}
 \end{equation}
 
-The effective tax rate under the Global Minimum Tax is: 
+Dividing by profit gives the effective tax rate under Pillar Two:
 \begin{equation}\label{eq:etr_pillar2}
 \tau_{p,j}^{\text{P2}} = T - (T - \tau_{p,j}) \cdot \frac{\text{SBIE}_{p,j}}{\pi_{p,j}} = T - \delta_{p,j}^{\text{top}} \cdot \phi_{p,j}
 \end{equation}
@@ -674,11 +691,11 @@ The effective tax rate under the Global Minimum Tax is:
 \label{fig:effective_floor}
 \end{figure}
 
-The effective tax rate under Pillar Two falls below the headline rate whenever the SBIE is positive. The gap is larger when the pre-reform ETR is further below 15\% and the SBIE-to-profit ratio is larger.
+Equation \eqref{eq:etr_pillar2} shows the tax concept in one line. The effective floor equals the headline floor minus the part of the top-up gap that is shielded by payroll and tangible assets. The gap is larger when the pre-reform ETR is further below 15\% and when the SBIE-to-profit ratio is larger.
 
-\subsection{Sectoral SBTI exposure}\label{sec:sbti_amplification}\label{sec:sbti}\label{sec:sbie_decomp}
+\subsection{Sectoral substance and SBTI exposure}\label{sec:sbti_amplification}\label{sec:sbti}\label{sec:sbie_decomp}
 
-The aggregate SBIE shield can hide large sector differences. Manufacturing cells generally have more payroll and tangible assets relative to profit than holding or intellectual-property cells, so the same headline floor can imply different effective floors across sectors \citep{devereux2023}. The sectoral branch keeps the CbCR country-level liability base fixed and uses FATS and EUKLEMS shares only to allocate payroll, tangible assets and profit across EU host-country sectors. Appendix \ref{app:sector} documents the FATS/EUKLEMS bridge.
+The aggregate SBIE shield can hide large sector differences. Manufacturing cells generally have more payroll and tangible assets relative to profit than holding or intellectual-property cells, so the same headline floor can imply different effective floors across sectors \citep{devereux2023,schjelderup2024}. The sectoral branch keeps the CbCR country-level liability base fixed and uses Eurostat FATS and EUKLEMS shares only to allocate payroll, tangible assets and profit across EU host-country sectors \citep{eurostat2025fats,euklemsintanprod2025}. Appendix \ref{app:sector} documents the bridge and its coverage thresholds. FATS and EUKLEMS are therefore not alternative tax datasets; they are allocation devices for the public CbCR substance inputs.
 
 For sectors $s$ in jurisdiction $j$, the sectoral shield ratio is:
 \begin{equation}\label{eq:rho_sector}
@@ -688,19 +705,19 @@ The country-level ratio is the profit-weighted sector average:
 \begin{equation}\label{eq:rho_sectoral}
 \phi_{j,t}=\sum_s\omega_{j,s,t}\phi_{j,s,t},\quad \omega_{j,s,t}=\frac{\pi_{j,s,t}}{\pi_{j,t}}.
 \end{equation}
-These equations define the sectoral substance exposure used later in the revenue scenarios. They do not turn FATS or EUKLEMS into tax data.
+These equations define the sectoral substance exposure used later in the revenue scenarios. The point of the branch is not to claim that the sectoral allocation is observed perfectly. It is to test whether the aggregate CbCR shield is misleading when low-taxed profit is concentrated in asset-light activities, a risk that would be invisible in a country-level average.
 
-The January 2026 SBTI Safe Harbour adds a related but distinct exposure margin. It can protect qualifying tax incentives up to a substance-linked cap \citep{oecd2026}. Public data do not observe actual qualifying tax incentives, safe-harbour elections or the legal classification of local credits. The empirical object is therefore an exposure index, not realised SBTI take-up.
+The January 2026 SBTI Safe Harbour adds a related but distinct exposure margin. It can protect qualifying tax incentives up to a substance-linked cap \citep{oecd2026}. The economic mechanism is different from the SBIE. The SBIE reduces the excess-profit base; the SBTI can increase covered taxes by allowing qualifying incentives to be treated favourably up to the cap. Public data do not observe actual qualifying tax incentives, safe-harbour elections or the legal classification of local credits. The empirical object is therefore an exposure index, not realised SBTI take-up.
 
 The SBTI-capacity proxy normalises the public-data approximation of the cap by profit:
 \begin{equation}\label{eq:sbti_capacity}
 \kappa_{j,s,t} = \frac{\max\!\left(0.055\,W_{j,s,t},\; 0.01\,A_{j,s,t}\right)}{\pi_{j,s,t}}
 \end{equation}
-The legal cap and the public-data simplification behind \eqref{eq:sbti_capacity} are derived in Appendix \ref{app:sbti_details}. In the main estimates, $\kappa_{j,s,t}$ measures capacity: a high value means that a sector-country cell has payroll or tangible assets relative to profit that could shelter qualifying incentives if such incentives exist.
+The legal cap and the public-data simplification behind equation \eqref{eq:sbti_capacity} are derived in Appendix \ref{app:sbti_details}. In the main estimates, $\kappa_{j,s,t}$ measures capacity. A high value means that a sector-country cell has enough payroll or tangible assets relative to profit to shelter qualifying incentives if such incentives exist. A low value means that the SBTI channel is unlikely to matter even if the jurisdiction offers tax incentives, because there is little substance against which the legal cap can be computed.
 
 \subsection{Outputs passed to the revenue model}\label{sec:measurement_outputs}
 
-Six measurement outputs enter the revenue model in Section \ref{sec:methodology}: corrected positive profit $\pi^{*}_{p,j,t}$; the selected low-taxed share $s_{j,t}^{<T,e}$ from \eqref{eq:lowtax_share}; low-taxed profit $\ell_{p,j,t}^{e}$ from \eqref{eq:lowtax_profit}; the average top-up gap $\bar{\delta}_{j,t}^{\text{top},e}$ from \eqref{eq:topup_gap}; the SBIE shield ratio $\bar{\phi}_{p,j,t}$, from \eqref{eq:sbie_ratio}. The sixth is the sectoral SBTI exposure index, $\kappa_{j,s,t}$, from \eqref{eq:sbti_capacity}.
+The revenue model in Section \ref{sec:methodology} receives the following measurement objects: corrected positive profit $\pi^{*}_{p,j,t}$; the selected low-taxed share $s_{j,t}^{<T,e}$ from equation \eqref{eq:lowtax_share}; low-taxed profit $\ell_{p,j,t}^{e}$ from equation \eqref{eq:lowtax_profit}; the average top-up gap $\bar{\delta}_{j,t}^{\text{top},e}$ from equation \eqref{eq:topup_gap}; the liability rate $\lambda_{j,t}^{e}$ from equation \eqref{eq:liability_rate}; the SBIE shield ratio $\bar{\phi}_{p,j,t}^{a}$ from equation \eqref{eq:sbie_ratio}; and the sectoral SBTI exposure index $\kappa_{j,s,t}$ from equation \eqref{eq:sbti_capacity}. These objects are measured before behavioural responses and before legal allocation. Section \ref{sec:methodology} changes the counterfactual amount and collector country, but it does not redefine the measured low-taxed base.
 
 
 \newpage
