@@ -498,6 +498,45 @@ panel <- panel |>
                     label = "join parent OECD Central Record policy")
 
 
+# Profit reconciliation model. This is produced by
+# code/02a_profit_reconciliation_model.R and consumed here so that the
+# denominator correction is explicit upstream of Stage 1.
+profit_reconciliation_path <- file.path(IN, "profit_correction_parent_year.rds")
+if (!file.exists(profit_reconciliation_path)) {
+  stop(
+    "Missing profit reconciliation model output: ",
+    profit_reconciliation_path,
+    ". Run code/02a_profit_reconciliation_model.R before Step 2.",
+    call. = FALSE
+  )
+}
+
+profit_reconciliation <- readRDS(profit_reconciliation_path) |>
+  transmute(
+    parent,
+    year,
+    rho_hat_pt,
+    rho_lo_pt,
+    rho_hi_pt,
+    profit_reconciliation_main_source = main_source,
+    profit_reconciliation_support_class = support_class,
+    profit_reconciliation_posterior_sd = posterior_sd,
+    profit_reconciliation_external_anchor_flag = external_anchor_flag,
+    profit_reconciliation_public_signal_flag = public_signal_flag,
+    profit_reconciliation_extrapolated_flag = extrapolated_flag
+  )
+
+assert_unique_keys(profit_reconciliation, c("parent", "year"),
+                   "profit reconciliation parent-year model")
+
+panel <- panel |>
+  left_join_checked(
+    profit_reconciliation,
+    by = c("parent" = "parent", "year" = "year"),
+    label = "join profit reconciliation model"
+  )
+
+
 # 4. Deterministic imputations and corrected profit bases
 
 # OECD CbCR "EARNINGS" is accumulated earnings, not payroll. The SBIE payroll
@@ -574,15 +613,101 @@ panel <- panel |>
       affiliate_wage_year_gap > 5,
     affiliate_wage_very_stale_flag = !is.na(affiliate_wage_year_gap) &
       affiliate_wage_year_gap > 10,
-    etr_panelai_raw = if_else(
-      !is.na(profit_panelai) & profit_panelai > 0,
-      tax_accrued_panelai / profit_panelai,
-      NA_real_
-    ),
     affiliate_cit_top_all_unit = affiliate_cit_top_all / 100,
     affiliate_cit_standard_unit = affiliate_cit_standard / 100,
     parent_cit_top_all_unit = parent_cit_top_all / 100,
     parent_cit_standard_unit = parent_cit_standard / 100,
+    profit_panelai_uncorrected = profit_panelai,
+    domestic_correction_rate_static_benchmark = case_when(
+      parent == "USA" ~ 0.54,
+      parent == "NLD" ~ 0.16,
+      TRUE            ~ 0.324
+    ),
+    domestic_correction_rate_static_aggressive = case_when(
+      parent == "USA" ~ 0.54,
+      parent == "NLD" ~ 0.16,
+      TRUE            ~ 0.555
+    ),
+    domestic_correction_rate_baseline = rho_hat_pt,
+    domestic_correction_rate_low = rho_lo_pt,
+    domestic_correction_rate_high = rho_hi_pt,
+    domestic_correction_rate_aggressive = rho_hi_pt,
+    profit_panelai_corrected_preferred = case_when(
+      !is.na(profit_adj_panelai) ~ profit_adj_panelai,
+      is_domestic                ~ profit_panelai * (1 - rho_hat_pt),
+      TRUE                       ~ profit_panelai
+    ),
+    profit_panelai_corrected_low = case_when(
+      !is.na(profit_adj_panelai) ~ profit_adj_panelai,
+      is_domestic                ~ profit_panelai * (1 - rho_lo_pt),
+      TRUE                       ~ profit_panelai
+    ),
+    profit_panelai_corrected_high = case_when(
+      !is.na(profit_adj_panelai) ~ profit_adj_panelai,
+      is_domestic                ~ profit_panelai * (1 - rho_hi_pt),
+      TRUE                       ~ profit_panelai
+    ),
+    profit_panelai_corrected_static_benchmark = case_when(
+      !is.na(profit_adj_panelai) ~ profit_adj_panelai,
+      is_domestic ~ profit_panelai * (1 - domestic_correction_rate_static_benchmark),
+      TRUE ~ profit_panelai
+    ),
+    profit_panelai_corrected_static_aggressive = case_when(
+      !is.na(profit_adj_panelai) ~ profit_adj_panelai,
+      is_domestic ~ profit_panelai * (1 - domestic_correction_rate_static_aggressive),
+      TRUE ~ profit_panelai
+    ),
+    # Compatibility aliases used by later diagnostics. The baseline branch is
+    # now the hybrid parent-year reconciliation, and the aggressive branch is
+    # the upper end of the model interval.
+    profit_panelai_corrected_baseline = profit_panelai_corrected_preferred,
+    profit_panelai_corrected_aggressive = profit_panelai_corrected_high,
+    profit_correction_source = case_when(
+      !is.na(profit_adj_panelai) ~ "observed_adjusted",
+      is_domestic & profit_reconciliation_support_class == "anchored_model" ~
+        "anchored_model",
+      is_domestic & profit_reconciliation_support_class == "parity_shrinkage" ~
+        "parity_shrinkage",
+      is_domestic & profit_reconciliation_support_class == "fallback_prior" ~
+        "fallback_prior",
+      is_domestic ~ "anchored_model",
+      TRUE ~ "uncorrected_foreign"
+    ),
+    profit_correction_source_baseline = profit_correction_source,
+    profit_correction_source_aggressive = case_when(
+      !is.na(profit_adj_panelai) ~ "observed_adjusted",
+      is_domestic                ~ "model_high_interval",
+      TRUE                       ~ "uncorrected_foreign"
+    ),
+    profit_correction_rate_preferred = safe_divide(
+      profit_panelai_uncorrected - profit_panelai_corrected_preferred,
+      profit_panelai_uncorrected
+    ),
+    profit_correction_rate_low = safe_divide(
+      profit_panelai_uncorrected - profit_panelai_corrected_low,
+      profit_panelai_uncorrected
+    ),
+    profit_correction_rate_high = safe_divide(
+      profit_panelai_uncorrected - profit_panelai_corrected_high,
+      profit_panelai_uncorrected
+    ),
+    profit_correction_rate_static_benchmark = safe_divide(
+      profit_panelai_uncorrected - profit_panelai_corrected_static_benchmark,
+      profit_panelai_uncorrected
+    ),
+    profit_correction_rate_baseline = profit_correction_rate_preferred,
+    profit_correction_rate_aggressive = profit_correction_rate_high,
+    analysis_profit_base = profit_panelai_corrected_preferred,
+    etr_panelai_raw_uncorrected = if_else(
+      !is.na(profit_panelai) & profit_panelai > 0,
+      tax_accrued_panelai / profit_panelai,
+      NA_real_
+    ),
+    etr_panelai_raw = if_else(
+      !is.na(analysis_profit_base) & analysis_profit_base > 0,
+      tax_accrued_panelai / analysis_profit_base,
+      NA_real_
+    ),
     # Stage 1 bounded ETR: clip to [0, affiliate_cit_rate + ZETA] for use as
     # the mean anchor in the constrained-Beta percentile fit.
     # Negative ETRs with magnitude below ZETA are treated as rounding noise
@@ -623,46 +748,6 @@ panel <- panel |>
       etr_panelai_raw >= -ZETA_LOSS_OFFSET &
       etr_panelai_raw <= 1 + ZETA_LOSS_OFFSET,
     etr_panelai_reg = if_else(etr_panelai_reg_eligible, etr_panelai_raw, NA_real_),
-    domestic_correction_rate_baseline = case_when(
-      parent == "USA" ~ 0.54,
-      parent == "NLD" ~ 0.16,
-      TRUE            ~ 0.324
-    ),
-    domestic_correction_rate_aggressive = case_when(
-      parent == "USA" ~ 0.54,
-      parent == "NLD" ~ 0.16,
-      TRUE            ~ 0.555
-    ),
-    profit_panelai_uncorrected = profit_panelai,
-    profit_panelai_corrected_baseline = case_when(
-      !is.na(profit_adj_panelai) ~ profit_adj_panelai,
-      is_domestic                ~ profit_panelai * (1 - domestic_correction_rate_baseline),
-      TRUE                       ~ profit_panelai
-    ),
-    profit_panelai_corrected_aggressive = case_when(
-      !is.na(profit_adj_panelai) ~ profit_adj_panelai,
-      is_domestic                ~ profit_panelai * (1 - domestic_correction_rate_aggressive),
-      TRUE                       ~ profit_panelai
-    ),
-    profit_correction_source_baseline = case_when(
-      !is.na(profit_adj_panelai) ~ "observed_profit_adj",
-      is_domestic                ~ "domestic_upe_hugger",
-      TRUE                       ~ "uncorrected_foreign"
-    ),
-    profit_correction_source_aggressive = case_when(
-      !is.na(profit_adj_panelai) ~ "observed_profit_adj",
-      is_domestic                ~ "domestic_upe_hugger_cap",
-      TRUE                       ~ "uncorrected_foreign"
-    ),
-    profit_correction_rate_baseline = safe_divide(
-      profit_panelai_uncorrected - profit_panelai_corrected_baseline,
-      profit_panelai_uncorrected
-    ),
-    profit_correction_rate_aggressive = safe_divide(
-      profit_panelai_uncorrected - profit_panelai_corrected_aggressive,
-      profit_panelai_uncorrected
-    ),
-    analysis_profit_base = profit_panelai_corrected_baseline,
     affiliate_cit_rate = coalesce(affiliate_cit_top_all, affiliate_cit_standard),
     affiliate_cit_rate_unit = coalesce(
       affiliate_cit_top_all_unit,

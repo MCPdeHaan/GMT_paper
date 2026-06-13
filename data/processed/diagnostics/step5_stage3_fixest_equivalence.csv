@@ -1,0 +1,4 @@
+model_spec,term,status,manual_estimate,fixest_estimate,abs_difference,within_tolerance
+linear,NA,fixest_not_installed,NA,NA,NA,NA
+quadratic,NA,fixest_not_installed,NA,NA,NA,NA
+logarithmic,NA,fixest_not_installed,NA,NA,NA,NA

@@ -507,41 +507,24 @@ The raw CbCR panel is cleaned into a bilateral panel. The full 2017--2022 analyt
 
 \input{generated/results_tables/data_sample_construction.tex}
 
-\subsubsection{Profit, tax and ETR cleaning}\label{sec:doublecounting}
+\subsubsection{Double-counting}\label{sec:doublecounting}
 
-Public CbCR profit is accounting profit before income tax. It can include dividends, participation results and profits that flow through holding chains. In that case the same underlying operating return can appear in more than one jurisdiction. \citet{blouin2023} show why this problem matters for profit-shifting estimates: the tax numerator is usually not inflated in the same way, so double-counted profit mechanically depresses effective tax rates (ETRs). \citet{garcia-bernardo2022a} and \citet{hugger2026} correct the problem with richer reconciliation information than the public OECD CbCR panel provides.
+Public CbCR profit data suffer from double counting through intra-group dividends and ownership chains. For example, when a German parent owns a Dutch holding company that in turn owns an Irish operating subsidiary, the Irish subsidiary's profits may appear in both the German CbCR filing, through the ultimate parent, and in the Dutch profits, through the intermediate holding company. \citet{blouin2023} show why this problem matters for profit-shifting estimates: the tax numerator is usually not inflated in the same way, so double-counted profit mechanically depresses effective tax rates (ETRs). \citet{garcia-bernardo2022a} and \citet{hugger2026} correct the problem with richer reconciliation information than the public OECD CbCR panel provides.
 
-Let $\pi_{pjt}$ denote reported CbCR profit for parent jurisdiction $p$, affiliate jurisdiction $j$ and year $t$, and let $\pi^{adj}_{pjt}$ denote the OECD adjusted-profit field where it is reported. The fully public branch uses only observed OECD information:
-\begin{equation}\label{eq:profit_public_branch}
-\pi^{\mathrm{pub}}_{pjt} =
-\begin{cases}
-\pi^{adj}_{pjt}, & \text{if adjusted profit is observed},\\
-\pi_{pjt}, & \text{otherwise}.
-\end{cases}
-\end{equation}
-This branch is reproducible from the thesis data alone. It is also incomplete, because adjusted profit is observed in only 36 cells over 2017--2022. Estimating a full correction model from those cells would give a precise-looking number from non-representative support. I therefore do not use the 36 cells to fit a regression or to extrapolate a correction across the panel.
+Let $\pi_{pjt}$ denote reported CbCR profit for parent jurisdiction $p$, affiliate jurisdiction $j$ and year $t$, and let $\pi^{adj}_{pjt}$ denote the OECD adjusted-profit field where it is reported. The correction is a measurement model for the domestic ultimate-parent correction share $\rho_{pt}$, not a fitted causal model of dividend flows. Public CbCR alone does not identify the unobserved dividend component. The paper therefore combines four signals in a bounded parent-year reconciliation model: observed OECD adjusted-profit cells, official country-note evidence, the US macro reconciliation in \citet{garcia-bernardo2022a}, and a low-precision public domestic-versus-foreign ETR parity diagnostic following the logic in \citet{hugger2026}. Appendix Section \ref{sec:profit_correction_reproducibility} gives the model and validation.
 
-The reported revenue pipeline uses a reconciliation branch that combines the observed OECD adjusted-profit field with correction rates taken from studies that perform the missing reconciliation outside the public CbCR file:
+The preferred profit denominator is
 \begin{equation}\label{eq:profit_reconciliation_branch}
-\pi^{\mathrm{rec}}_{pjt} =
+\pi^{*}_{pjt} =
 \begin{cases}
-\pi^{adj}_{pjt}, & \text{if adjusted profit is observed},\\
-(1-\rho_p)\pi_{pjt}, & \text{if } p=j \text{ and adjusted profit is unobserved},\\
-\pi_{pjt}, & \text{otherwise},
+\pi^{adj}_{pjt}, & \pi^{adj}_{pjt}\text{ observed},\\
+(1-\widehat{\rho}_{pt})\pi_{pjt}, & p=j \text{ and } \pi^{adj}_{pjt}\text{ unobserved},\\
+\pi_{pjt}, & p\neq j.
 \end{cases}
 \end{equation}
-where
-\begin{equation}\label{eq:rho_reconciliation}
-\rho_p =
-\begin{cases}
-0.54, & p=\mathrm{USA},\\
-0.16, & p=\mathrm{NLD},\\
-0.324, & \text{otherwise}.
-\end{cases}
-\end{equation}
-These rates are calibration inputs, not estimates produced by this thesis. The US rate comes from the domestic CbCR reconciliation in \citet{garcia-bernardo2022a}, which compares IRS CbCR with Compustat-based estimates for CbCR-eligible firms. The Dutch rate follows the country-specific correction used by \citet{garcia-bernardo2024}. The 32.4\% fallback is the median UPE correction reported by \citet{hugger2026}, whose corrections use tax-authority evidence and domestic-versus-foreign affiliate comparisons. Appendix Section \ref{sec:profit_correction_reproducibility} gives the reproducibility audit and reports the public-data comparison. The interpretation is conditional: results using $\pi^{\mathrm{rec}}$ inherit the external reconciliation evidence, while the uncorrected and aggressive branches describe the sensitivity of the profit denominator.
+This keeps the baseline correction concentrated in domestic UPE cells, where the dividend and participation-income mechanism is strongest. Foreign affiliate cells are left unchanged in the preferred branch, because public aggregate CbCR does not reveal ownership-chain dividend flows with enough precision. The correction also enters the ETR denominator: $\tau^{raw}_{pjt}=C_{pjt}/\pi^{*}_{pjt}$ where $\pi^{*}_{pjt}>0$.
 
-Table \ref{tab:profit_correction_effects} shows the scale of the reconciliation branch. Over 2017--2022, it reduces positive-profit CbCR profit from US\$46.7 trillion to US\$34.8 trillion, a reduction of 25.6\%. Almost all of the reduction comes from domestic ultimate-parent cells, which matches the accounting mechanism in the literature. The table also reports the sparse direct support for observed adjusted profit. It no longer treats that support as a regression exercise, because the observed cells are too few and too concentrated to identify a full-panel imputation model.
+Table \ref{tab:profit_correction_effects} shows the scale of the reconciliation. Over 2017 to 2022, it reduces positive-profit CbCR profit from US\$46.7 trillion to US\$34.8 trillion, a reduction of 25.4\%. Direct OECD adjusted-profit cells account for US\$0.24 trillion of the reduction, external-anchor domestic cells for US\$2.82 trillion, and model-shrunk domestic UPE cells for the remainder. The correction raises the profit-weighted raw ETR from 15.4\% to 20.6\% in the positive-profit sample, and from 16.4\% to 26.8\% in domestic UPE cells. These changes are denominator effects, not new tax payments.
 
 \input{generated/results_tables/profit_correction_effects.tex}
 
@@ -1374,43 +1357,89 @@ VI & MNE group size classes, 2022 only & No ETR bracket & Financial and activity
 \end{tabularx}
 \end{table}
 
-\subsubsection{Profit-correction reproducibility audit}\label{sec:profit_correction_reproducibility}
+\subsubsection{Profit reconciliation model}\label{sec:profit_correction_reproducibility}
 
-The profit correction is audited separately because it changes the denominator of every later ETR and top-up calculation. The object of interest is the single-counted profit that should enter the CbCR-based tax denominator. Public CbCR identifies that object only when adjusted profit is observed. The remaining correction is a missing-measurement problem, not an econometric relationship that can be recovered from the 36 adjusted-profit cells in this panel.
+\paragraph{Estimand.}
+The profit correction is audited separately because it changes the denominator of every later ETR and top-up calculation. The estimand is not a causal effect and not a fitted dividend-flow model. It is the parent-year share of reported domestic UPE profit that should be removed because it represents dividends, participation income or holding-chain profit already counted elsewhere:
+\begin{equation}\label{eq:profit_reconciliation_estimand}
+\rho_{pt}
+=
+\frac{\text{double-counted domestic UPE profit}_{pt}}
+{\text{reported domestic UPE profit}_{pt}} .
+\end{equation}
+Public CbCR identifies the single-counted denominator only where OECD adjusted profit is observed. Everywhere else the problem is partially identified measurement error. This is why the baseline in equation \eqref{eq:profit_reconciliation_branch} corrects domestic UPE cells and leaves foreign affiliate cells unchanged. \citet{hugger2026} place the main correction on UPE-jurisdiction profit, while noting that affiliate-to-affiliate dividend chains may remain. Moving those foreign-chain corrections into the preferred branch would require ownership-chain information that public aggregate CbCR does not contain.
 
-The literature solves this problem with information outside the public OECD file. \citet{garcia-bernardo2022a} estimate the US domestic correction by reconciling IRS CbCR profit with a constructed Compustat population of CbCR-eligible firms, including imputed foreign profits for listed firms with missing segment data and an allowance for private firms outside Compustat. Those firm-level Compustat inputs are not in the public CbCR panel used here. \citet{hugger2026} report a median UPE correction of 32.4\% and a cap of 55.5\%, based partly on information from tax authorities and partly on domestic-versus-foreign affiliate comparisons. The tax-authority component is not publicly reproducible. \citet{garcia-bernardo2024} use country-specific corrections, including the Netherlands, alongside broader global CbCR adjustments. The audit below therefore separates identified public calculations from reconciliation calibrations.
-
-The first public calculation uses OECD adjusted profit where it is observed. For any group of cells $G$ with both reported profit and adjusted profit, the direct correction rate is
+\paragraph{Evidence sources.}
+The evidence hierarchy is stored in \path{data/manual/profit_correction_anchors.csv} and expanded to parent-year signals in \path{code/02a_profit_reconciliation_model.R}. The strongest public signal is observed OECD adjusted profit. For any supported group $G$,
 \[
-\hat{\rho}^{adj}_{G}
-= 1 -
+\widehat{\rho}^{adj}_{G}
+=1-
 \frac{\sum_{(p,j,t)\in G}\pi^{adj}_{pjt}}
 {\sum_{(p,j,t)\in G}\pi_{pjt}} .
 \]
-This calculation is identified from public data because it compares two OECD profit concepts inside the same parent-affiliate-year cell. Its weakness is coverage. In the 2017--2022 analytical panel, adjusted profit is observed in only 36 cells. The direct calculation gives a 22.4\% correction for Dutch domestic parent cells and a 35.2\% correction for UK domestic parent cells. These cells are used directly where they exist. They are not used to estimate a full-panel correction, because two parent jurisdictions cannot identify a transportable correction for all UPE jurisdictions.
+This calculation is internally identified because reported and adjusted profit are observed in the same OECD cell, but support is sparse. In the analytical panel it covers 36 cells and provides direct domestic parent-year or parent-average signals only for the Netherlands and the United Kingdom.
 
-The second public calculation mimics the domestic-versus-foreign logic discussed by \citet{hugger2026}. Let $C_{pjt}$ denote tax accrued. For each domestic parent cell and year, define the domestic ETR and the foreign-affiliate ETR in the same host jurisdiction as
+The second layer is external country evidence. The anchor file records the sample scope of each rate so that domestic positive-profit, all-subgroup, IRS CbCR and OECD CbCR evidence are not silently mixed. For the United States, the model uses the year-specific domestic corrections in \citet{garcia-bernardo2022a}: 54\% in 2017, 74\% in 2018 and 42\% in 2019. Those rates are stronger than any public-CbCR-only diagnostic because they reconcile IRS CbCR with Compustat, BEA survey information and imputations for missing firm information. For the Netherlands, Italy, the United Kingdom and Sweden, the anchor file records country-note evidence summarised by \citet{godar2024}. The Netherlands receives a 16\% dividend-component anchor; a broader Dutch participation-result note is retained as validation-only evidence because it is not the same estimand as the dividend-only domestic UPE correction. The residual prior is the 32.4\% median UPE correction reported by \citet{hugger2026}.
+
+The weakest signal is the public domestic-versus-foreign ETR parity diagnostic. For a domestic parent cell in host jurisdiction $j$,
 \[
 \tau^{D}_{jt}=\frac{C_{jjt}}{\pi_{jjt}},
 \qquad
 \tau^{F}_{jt}=
 \frac{\sum_{p\neq j} C_{pjt}}
-{\sum_{p\neq j} \pi_{pjt}} .
+{\sum_{p\neq j} \pi_{pjt}},
 \]
-If domestic profit is overstated by intra-group dividends while tax accrued is not, the domestic ETR will be mechanically depressed. The public proxy asks what profit reduction would equalise the domestic ETR to the foreign-affiliate ETR:
+and the public signal is
 \[
-\hat{\rho}^{par}_{jt}
+\widehat{\rho}^{par}_{jt}
 =
 \min\left\{0.555,\,
 \max\left(0,\,1-\frac{\tau^{D}_{jt}}{\tau^{F}_{jt}}\right)\right\}.
 \]
-The upper cap follows \citet{hugger2026}. The diagnostic uses only positive-profit cells with non-negative tax accrued, positive foreign-affiliate profit, a positive foreign-affiliate ETR, and at least three foreign parent jurisdictions in the comparison group. It is a support diagnostic, not a replacement estimator. The identifying assumption is strong: foreign affiliates in a country are not a clean control group when their tax positions differ systematically from domestic UPEs through sector mix, loss histories, incentives, profit shifting and reporting composition.
+The 55.5\% cap belongs to this public comparison method in \citet{hugger2026}; it is not imposed as an upper bound on the true correction, since the US 2018 reconciliation exceeds it. The diagnostic is filtered to positive domestic profit, non-negative domestic tax, positive foreign-affiliate profit, a positive foreign-affiliate ETR, at least three foreign parent jurisdictions and a minimum foreign-profit mass. It enters with low precision because foreign-owned affiliates are an imperfect control group for domestic UPEs: sector mix, loss histories, tax incentives, holding activity and profit-shifting intensity can all differ.
 
-Tables \ref{tab:app_profit_correction_direct_validation} and \ref{tab:app_profit_correction_benchmark_comparison} report the audit results. The ETR-parity proxy produces a profit-weighted correction of 14.1\% across 258 supported domestic country-years, with a median country-year correction of 23.9\%. It does not reproduce the US reconciliation rate: the public proxy gives 3.3\% for the United States, while the Compustat-based reconciliation in \citet{garcia-bernardo2022a} gives 54\%. This gap is the main reason not to estimate the correction from public CbCR alone. The public diagnostics show that the problem is real and measurable in direction, while the reconciliation branch imports the richer evidence needed to set the denominator. Results based on that branch should therefore be read as conditional on the reconciliation literature, with the reported public and aggressive branches defining the measurement sensitivity.
+\input{generated/results_tables/profit_correction_evidence_table.tex}
 
-\input{generated/results_tables/appendix_profit_correction_direct_validation.tex}
+\paragraph{Model.}
+Each evidence row is written as $(p,t,s)$ with signal $\rho_{spt}$, source type $s$, profit weight and source standard error. The implemented model transforms the bounded correction rate to a logit scale,
+\[
+y_{spt}
+=
+\log\left(
+\frac{\rho_{spt}/u}{1-\rho_{spt}/u}
+\right),
+\qquad u=0.85 ,
+\]
+after the public parity signal has already been capped at 0.555. A weighted least-squares prior is then fitted as
+\[
+y_{spt}
+=
+\alpha+\gamma_{g(p)}+\delta_t
++\beta_1\log(1+\Pi^D_{pt})
++\beta_2\log(1+A^D_{pt})
++\beta_3\log(1+N^D_{pt})
++\beta_4 H^D_{pt}
++\beta_5 \tau^{stat}_{pt}
++\varepsilon_{spt}.
+\]
+Here $g(p)$ is the parent group (large UPE jurisdiction, investment hub, zero- or low-tax jurisdiction, or residual), $\Pi^D_{pt}$ is domestic profit mass, $A^D_{pt}$ domestic assets, $N^D_{pt}$ domestic employees, $H^D_{pt}$ the domestic holding-activity share and $\tau^{stat}_{pt}$ the parent statutory rate. Source weights are inverse-variance weights after transforming each signal standard error to the same logit scale. The model prediction is deliberately treated as a prior with a wide residual standard error. Parent-years with direct adjusted-profit evidence or external anchors then combine that prior with the exact signal by inverse-variance weighting; parent-years without strong evidence shrink toward the group-year prior.
 
-\input{generated/results_tables/appendix_profit_correction_benchmark_comparison.tex}
+Table \ref{tab:profit_correction_parent_year_top20} reports the largest parent-level corrections. The United States remains anchor-driven in 2017--2019, with partial-pooling extrapolation in 2020--2022. Other large parents combine the \citet{hugger2026} prior with observed adjusted-profit and public-parity support where available. This is the intended interpretation: the model makes the reconciliation evidence-weighted and uncertainty-aware, but it does not claim that public CbCR alone identifies dividend flows.
+
+\input{generated/results_tables/profit_correction_parent_year_top20.tex}
+
+\paragraph{Validation and propagation.}
+The validation uses three checks. First, high-credibility signals are held out one source-parent-year at a time and predicted from the remaining evidence. Second, \path{data/processed/diagnostics/profit_correction_domestic_foreign_etr_balance.csv} compares four specifications: uncorrected profit, the earlier static benchmark, parity-only and the hybrid model. This check asks whether the correction moves domestic and foreign ETRs into a more plausible range without mechanically forcing equality. Third, the revenue sensitivity propagates 500 draws of $\rho_{pt}$ through two objects: a pre-SBIE top-up proxy and the preferred behavioural SbS Stage 4.6 panel. The final-revenue propagation keeps distributional low-tax shares, behavioural filters and legal allocation weights fixed, then recomputes the preferred profit denominator and SBIE filter under each draw. It is therefore a conditional profit-correction interval, not a replacement for the main factorial scenario spread.
+
+The domestic-versus-foreign diagnostic is not treated as a loss function. In the realised panel, parity-only gives the smallest profit-weighted absolute domestic-foreign ETR gap, 1.8 percentage points, because it is constructed to close that gap. The hybrid model leaves a larger absolute gap, 11.0 percentage points, and a positive mean gap, 9.6 percentage points. That result is informative: the external anchors imply larger domestic UPE corrections than the public parity proxy would support, especially for the United States. The model therefore prioritises higher-credibility reconciliation evidence over a public-data equality condition that is only weakly identifying.
+
+The appendix also reports a targeted foreign holding-chain sensitivity. This branch is deliberately not part of the preferred estimate. It applies a 10\% residual profit haircut only to foreign affiliate cells in the Netherlands, Luxembourg, Ireland, Switzerland, Singapore, Hong Kong, Bermuda or the Cayman Islands with positive preferred profit, high holding activity, high related-party revenue and low substance relative to profit. The rule flags 43 cells across 16 parent jurisdictions, reducing preferred profit by US\$11.9 billion. Preferred behavioural SbS EU27 revenue falls from US\$303.7 billion to US\$303.4 billion. This small movement is consistent with the baseline choice to leave foreign affiliate cells unchanged unless ownership-chain information is available.
+
+\input{generated/results_tables/profit_correction_validation_holdout.tex}
+
+\input{generated/results_tables/profit_correction_revenue_sensitivity.tex}
+
+\input{generated/results_tables/profit_correction_foreign_holding_chain_sensitivity.tex}
 
 Table \ref{tab:cleaned_panel_support} records the main coverage and support diagnostics. These figures are descriptive statistics of the constructed analytical panel after country-like affiliate filtering, profit correction flags, wage matching, ETR bounding, and Stage 1 source assignment. The revenue estimates use this cleaned object rather than the full long-form CbCR extract.
 
@@ -1430,8 +1459,8 @@ EU27 affiliate rows & 3{,}903 & Cleaned rows where the affiliate jurisdiction is
 Rows with wage benchmark & 14{,}685 & Rows for which an affiliate-year wage can be matched from the OECD or ILO hierarchy \\
 Rows with wage-based payroll proxy & 14{,}610 & Rows with $\hat{W}_{p,j,t}=N_{p,j,t}\bar{w}_{j,t}$ available for SBIE measurement \\
 Employee plausibility corrections & 9 & Rows where the employee input is corrected by the implemented plausibility screen \\
-Rows with reconciliation profit correction & 1{,}780 & Rows where $\pi^{\mathrm{rec}}_{p,j,t}$ differs from reported profit under the reconciliation branch \\
-Observed OECD \code{PROFIT\_ADJ} rows & 36 & Direct adjusted-profit observations used as diagnostics rather than as a full backcast model \\
+Rows with reconciliation profit correction & 344 & Rows where $\pi^{\mathrm{rec}}_{p,j,t}$ differs from reported profit under the preferred reconciliation branch \\
+Observed OECD \code{PROFIT\_ADJ} rows & 36 & Direct adjusted-profit observations used in-cell and as local reconciliation evidence rather than as a full backcast model \\
 Main analytical pair-year rows, 2017--2022 & 15{,}758 & Pair-year rows that enter Stage 1 branch assignment after excluding the 2016 transition vintage \\
 Positive-profit analytical pair-years & 11{,}872 & Pair-year rows with a positive profit base for top-up measurement \\
 Behavioural estimation sample & 8{,}971 & Rows used in the preferred Hines--Rice fixed-effect regression after estimation filters \\

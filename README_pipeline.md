@@ -35,8 +35,15 @@ This repository estimates Global Minimum Tax revenue using public OECD CbCR data
 <td>Data section.</td>
 </tr>
 <tr>
+<td><code>code/02a_profit_reconciliation_model.R</code></td>
+<td>Estimates the parent-year profit reconciliation model from observed adjusted-profit cells, manual external anchors and public ETR-parity diagnostics before Stage 1.</td>
+<td><code>cbcr_table1.rds</code>, <code>cit_statutory.rds</code>, <code>data/manual/profit_correction_anchors.csv</code>.</td>
+<td><code>profit_correction_parent_year.rds</code>, <code>profit_correction_evidence.rds</code>, and <code>diagnostics/step02a_*.csv</code>.</td>
+<td>Profit, tax and ETR cleaning.</td>
+</tr>
+<tr>
 <td><code>code/02_base_correction_and_merging.R</code></td>
-<td>Builds the parent-affiliate-year CbCR spine, adds country metadata and tax-policy inputs, constructs payroll proxies and deterministic profit-base corrections, and writes sectoral bridge inputs.</td>
+<td>Builds the parent-affiliate-year CbCR spine, adds country metadata and tax-policy inputs, constructs payroll proxies, applies the Step 2a profit reconciliation, and writes sectoral bridge inputs.</td>
 <td>Clean files in <code>data/processed</code>.</td>
 <td><code>base_panel.rds</code>, base-panel bridge files and <code>diagnostics/step2_*.csv</code>.</td>
 <td>Data construction and measurement sections.</td>
@@ -75,6 +82,13 @@ This repository estimates Global Minimum Tax revenue using public OECD CbCR data
 <td>Stage 4.5 outputs, CIT revenue, World Bank macro data, Stage 1 measurement inputs.</td>
 <td><code>stage4_6_*</code> <code>.rds</code> files, <code>diagnostics/step7_stage4_6_*.csv</code>, <code>writing/generated/stage4_6_results_tables.tex</code>.</td>
 <td>Main results, decomposition and country heterogeneity sections.</td>
+</tr>
+<tr>
+<td><code>code/07a_profit_correction_revenue_uncertainty.R</code></td>
+<td>Propagates the parent-year profit-correction draws through the preferred behavioural Stage 4.6 revenue panel while holding low-tax shares, behavioural filters and allocation weights fixed.</td>
+<td><code>profit_correction_parent_year.rds</code> and Stage 4.5 allocation outputs.</td>
+<td><code>profit_correction_final_revenue_uncertainty.rds</code> and <code>diagnostics/step07a_*.csv</code>.</td>
+<td>Profit reconciliation appendix and uncertainty diagnostics.</td>
 </tr>
 <tr>
 <td><code>code/09_stage1_measurement_error_simulation.R</code></td>

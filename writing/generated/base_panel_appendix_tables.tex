@@ -72,8 +72,8 @@ Total pair-year cells & 16,915 & 100.0 \\
 Domestic cells & 318 & 1.9 \\
 EU-27 affiliate cells & 3,903 & 23.1 \\
 Observed \code{PROFIT\_ADJ} cells & 36 & 0.2 \\
-Domestic Hugger correction & 308 & 1.8 \\
-Conduit or haven overlay & 1,436 & 8.5 \\
+Modelled domestic UPE correction & 308 & 1.8 \\
+Rows left unchanged by preferred profit reconciliation & 16,571 & 98.0 \\
 Employee counts capped by plausibility rule & 9 & 0.1 \\
 Wage benchmark more than 5 years away & 612 & 3.6 \\
 Wage-based payroll proxy available & 14,610 & 86.4 \\
@@ -91,6 +91,6 @@ Behavioural estimation sample & 9,572 & 56.6 \\
 
 \vspace{0.5em}
 \begin{minipage}{0.93\textwidth}
-\footnotesize \textit{Notes:} Shares are calculated relative to the full merged panel. ``Domestic Hugger correction'' identifies cells where the baseline profit correction applies the domestic UPE adjustment rather than observed \code{PROFIT\_ADJ}. ``Conduit or haven overlay'' identifies non-US foreign cells that receive the 10 per cent conduit overlay in the baseline correction. The employee-cap row identifies cells where reported CbCR employee counts exceeded a conservative plausibility cap based on the number of constituent entities and the host-jurisdiction population. ``Wage benchmark more than 5 years away'' flags cells where the nearest available jurisdiction wage observation is temporally distant and should therefore be treated as a sensitivity issue rather than as a cleaning failure. The payroll rows refer to the wage-based proxy used in Step 2, not to observed CbCR \code{EARNINGS}. The Stage 1 rows count pair-year cells in the bilateral base panel; the affiliate-year coverage used in the actual Stage 1 aggregation is reported separately in the Step 2 diagnostics. Source: author's calculations based on \texttt{data/processed/base\_panel.rds}.
+\footnotesize \textit{Notes:} Shares are calculated relative to the full merged panel. ``Modelled domestic UPE correction'' identifies domestic cells where the preferred profit correction uses the parent-year reconciliation model rather than observed \code{PROFIT\_ADJ}. Rows left unchanged are foreign affiliate cells, plus cells where no preferred reconciliation adjustment is applied. The employee-cap row identifies cells where reported CbCR employee counts exceeded a conservative plausibility cap based on the number of constituent entities and the host-jurisdiction population. ``Wage benchmark more than 5 years away'' flags cells where the nearest available jurisdiction wage observation is temporally distant and should therefore be treated as a sensitivity issue rather than as a cleaning failure. The payroll rows refer to the wage-based proxy used in Step 2, not to observed CbCR \code{EARNINGS}. The Stage 1 rows count pair-year cells in the bilateral base panel; the affiliate-year coverage used in the actual Stage 1 aggregation is reported separately in the Step 2 diagnostics. Source: author's calculations based on \texttt{data/processed/base\_panel.rds}.
 \end{minipage}
 \end{table}

@@ -632,14 +632,17 @@ write_profit_correction_table <- function() {
       reduction_share = safe_divide(reduction, sum(reduction, na.rm = TRUE)),
       label = recode(
         profit_correction_source_baseline,
-        "observed_profit_adj" = "OECD adjusted-profit cells",
-        "domestic_upe_hugger" = "Domestic ultimate-parent cells",
+        "observed_adjusted" = "OECD adjusted-profit cells",
+        "anchored_model" = "External-anchor domestic cells",
+        "parity_shrinkage" = "Model-shrunk domestic cells with public parity signal",
+        "fallback_prior" = "Model-shrunk domestic cells with fallback prior",
         "uncorrected_foreign" = "Foreign affiliates unchanged",
         .default = profit_correction_source_baseline
       ),
       order = match(
         profit_correction_source_baseline,
-        c("observed_profit_adj", "domestic_upe_hugger", "uncorrected_foreign")
+        c("observed_adjusted", "anchored_model", "parity_shrinkage",
+          "fallback_prior", "uncorrected_foreign")
       )
     ) |>
     arrange(order)
@@ -752,8 +755,10 @@ write_profit_correction_table <- function() {
     paste0(
       "\\footnotesize\\raggedright \\textit{Notes:} Panel A is restricted to positive-profit analytical cells and reports current USD billions. ",
       "Unadjusted profit is public CbCR profit before the accounting correction; corrected profit is the reconciliation branch used in the reported revenue pipeline. ",
-      "Panel B uses only cells with observed OECD adjusted profit. The observed support is too sparse for a thesis-estimated imputation model, so no regression coefficient is used to construct the correction. ",
+      "Corrected profit is the preferred hybrid parent-year reconciliation. Public ETR-parity information enters only as a noisy signal and foreign affiliate cells are not corrected in the baseline. ",
+      "Panel B uses only cells with observed OECD adjusted profit. ",
       source_note(c("data/processed/diagnostics/step2_profit_correction_by_year.csv",
+                    "data/processed/diagnostics/step02a_profit_correction_parent_year.csv",
                     "data/processed/diagnostics/cbcr_t1_profit_adj_support_by_year.csv",
                     "data/processed/base_panel.rds"))
     ),
@@ -2452,80 +2457,308 @@ write_simple_metric_table <- function(file, caption, label, data, metric_col,
 write_appendix_tables <- function() {
   dir.create(GEN, showWarnings = FALSE, recursive = TRUE)
 
-  correction_validation <- read_diag("step12_profit_correction_validation_summary.csv")
-
-  correction_direct <- correction_validation |>
-    filter(evidence_source == "OECD observed adjusted profit" |
-             parent == "ALL") |>
+  evidence_summary <- read_diag("step02a_profit_correction_evidence_summary.csv") |>
     mutate(
-      evidence_source = recode(
-        evidence_source,
-        "OECD observed adjusted profit" = "Observed adjusted profit",
-        "Public CbCR ETR-parity proxy" = "ETR-parity proxy"
+      evidence_label = recode(
+        signal_type,
+        "observed_adjusted_profit" = "Observed adjusted profit",
+        "observed_adjusted_profit_parent" = "Observed adjusted profit, parent average",
+        "macro_reconciliation" = "Macro reconciliation anchor",
+        "official_country_note" = "Official country-note anchor",
+        "public_etr_parity" = "Public ETR-parity signal",
+        "fallback_prior" = "Fallback prior",
+        .default = str_to_sentence(str_replace_all(signal_type, "_", " "))
       ),
-      parent_label = if_else(
-        parent == "ALL",
-        "All supported",
-        paste0(parent_jurisdiction_name, " (", parent, ")")
+      scope_label = str_to_sentence(str_replace_all(scope, "_", " "))
+    ) |>
+    transmute(
+      Evidence = latex_escape(evidence_label),
+      Source = latex_escape(source_citation_key),
+      Scope = latex_escape(scope_label),
+      Rows = fmt_int(rows),
+      Parents = fmt_int(parents),
+      `Profit weight (US$ bn)` = fmt_bn(profit_weight_total, 1),
+      `Weighted $\\rho$ (\\%)` = fmt_pct(weighted_rho, 1),
+      `Median $\\rho$ (\\%)` = fmt_pct(median_rho, 1),
+      `Mean SE` = fmt_num(mean_source_se, 3)
+    )
+
+  write_appendix_latex_table(
+    file.path(GEN_TABLES, "profit_correction_evidence_table.tex"),
+    "Evidence hierarchy for the profit-reconciliation model",
+    "tab:profit_correction_evidence_table",
+    "L{2.8cm}L{1.8cm}L{3.4cm}rrrrrr",
+    c("Evidence", "Source", "Scope", "Rows", "Parents",
+      "Profit (US\\$ bn)", "$\\rho$ (\\%)", "Median (\\%)", "SE"),
+    evidence_summary,
+    paste(
+      "Each row summarises one type of signal entering the parent-year correction model.",
+      "The fallback prior is the Hugger et al. median UPE correction; the public ETR-parity signal is capped at 55.5\\% and enters with low precision.",
+      source_note("data/processed/diagnostics/step02a_profit_correction_evidence_summary.csv")
+    )
+  )
+
+  parent_year_top20 <- read_diag("step02a_profit_correction_parent_year_top20.csv") |>
+    transmute(
+      Parent = latex_escape(parent),
+      Years = fmt_int(years),
+      `Domestic profit (US$ bn)` = fmt_bn(domestic_profit, 1),
+      `$\\hat{\\rho}$ (\\%)` = fmt_pct(rho_hat, 1),
+      `Low (\\%)` = fmt_pct(rho_lo, 1),
+      `High (\\%)` = fmt_pct(rho_hi, 1),
+      `Main source` = latex_escape(main_sources),
+      Support = latex_escape(support_class)
+    )
+
+  write_appendix_latex_table(
+    file.path(GEN_TABLES, "profit_correction_parent_year_top20.tex"),
+    "Largest parent-level profit corrections under the hybrid model",
+    "tab:profit_correction_parent_year_top20",
+    "lrrrrrL{3.0cm}L{2.7cm}",
+    c("Parent", "Years", "Profit (US\\$ bn)", "$\\hat{\\rho}$ (\\%)",
+      "Low (\\%)", "High (\\%)", "Main source", "Support"),
+    parent_year_top20,
+    paste(
+      "Rows are the twenty parent jurisdictions with the largest positive domestic profit over 2017 to 2022.",
+      "Rates are domestic-profit-weighted averages of parent-year predictions.",
+      source_note("data/processed/diagnostics/step02a_profit_correction_parent_year_top20.csv")
+    )
+  )
+
+  holdout_summary <- read_diag("step02a_profit_correction_validation_holdout.csv") |>
+    group_by(signal_type) |>
+    summarise(
+      rows = n(),
+      weighted_error = weighted_mean_available(error, pmax(profit_weight, 1)),
+      weighted_abs_error =
+        weighted_mean_available(abs_error, pmax(profit_weight, 1)),
+      median_abs_error = median(abs_error, na.rm = TRUE),
+      max_abs_error = max(abs_error, na.rm = TRUE),
+      profit_weight_total = sum(profit_weight, na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    mutate(
+      signal_label = recode(
+        signal_type,
+        "observed_adjusted_profit" = "Observed adjusted profit",
+        "macro_reconciliation" = "Macro reconciliation",
+        "official_country_note" = "Official country note",
+        .default = str_to_sentence(str_replace_all(signal_type, "_", " "))
       )
     ) |>
     transmute(
-      Evidence = latex_escape(evidence_source),
-      Scope = latex_escape(scope),
-      Parent = latex_escape(parent_label),
-      Cells = fmt_int(cells),
-      `Profit (US$ bn)` = fmt_bn(profit, 1),
-      `Implied correction (\\%)` = fmt_pct(implied_rate, 1),
-      Reading = latex_escape(interpretation)
+      Evidence = latex_escape(signal_label),
+      Rows = fmt_int(rows),
+      `Profit weight (US$ bn)` = fmt_bn(profit_weight_total, 1),
+      `Mean error (pp)` = fmt_num(100 * weighted_error, 1),
+      `Mean abs. error (pp)` = fmt_num(100 * weighted_abs_error, 1),
+      `Median abs. error (pp)` = fmt_num(100 * median_abs_error, 1),
+      `Max abs. error (pp)` = fmt_num(100 * max_abs_error, 1)
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_profit_correction_direct_validation.tex"),
-    "Public-data profit-correction diagnostics",
-    "tab:app_profit_correction_direct_validation",
-    "L{2.4cm}L{3.1cm}L{2.8cm}rrrL{4.2cm}",
-    c("Evidence", "Scope", "Parent", "Cells", "Profit (US\\$ bn)",
-      "Implied correction (\\%)", "Reading"),
-    correction_direct,
+    file.path(GEN_TABLES, "profit_correction_validation_holdout.tex"),
+    "Holdout validation for high-credibility profit-correction signals",
+    "tab:profit_correction_validation_holdout",
+    "lrrrrrr",
+    c("Evidence", "Rows", "Profit (US\\$ bn)", "Mean error",
+      "Mean abs.", "Median abs.", "Max abs."),
+    holdout_summary,
     paste(
-      "The directly observed rows use $1-\\sum\\pi^{adj}/\\sum\\pi$ on cells where the OECD reports adjusted profit.",
-      "The ETR-parity row uses the public domestic-versus-foreign comparison described in Appendix Section \\ref{sec:profit_correction_reproducibility}.",
-      source_note("data/processed/diagnostics/step12_profit_correction_validation_summary.csv")
+      "Each high-credibility signal is held out from the prior fit one source-parent-year at a time and compared with the model prediction.",
+      "Errors are reported in percentage points of the correction share.",
+      source_note("data/processed/diagnostics/step02a_profit_correction_validation_holdout.csv")
     )
   )
 
-  benchmark_comparison <- read_diag("step12_profit_correction_benchmark_comparison.csv") |>
-    slice_head(n = 10) |>
+  revenue_point <- read_diag("step02a_profit_correction_revenue_sensitivity.csv") |>
     mutate(
-      parent_label = paste0(parent_jurisdiction_name, " (", parent, ")"),
-      public_proxy_gap_pp = 100 * public_proxy_gap
+      specification = recode(
+        specification,
+        "profit_uncorrected" = "Uncorrected profit",
+        "profit_low_correction" = "Low correction",
+        "profit_preferred" = "Preferred correction",
+        "profit_high_correction" = "High correction",
+        .default = specification
+      )
     ) |>
     transmute(
-      Parent = latex_escape(parent_label),
-      `Recon. profit (US$ bn)` = fmt_bn(benchmark_profit, 1),
-      `Recon. (\\%)` = fmt_pct(benchmark_rate, 1),
-      `Public proxy (\\%)` = fmt_pct(public_proxy_rate, 1),
-      `Gap (pp)` = fmt_num(public_proxy_gap_pp, 1),
-      `Median proxy (\\%)` = fmt_pct(median_country_year_rate, 1),
-      `Min. foreign parents` = fmt_int(minimum_foreign_parent_support)
+      Specification = latex_escape(specification),
+      `Positive profit (US$ bn)` = fmt_bn(positive_profit, 1),
+      `Global top-up proxy (US$ bn)` = fmt_bn(mechanical_pre_sbie_topup, 1),
+      `EU27 top-up proxy (US$ bn)` = fmt_bn(eu27_mechanical_pre_sbie_topup, 1)
     )
 
+  final_point_path <- file.path(
+    DIAG,
+    "step07a_profit_correction_final_revenue_points.csv"
+  )
+  final_point <- if (file.exists(final_point_path)) {
+    read_csv(final_point_path, show_col_types = FALSE) |>
+      filter(factor4_sbs == "sbs") |>
+      mutate(
+        specification = recode(
+          specification,
+          "uncorrected" = "Uncorrected profit",
+          "low_correction" = "Low correction",
+          "preferred_correction" = "Preferred correction",
+          "high_correction" = "High correction",
+          .default = specification
+        )
+      ) |>
+      transmute(
+        Specification = latex_escape(specification),
+        `EU27 final SbS (US$ bn)` = fmt_bn(eu27_final_revenue, 1)
+      )
+  } else {
+    tibble(
+      Specification = revenue_point$Specification,
+      `EU27 final SbS (US$ bn)` = NA_character_
+    )
+  }
+
+  revenue_point <- revenue_point |>
+    left_join(final_point, by = "Specification")
+
+  revenue_draw <- read_diag("step02a_profit_correction_revenue_draw_interval.csv") |>
+    transmute(
+      Specification = "500 $\\rho_{pt}$ draws",
+      `Positive profit (US$ bn)` = paste0(
+        fmt_bn(positive_profit_mean, 1), " [",
+        fmt_bn(positive_profit_p025, 1), ", ",
+        fmt_bn(positive_profit_p975, 1), "]"
+      ),
+      `Global top-up proxy (US$ bn)` = paste0(
+        fmt_bn(mechanical_topup_mean, 1), " [",
+        fmt_bn(mechanical_topup_p025, 1), ", ",
+        fmt_bn(mechanical_topup_p975, 1), "]"
+      ),
+      `EU27 top-up proxy (US$ bn)` = paste0(
+        fmt_bn(eu27_mechanical_topup_mean, 1), " [",
+        fmt_bn(eu27_mechanical_topup_p025, 1), ", ",
+        fmt_bn(eu27_mechanical_topup_p975, 1), "]"
+      )
+    )
+
+  final_draw_path <- file.path(
+    DIAG,
+    "step07a_profit_correction_final_revenue_interval.csv"
+  )
+  revenue_draw <- if (file.exists(final_draw_path)) {
+    final_draw <- read_csv(final_draw_path, show_col_types = FALSE) |>
+      filter(factor4_sbs == "sbs") |>
+      slice_head(n = 1) |>
+      transmute(
+        Specification = "500 $\\rho_{pt}$ draws",
+        `EU27 final SbS (US$ bn)` = paste0(
+          fmt_bn(eu27_revenue_mean, 1), " [",
+          fmt_bn(eu27_revenue_p025, 1), ", ",
+          fmt_bn(eu27_revenue_p975, 1), "]"
+        )
+      )
+
+    revenue_draw |>
+      left_join(final_draw, by = "Specification")
+  } else {
+    revenue_draw |>
+      mutate(`EU27 final SbS (US$ bn)` = NA_character_)
+  }
+
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_profit_correction_benchmark_comparison.tex"),
-    "Reconciliation correction compared with public ETR-parity proxy",
-    "tab:app_profit_correction_benchmark_comparison",
-    "lrrrrrr",
-    c("Parent", "Recon. profit (US\\$ bn)", "Recon. (\\%)",
-      "Public proxy (\\%)", "Gap (pp)", "Median proxy (\\%)",
-      "Min. foreign parents"),
-    benchmark_comparison,
+    file.path(GEN_TABLES, "profit_correction_revenue_sensitivity.tex"),
+    "Profit-correction uncertainty and preferred-scenario revenue",
+    "tab:profit_correction_revenue_sensitivity",
+    "lrrrr",
+    c("Specification", "Positive profit", "Global top-up proxy",
+      "EU27 top-up proxy", "EU27 final SbS"),
+    bind_rows(revenue_point, revenue_draw),
     paste(
-      "Rows are the ten largest domestic parent cells exposed to the reconciliation correction because observed adjusted profit is unavailable.",
-      "The public proxy is capped at 55.5\\% and uses only country-years with positive domestic profit, non-negative tax accrued, positive foreign-affiliate profit and at least three foreign parent jurisdictions.",
-      "It is reported as a support diagnostic and is not used as a full-panel point estimator.",
-      source_note("data/processed/diagnostics/step12_profit_correction_benchmark_comparison.csv")
+      "The top-up proxy is pre-SBIE and pre-allocation: $\\max\\{0,0.15-\\tau\\}\\pi$ using the drawn corrected denominator.",
+      "The final SbS column propagates the same parent-year draws through the preferred behavioural Stage 4.6 panel while holding distributional low-tax shares, behavioural filters and legal allocation weights fixed.",
+      "It is therefore a conditional profit-correction interval, reported separately from the main factorial revenue decomposition.",
+      source_note(c("data/processed/diagnostics/step02a_profit_correction_revenue_sensitivity.csv",
+                    "data/processed/diagnostics/step02a_profit_correction_revenue_draw_interval.csv",
+                    "data/processed/diagnostics/step07a_profit_correction_final_revenue_points.csv",
+                    "data/processed/diagnostics/step07a_profit_correction_final_revenue_interval.csv"))
     )
   )
+
+  holding_chain_path <- file.path(
+    DIAG,
+    "step07a_profit_correction_foreign_holding_chain.csv"
+  )
+  if (file.exists(holding_chain_path) && file.exists(final_point_path)) {
+    holding_chain <- read_csv(holding_chain_path, show_col_types = FALSE)
+    holding_points <- read_csv(final_point_path, show_col_types = FALSE) |>
+      filter(
+        factor4_sbs == "sbs",
+        specification %in% c(
+          "preferred_correction",
+          "foreign_holding_chain_correction"
+        )
+      ) |>
+      select(
+        specification, positive_profit, global_allocated_revenue,
+        eu27_final_revenue
+      )
+
+    preferred_point <- holding_points |>
+      filter(specification == "preferred_correction") |>
+      slice_head(n = 1)
+    holding_point <- holding_points |>
+      filter(specification == "foreign_holding_chain_correction") |>
+      slice_head(n = 1)
+
+    holding_rows <- tibble(
+      Row = c(
+        "Flagged foreign holding-chain cells",
+        "Preferred domestic-only correction",
+        "Foreign holding-chain sensitivity",
+        "Movement relative to preferred"
+      ),
+      Cells = c(fmt_int(holding_chain$flagged_cells), "", "", ""),
+      Parents = c(fmt_int(holding_chain$flagged_parents), "", "", ""),
+      `Profit or reduction (US$ bn)` = c(
+        fmt_bn(holding_chain$flagged_profit, 1),
+        fmt_bn(preferred_point$positive_profit, 1),
+        fmt_bn(holding_point$positive_profit, 1),
+        fmt_bn(holding_point$positive_profit - preferred_point$positive_profit,
+               1)
+      ),
+      `Global allocated revenue (US$ bn)` = c(
+        "",
+        fmt_bn(preferred_point$global_allocated_revenue, 1),
+        fmt_bn(holding_point$global_allocated_revenue, 1),
+        fmt_bn(holding_point$global_allocated_revenue -
+                 preferred_point$global_allocated_revenue, 1)
+      ),
+      `EU27 final SbS (US$ bn)` = c(
+        "",
+        fmt_bn(preferred_point$eu27_final_revenue, 1),
+        fmt_bn(holding_point$eu27_final_revenue, 1),
+        fmt_bn(holding_point$eu27_final_revenue -
+                 preferred_point$eu27_final_revenue, 1)
+      )
+    ) |>
+      mutate(Row = latex_escape(Row))
+
+    write_appendix_latex_table(
+      file.path(GEN_TABLES,
+                "profit_correction_foreign_holding_chain_sensitivity.tex"),
+      "Targeted foreign holding-chain profit-correction sensitivity",
+      "tab:profit_correction_foreign_holding_chain",
+      "lrrrrr",
+      c("Object", "Cells", "Parents", "Profit", "Global revenue",
+        "EU27 final SbS"),
+      holding_rows,
+      paste(
+        "The sensitivity applies a 10\\% residual profit haircut only to foreign affiliate cells in the Netherlands, Luxembourg, Ireland, Switzerland, Singapore, Hong Kong, Bermuda or the Cayman Islands with positive preferred profit, high holding activity, high related-party revenue and low substance relative to profit.",
+        "It is not part of the preferred correction because public aggregate CbCR cannot identify ownership-chain dividends in foreign affiliate cells.",
+        source_note(c("data/processed/diagnostics/step07a_profit_correction_foreign_holding_chain.csv",
+                      "data/processed/diagnostics/step07a_profit_correction_final_revenue_points.csv"))
+      )
+    )
+  }
 
   bspi_summary <- read_diag("step3_stage1_bspi_tv_summary.csv") |>
     mutate(scope = recode(scope, "eu27" = "EU27", "non_eu" = "Non-EU")) |>
@@ -3075,7 +3308,26 @@ write_appendix_tables <- function() {
     )
   }
 
+  profit_reconciliation_inputs <- c(
+    "\\input{generated/results_tables/profit_correction_evidence_table.tex}",
+    "\\input{generated/results_tables/profit_correction_parent_year_top20.tex}",
+    "\\input{generated/results_tables/profit_correction_validation_holdout.tex}",
+    "\\input{generated/results_tables/profit_correction_revenue_sensitivity.tex}"
+  )
+  if (file.exists(file.path(
+    GEN_TABLES,
+    "profit_correction_foreign_holding_chain_sensitivity.tex"
+  ))) {
+    profit_reconciliation_inputs <- c(
+      profit_reconciliation_inputs,
+      "\\input{generated/results_tables/profit_correction_foreign_holding_chain_sensitivity.tex}"
+    )
+  }
+
   appendix_lines <- c(
+    "\\subsection{Profit reconciliation diagnostics}\\label{app:profit_reconciliation_tables}",
+    profit_reconciliation_inputs,
+    "",
     "\\subsection{Stage 1 diagnostics}\\label{app:results_stage1}",
     "\\input{generated/results_tables/appendix_stage1_bspi_summary.tex}",
     "\\input{generated/results_tables/appendix_stage1_conditioning.tex}",
