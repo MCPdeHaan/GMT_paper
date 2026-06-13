@@ -618,13 +618,6 @@ write_profit_correction_table <- function() {
   support <- read_diag("cbcr_t1_profit_adj_support_by_year.csv") |>
     filter(year %in% MAIN_YEARS)
 
-  panel <- read_processed("base_panel.rds") |>
-    filter(year %in% MAIN_YEARS,
-           !is.na(profit_adj_ratio_observed),
-           !is.na(holding_share_panelai),
-           profit_panelai > 0) |>
-    mutate(profit_adj_ratio_bounded = pmin(pmax(profit_adj_ratio_observed, 0), 1))
-
   branch <- correction |>
     group_by(profit_correction_source_baseline) |>
     summarise(
@@ -653,7 +646,7 @@ write_profit_correction_table <- function() {
 
   total <- branch |>
     summarise(
-      label = "Total benchmark base",
+      label = "Total reconciliation branch",
       cells = sum(cells),
       uncorrected_profit = sum(uncorrected_profit),
       corrected_profit = sum(corrected_profit),
@@ -683,27 +676,13 @@ write_profit_correction_table <- function() {
       max_ratio = max(max_profit_adj_ratio, na.rm = TRUE)
     )
 
-  fit <- if (nrow(panel) >= 10) {
-    summary(stats::lm(profit_adj_ratio_bounded ~ holding_share_panelai,
-                      data = panel))
-  } else {
-    NULL
-  }
-
-  beta <- if (!is.null(fit)) fit$coefficients["holding_share_panelai", "Estimate"] else NA_real_
-  se <- if (!is.null(fit)) fit$coefficients["holding_share_panelai", "Std. Error"] else NA_real_
-  p_value <- if (!is.null(fit)) fit$coefficients["holding_share_panelai", "Pr(>|t|)"] else NA_real_
-  r_squared <- if (!is.null(fit)) fit$r.squared else NA_real_
-
   diagnostic_rows <- tibble(
     label = c(
       "Observed adjusted-profit cells",
       "Parents with observed adjusted profit",
       "Affiliate observations with adjusted profit",
       "Median adjusted-to-unadjusted ratio",
-      "Observed ratio range",
-      "Holding-share coefficient",
-      "Ratio-regression $R^2$"
+      "Observed ratio range"
     ),
     cells = c(
       fmt_int(observed_total$cells_with_profit_adj),
@@ -711,9 +690,7 @@ write_profit_correction_table <- function() {
       fmt_int(observed_total$affiliates_with_profit_adj),
       fmt_num(observed_total$median_ratio, 3),
       paste0(fmt_num(observed_total$min_ratio, 3), " to ",
-             fmt_num(observed_total$max_ratio, 3)),
-      coef_cell(beta, se, p_value, 3),
-      fmt_num(r_squared, 3)
+             fmt_num(observed_total$max_ratio, 3))
     ),
     uncorrected = "",
     corrected = "",
@@ -726,7 +703,7 @@ write_profit_correction_table <- function() {
     "\\begin{table}[H]",
     "\\centering",
     "\\scriptsize",
-    "\\caption[Profit-base correction]{Correction from public CbCR profit to the benchmark profit base, 2017 to 2022}",
+    "\\caption[Profit-base correction]{Correction from public CbCR profit to the reconciliation profit branch, 2017 to 2022}",
     "\\label{tab:profit_correction_effects}",
     "\\begin{tabularx}{\\textwidth}{@{}>{\\raggedright\\arraybackslash}Xrrrrrr@{}}",
     "\\toprule",
@@ -774,9 +751,8 @@ write_profit_correction_table <- function() {
     "\\begin{minipage}{0.96\\textwidth}",
     paste0(
       "\\footnotesize\\raggedright \\textit{Notes:} Panel A is restricted to positive-profit analytical cells and reports current USD billions. ",
-      "Unadjusted profit is public CbCR profit before the benchmark accounting correction; corrected profit is the benchmark profit base used downstream. ",
-      "Panel B uses only cells with observed OECD adjusted profit. The holding-share row reports an OLS diagnostic regression of the bounded observed adjusted-to-unadjusted profit ratio on the holding-company entity share; the standard error is in parentheses and stars denote conventional two-sided significance levels, *** $p<0.01$, ** $p<0.05$, * $p<0.10$. ",
-      "Because this support is limited to 36 cells from two parent jurisdictions, the regression documents the evidence constraint and is not used for full-panel imputation. ",
+      "Unadjusted profit is public CbCR profit before the accounting correction; corrected profit is the reconciliation branch used in the reported revenue pipeline. ",
+      "Panel B uses only cells with observed OECD adjusted profit. The observed support is too sparse for a thesis-estimated imputation model, so no regression coefficient is used to construct the correction. ",
       source_note(c("data/processed/diagnostics/step2_profit_correction_by_year.csv",
                     "data/processed/diagnostics/cbcr_t1_profit_adj_support_by_year.csv",
                     "data/processed/base_panel.rds"))
@@ -2526,8 +2502,8 @@ write_appendix_tables <- function() {
     ) |>
     transmute(
       Parent = latex_escape(parent_label),
-      `Benchmark profit (US$ bn)` = fmt_bn(benchmark_profit, 1),
-      `Benchmark (\\%)` = fmt_pct(benchmark_rate, 1),
+      `Recon. profit (US$ bn)` = fmt_bn(benchmark_profit, 1),
+      `Recon. (\\%)` = fmt_pct(benchmark_rate, 1),
       `Public proxy (\\%)` = fmt_pct(public_proxy_rate, 1),
       `Gap (pp)` = fmt_num(public_proxy_gap_pp, 1),
       `Median proxy (\\%)` = fmt_pct(median_country_year_rate, 1),
@@ -2536,17 +2512,17 @@ write_appendix_tables <- function() {
 
   write_appendix_latex_table(
     file.path(GEN_TABLES, "appendix_profit_correction_benchmark_comparison.tex"),
-    "Benchmark profit correction compared with public ETR-parity proxy",
+    "Reconciliation correction compared with public ETR-parity proxy",
     "tab:app_profit_correction_benchmark_comparison",
     "lrrrrrr",
-    c("Parent", "Benchmark profit (US\\$ bn)", "Benchmark (\\%)",
+    c("Parent", "Recon. profit (US\\$ bn)", "Recon. (\\%)",
       "Public proxy (\\%)", "Gap (pp)", "Median proxy (\\%)",
       "Min. foreign parents"),
     benchmark_comparison,
     paste(
-      "Rows are the ten largest domestic parent cells exposed to the benchmark correction because observed adjusted profit is unavailable.",
+      "Rows are the ten largest domestic parent cells exposed to the reconciliation correction because observed adjusted profit is unavailable.",
       "The public proxy is capped at 55.5\\% and uses only country-years with positive domestic profit, non-negative tax accrued, positive foreign-affiliate profit and at least three foreign parent jurisdictions.",
-      "It is reported as a diagnostic and does not replace the benchmark rates.",
+      "It is reported as a support diagnostic and is not used as a full-panel point estimator.",
       source_note("data/processed/diagnostics/step12_profit_correction_benchmark_comparison.csv")
     )
   )
