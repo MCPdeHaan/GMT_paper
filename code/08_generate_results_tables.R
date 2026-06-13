@@ -615,9 +615,6 @@ write_profit_correction_table <- function() {
       reduction_rate = safe_divide(reduction, uncorrected_profit)
     )
 
-  support <- read_diag("cbcr_t1_profit_adj_support_by_year.csv") |>
-    filter(year %in% MAIN_YEARS)
-
   branch <- correction |>
     group_by(profit_correction_source_baseline) |>
     summarise(
@@ -629,14 +626,18 @@ write_profit_correction_table <- function() {
     ) |>
     mutate(
       reduction_rate = safe_divide(reduction, uncorrected_profit),
+      uncorrected_share = safe_divide(
+        uncorrected_profit,
+        sum(uncorrected_profit, na.rm = TRUE)
+      ),
       reduction_share = safe_divide(reduction, sum(reduction, na.rm = TRUE)),
       label = recode(
         profit_correction_source_baseline,
-        "observed_adjusted" = "OECD adjusted-profit cells",
-        "anchored_model" = "External-anchor domestic cells",
-        "parity_shrinkage" = "Model-shrunk domestic cells with public parity signal",
-        "fallback_prior" = "Model-shrunk domestic cells with fallback prior",
-        "uncorrected_foreign" = "Foreign affiliates unchanged",
+        "observed_adjusted" = "OECD adjusted",
+        "anchored_model" = "External-anchor domestic",
+        "parity_shrinkage" = "Domestic model, parity signal",
+        "fallback_prior" = "Domestic model, fallback prior",
+        "uncorrected_foreign" = "Foreign affiliates",
         .default = profit_correction_source_baseline
       ),
       order = match(
@@ -655,6 +656,7 @@ write_profit_correction_table <- function() {
       corrected_profit = sum(corrected_profit),
       reduction = sum(reduction),
       reduction_rate = safe_divide(reduction, uncorrected_profit),
+      uncorrected_share = 1,
       reduction_share = 1
     )
 
@@ -669,50 +671,18 @@ write_profit_correction_table <- function() {
       reduction_share = fmt_pct(reduction_share, 1)
     )
 
-  observed_total <- support |>
-    summarise(
-      cells_with_profit_adj = sum(cells_with_profit_adj, na.rm = TRUE),
-      parents_with_profit_adj = max(parents_with_profit_adj, na.rm = TRUE),
-      affiliates_with_profit_adj = sum(affiliates_with_profit_adj, na.rm = TRUE),
-      median_ratio = median(median_profit_adj_ratio, na.rm = TRUE),
-      min_ratio = min(min_profit_adj_ratio, na.rm = TRUE),
-      max_ratio = max(max_profit_adj_ratio, na.rm = TRUE)
-    )
-
-  diagnostic_rows <- tibble(
-    label = c(
-      "Observed adjusted-profit cells",
-      "Parents with observed adjusted profit",
-      "Affiliate observations with adjusted profit",
-      "Median adjusted-to-unadjusted ratio",
-      "Observed ratio range"
-    ),
-    cells = c(
-      fmt_int(observed_total$cells_with_profit_adj),
-      fmt_int(observed_total$parents_with_profit_adj),
-      fmt_int(observed_total$affiliates_with_profit_adj),
-      fmt_num(observed_total$median_ratio, 3),
-      paste0(fmt_num(observed_total$min_ratio, 3), " to ",
-             fmt_num(observed_total$max_ratio, 3))
-    ),
-    uncorrected = "",
-    corrected = "",
-    reduction = "",
-    reduction_rate = "",
-    reduction_share = ""
-  )
-
   lines <- c(
     "\\begin{table}[H]",
     "\\centering",
     "\\scriptsize",
+    "\\setlength{\\tabcolsep}{4pt}",
     "\\caption[Profit-base correction]{Correction from public CbCR profit to the reconciliation profit branch, 2017 to 2022}",
     "\\label{tab:profit_correction_effects}",
     "\\begin{tabularx}{\\textwidth}{@{}>{\\raggedright\\arraybackslash}Xrrrrrr@{}}",
     "\\toprule",
-    "Profit category & Cells & Unadjusted & Corrected & Reduction & Reduction (\\%) & Share (\\%) \\\\",
+    "Category & Cells & Reported & Corrected & Reduction & Rate (\\%) & Share (\\%) \\\\",
     "\\midrule",
-    "\\multicolumn{7}{@{}l}{\\textit{Panel A: profit-base adjustment, USD billions}} \\\\"
+    "\\multicolumn{7}{@{}l}{\\textit{Profit-base adjustment, USD billions}} \\\\"
   )
 
   for (i in seq_len(nrow(effect_rows))) {
@@ -732,35 +702,15 @@ write_profit_correction_table <- function() {
 
   lines <- c(
     lines,
-    "\\addlinespace[0.5em]",
-    "\\multicolumn{7}{@{}l}{\\textit{Panel B: diagnostic support for adjusted-profit correction}} \\\\",
-    "\\multicolumn{6}{@{}l}{Statistic} & Value \\\\",
-    "\\midrule"
-  )
-
-  for (i in seq_len(nrow(diagnostic_rows))) {
-    lines <- c(lines, paste0(
-      "\\multicolumn{6}{@{}l}{", diagnostic_rows$label[i], "} & ",
-      diagnostic_rows$cells[i], " \\\\"
-    ))
-  }
-
-  lines <- c(
-    lines,
     "\\bottomrule",
     "\\end{tabularx}",
     "",
     "\\vspace{0.5em}",
     "\\begin{minipage}{0.96\\textwidth}",
     paste0(
-      "\\footnotesize\\raggedright \\textit{Notes:} Panel A is restricted to positive-profit analytical cells and reports current USD billions. ",
-      "Unadjusted profit is public CbCR profit before the accounting correction; corrected profit is the reconciliation branch used in the reported revenue pipeline. ",
-      "Corrected profit is the preferred hybrid parent-year reconciliation. Public ETR-parity information enters only as a noisy signal and foreign affiliate cells are not corrected in the baseline. ",
-      "Panel B uses only cells with observed OECD adjusted profit. ",
-      source_note(c("data/processed/diagnostics/step2_profit_correction_by_year.csv",
-                    "data/processed/diagnostics/step02a_profit_correction_parent_year.csv",
-                    "data/processed/diagnostics/cbcr_t1_profit_adj_support_by_year.csv",
-                    "data/processed/base_panel.rds"))
+      "\\footnotesize\\raggedright \\textit{Notes:} Positive-profit analytical cells, current USD billions. ",
+      "Reported profit is public CbCR profit before correction. Corrected profit is the reconciliation branch used downstream. ",
+      "Share is the share of the total profit reduction, not the share of reported profit. Domestic model rows are model-shrunk domestic UPE cells."
     ),
     "\\end{minipage}",
     "\\end{table}"

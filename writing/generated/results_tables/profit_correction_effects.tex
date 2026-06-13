@@ -2,35 +2,27 @@
 \begin{table}[H]
 \centering
 \scriptsize
+\setlength{\tabcolsep}{4pt}
 \caption[Profit-base correction]{Correction from public CbCR profit to the reconciliation profit branch, 2017 to 2022}
 \label{tab:profit_correction_effects}
 \begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}Xrrrrrr@{}}
 \toprule
-Profit category & Cells & Unadjusted & Corrected & Reduction & Reduction (\%) & Share (\%) \\
+Category & Cells & Reported & Corrected & Reduction & Rate (\%) & Share (\%) \\
 \midrule
-\multicolumn{7}{@{}l}{\textit{Panel A: profit-base adjustment, USD billions}} \\
-OECD adjusted-profit cells &     36 &    851.0 &    609.2 &    241.9 & 28.4 &   2.0 \\
-External-anchor domestic cells &     17 &  5,308.8 &  2,491.1 &  2,817.6 & 53.1 &  23.7 \\
-Model-shrunk domestic cells with public parity signal &    215 & 24,004.5 & 15,467.7 &  8,536.8 & 35.6 &  71.9 \\
-Model-shrunk domestic cells with fallback prior &     50 &    638.2 &    364.0 &    274.1 & 43.0 &   2.3 \\
-Foreign affiliates unchanged & 15,440 & 15,908.8 & 15,908.8 &      0.0 &  0.0 &   0.0 \\
+\multicolumn{7}{@{}l}{\textit{Profit-base adjustment, USD billions}} \\
+OECD adjusted &     36 &    851.0 &    609.2 &    241.9 & 28.4 &   2.0 \\
+External-anchor domestic &     17 &  5,308.8 &  2,491.1 &  2,817.6 & 53.1 &  23.7 \\
+Domestic model, parity signal &    215 & 24,004.5 & 15,467.7 &  8,536.8 & 35.6 &  71.9 \\
+Domestic model, fallback prior &     50 &    638.2 &    364.0 &    274.1 & 43.0 &   2.3 \\
+Foreign affiliates & 15,440 & 15,908.8 & 15,908.8 &      0.0 &  0.0 &   0.0 \\
 \midrule
 Total reconciliation branch & 15,758 & 46,711.2 & 34,840.8 & 11,870.4 & 25.4 & 100.0 \\
-\addlinespace[0.5em]
-\multicolumn{7}{@{}l}{\textit{Panel B: diagnostic support for adjusted-profit correction}} \\
-\multicolumn{6}{@{}l}{Statistic} & Value \\
-\midrule
-\multicolumn{6}{@{}l}{Observed adjusted-profit cells} & 36 \\
-\multicolumn{6}{@{}l}{Parents with observed adjusted profit} & 2 \\
-\multicolumn{6}{@{}l}{Affiliate observations with adjusted profit} & 36 \\
-\multicolumn{6}{@{}l}{Median adjusted-to-unadjusted ratio} & 0.749 \\
-\multicolumn{6}{@{}l}{Observed ratio range} & 0.516 to 1.000 \\
 \bottomrule
 \end{tabularx}
 
 \vspace{0.5em}
 \begin{minipage}{0.96\textwidth}
-\footnotesize\raggedright \textit{Notes:} Panel A is restricted to positive-profit analytical cells and reports current USD billions. Unadjusted profit is public CbCR profit before the accounting correction; corrected profit is the reconciliation branch used in the reported revenue pipeline. Corrected profit is the preferred hybrid parent-year reconciliation. Public ETR-parity information enters only as a noisy signal and foreign affiliate cells are not corrected in the baseline. Panel B uses only cells with observed OECD adjusted profit.
+\footnotesize\raggedright \textit{Notes:} Positive-profit analytical cells, current USD billions. Reported profit is public CbCR profit before correction. Corrected profit is the reconciliation branch used downstream. Share is the share of the total profit reduction, not the share of reported profit. Domestic model rows are model-shrunk domestic UPE cells.
 \end{minipage}
 \end{table}
 
