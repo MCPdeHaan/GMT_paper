@@ -435,7 +435,7 @@ write_data_descriptive_tables <- function() {
       "",
       "\\vspace{0.5em}",
       "\\begin{minipage}{0.96\\textwidth}",
-      "\\footnotesize\\raggedright \\textit{Notes:} Obs. reports raw SDMX records in the first line and parent-affiliate-year cells thereafter. Share is relative to the 2017--2022 analytical panel and is not reported for pre-panel source rows. The EU27 affiliate slice is a geographic subset, not a sequential attrition step. The Panel A-I positive-profit restriction is defined in Appendix \\ref{app:CbCR} and detailed in Appendix \\ref{app:measurement_framework}; the behavioural sample filters are reported in Appendix Table \\ref{tab:app_stage3_sample_summary}.",
+      "\\footnotesize\\raggedright \\textit{Notes:} Share is relative to the 2017--2022 analytical panel and is not reported for pre-panel source rows. The EU27 affiliate slice is a geographic subset, not a sequential attrition step. The Panel A-I positive-profit restriction is defined in Appendix \\ref{app:CbCR} and detailed in Appendix \\ref{app:measurement_framework}; the behavioural sample filters are reported in Appendix Table \\ref{tab:app_stage3_sample_summary}.",
       "\\end{minipage}",
       "\\end{table}"
     )
@@ -653,7 +653,7 @@ write_profit_correction_table <- function() {
 
   total <- branch |>
     summarise(
-      label = "Total preferred base",
+      label = "Total benchmark base",
       cells = sum(cells),
       uncorrected_profit = sum(uncorrected_profit),
       corrected_profit = sum(corrected_profit),
@@ -726,7 +726,7 @@ write_profit_correction_table <- function() {
     "\\begin{table}[H]",
     "\\centering",
     "\\scriptsize",
-    "\\caption[Profit-base correction]{Correction from public CbCR profit to the preferred profit base, 2017 to 2022}",
+    "\\caption[Profit-base correction]{Correction from public CbCR profit to the benchmark profit base, 2017 to 2022}",
     "\\label{tab:profit_correction_effects}",
     "\\begin{tabularx}{\\textwidth}{@{}>{\\raggedright\\arraybackslash}Xrrrrrr@{}}",
     "\\toprule",
@@ -753,7 +753,7 @@ write_profit_correction_table <- function() {
   lines <- c(
     lines,
     "\\addlinespace[0.5em]",
-    "\\multicolumn{7}{@{}l}{\\textit{Panel B: support for broader adjusted-profit imputation}} \\\\",
+    "\\multicolumn{7}{@{}l}{\\textit{Panel B: diagnostic support for adjusted-profit correction}} \\\\",
     "\\multicolumn{6}{@{}l}{Statistic} & Value \\\\",
     "\\midrule"
   )
@@ -774,9 +774,9 @@ write_profit_correction_table <- function() {
     "\\begin{minipage}{0.96\\textwidth}",
     paste0(
       "\\footnotesize\\raggedright \\textit{Notes:} Panel A is restricted to positive-profit analytical cells and reports current USD billions. ",
-      "Unadjusted profit is public CbCR profit before the preferred accounting correction; corrected profit is the profit base used downstream. ",
-      "Panel B uses cells with observed OECD adjusted profit. The holding-share coefficient is from an OLS regression of the bounded observed adjusted-to-unadjusted profit ratio on the holding-company entity share; the standard error is in parentheses. ",
-      "The diagnostic is reported to document the evidence constraint; it is not used for full-panel imputation. ",
+      "Unadjusted profit is public CbCR profit before the benchmark accounting correction; corrected profit is the benchmark profit base used downstream. ",
+      "Panel B uses only cells with observed OECD adjusted profit. The holding-share row reports an OLS diagnostic regression of the bounded observed adjusted-to-unadjusted profit ratio on the holding-company entity share; the standard error is in parentheses and stars denote conventional two-sided significance levels, *** $p<0.01$, ** $p<0.05$, * $p<0.10$. ",
+      "Because this support is limited to 36 cells from two parent jurisdictions, the regression documents the evidence constraint and is not used for full-panel imputation. ",
       source_note(c("data/processed/diagnostics/step2_profit_correction_by_year.csv",
                     "data/processed/diagnostics/cbcr_t1_profit_adj_support_by_year.csv",
                     "data/processed/base_panel.rds"))
@@ -2475,6 +2475,81 @@ write_simple_metric_table <- function(file, caption, label, data, metric_col,
 
 write_appendix_tables <- function() {
   dir.create(GEN, showWarnings = FALSE, recursive = TRUE)
+
+  correction_validation <- read_diag("step12_profit_correction_validation_summary.csv")
+
+  correction_direct <- correction_validation |>
+    filter(evidence_source == "OECD observed adjusted profit" |
+             parent == "ALL") |>
+    mutate(
+      evidence_source = recode(
+        evidence_source,
+        "OECD observed adjusted profit" = "Observed adjusted profit",
+        "Public CbCR ETR-parity proxy" = "ETR-parity proxy"
+      ),
+      parent_label = if_else(
+        parent == "ALL",
+        "All supported",
+        paste0(parent_jurisdiction_name, " (", parent, ")")
+      )
+    ) |>
+    transmute(
+      Evidence = latex_escape(evidence_source),
+      Scope = latex_escape(scope),
+      Parent = latex_escape(parent_label),
+      Cells = fmt_int(cells),
+      `Profit (US$ bn)` = fmt_bn(profit, 1),
+      `Implied correction (\\%)` = fmt_pct(implied_rate, 1),
+      Reading = latex_escape(interpretation)
+    )
+
+  write_appendix_latex_table(
+    file.path(GEN_TABLES, "appendix_profit_correction_direct_validation.tex"),
+    "Public-data profit-correction diagnostics",
+    "tab:app_profit_correction_direct_validation",
+    "L{2.4cm}L{3.1cm}L{2.8cm}rrrL{4.2cm}",
+    c("Evidence", "Scope", "Parent", "Cells", "Profit (US\\$ bn)",
+      "Implied correction (\\%)", "Reading"),
+    correction_direct,
+    paste(
+      "The directly observed rows use $1-\\sum\\pi^{adj}/\\sum\\pi$ on cells where the OECD reports adjusted profit.",
+      "The ETR-parity row uses the public domestic-versus-foreign comparison described in Appendix Section \\ref{sec:profit_correction_reproducibility}.",
+      source_note("data/processed/diagnostics/step12_profit_correction_validation_summary.csv")
+    )
+  )
+
+  benchmark_comparison <- read_diag("step12_profit_correction_benchmark_comparison.csv") |>
+    slice_head(n = 10) |>
+    mutate(
+      parent_label = paste0(parent_jurisdiction_name, " (", parent, ")"),
+      public_proxy_gap_pp = 100 * public_proxy_gap
+    ) |>
+    transmute(
+      Parent = latex_escape(parent_label),
+      `Benchmark profit (US$ bn)` = fmt_bn(benchmark_profit, 1),
+      `Benchmark (\\%)` = fmt_pct(benchmark_rate, 1),
+      `Public proxy (\\%)` = fmt_pct(public_proxy_rate, 1),
+      `Gap (pp)` = fmt_num(public_proxy_gap_pp, 1),
+      `Median proxy (\\%)` = fmt_pct(median_country_year_rate, 1),
+      `Min. foreign parents` = fmt_int(minimum_foreign_parent_support)
+    )
+
+  write_appendix_latex_table(
+    file.path(GEN_TABLES, "appendix_profit_correction_benchmark_comparison.tex"),
+    "Benchmark profit correction compared with public ETR-parity proxy",
+    "tab:app_profit_correction_benchmark_comparison",
+    "lrrrrrr",
+    c("Parent", "Benchmark profit (US\\$ bn)", "Benchmark (\\%)",
+      "Public proxy (\\%)", "Gap (pp)", "Median proxy (\\%)",
+      "Min. foreign parents"),
+    benchmark_comparison,
+    paste(
+      "Rows are the ten largest domestic parent cells exposed to the benchmark correction because observed adjusted profit is unavailable.",
+      "The public proxy is capped at 55.5\\% and uses only country-years with positive domestic profit, non-negative tax accrued, positive foreign-affiliate profit and at least three foreign parent jurisdictions.",
+      "It is reported as a diagnostic and does not replace the benchmark rates.",
+      source_note("data/processed/diagnostics/step12_profit_correction_benchmark_comparison.csv")
+    )
+  )
 
   bspi_summary <- read_diag("step3_stage1_bspi_tv_summary.csv") |>
     mutate(scope = recode(scope, "eu27" = "EU27", "non_eu" = "Non-EU")) |>

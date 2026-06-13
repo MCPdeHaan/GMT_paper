@@ -495,23 +495,40 @@ Table \ref{tab:channels} maps each channel to the corresponding factorial factor
 
 \subsection{OECD Country-by-Country Reporting}\label{CbCR}
 
-The primary source is the OECD public Country-by-Country Reporting (CbCR) database, as reported in Corporate Tax Statistics \citep{oecd2025a}. The data are based on anonymised and aggregated reports submitted to tax administrations by multinational groups above the \EUR 750 million consolidated-revenue threshold. This threshold makes CbCR close to the population targeted by Pillar Two, but the variables are not GloBE variables. CbCR reports accounting aggregates; GloBE liability depends on adjusted covered taxes and GloBE income \citep{oecd2025,hanlon2023}.
+The primary source is the OECD public Country-by-Country Reporting (CbCR) database \citep{oecd2025a}. The data are based on anonymised and aggregated reports submitted to tax administrations by multinational groups above the \EUR 750 million consolidated-revenue threshold. This threshold makes CbCR close to the population targeted by Pillar Two. However, CbCR reports accounting aggregates rather than the adjusted covered taxes and GloBE income used in the GMT calculation \citep{oecd2025,hanlon2023}.
 
-The main sample covers fiscal years 2017--2022. The analysis omits 2016 because CbCR filing was still transitional and less comparable across countries. Monetary variables remain in current US dollars, as reported by the OECD. The OECD releases six CbCR tables. This thesis uses Table I and Table IV as the main inputs. Table I is the broad panel source: it reports profit before income tax, tax accrued, revenues, tangible assets, employees and activity counts by parent-affiliate-year cell. It also reports jurisdiction-average ETRs and, for later years, selected ETR percentiles. Table IV groups financial variables by ETR bracket. It does not show post-reform behavioural responses; it shows how much pre-reform profit is located in lower and higher ETR parts of the public CbCR distribution. Tables II, III, V and VI provide robustness context, including robust means, group-level ETR brackets and size distributions. Appendix \ref{app:CbCR}, Table \ref{tab:cbcr_raw_architecture}, records the full table architecture.
+The main sample covers fiscal years 2017--2022. The analysis omits 2016 because CbCR filing was still transitional and less comparable across countries. Monetary variables remain in current US dollars. The OECD releases six CbCR tables. This thesis uses Table I and Table IV as the main inputs. Table I is the broad panel source: it reports profit before income tax, tax accrued, revenues, tangible assets, employees and activity counts by parent-affiliate-year cell. It also reports jurisdiction-average ETRs and, for later years, selected ETR percentiles. Table IV groups financial variables by ETR bracket. It shows how much pre-reform profit is located in lower and higher ETR parts of the public CbCR distribution. Tables II, III, V and VI provide robustness context, including robust means, group-level ETR brackets and size distributions. Appendix \ref{app:CbCR}, Table \ref{tab:cbcr_raw_architecture}, records the full table architecture.
 
 Each observation links two jurisdictions in one fiscal year. The first is the parent jurisdiction ($p$), where the multinational group is headquartered. The second is the affiliate jurisdiction ($j$), where the group reports profit, tax, employees and tangible assets. Most of the measurement in this paper starts on the affiliate side, because that is where the low-taxed profit and substance variables are observed. The parent side is kept because it determines which country may collect residual top-up tax when the source country does not collect first. The empirical cell is therefore a parent-affiliate-year observation, denoted $(p,j,t)$.
 
-The raw CbCR panel is cleaned into a bilateral panel. The full 2017--2022 analytical panel contains 15{,}758 parent-affiliate-year cells across 58 parent jurisdictions and 228 affiliate jurisdictions. This is the simulation frame. The EU27 affiliate slice is the source-country subset used for EU revenue results. The positive-profit sample contains 11{,}872 cells, or 75.3\% of the analytical panel, across 52 parents and 220 affiliates. This is the sample in which ETRs, low-taxed profit and top-up gaps can be measured. The behavioural estimation sample contains 8{,}971 cells, or 56.9\% of the analytical panel. Table \ref{tab:data_sample_construction} maps these empirical objects, while Appendix Section \ref{sec:base_panel_appendix} and Appendix Table \ref{tab:cleaned_panel_support} report the broader merged-panel coverage, support diagnostics and readiness flags that sit behind the sample restrictions.
+The raw CbCR panel is cleaned into a bilateral panel. The full 2017--2022 analytical panel contains 15{,}758 parent-affiliate-year cells across 58 parent jurisdictions and 228 affiliate jurisdictions. This is the simulation frame. The EU27 affiliate slice is the source-country subset used for EU revenue results. The positive-profit sample contains 11{,}872 cells, or 75.3\% of the analytical panel, across 52 parents and 220 affiliates. This is the sample in which ETRs, low-taxed profit and top-up gaps can be measured. The behavioural estimation sample is narrower, containing 8{,}971 cells, or 56.9\% of the analytical panel, since the Hines--Rice regression is estimated in logs and therefore requires positive corrected profit, positive tangible assets and a positive wage-based payroll proxy. It also requires at least two observations for the same parent-affiliate pair so that the pair fixed effect is identified. Cells that lack one of these ingredients can still matter for the revenue simulation, but they cannot identify the semi-elasticity. Table \ref{tab:data_sample_construction} maps these empirical objects, while Appendix Section \ref{sec:base_panel_appendix} and Appendix Table \ref{tab:cleaned_panel_support} report the broader merged-panel coverage, support diagnostics and readiness flags that sit behind the sample restrictions.
 
 \input{generated/results_tables/data_sample_construction.tex}
 
 \subsection{Profit, tax and ETR cleaning}\label{sec:doublecounting}
 
-All observations are pre-implementation observations. The thesis therefore observes tax positions before the GMT was in force and applies the rules counterfactually. Public CbCR profit is accounting profit before income tax. It is neither taxable income nor the income used for the GMT-calculations (so called, GloBE income). The most important upstream correction concerns double counting through dividends, participation results and holding chains. A parent jurisdiction can report profit connected to a foreign operating subsidiary, while an intermediate holding jurisdiction records the same underlying return. \citet{blouin2023} show that these accounting conventions can materially inflate profit-shifting estimates. \citet{garcia-bernardo2022a} show that CbCR reconciliation requires explicit removal of double-counted income. The corrections are done in three steps. First, the OECD adjusted-profit field replaces reported profit where it is available. Second, the remaining adjustment is concentrated on domestic ultimate-parent cells, where equity-income duplication is most plausible. Third, foreign affiliate cells receive no uniform haircut. This removes visible accounting duplication without pretending that the sparse adjusted-profit observations can identify a full-panel imputation model.
+All observations are pre-implementation observations. The thesis therefore observes tax positions before the GMT was in force and applies the rules counterfactually. Public CbCR profit is accounting profit before income tax. The most important upstream correction concerns double counting through dividends, participation results and holding chains. A parent jurisdiction can report profit connected to a foreign operating subsidiary, while an intermediate holding jurisdiction records the same underlying return. \citet{blouin2023} show that these accounting conventions can materially inflate profit-shifting estimates. \citet{garcia-bernardo2022a} show that CbCR reconciliation requires explicit removal of double-counted income. The correction is therefore deliberately narrow. Let $\pi_{pjt}$ denote reported CbCR profit and $\pi^{adj}_{pjt}$ observed OECD adjusted profit. For each parent-affiliate-year cell, corrected profit is defined as
+\[
+\pi^{*}_{pjt} =
+\begin{cases}
+\pi^{adj}_{pjt}, & \text{if adjusted profit is observed},\\
+(1-\rho_p)\pi_{pjt}, & \text{if } p=j \text{ and adjusted profit is unobserved},\\
+\pi_{pjt}, & \text{otherwise},
+\end{cases}
+\]
+\[
+\rho_p =
+\begin{cases}
+0.54, & p=\mathrm{USA},\\
+0.16, & p=\mathrm{NLD},\\
+0.324, & \text{otherwise}.
+\end{cases}
+\]
+The rates in $\rho_p$ are external calibration constants, not estimates from this thesis. The US rate is the domestic CbCR correction estimated by \citet{garcia-bernardo2022a}; the Dutch rate is the Netherlands-specific correction used in the global CbCR correction of \citet{garcia-bernardo2024}; and the 32.4\% fallback is the median UPE correction reported by \citet{hugger2026}. This is more defensible than estimating a full-panel correction from the 36 observed adjusted-profit cells, but it also means that the corrected profit base is conditional on the external reconciliation evidence. Appendix Section \ref{sec:profit_correction_reproducibility} audits which parts can be recalculated from public CbCR and why the public-data proxy is not used as the central correction. Foreign affiliate cells receive no uniform haircut, because the public data do not identify a transportable adjustment for ordinary operating affiliates.
+
+Table \ref{tab:profit_correction_effects} shows the scale of the benchmark correction. Over 2017--2022, it reduces positive-profit CbCR profit from US\$46.7 trillion to US\$34.8 trillion, a reduction of 25.6\%. Almost all of the reduction comes from domestic ultimate-parent cells. The reported holding-share regression is only a diagnostic check that adjusted-profit ratios are lower where holding-company activity is higher. It is not used to impute profit for the full panel. The correct interpretation is therefore narrow: the benchmark correction removes visible accounting double counting using external calibration. The uncorrected and aggressive profit bases are retained in the pipeline as sensitivity bounds, not as alternative behavioural or policy effects.
 
 \input{generated/results_tables/profit_correction_effects.tex}
-
-Table \ref{tab:profit_correction_effects} shows the scale of the correction. Over 2017--2022, the preferred correction reduces positive-profit CbCR profit from US\$46.7 trillion to US\$34.8 trillion, a reduction of 25.6\%. Almost all of the reduction comes from domestic ultimate-parent cells. The table also shows why the correction is kept narrow: observed adjusted-profit support consists of only 36 cells from two parent jurisdictions. This is an input correction to the public CbCR profit base. It is not interpreted as a behavioural response or as a policy effect of the GMT.
 
 ETRs are computed only on positive-profit cells, using tax accrued as the numerator and corrected profit as the denominator. Tax accrued is closer to current-period covered taxes than tax paid, although GloBE covered taxes require adjustments that public CbCR cannot reproduce \citep{hanlon2023}. Raw CbCR ETRs can still be negative or above 100\% when tax accruals are negative, delayed or affected by one-off items. In the positive-profit sample, 5.4\% of cells have negative raw ETRs and 0.9\% exceed 100\%. These observations are bounded or flagged before they enter the low-taxed-profit measurement. Appendix \ref{app:measurement_framework} gives the precise bounding rules.
 
@@ -1321,6 +1338,42 @@ VI & MNE group size classes, 2022 only & No ETR bracket & Financial and activity
 \end{tabularx}
 \end{table}
 
+\subsubsection{Profit-correction reproducibility audit}\label{sec:profit_correction_reproducibility}
+
+The profit correction is audited separately because it changes the denominator of every later ETR and top-up calculation. The published correction rates cannot all be recalculated from the public OECD CbCR files alone. \citet{garcia-bernardo2022a} estimate the US domestic correction by reconciling IRS CbCR profit with a constructed Compustat population of CbCR-eligible firms, including imputed foreign profits for listed firms with missing segment data and an allowance for private firms outside Compustat. Those firm-level Compustat inputs are not in the public CbCR panel used here. \citet{hugger2026} report a median UPE correction of 32.4\% and a cap of 55.5\%, based partly on information from tax authorities and partly on domestic-versus-foreign affiliate comparisons. The tax-authority component is not publicly reproducible. \citet{garcia-bernardo2024} use country-specific corrections, including the Netherlands, alongside broader global CbCR adjustments. The present audit therefore separates direct public calculations from public-data proxies.
+
+The first public calculation uses OECD adjusted profit where it is observed. For any group of cells $G$ with both reported profit and adjusted profit, the direct correction rate is
+\[
+\hat{\rho}^{adj}_{G}
+= 1 -
+\frac{\sum_{(p,j,t)\in G}\pi^{adj}_{pjt}}
+{\sum_{(p,j,t)\in G}\pi_{pjt}} .
+\]
+This is the cleanest calculation because it compares two OECD profit concepts inside the same parent-affiliate-year cell. Its weakness is coverage. In the 2017--2022 analytical panel, adjusted profit is observed in only 36 cells. The direct calculation gives a 22.4\% correction for Dutch domestic parent cells and a 35.2\% correction for UK domestic parent cells. The Dutch calibration constant of 16\% is therefore not driving the realised Dutch domestic rows in this panel, because observed adjusted profit replaces reported profit where it exists.
+
+The second public calculation mimics the domestic-versus-foreign logic discussed by \citet{hugger2026}. Let $C_{pjt}$ denote tax accrued. For each domestic parent cell and year, define the domestic ETR and the foreign-affiliate ETR in the same host jurisdiction as
+\[
+\tau^{D}_{jt}=\frac{C_{jjt}}{\pi_{jjt}},
+\qquad
+\tau^{F}_{jt}=
+\frac{\sum_{p\neq j} C_{pjt}}
+{\sum_{p\neq j} \pi_{pjt}} .
+\]
+If domestic profit is overstated by intra-group dividends while tax accrued is not, the domestic ETR will be mechanically depressed. The public proxy asks what profit reduction would equalise the domestic ETR to the foreign-affiliate ETR:
+\[
+\hat{\rho}^{par}_{jt}
+=
+\min\left\{0.555,\,
+\max\left(0,\,1-\frac{\tau^{D}_{jt}}{\tau^{F}_{jt}}\right)\right\}.
+\]
+The cap is the Hugger cap. The diagnostic uses only positive-profit cells with non-negative tax accrued, positive foreign-affiliate profit, a positive foreign-affiliate ETR, and at least three foreign parent jurisdictions in the comparison group. It is a plausibility check, not a replacement estimator. The identifying assumption is strong: foreign affiliates in a country are not a clean control group when their tax positions differ systematically from domestic UPEs through sector mix, loss histories, incentives, profit shifting and reporting composition.
+
+Tables \ref{tab:app_profit_correction_direct_validation} and \ref{tab:app_profit_correction_benchmark_comparison} report the audit results. The ETR-parity proxy produces a profit-weighted correction of 14.1\% across 258 supported domestic country-years, with a median country-year correction of 23.9\%. It does not reproduce the US benchmark: the public proxy gives 3.3\% for the United States, while the Compustat-based reconciliation used in the literature gives 54\%. This gap is informative. It shows that the public aggregate CbCR panel can document the direction and scale of the measurement problem, but it cannot replace the external reconciliation evidence for the central correction. The thesis therefore keeps the benchmark correction, reports the public-data audit, and treats uncorrected and aggressive profit bases as sensitivity bounds.
+
+\input{generated/results_tables/appendix_profit_correction_direct_validation.tex}
+
+\input{generated/results_tables/appendix_profit_correction_benchmark_comparison.tex}
+
 Table \ref{tab:cleaned_panel_support} records the main coverage and support diagnostics. These figures are descriptive statistics of the constructed analytical panel after country-like affiliate filtering, profit correction flags, wage matching, ETR bounding, and Stage 1 source assignment. The revenue estimates use this cleaned object rather than the full long-form CbCR extract.
 
 \begin{table}[H]
@@ -1339,7 +1392,7 @@ EU27 affiliate rows & 3{,}903 & Cleaned rows where the affiliate jurisdiction is
 Rows with wage benchmark & 14{,}685 & Rows for which an affiliate-year wage can be matched from the OECD or ILO hierarchy \\
 Rows with wage-based payroll proxy & 14{,}610 & Rows with $\hat{W}_{p,j,t}=N_{p,j,t}\bar{w}_{j,t}$ available for SBIE measurement \\
 Employee plausibility corrections & 9 & Rows where the employee input is corrected by the implemented plausibility screen \\
-Rows with baseline profit correction & 1{,}780 & Rows where $\pi^{*}_{p,j,t}$ differs from reported profit under the preferred correction rule \\
+Rows with benchmark profit correction & 1{,}780 & Rows where $\pi^{*}_{p,j,t}$ differs from reported profit under the benchmark correction rule \\
 Observed OECD \code{PROFIT\_ADJ} rows & 36 & Direct adjusted-profit observations used as diagnostics rather than as a full backcast model \\
 Main analytical pair-year rows, 2017--2022 & 15{,}758 & Pair-year rows that enter Stage 1 branch assignment after excluding the 2016 transition vintage \\
 Positive-profit analytical pair-years & 11{,}872 & Pair-year rows with a positive profit base for top-up measurement \\
