@@ -18,12 +18,12 @@ source(if (file.exists("code/00_helpers.R")) {
   file.path("..", "..", "code/00_helpers.R")
 })
 
-IN   <- "data/processed"
-OUT  <- IN
+run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
+IN   <- in_dir
+OUT  <- out_dir
 DIAG <- file.path(OUT, "diagnostics")
 dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
 
-CORE_YEARS       <- 2016:2022
 ESTIMATION_YEARS <- MAIN_YEARS
 EMPLOYEES_PER_ENTITY_CAP <- 100000
 EUKLEMS_STOCK_COVERAGE_THRESHOLD <- 0.75
@@ -1872,3 +1872,8 @@ message(" - data/processed/base_panel_bea_us_parent_sector_benchmark.rds")
 message(" - data/processed/base_panel_global_intan_eu27_macro.rds")
 message(" - data/processed/base_panel_t4_bracket_shares.rds")
 message(" - diagnostics/step2_*.csv")
+}
+
+if (is_direct_script_run("code/02_base_correction_and_merging.R")) {
+  run_base_panel()
+}

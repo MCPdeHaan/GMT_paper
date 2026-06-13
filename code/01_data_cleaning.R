@@ -12,17 +12,16 @@ source(if (file.exists("code/00_helpers.R")) {
   file.path("..", "..", "code/00_helpers.R")
 })
 
-RAW <- "data/raw"
-OUT <- "data/processed"
+run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
+RAW <- raw_dir
+OUT <- out_dir
 DIAG <- file.path(OUT, "diagnostics")
 dir.create(OUT, showWarnings = FALSE, recursive = TRUE)
 dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
 
 # Eurostat publishes inward FATS using its own 2-letter codes (UK, EL = Greece).
 # EU27_ISO2 keeps the 27 Member States in Eurostat code system for the FATS coverage check.
-EU27_ISO2 <- c("AT","BE","BG","CY","CZ","DE","DK","EE","EL","ES","FI","FR",
-               "HR","HU","IE","IT","LT","LU","LV","MT","NL","PL","PT","RO",
-               "SE","SI","SK")
+EU27_ISO2 <- EU27_ISO2_EUROSTAT
 
 EUROSTAT_GEO_MAP <- tribble(
   ~geo, ~jurisdiction,
@@ -962,3 +961,8 @@ message(sprintf(
 ))
 message(sprintf("Done. %d intermediate files written to %s/",
                 length(list.files(OUT, pattern = "\\.rds$")), OUT))
+}
+
+if (is_direct_script_run("code/01_data_cleaning.R")) {
+  run_data_cleaning()
+}

@@ -75,7 +75,8 @@ cluster_vcov_lm <- function(fit, cluster) {
   } else {
     factor(cluster[used_rows])
   }
-  bread <- solve(crossprod(x, x * weights))
+  bread <- solve_crossprod_checked(sqrt(weights) * x,
+                                   "Stage 2 clustered weighted regression")
   scores <- x * as.numeric(residuals * weights)
   meat <- matrix(0, ncol(x), ncol(x))
 
@@ -484,6 +485,9 @@ run_stage2_pipeline <- function() {
 
   transition_rates <- build_transition_rates()
 
+  # Sectoral SBIE with SBTI overlay. Unlike the aggregate bilateral SBIE above,
+  # this allocates 2022 affiliate profit, payroll and tangible assets across
+  # broad NACE sectors before applying the sectoral transition path.
   stage2_sectoral_matrix <- fats_sector_shares |>
     filter(year == SECTORAL_REFERENCE_YEAR, affiliate %in% EU27_ISO3) |>
     left_join(sectoral_reference_base, by = "affiliate") |>

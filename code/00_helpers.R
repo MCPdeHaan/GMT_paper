@@ -1,30 +1,10 @@
-# Shared constants and small utilities used across the GMT pipeline.
+# Shared small utilities used across the GMT pipeline.
 
-PROCESSED_DIR <- "data/processed"
-DIAGNOSTICS_DIR <- file.path(PROCESSED_DIR, "diagnostics")
-
-MAIN_YEARS <- 2017:2022
-GMT_RATE <- 0.15
-
-EU27_ISO3 <- c(
-  "AUT", "BEL", "BGR", "CYP", "CZE", "DEU", "DNK", "ESP", "EST", "FIN",
-  "FRA", "GRC", "HRV", "HUN", "IRL", "ITA", "LTU", "LUX", "LVA", "MLT",
-  "NLD", "POL", "PRT", "ROU", "SVK", "SVN", "SWE"
-)
-
-SELECTED_COUNTRIES <- c("NLD", "IRL", "LUX", "DEU", "FRA")
-COUNTRY_CASE_COUNTRIES <- c("DEU", "NLD", "FRA", "LUX", "IRL", "HUN")
-SELECTED_FISCAL_COUNTRIES <- COUNTRY_CASE_COUNTRIES
-
-SCENARIO_VARS <- c(
-  "scenario_id", "rate_scenario", "factor1_etr", "factor2_substance",
-  "factor3_rates", "factor4_sbs", "factor5_behaviour", "x1_etr",
-  "x2_substance", "x3_rates", "x4_sbs", "x5_behaviour"
-)
-
-FACTOR_COLS <- c(
-  "x1_etr", "x2_substance", "x3_rates", "x4_sbs", "x5_behaviour"
-)
+source(if (file.exists("code/00_config.R")) {
+  "code/00_config.R"
+} else {
+  file.path("..", "..", "code/00_config.R")
+})
 
 source_pipeline_script <- function(path) {
   if (file.exists(path)) {
@@ -44,20 +24,64 @@ is_direct_script_run <- function(script_path) {
 }
 
 assert_unique_keys <- function(df, keys, label) {
+  missing_keys <- setdiff(keys, names(df))
+  if (length(missing_keys) > 0L) {
+    stop(sprintf(
+      "%s: missing key column(s): %s",
+      label,
+      paste(missing_keys, collapse = ", ")
+    ), call. = FALSE)
+  }
+
   key_df <- df[, keys, drop = FALSE]
   duplicated_keys <- duplicated(key_df) | duplicated(key_df, fromLast = TRUE)
   n_dup <- nrow(unique(key_df[duplicated_keys, , drop = FALSE]))
 
   if (n_dup > 0) {
-    stop(sprintf("%s: %d duplicate key combinations", label, n_dup))
+    stop(sprintf("%s: %d duplicate key combinations", label, n_dup),
+         call. = FALSE)
   }
+
+  invisible(TRUE)
 }
 
 left_join_checked <- function(x, y, by, label) {
+  if (!is.character(by)) {
+    stop(label, ": `by` must be a character vector understood by dplyr joins",
+         call. = FALSE)
+  }
+
+  if (is.null(names(by))) {
+    left_keys <- by
+  } else {
+    left_keys <- names(by)
+    unnamed_keys <- left_keys == ""
+    left_keys[unnamed_keys] <- by[unnamed_keys]
+  }
+  right_keys <- unname(by)
+
+  missing_left <- setdiff(left_keys, names(x))
+  missing_right <- setdiff(right_keys, names(y))
+  if (length(missing_left) > 0L || length(missing_right) > 0L) {
+    stop(
+      label,
+      ": missing join key column(s). Left missing: ",
+      paste(missing_left, collapse = ", "),
+      "; right missing: ",
+      paste(missing_right, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
   n_before <- nrow(x)
-  assert_unique_keys(y, unname(by), label)
+  assert_unique_keys(y, right_keys, paste0(label, " right-hand side"))
   out <- dplyr::left_join(x, y, by = by)
-  if (nrow(out) != n_before) stop(sprintf("%s changed row count", label))
+  if (nrow(out) != n_before) {
+    stop(sprintf(
+      "%s expanded row count from %d to %d despite unique right-hand keys",
+      label, n_before, nrow(out)
+    ), call. = FALSE)
+  }
   out
 }
 
@@ -84,6 +108,19 @@ safe_cor <- function(x, y, method = "pearson", min_pairs = 3L) {
   if (sum(keep) < min_pairs) return(NA_real_)
   if (length(unique(x[keep])) < 2 || length(unique(y[keep])) < 2) return(NA_real_)
   stats::cor(x[keep], y[keep], method = method)
+}
+
+solve_crossprod_checked <- function(x, label) {
+  x <- as.matrix(x)
+  xtx <- crossprod(x)
+  xtx_rank <- qr(xtx)$rank
+  if (xtx_rank < ncol(xtx)) {
+    stop(sprintf(
+      "%s: cross-product matrix is rank deficient (%d < %d)",
+      label, xtx_rank, ncol(xtx)
+    ), call. = FALSE)
+  }
+  solve(xtx)
 }
 
 first_non_missing <- function(x) {

@@ -504,18 +504,19 @@ run_stage1_measurement_error_simulation <- function(
     seed = seed
   )
 
-  draw_splits <- split(stage1_draws, stage1_draws$draw_id)
-  results <- vector("list", length(draw_splits))
+  results <- vector("list", n_draws)
 
-  for (i in seq_along(draw_splits)) {
-    draw_id <- as.integer(names(draw_splits)[i])
+  for (draw_id in seq_len(n_draws)) {
     if (draw_id == 1L || draw_id %% 25L == 0L || draw_id == n_draws) {
       message(sprintf("Measurement-error draw %d of %d", draw_id, n_draws))
     }
 
-    results[[i]] <- run_one_measurement_error_draw(
+    stage1_draw <- stage1_draws |>
+      filter(.data$draw_id == draw_id)
+
+    results[[draw_id]] <- run_one_measurement_error_draw(
       draw_id = draw_id,
-      stage1_draw = draw_splits[[i]],
+      stage1_draw = stage1_draw,
       stage1_affiliate_year = stage1_affiliate_year,
       stage2_bilateral = stage2_bilateral,
       stage2_sectoral_matrix = stage2_sectoral_matrix,

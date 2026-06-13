@@ -251,6 +251,8 @@ allocate_stage4_revenue <- function(source_panel, utpr_weights) {
 
   utpr_parent_year <- utpr_pool |>
     semi_join(parent_year_keys, by = c("parent", "year")) |>
+    # Intended expansion: one parent-year UTPR pool is split across all
+    # collecting jurisdictions with positive parent-year substance weights.
     left_join(
       utpr_weights$parent_year_weights,
       by = c("parent", "year"),
@@ -260,12 +262,25 @@ allocate_stage4_revenue <- function(source_panel, utpr_weights) {
 
   utpr_fallback <- utpr_pool |>
     anti_join(parent_year_keys, by = c("parent", "year")) |>
+    # Intended expansion: when parent-year weights are unavailable, the pool is
+    # split across year-level fallback collectors with positive substance weights.
     left_join(
       utpr_weights$fallback_weights,
       by = "year",
       relationship = "many-to-many"
     ) |>
     mutate(revenue = utpr_pool * utpr_weight)
+
+  utpr_pool_check <- bind_rows(utpr_parent_year, utpr_fallback) |>
+    group_by(across(all_of(SCENARIO_VARS)), parent, year) |>
+    summarise(allocated_utpr_pool = sum(revenue, na.rm = TRUE),
+              .groups = "drop") |>
+    left_join(utpr_pool, by = c(SCENARIO_VARS, "parent", "year")) |>
+    mutate(utpr_pool_gap = allocated_utpr_pool - utpr_pool)
+
+  if (max(abs(utpr_pool_check$utpr_pool_gap), na.rm = TRUE) > 1e-3) {
+    stop("Stage 4.5 UTPR expansion does not conserve the UTPR pool")
+  }
 
   utpr_allocation <- bind_rows(utpr_parent_year, utpr_fallback) |>
     group_by(across(all_of(SCENARIO_VARS)),

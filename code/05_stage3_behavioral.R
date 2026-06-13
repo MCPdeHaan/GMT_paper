@@ -253,7 +253,7 @@ demean_two_way <- function(mat, fe1, fe2, tol = 1e-10, max_iter = 100L) {
 cluster_vcov <- function(x, residuals, cluster, df_resid_full) {
   x <- as.matrix(x)
   cluster <- factor(cluster)
-  bread <- solve(crossprod(x))
+  bread <- solve_crossprod_checked(x, "Stage 3 manual fixed-effect OLS")
   scores <- x * as.numeric(residuals)
   meat <- matrix(0, ncol(x), ncol(x))
 
@@ -315,8 +315,12 @@ coefficient_table_from_vcov <- function(coefficients, vcov, model_spec, t0,
   )
 }
 
-fit_fe_ols <- function(data, x_cols, model_spec, t0 = NA_real_,
-                       compute_vcov = TRUE, y_col = "log_profit") {
+# The manual estimator is retained because its degrees-of-freedom correction is
+# part of the existing Stage 3 diagnostics. The implementation is deliberately
+# named so that readers do not mistake it for a standard package call.
+fit_two_way_fe_manual <- function(data, x_cols, model_spec, t0 = NA_real_,
+                                  compute_vcov = TRUE,
+                                  y_col = "log_profit") {
   model_data <- data |>
     select(pair_id, parent, year, affiliate, all_of(y_col), all_of(x_cols)) |>
     filter(if_all(c(all_of(y_col), all_of(x_cols)), is.finite))
@@ -333,6 +337,10 @@ fit_fe_ols <- function(data, x_cols, model_spec, t0 = NA_real_,
   independent_cols <- qr_x$pivot[seq_len(qr_x$rank)]
   x <- x[, sort(independent_cols), drop = FALSE]
   x_cols_kept <- colnames(x)
+  x_cols_dropped <- setdiff(x_cols, x_cols_kept)
+  crossprod_x <- crossprod(x)
+  crossprod_rank <- qr(crossprod_x)$rank
+  crossprod_condition_number <- kappa(crossprod_x, exact = FALSE)
 
   fit <- lm.fit(x = x, y = y)
   coefficients <- fit$coefficients
@@ -399,12 +407,16 @@ fit_fe_ols <- function(data, x_cols, model_spec, t0 = NA_real_,
     t0 = t0,
     dependent_variable = y_col,
     x_cols = x_cols_kept,
+    x_cols_dropped = x_cols_dropped,
     n = n,
     n_pairs = n_distinct(model_data$pair_id),
     n_affiliates = n_affiliates,
     n_parents = n_parents,
     n_years = n_distinct(model_data$year),
     fe_rank = fe_rank,
+    x_rank = qr_x$rank,
+    crossprod_rank = crossprod_rank,
+    crossprod_condition_number = crossprod_condition_number,
     k_total = k_total,
     df_resid_full = df_resid_full,
     rss = rss,
@@ -437,6 +449,65 @@ fit_fe_ols <- function(data, x_cols, model_spec, t0 = NA_real_,
     residuals = residuals,
     fitted_within = fitted_within,
     model_data = model_data
+  )
+}
+
+fit_fe_ols <- fit_two_way_fe_manual
+
+build_fixest_equivalence_diagnostic <- function(manual_fit,
+                                                tolerance = 1e-8) {
+  if (!requireNamespace("fixest", quietly = TRUE)) {
+    return(tibble(
+      model_spec = manual_fit$model_spec,
+      term = NA_character_,
+      status = "fixest_not_installed",
+      manual_estimate = NA_real_,
+      fixest_estimate = NA_real_,
+      abs_difference = NA_real_,
+      within_tolerance = NA
+    ))
+  }
+
+  rhs <- paste(manual_fit$x_cols, collapse = " + ")
+  formula <- stats::as.formula(paste0(
+    manual_fit$dependent_variable, " ~ ", rhs, " | pair_id + year"
+  ))
+
+  fixest_fit <- tryCatch(
+    fixest::feols(
+      formula,
+      data = manual_fit$model_data,
+      cluster = stats::as.formula("~ parent + affiliate"),
+      warn = FALSE,
+      notes = FALSE
+    ),
+    error = function(e) e
+  )
+
+  if (inherits(fixest_fit, "error")) {
+    return(tibble(
+      model_spec = manual_fit$model_spec,
+      term = NA_character_,
+      status = paste0("fixest_error: ", conditionMessage(fixest_fit)),
+      manual_estimate = NA_real_,
+      fixest_estimate = NA_real_,
+      abs_difference = NA_real_,
+      within_tolerance = NA
+    ))
+  }
+
+  manual_coef <- manual_fit$coefficients
+  fixest_coef <- stats::coef(fixest_fit)
+  common_terms <- intersect(names(manual_coef), names(fixest_coef))
+
+  tibble(
+    model_spec = manual_fit$model_spec,
+    term = common_terms,
+    status = "compared",
+    manual_estimate = as.numeric(manual_coef[common_terms]),
+    fixest_estimate = as.numeric(fixest_coef[common_terms]),
+    abs_difference = abs(manual_estimate - fixest_estimate),
+    within_tolerance = abs_difference <= tolerance
   )
 }
 
@@ -2294,6 +2365,10 @@ run_stage3_pipeline <- function() {
   )
 
   model_fits <- estimate_stage3_models(estimation_sample)
+  fixest_equivalence <- bind_rows(lapply(
+    model_fits[c("linear", "quadratic", "logarithmic")],
+    build_fixest_equivalence_diagnostic
+  ))
   model_wald_tests <- stage3_model_wald_tests(model_fits)
   tax_endogeneity_diagnostics <- build_tax_endogeneity_diagnostics(estimation_sample)
   tax_instrument_coverage <- summarise_tax_instrument_coverage(estimation_sample)
@@ -2564,6 +2639,8 @@ run_stage3_pipeline <- function() {
             file.path(DIAG, "step5_stage3_model_comparison.csv"))
   write_csv(model_fits$log_grid,
             file.path(DIAG, "step5_stage3_log_t0_grid.csv"))
+  write_csv(fixest_equivalence,
+            file.path(DIAG, "step5_stage3_fixest_equivalence.csv"))
   write_csv(coefficients,
             file.path(DIAG, "step5_stage3_coefficients.csv"))
   write_csv(model_wald_tests,

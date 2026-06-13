@@ -1,0 +1,96 @@
+\subsection{Merged bilateral base panel}\label{sec:base_panel_appendix}
+
+This subsection documents the merged bilateral parent--affiliate--year panel produced in Step 2 of the data pipeline. Table \ref{tab:base_panel_coverage_working} reports the coverage of the merged panel by fiscal year and distinguishes the broader behavioural estimation sample from the narrower Stage 1 hybrid sample. Table \ref{tab:base_panel_summary_working} reports unweighted cell-level summary statistics for the behavioural estimation sample. Table \ref{tab:base_panel_flags_working} records the main construction and readiness flags created during the merge. The distributions of the monetary variables are strongly right-skewed, so the median and interquartile range are more informative than the mean alone. Importantly, the CbCR \code{EARNINGS} measure is accumulated earnings rather than payroll, so Step 2 now constructs the SBIE payroll input from employee counts and external wage data instead of treating \code{EARNINGS} as labour cost.
+
+\begin{table}[H]
+\centering
+\caption{Coverage of the merged bilateral base panel by fiscal year}
+\label{tab:base_panel_coverage_working}
+\small
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}crrrrrrr@{}}
+\toprule
+Year & Cells & Parents & Affiliates & Any percentile set (\%) & Table IV below-15 observed (\%) & Stage 1 hybrid-ready & Behavioural-ready \\
+\midrule
+2016 & 1,157 & 26 & 184 & 0.0 & 0.0 & 0 & 0 \\
+2017 & 2,045 & 38 & 217 & 0.0 & 0.0 & 0 & 1,217 \\
+2018 & 2,554 & 46 & 214 & 0.0 & 0.0 & 0 & 1,569 \\
+2019 & 2,711 & 50 & 211 & 0.0 & 7.2 & 152 & 1,633 \\
+2020 & 2,750 & 52 & 213 & 0.0 & 6.5 & 146 & 1,629 \\
+2021 & 2,921 & 52 & 212 & 51.5 & 6.4 & 1,059 & 1,817 \\
+2022 & 2,777 & 54 & 209 & 55.0 & 7.2 & 1,081 & 1,707 \\
+\midrule
+Total & 16,915 & 58 & 228 & 17.9 & 4.5 & 2,438 & 9,572 \\
+\bottomrule
+\end{tabular}
+}
+
+\vspace{0.5em}
+\begin{minipage}{0.93\textwidth}
+\footnotesize \textit{Notes:} The merged panel keeps country-like affiliate jurisdictions only; regional aggregates, \code{W}, \code{W\_O}, \code{WXD}, and \code{STLS} are excluded. ``Any percentile set'' equals one when either the full Panel A-I percentile set or the panel-agnostic \code{\_T} fall-back is available in Table I. ``Table IV below-15 observed'' equals one when the bilateral cell has a direct \code{RATE\_0-15} observation in Table IV. ``Stage 1 hybrid-ready'' requires positive corrected profit, non-missing SBIE inputs, a non-missing Panel A-I ETR, and at least one Stage 1 low-tax source, either a percentile set or Table IV. ``Behavioural-ready'' is the broader Hines--Rice sample with positive corrected profit, non-missing Panel A-I ETR, and non-missing SBIE inputs. Fiscal year 2016 is retained for coverage diagnostics only and does not enter either estimation sample. Source: author's calculations based on \texttt{data/processed/base\_panel.rds}.
+\end{minipage}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Summary statistics for the behavioural estimation sample}
+\label{tab:base_panel_summary_working}
+\small
+\begin{tabular}{@{}L{5.8cm}rrrrrr@{}}
+\toprule
+Variable & N & Mean & SD & P25 & Median & P75 \\
+\midrule
+Corrected profit base (USD bn) & 9,572 & 3.386 & 28.515 & 0.017 & 0.105 & 0.685 \\
+Income tax accrued (USD bn) & 9,572 & 0.742 & 8.532 & 0.002 & 0.014 & 0.097 \\
+SBIE payroll proxy (USD bn) & 9,572 & 0.771 & 9.546 & 0.004 & 0.025 & 0.137 \\
+SBIE tangible assets (USD bn) & 9,572 & 4.206 & 47.295 & 0.014 & 0.108 & 0.707 \\
+Employees (thousands) & 9,572 & 16.133 & 151.946 & 0.184 & 1.000 & 4.745 \\
+Raw Panel A-I ETR (per cent) & 9,572 & 18.015 & 14.536 & 7.764 & 16.266 & 25.022 \\
+Affiliate statutory CIT, headline (per cent) & 8,532 & 20.298 & 8.024 & 15.000 & 20.000 & 25.000 \\
+Affiliate GDP per capita (USD thousands) & 9,568 & 26.812 & 26.442 & 6.148 & 15.875 & 44.332 \\
+Affiliate population (millions) & 9,572 & 88.308 & 245.249 & 5.857 & 18.933 & 62.378 \\
+Holding share, Panel A-I (per cent) & 7,798 & 9.372 & 21.315 & 0.000 & 4.370 & 12.500 \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.5em}
+\begin{minipage}{0.93\textwidth}
+\footnotesize \textit{Notes:} The behavioural estimation sample consists of the 2017--2022 pair-year cells with positive baseline-corrected profit, a non-missing Panel A-I ETR, a non-missing wage-based payroll proxy, and non-missing SBIE tangible assets. The reported payroll variable is not an observed CbCR item. It is constructed as screened employee counts times the affiliate-jurisdiction annual wage benchmark. The statutory CIT variable uses the combined top-all rate where available and falls back to the standard statutory rate otherwise. All statistics are unweighted across pair-year cells. Monetary variables are expressed in USD billions, GDP per capita in USD thousands, population in millions, and employment in thousands of persons. Source: author's calculations based on \texttt{data/processed/base\_panel.rds}.
+\end{minipage}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Construction and readiness flags in the merged bilateral panel}
+\label{tab:base_panel_flags_working}
+\small
+\begin{tabular}{@{}L{7.6cm}rr@{}}
+\toprule
+Flag & Cells & Share of panel (\%) \\
+\midrule
+Total pair-year cells & 16,915 & 100.0 \\
+Domestic cells & 318 & 1.9 \\
+EU-27 affiliate cells & 3,903 & 23.1 \\
+Observed \code{PROFIT\_ADJ} cells & 36 & 0.2 \\
+Domestic Hugger correction & 308 & 1.8 \\
+Conduit or haven overlay & 1,436 & 8.5 \\
+Employee counts capped by plausibility rule & 9 & 0.1 \\
+Wage benchmark more than 5 years away & 612 & 3.6 \\
+Wage-based payroll proxy available & 14,610 & 86.4 \\
+Missing wage-based payroll proxy & 2,305 & 13.6 \\
+Direct Table IV \code{RATE\_0-15} observation & 760 & 4.5 \\
+Complete Panel A-I percentile set & 2,366 & 14.0 \\
+\code{\_T} percentile fall-back only & 664 & 3.9 \\
+Raw Panel A-I ETR below 0 & 703 & 4.2 \\
+Raw Panel A-I ETR above 100\% & 117 & 0.7 \\
+Stage 1 hybrid-ready pair-year cells & 2,438 & 14.4 \\
+Stage 1 cross-validation pair-year cells & 49 & 0.3 \\
+Behavioural estimation sample & 9,572 & 56.6 \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.5em}
+\begin{minipage}{0.93\textwidth}
+\footnotesize \textit{Notes:} Shares are calculated relative to the full merged panel. ``Domestic Hugger correction'' identifies cells where the baseline profit correction applies the domestic UPE adjustment rather than observed \code{PROFIT\_ADJ}. ``Conduit or haven overlay'' identifies non-US foreign cells that receive the 10 per cent conduit overlay in the baseline correction. The employee-cap row identifies cells where reported CbCR employee counts exceeded a conservative plausibility cap based on the number of constituent entities and the host-jurisdiction population. ``Wage benchmark more than 5 years away'' flags cells where the nearest available jurisdiction wage observation is temporally distant and should therefore be treated as a sensitivity issue rather than as a cleaning failure. The payroll rows refer to the wage-based proxy used in Step 2, not to observed CbCR \code{EARNINGS}. The Stage 1 rows count pair-year cells in the bilateral base panel; the affiliate-year coverage used in the actual Stage 1 aggregation is reported separately in the Step 2 diagnostics. Source: author's calculations based on \texttt{data/processed/base\_panel.rds}.
+\end{minipage}
+\end{table}

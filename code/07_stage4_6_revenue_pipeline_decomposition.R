@@ -372,6 +372,19 @@ build_scenario_summary <- function(revenue_country_year) {
     arrange(scenario_rank_desc, scenario_id)
 }
 
+build_scenario_design_table <- function(revenue_country_year) {
+  revenue_country_year |>
+    distinct(across(all_of(SCENARIO_VARS))) |>
+    mutate(
+      scenario_id_from_factors = paste0("x", do.call(
+        paste0,
+        across(all_of(FACTOR_COLS))
+      )),
+      scenario_id_matches_factors = scenario_id == scenario_id_from_factors
+    ) |>
+    arrange(scenario_id)
+}
+
 build_scenario_spread <- function(revenue_country_year) {
   revenue_country_year |>
     group_by(country, country_name, year) |>
@@ -645,6 +658,8 @@ build_fiscal_salience_country <- function(fiscal_country_year) {
       scenario_spread = sum(scenario_spread, na.rm = TRUE),
       cit_1200_years = sum(!is.na(cit_revenue_T_1200)),
       cit_1210_years = sum(!is.na(cit_revenue_T_1210)),
+      # Complete-case denominator: a missing fiscal or macro year makes the
+      # cumulative ratio unavailable instead of silently shrinking the base.
       cit_revenue_T_1200 = sum(cit_revenue_T_1200, na.rm = FALSE),
       cit_revenue_T_1210 = sum(cit_revenue_T_1210, na.rm = FALSE),
       gdp_usd = sum(gdp_usd, na.rm = FALSE),
@@ -1355,6 +1370,7 @@ run_stage4_6_pipeline <- function() {
   )
 
   scenario_summary <- build_scenario_summary(revenue_country_year)
+  scenario_design <- build_scenario_design_table(revenue_country_year)
   anova_objects <- compute_factorial_anova(revenue_country_year)
   anova_pooled_taxonomy <- add_decomposition_taxonomy(anova_objects$pooled)
   shapley_attribution <- build_shapley_factor_attribution(anova_objects$pooled)
@@ -1470,6 +1486,8 @@ run_stage4_6_pipeline <- function() {
             file.path(DIAG, "step7_stage4_6_hypothesis_summary.csv"))
   write_csv(scenario_summary,
             file.path(DIAG, "step7_stage4_6_scenario_summary.csv"))
+  write_csv(scenario_design,
+            file.path(DIAG, "step7_stage4_6_scenario_design.csv"))
   write_csv(scenario_spread_country_year,
             file.path(DIAG, "step7_stage4_6_scenario_spread_country_year.csv"))
   write_csv(scenario_spread_country,

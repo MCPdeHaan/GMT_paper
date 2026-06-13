@@ -1,0 +1,3 @@
+instrument,instrument_label,estimation_rows,estimation_affiliates,estimation_parents,min_value,median_value,max_value,mean_value,sd_value
+simulated_tax_code_eatr,OECD simulated fixed-project EATR,7465,92,46,0,0.22760999680000002,0.46602001190000003,0.22092773580711586,0.06816497207649697
+lagged_statutory_cit,Lagged statutory CIT,8033,114,47,0,0.2,0.4832,0.20556234906012696,0.08154516637795445

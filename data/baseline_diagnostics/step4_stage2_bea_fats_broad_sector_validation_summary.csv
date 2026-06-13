@@ -1,0 +1,5 @@
+measure,bea_year,n_sector_country_cells,eu27_affiliates,mean_abs_share_gap,bea_weighted_abs_share_gap,share_correlation,mean_bea_top_level_coverage_ratio,validation_decision,measurement_interpretation
+compensation,2023,98,17,0.05515987322448537,0.07683637321914692,0.8408349336107417,0.9457877919157947,supportive_external_benchmark,BEA supports the broad direction of the FATS/EUKLEMS bridge
+employment,2022,99,17,0.0663481414889955,0.1323089484400994,0.7706774451510104,0.9909133920527837,supportive_external_benchmark,BEA supports the broad direction of the FATS/EUKLEMS bridge
+ppe_expenditures,2023,82,17,0.07891902155719116,0.1705600651124865,0.8339627506536915,0.8247670339793786,supportive_external_benchmark,BEA supports the broad direction of the FATS/EUKLEMS bridge
+total_assets,2022,92,17,0.10759064393169011,0.22056633451619548,0.16455347908365675,0.81671979001148,reject_as_primary_asset_allocator,BEA total assets are not used as the sectoral asset allocator

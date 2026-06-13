@@ -1,0 +1,13 @@
+metric,value
+factorial_scenarios,32
+eu27_country_year_revenue_rows,5184
+global_allocation_conservation_max_abs_gap,6.103515625e-4
+utpr_parent_year_weight_rows,5506
+utpr_fallback_weight_rows,264
+h4_mean_delta_sbs_minus_universal,-507588872.785332
+h4_median_delta_sbs_minus_universal,-113426420.92831054
+h4_wilcoxon_less_p_value,0
+max_iir_ambiguous_parent_flag_share,0
+max_utpr_ambiguous_collector_share,0
+eu_revenue_min_scenario,135055430106.70848
+eu_revenue_max_scenario,510161546352.9299

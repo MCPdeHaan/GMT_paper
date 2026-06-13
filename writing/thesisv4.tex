@@ -365,7 +365,7 @@ Across the 32 scenarios, cumulative EU top-up tax revenue over 2017--2022 ranges
 
 The paper contributes to the GMT revenue literature in five ways. First, it translates the public OECD CbCR data into a replicable measurement framework that shows the profits that are shifted and the decomposition within countries of shifted profit.  Existing studies either use jurisdiction averages \citep{barake2022} or access confidential micro-data \citep{hugger2026}; this paper shows what public data can and cannot reveal about the low-taxed base. Second, it embeds the measured base in a full factorial design and decomposes the scenario spread through an orthogonal variance identity, attributing variation to five main effects and all interactions. Existing studies vary assumptions one at a time or decompose revenue for a single country \citep{boukal2026}; the factorial approach is the first to show that measurement and allocation dominate the spread jointly. Third, it provides a panel semi-elasticity estimate on the 2017--2022 CbCR data with bilateral parent-affiliate fixed effects, absorbing time-invariant confounders such as treaty networks and legal-system proximity that cross-sectional estimates cannot control for \citep{garcia-bernardo2024}. Three functional forms are estimated on the same sample and ranked by information criteria, producing directly comparable semi-elasticity schedules. Fourth, it constructs sector-specific effective tax floors for 27 EU Member States by combining CbCR data with Eurostat Foreign Affiliates Statistics and EU KLEMS capital-stock data, measuring how much the substance exclusion varies across sectors. Fifth, it adds an unsupervised country typology that compresses cross-country heterogeneity into policy-facing groups using PCA and clustering. The typology is a classification device for the revenue results; it does not make causal claims.
 
-The remainder of this paper follows the revenue pipeline. Section \ref{sec:litreview} reviews the profit-shifting literature, the Global Minimum Tax rules and the tax-competition mechanisms that motivate the hypotheses. Section \ref{sec:data} documents how the CbCR panel is constructed and cleaned and introduces the supplementary substance, sectoral, macro, tax-rate and legal-status data. Section \ref{sec:measurement_framework} turns those inputs into measured revenue objects. Section \ref{sec:methodology} then estimates the behavioural semi-elasticity, maps it into a counterfactual reallocation factor, applies the allocation rules, defines the revenue equation, decomposes the 32-scenario spread and constructs the country typology. Section \ref{sec:results} reports the results in the same order: measured low-taxed profit, substance and SBTI exposure, behavioural estimates, allocation and factorial decomposition, country heterogeneity and hypothesis tests. Section \ref{sec:discussion} concludes by interpreting the uncertainty ranking, policy implications and limitations. 
+The remainder of this paper follows the revenue pipeline. Section \ref{sec:litreview} reviews the profit-shifting literature, the Global Minimum Tax rules and the tax-competition mechanisms that motivate the hypotheses. Section \ref{sec:data} documents how the CbCR panel is constructed and cleaned and introduces the supplementary substance, sectoral, macro, tax-rate and legal-status data. Section \ref{sec:measurement_framework} turns those inputs into measured revenue objects. Section \ref{sec:methodology} then estimates the behavioural semi-elasticity, maps it into a counterfactual reallocation factor, applies the allocation rules, defines the revenue equation, decomposes the 32-scenario spread and constructs the country typology. Section \ref{sec:results} reports the results in the same order: measured low-taxed profit, substance and SBTI exposure, behavioural estimates, allocation and factorial decomposition, country heterogeneity and hypothesis tests. Section \ref{sec:discussion} concludes by interpreting the uncertainty ranking, policy implications and limitations. The appendices mirror this order. Appendix \ref{app:data} audits data construction, Appendices \ref{app:stage1_measurement}--\ref{app:stage4_allocation} document the four empirical stages, Appendix \ref{app:country_policy} collects country-level policy material, and Appendix \ref{app:online} separates replication-only material from the reader appendix.
 
 \newpage
 
@@ -501,7 +501,7 @@ The main sample covers fiscal years 2017--2022. The analysis omits 2016 because 
 
 Each observation links two jurisdictions in one fiscal year. The first is the parent jurisdiction ($p$), where the multinational group is headquartered. The second is the affiliate jurisdiction ($j$), where the group reports profit, tax, employees and tangible assets. Most of the measurement in this paper starts on the affiliate side, because that is where the low-taxed profit and substance variables are observed. The parent side is kept because it determines which country may collect residual top-up tax when the source country does not collect first. The empirical cell is therefore a parent-affiliate-year observation, denoted $(p,j,t)$.
 
-The raw CbCR panel is cleaned into a bilateral panel. The full 2017--2022 analytical panel contains 15{,}758 parent-affiliate-year cells across 58 parent jurisdictions and 228 affiliate jurisdictions. This is the simulation frame. The EU27 affiliate slice is the source-country subset used for EU revenue results. The positive-profit sample contains 11{,}872 cells, or 75.3\% of the analytical panel, across 52 parents and 220 affiliates. This is the sample in which ETRs, low-taxed profit and top-up gaps can be measured. The behavioural estimation sample contains 8{,}971 cells, or 56.9\% of the analytical panel. Table \ref{tab:data_sample_construction} maps these empirical objects. 
+The raw CbCR panel is cleaned into a bilateral panel. The full 2017--2022 analytical panel contains 15{,}758 parent-affiliate-year cells across 58 parent jurisdictions and 228 affiliate jurisdictions. This is the simulation frame. The EU27 affiliate slice is the source-country subset used for EU revenue results. The positive-profit sample contains 11{,}872 cells, or 75.3\% of the analytical panel, across 52 parents and 220 affiliates. This is the sample in which ETRs, low-taxed profit and top-up gaps can be measured. The behavioural estimation sample contains 8{,}971 cells, or 56.9\% of the analytical panel. Table \ref{tab:data_sample_construction} maps these empirical objects, while Appendix Section \ref{sec:base_panel_appendix} and Appendix Table \ref{tab:cleaned_panel_support} report the broader merged-panel coverage, support diagnostics and readiness flags that sit behind the sample restrictions.
 
 \input{generated/results_tables/data_sample_construction.tex}
 
@@ -533,7 +533,7 @@ CbCR has tax data without sector detail. Eurostat inward FATS and EUKLEMS \& INT
 
 Several supplementary sources complete the panel. OECD statutory corporate income tax rates benchmark CbCR ETRs and supply a lagged statutory-rate instrument in robustness checks. OECD forward-looking effective tax rates supply the simulated fixed-project EATR instrument used in the behavioural diagnostics. World Bank GDP per capita and population enter as affiliate-market controls. OECD BEPS implementation indicators record CFC rules, interest limitation rules, hybrid mismatch rules, IP regimes, mandatory disclosure rules and CbCR requirements. Pillar Two legal status is taken from the OECD Central Record version used by the pipeline. The data record source-country first collection through QDMTTs, parent-country collection through IIRs, residual enforcement through UTPRs and Side-by-Side safe-harbour status. The legal ordering of those rules is specified in Section \ref{sec:methodology}.
 
-Appendix \ref{app:source_provenance} records the scripted source endpoints. Appendix \ref{app:data}, Table \ref{tab:data_sources_units}, records the original unit of each source and its role in the panel.
+Appendix \ref{app:source_provenance} records the scripted source endpoints. Appendix \ref{app:data}, Table \ref{tab:data_sources_units}, records the original unit of each source and its role in the panel, and Appendix Section \ref{sec:base_panel_appendix} reports the merged-panel diagnostics used to separate data construction from the later revenue stages.
 
 \subsection{Descriptive statistics and sample diagnostics}\label{sec:data_diagnostics}
 
@@ -1011,7 +1011,7 @@ A non-zero interaction means that the revenue effect of one choice depends on an
 
 The country typology is a classification device for the revenue results. It does not identify causal effects. After the revenue matrix has been computed, each EU Member State is represented by features that describe fiscal scale, legal allocation exposure and measurement risk: preferred revenue, scenario spread, revenue relative to CIT and GDP, per-resident revenue, signed main effects, QDMTT-preserved share, residual IIR/UTPR exposure, SbS-extinguished share, high-risk imputation share and direct Table IV support.
 
-The features are transformed where needed, median-imputed only for PCA scaling, standardised, and compressed with principal components. PCA is used to see whether country differences are mainly one-dimensional or whether fiscal scale and legal allocation are separate dimensions. The clustering step then applies $k$-means to the standardised feature matrix. The selected four-cluster solution is chosen by jitter stability and interpretability, with the full feature matrix and stability diagnostics reported in Appendix Tables \ref{tab:app_country_typology_features} and \ref{tab:app_country_typology_cluster_stability}.
+The features are transformed where needed, median-imputed only for PCA scaling, standardised, and compressed with principal components. PCA is used to see whether country differences are mainly one-dimensional or whether fiscal scale and legal allocation are separate dimensions. The clustering step then applies $k$-means to the standardised feature matrix. The selected four-cluster solution is chosen by jitter stability and interpretability, with the full feature matrix and stability diagnostics reported in Appendix \ref{app:country_policy}, Tables \ref{tab:app_country_typology_features} and \ref{tab:app_country_typology_cluster_stability}.
 
 \subsection{Scenario, measurement and coefficient uncertainty}\label{sec:two_uncertainties}
 
@@ -1047,7 +1047,7 @@ This is a local coefficient-propagation bound. A full coefficient bootstrap woul
 
 \section{Results}\label{sec:results}\label{sec:se_results}
 
-This section reports the empirical results of the four-stage revenue pipeline and the factorial decomposition developed in the Data section \ref{sec:data} and Methodology \ref{sec:methodology}. Stage 4 is split operationally into allocation and decomposition diagnostics, but the evidentiary structure remains the same as in the introduction: Stage 1 and Stage 4 carry the main revenue result, Stage 3 supplies the behavioural calibration, and Stage 2 supplies the substance-exclusion layer. Two findings define the answer to the research question. First, the choice between jurisdiction-average and within-jurisdiction distributional ETR measurement accounts for 68.4\% of pooled scenario variance in legally allocated EU GMT revenue, confirming that low-taxed-base measurement is the single largest driver of revenue disagreement. Second, the January 2026 Side-by-Side Safe Harbour accounts for a further 15.9\%, because it extinguishes residual IIR and UTPR collection on US-parented groups in the absence of a QDMTT. Together, these two factors explain 84.3\% of the revenue spread before any interaction term is allocated.
+This section reports the empirical results of the four-stage revenue pipeline and the factorial decomposition developed in the Data section \ref{sec:data} and Methodology \ref{sec:methodology}. Stage 4 is split operationally into allocation and decomposition diagnostics, but the evidentiary structure remains the same as in the introduction: Stage 1 and Stage 4 carry the main revenue result, Stage 3 supplies the behavioural calibration, and Stage 2 supplies the substance-exclusion layer. The appendix follows the same evidentiary order: Appendix \ref{app:stage1_measurement} for low-taxed-base measurement, Appendix \ref{app:stage2_substance} for substance and sectoral exposure, Appendix \ref{app:stage3_behaviour} for behavioural diagnostics, and Appendix \ref{app:stage4_allocation} for allocation and decomposition diagnostics. Two findings define the answer to the research question. First, the choice between jurisdiction-average and within-jurisdiction distributional ETR measurement accounts for 68.4\% of pooled scenario variance in legally allocated EU GMT revenue, confirming that low-taxed-base measurement is the single largest driver of revenue disagreement. Second, the January 2026 Side-by-Side Safe Harbour accounts for a further 15.9\%, because it extinguishes residual IIR and UTPR collection on US-parented groups in the absence of a QDMTT. Together, these two factors explain 84.3\% of the revenue spread before any interaction term is allocated.
 
 The econometric evidence qualifies the behavioural part of the design. The 2017--2022 CbCR panel yields a statistically significant linear semi-elasticity of 1.51 (two-way clustered $p = 1.6 \times 10^{-6}$), which exceeds the meta-regression consensus of approximately 0.8 \citep{heckemeyer2017} by a factor of 1.9. The estimate is, however, far below the steep low-rate nonlinearities reported by \citet{dowd2017} on US administrative data, where the semi-elasticity at a 5\% rate reaches 4.7. The BIC selects the linear specification over the logarithmic ($\Delta$BIC = 5.26) and quadratic ($\Delta$BIC = 7.56) alternatives. The panel therefore supports a negative tax-profit relationship, but it does not require a sharply nonlinear lower-tail response. The behavioural response contributes 5.1\% of pooled variance. In the preferred mechanical core scenario, cumulative EU revenue over 2017--2022 falls from US\$488.5 billion under universal IIR/UTPR collection to US\$361.2 billion under SbS treatment. When the behavioural response is also applied, the corresponding figures are US\$415.2 billion and US\$307.0 billion.
 
@@ -1074,7 +1074,7 @@ Table \ref{tab:stage1_bspi_updated} identifies where the early-year backcast is 
 
 \input{generated/results_tables/stage1_measurement_error_interval.tex}
 
-Table \ref{tab:stage1_measurement_error_interval} translates the Table I versus Table IV validation residuals into a Stage 1 measurement-error interval for the preferred ETR branch. The exercise holds the preferred ETR measurement, aggregate SBIE and initial-rate scenario fixed, then varies the legal regime and behavioural filter. It is therefore not a second scenario decomposition. It is a direct estimate of how much the imperfect ETR measurement branch alone can move the headline revenue number.
+Table \ref{tab:stage1_measurement_error_interval} translates the Table I versus Table IV validation residuals into a Stage 1 measurement error interval for the preferred ETR branch. The exercise holds the preferred ETR measurement, aggregate SBIE and initial-rate scenario fixed, then varies the legal regime and behavioural filter. It is therefore not a second scenario decomposition. It is a direct estimate of how much the imperfect ETR measurement branch alone can move the headline revenue number.
 
 Appendix Section \ref{app:results_stage1} reports the Stage 1 diagnostics that are too granular for the main line of the argument. Appendix Tables \ref{tab:app_stage1_bspi_tv} and \ref{tab:app_stage1_conditioning} document the BSPI validation distribution and the percentile-conditioning filters. Appendix Table \ref{tab:app_stage1_crossval} reports the Table I versus Table IV cross-validation used to discipline the constrained-Beta fallback.
 
@@ -1134,7 +1134,7 @@ Table \ref{tab:stage4_6_main_effects} translates the variance shares into revenu
 
 \input{generated/results_tables/stage46_measurement_sample_decomposition.tex}
 
-Table \ref{tab:stage46_measurement_sample_decomposition} addresses the publication-risk concern that the full-panel result might be driven by 2017--2018 BSPI backcasting. The answer is no. The table reports Shapley-style allocated shares across increasingly strong measurement windows. ETR measurement accounts for 71.2\% of allocated variation in the full 2017--2022 panel, 82.1\% in the 2019--2022 high-measurement panel, and 86.5\% in the 2021--2022 strict Table IV overlap window. SbS remains the second-largest channel, but its share falls from 17.5\% to 8.8\% and then 6.8\% as the sample is restricted. Appendix Table \ref{tab:app_stage46_measurement_sample_decomposition} reports the raw ANOVA main effects and measurement-support shares behind this result: in 2019--2022 direct Table IV covers 100.0\% of EU distributional low-taxed profit and the high-risk branch share falls to 1.1\%. The direct-observation samples therefore strengthen the main claim that early public-data imputation does not create the dominance of ETR measurement.
+Table \ref{tab:stage46_measurement_sample_decomposition} addresses the publication-risk concern that the full-panel result might be driven by 2017--2018 BSPI backcasting. The answer is no. The table reports Shapley-style allocated shares across increasingly strong measurement windows. ETR measurement accounts for 71.2\% of allocated variation in the full 2017--2022 panel, 82.1\% in the 2019--2022 high-measurement panel, and 86.5\% in the 2021--2022 strict Table IV overlap window. SbS remains the second-largest channel, but its share falls from 17.5\% to 8.8\% and then 6.8\% as the sample is restricted. Appendix Table \ref{tab:app_stage46_measurement_sample_decomposition} reports the raw ANOVA main effects and measurement-support shares behind this result: in 2019--2022 direct Table IV covers 100.0\% of EU distributional low-taxed profit and the high-risk branch share falls to 1.1\%. Appendix \ref{app:stage4_allocation}, Section \ref{app:results_stage46}, also reports the highest-revenue scenarios, the largest country-level main effects and the leave-one-jurisdiction influence checks in Tables \ref{tab:app_stage46_top_scenarios}, \ref{tab:app_stage46_country_anova}, \ref{tab:app_jurisdiction_influence_summary} and \ref{tab:app_jurisdiction_influence_decomposition}. The direct-observation samples therefore strengthen the main claim that early public-data imputation does not create the dominance of ETR measurement.
 
 The decomposition changes the interpretation of the thesis relative to the proposal. The proposal expected a sharp nonlinear behavioural response to become the central empirical finding. The realised evidence rejects that stronger version. The linear semi-elasticity is significant and larger than the meta-regression consensus, but the main source of policy uncertainty is the construction of the taxable base and the legal rule that decides who may collect it. That is a stronger policy result than another elasticity estimate, because it tells the reader where better data and clearer guidance would reduce fiscal uncertainty most.
 
@@ -1147,13 +1147,13 @@ The SbS regime changes EU revenue through the collection channel, not through th
 
 Table \ref{tab:preferred_channel_updated} shows the preferred-core channel allocation. Under universal collection, cumulative EU revenue is US\$488.5 billion: US\$285.8 billion through QDMTTs, US\$35.8 billion through the IIR and US\$166.9 billion through the UTPR source proxy. Under SbS, QDMTT and IIR revenue remain unchanged in the preferred core, while UTPR revenue falls to US\$39.5 billion. The implied SbS loss is therefore US\$127.4 billion in the preferred-core mechanical scenario. This is why Factor 4 remains the second-largest source of scenario variance, even though the OECD-qualified QDMTT update reduces its share relative to the earlier private-tracker specification.
 
-Appendix Section \ref{app:results_stage45} reports the allocation diagnostics behind the channel totals. Appendix Table \ref{tab:app_stage45_summary} records the Stage 4.5 scenario totals, Appendix Table \ref{tab:app_stage45_sbs_source_exposure} identifies the US-parented exposure affected by SbS, and Appendix Table \ref{tab:app_stage45_h4_regression} reports the country-level allocation regression check.
+Appendix \ref{app:stage4_allocation}, Section \ref{app:results_stage45}, reports the allocation diagnostics behind the channel totals. Appendix Table \ref{tab:app_stage45_summary} records the Stage 4.5 scenario totals, Appendix Table \ref{tab:app_stage45_sbs_source_exposure} identifies the US-parented exposure affected by SbS, and Appendix Table \ref{tab:app_stage45_h4_regression} reports the country-level allocation regression check.
 
 \input{generated/results_tables/country_spread.tex}
 
 \input{generated/results_tables/country_fiscal_salience.tex}
 
-Tables \ref{tab:country_spread_updated} and \ref{tab:country_fiscal_salience} turn the same revenue matrix into a finance-ministry diagnostic. The preferred number is cumulative behavioural Side-by-Side (SbS) revenue over 2017--2022. The fiscal denominator is OECD \code{T\_1200}, corporate taxes on income, profits and capital gains of corporations, which I use as the main corporate income tax (CIT) base. The scenario spread is the range of cumulative revenue across the 32 factorial scenarios, while the dominant channel is the largest country-level ANOVA main effect. A country with an ETR-measurement-dominated spread needs better information on the within-jurisdiction low-taxed base. A country with an SbS-dominated spread needs to know how much residual Income Inclusion Rule (IIR) and Undertaxed Profits Rule (UTPR) collection disappears once the SbS regime applies. Appendix Table \ref{tab:app_country_policy_matrix} reports the same policy matrix for all EU Member States, including the share protected by a Qualified Domestic Minimum Top-up Tax (QDMTT), the share extinguished under SbS and the share of the Stage 1 low-taxed base that depends on high-risk imputation.
+Tables \ref{tab:country_spread_updated} and \ref{tab:country_fiscal_salience} turn the same revenue matrix into a finance-ministry diagnostic. The preferred number is cumulative behavioural Side-by-Side (SbS) revenue over 2017--2022. The fiscal denominator is OECD \code{T\_1200}, corporate taxes on income, profits and capital gains of corporations, which I use as the main corporate income tax (CIT) base. The scenario spread is the range of cumulative revenue across the 32 factorial scenarios, while the dominant channel is the largest country-level ANOVA main effect. A country with an ETR-measurement-dominated spread needs better information on the within-jurisdiction low-taxed base. A country with an SbS-dominated spread needs to know how much residual Income Inclusion Rule (IIR) and Undertaxed Profits Rule (UTPR) collection disappears once the SbS regime applies. Appendix \ref{app:country_policy}, Tables \ref{tab:app_country_policy_matrix} and \ref{tab:app_country_fiscal_salience_full}, report the same policy matrix and fiscal-salience measures for all EU Member States, including the share protected by a Qualified Domestic Minimum Top-up Tax (QDMTT), the share extinguished under SbS and the share of the Stage 1 low-taxed base that depends on high-risk imputation.
 
 Germany is the large fiscal-base case where the revenue number is mainly a measurement statement. Preferred behavioural SbS revenue is US\$46.3 billion, equal to 9.4\% of cumulative CIT revenue. The cumulative scenario spread is US\$79.3 billion, equal to 16.0\% of CIT revenue, and 85.8\% of Germany's country-level scenario variance comes from ETR measurement. QDMTTs protect 57.0\% of preferred revenue, while SbS extinguishes 31.1\% of preferred universal revenue, equal to 4.2\% of CIT revenue. The estimate does not depend heavily on imputed measurement under the threshold used in Appendix Table \ref{tab:app_country_policy_matrix}, although 36.7\% of the Stage 1 distributional low-taxed base is in high-risk imputation or high-TV BSPI cells. The German ministry should therefore treat the point estimate as less informative than the measurement range around it.
 
@@ -1219,6 +1219,11 @@ The thesis therefore answers the research question as follows. In public 2017--2
 \renewcommand{\theHtable}{appendix.\Alph{section}.\arabic{table}}
 \renewcommand{\theHfigure}{appendix.\Alph{section}.\arabic{figure}}
 \renewcommand{\theHequation}{appendix.\Alph{section}.\arabic{equation}}
+\makeatletter
+\@addtoreset{table}{section}
+\@addtoreset{figure}{section}
+\@addtoreset{equation}{section}
+\makeatother
 \setcounter{table}{0}
 \setcounter{figure}{0}
 \setcounter{equation}{0}
@@ -1226,11 +1231,13 @@ The thesis therefore answers the research question as follows. In public 2017--2
 \section*{Guide to the appendices}\label{app:guide}
 \addcontentsline{toc}{section}{Guide to the appendices}
 
-The appendices are split by reading purpose. Appendices \ref{app:data}--\ref{app:method} form the reader appendix. They contain material a reader may need to audit the main tables: the units of observation, data-source roles, CbCR construction, sectoral bridge, measurement diagnostics, behavioural reliability checks and additional uncertainty calculations. Appendix \ref{app:online} defines the online appendix. That material belongs outside the printed thesis because it is a reproducibility manual rather than part of the argument: source-download metadata, code execution order, full logs, auxiliary diagnostics and robustness output that are not cited in the main text.
+The appendices follow the same order as the paper. Appendix \ref{app:data} is the data audit: it is needed if the reader wants to understand the units, raw source roles, CbCR architecture and construction of the merged bilateral panel. Appendix \ref{app:stage1_measurement} supports the central measurement claim and is the most important appendix for the decomposition result. Appendix \ref{app:stage2_substance} documents the substance and sectoral bridge, which is needed for the SBIE and SBTI exposure results. Appendix \ref{app:stage3_behaviour} contains the behavioural econometrics and should be read when assessing the semi-elasticity rather than taking it as a scenario coefficient. Appendix \ref{app:stage4_allocation} supports the allocation and variance-decomposition results. Appendix \ref{app:country_policy} is useful for country-specific policy interpretation, but is not required to follow the EU-level decomposition. Appendix \ref{app:online} is a replication map rather than part of the reader appendix.
 
-The distinction follows the rule used throughout the manuscript. If a table, equation or diagnostic supports the uncertainty-decomposition spine and is cited in the main text, it is included here. If it is useful only for replication or audit trails, it is assigned to the online appendix map.
+The distinction is intentionally strict. Material is included in the reader appendix only when it is cited from the main text or needed to audit a main table, equation or diagnostic. Material that is useful only for rerunning the code, inspecting logs, or reading full machine outputs belongs in the online appendix map.
 
-\section{Data appendix}\label{app:data}
+\section{Data construction and source audit}\label{app:data}
+
+This appendix supports Section \ref{sec:data}. It is the place to check whether the objects used later in the revenue model are measured at the right level of aggregation. It does not contain the Stage 1 to Stage 4 result tables; those appear in the pipeline appendices below.
 
 \subsection{Source provenance}\label{app:source_provenance}
 
@@ -1349,46 +1356,12 @@ No usable Stage 1 source & 185 & Pair-year cells left without a valid source for
 \end{flushleft}
 \end{table}
 
-\subsection{Sectoral decomposition}\label{app:sector}
+\input{generated/base_panel_appendix_tables.tex}
 
-The sectoral branch is therefore a formal measurement bridge rather than a choice between three competing datasets. CbCR supplies the country-level liability base. FATS and EUKLEMS supply within-country sectoral allocation shares. BEA supplies an external U.S.-parented benchmark for broad-sector validation, not a replacement for either the CbCR base or the EU sectoral bridge. Table \ref{tab:sectoral_bridge_hierarchy} records the hierarchy used in the code. For each country-year and component, the selected sectoral allocation base is normalised to sum to one across the post-2021 FATS leaf sectors. If a sector cell has no usable primary or fallback activity anchor, the cell remains missing for that component and is counted in the bridge-quality diagnostic, rather than being filled with an unsupported sector value.
+\clearpage
+\section{Stage 1 low-taxed-base measurement}\label{app:stage1_measurement}
 
-\begin{table}[H]
-\centering
-\caption{Sectoral measurement bridge for the SBIE and SBTI layer}
-\label{tab:sectoral_bridge_hierarchy}
-\footnotesize
-\begin{tabularx}{\textwidth}{@{}L{2.5cm}L{3.2cm}L{3.2cm}X@{}}
-\toprule
-Component & Preferred variable & Fallback rule & Interpretation \\
-\midrule
-Liability base & CbCR \code{PROFIT}, \code{PROFIT\_ADJ}, \code{TAX\_ACCRUED}, \code{ASSETS}, \code{EMPLOYEES} & None & CbCR remains the only source used to measure top-up liability; sectoral sources never replace the liability base \\
-Payroll share & FATS personnel costs & Employees scaled by observed personnel cost per employee; then turnover scaled by observed personnel-cost-to-turnover ratio & Allocates the wage-based CbCR payroll proxy across EU host-country sectors \\
-Asset share & EUKLEMS \code{K\_Tang} tangible capital stock & EUKLEMS stock gap-filled with FATS investment when stock coverage is at least 75\% of FATS turnover; otherwise FATS investment, with activity-scaled suppressed-cell fallback & Allocates the CbCR tangible-asset level across sectors using a stock concept where public coverage is strong enough \\
-Profit share & FATS positive gross operating surplus & Positive value added scaled to gross operating surplus; then turnover scaled to gross operating surplus & Allocates the corrected CbCR positive-profit base across sectors for the sectoral effective-floor denominator \\
-Validation & BEA employment, compensation, PPE expenditure and total assets & No substitution into the baseline & Tests whether US-parented broad-sector shares are consistent with the FATS/EUKLEMS bridge, especially for the Side-by-Side-relevant US-parent population \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-A structural break in the FATS data around 2021 complicates the time series. The pre-2021 series uses a single broad activity aggregate and 23 indicators, while the post-2021 series uses 48 NACE-based activity categories and 19 codes. The two halves are not directly comparable. The sectoral estimation therefore uses the post-2021 \code{fats\_activ} data only. Pre-2021 FATS serve as descriptive background. In the 2022 reference matrix the bridge retains 40 non-overlapping FATS leaf sectors for each EU Member State, giving 1{,}080 country-sector cells. The payroll, asset and profit shares each sum to 100\% within every Member State up to numerical precision. Fifteen Member States use EUKLEMS tangible-stock shares for the asset leg, of which seven require within-country investment-based gap-filling for suppressed EUKLEMS cells. Twelve Member States fall back to FATS investment because EUKLEMS tangible-stock coverage does not reach the 75\% turnover threshold. At the level of allocated 2022 sectoral levels, 98.1\% of payroll comes directly from FATS personnel costs, 83.2\% of tangible assets comes from EUKLEMS stock information including gap-filled cells, and 88.2\% of the profit denominator comes from FATS gross operating surplus. Table \ref{tab:fats_raw_structure} records the raw sectoral data structure and its use in the CbCR bridge.
-
-\begin{table}[H]
-\centering
-\caption{Raw FATS structure and use in the CbCR sectoral bridge}
-\label{tab:fats_raw_structure}
-\footnotesize
-\begin{tabularx}{\textwidth}{@{}L{2.8cm}L{3.2cm}L{3.8cm}X@{}}
-\toprule
-FATS component & Original partition & Variables used & Measurement implication \\
-\midrule
-Pre-2021 inward FATS & Reporting economy $\times$ broad activity aggregate $\times$ controlling country $\times$ year & Employment, turnover and personnel-cost indicators in the older \code{fats\_g1b\_08} structure & Used only as descriptive background because the sector taxonomy is not directly comparable with the post-2021 NACE structure \\
-Post-2021 inward FATS & Reporting economy $\times$ NACE activity $\times$ controlling country $\times$ year & Personnel costs, employment, turnover, value added and investment in \code{fats\_activ} & EU host-country sectoral shares for foreign-controlled enterprises; payroll-share proxy and sectoral exposure bridge only \\
-EUKLEMS \& INTANProd capital module & Country $\times$ NACE activity $\times$ year & Tangible capital stock and intangible capital stock & Preferred public source for sectoral tangible-asset shares; intangibles enter only as a robustness and interpretation layer \\
-FATS-to-CbCR bridge & EU affiliate jurisdiction $\times$ NACE sector $\times$ year & FATS sectoral shares applied to CbCR aggregate levels & Converts CbCR country-level payroll and asset proxies into sectoral SBIE ratios, without treating FATS as a tax dataset \\
-\bottomrule
-\end{tabularx}
-\end{table}
+This appendix supports Sections \ref{sec:measurement_framework} and \ref{sec:results_stage1}. It is reader-essential because the central empirical result depends on whether public CbCR can identify the profit mass below the 15\% threshold. The main text gives the measurement objects and the headline diagnostics; this appendix gives the bounding rules, distributional fit, BSPI backcast and validation tables.
 
 \subsection{Measurement framework details}\label{app:measurement_framework}
 
@@ -1469,17 +1442,63 @@ The earlier IQR-error regression is retained only as a secondary diagnostic. For
 \end{equation}
 where $\gamma_t$ are year fixed effects absorbing vintage changes in CbCR coverage. $\hat{\delta}$ tests whether greater within-jurisdiction ETR dispersion also predicts measurement error in the distributional approach. A significant and stable $\hat{\delta}$ could support a correction factor for non-EU jurisdictions where Table IV is unavailable. The preferred estimator applies no IQR correction; Appendix Section \ref{app:results_stage1} reports the diagnostic evidence behind that decision.
 
-\section{Results appendix}\label{app:results}
+\subsection{Stage 1 validation and measurement diagnostics}\label{app:results_stage1}
 
-\input{generated/results_appendix_tables.tex}
+These tables are needed to evaluate the main measurement claim. Table \ref{tab:app_stage1_bspi_tv} checks the shape-transport assumption for the pre-2019 years, Table \ref{tab:app_stage1_conditioning} records the percentile-conditioning filters, and Table \ref{tab:app_stage1_crossval} shows the direct Table I versus Table IV validation of the fitted low-taxed share.
 
-\section{Methodology appendix}\label{app:method}
+\input{generated/results_tables/appendix_stage1_bspi_summary.tex}
+\input{generated/results_tables/appendix_stage1_conditioning.tex}
+\input{generated/results_tables/stage1_crossval.tex}
 
-This appendix collects technical material that supports the main revenue pipeline but would interrupt the decomposition argument in the main text. It documents how the SBTI exposure index simplifies the legal cap, how the rejected behavioural forms map coefficients into reallocation shares, and why the SESH band is treated as an upper-bound liability filter rather than as a structural bunching estimate.
+\clearpage
+\section{Stage 2 substance and sectoral exposure}\label{app:stage2_substance}
+
+This appendix supports Sections \ref{sec:SBIE}, \ref{sec:sbti_amplification} and \ref{sec:results_stage2}. It is needed for understanding how the headline 15\% minimum becomes a lower effective floor after the SBIE and SBTI layers. The sectoral bridge is included here because it is a measurement bridge for substance exposure, not an alternative tax dataset.
+
+\subsection{Sectoral decomposition}\label{app:sector}
+
+The sectoral branch is therefore a formal measurement bridge rather than a choice between three competing datasets. CbCR supplies the country-level liability base. FATS and EUKLEMS supply within-country sectoral allocation shares. BEA supplies an external U.S.-parented benchmark for broad-sector validation, not a replacement for either the CbCR base or the EU sectoral bridge. Table \ref{tab:sectoral_bridge_hierarchy} records the hierarchy used in the code. For each country-year and component, the selected sectoral allocation base is normalised to sum to one across the post-2021 FATS leaf sectors. If a sector cell has no usable primary or fallback activity anchor, the cell remains missing for that component and is counted in the bridge-quality diagnostic, rather than being filled with an unsupported sector value.
+
+\begin{table}[H]
+\centering
+\caption{Sectoral measurement bridge for the SBIE and SBTI layer}
+\label{tab:sectoral_bridge_hierarchy}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}L{2.5cm}L{3.2cm}L{3.2cm}X@{}}
+\toprule
+Component & Preferred variable & Fallback rule & Interpretation \\
+\midrule
+Liability base & CbCR \code{PROFIT}, \code{PROFIT\_ADJ}, \code{TAX\_ACCRUED}, \code{ASSETS}, \code{EMPLOYEES} & None & CbCR remains the only source used to measure top-up liability; sectoral sources never replace the liability base \\
+Payroll share & FATS personnel costs & Employees scaled by observed personnel cost per employee; then turnover scaled by observed personnel-cost-to-turnover ratio & Allocates the wage-based CbCR payroll proxy across EU host-country sectors \\
+Asset share & EUKLEMS \code{K\_Tang} tangible capital stock & EUKLEMS stock gap-filled with FATS investment when stock coverage is at least 75\% of FATS turnover; otherwise FATS investment, with activity-scaled suppressed-cell fallback & Allocates the CbCR tangible-asset level across sectors using a stock concept where public coverage is strong enough \\
+Profit share & FATS positive gross operating surplus & Positive value added scaled to gross operating surplus; then turnover scaled to gross operating surplus & Allocates the corrected CbCR positive-profit base across sectors for the sectoral effective-floor denominator \\
+Validation & BEA employment, compensation, PPE expenditure and total assets & No substitution into the baseline & Tests whether US-parented broad-sector shares are consistent with the FATS/EUKLEMS bridge, especially for the Side-by-Side-relevant US-parent population \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+A structural break in the FATS data around 2021 complicates the time series. The pre-2021 series uses a single broad activity aggregate and 23 indicators, while the post-2021 series uses 48 NACE-based activity categories and 19 codes. The two halves are not directly comparable. The sectoral estimation therefore uses the post-2021 \code{fats\_activ} data only. Pre-2021 FATS serve as descriptive background. In the 2022 reference matrix the bridge retains 40 non-overlapping FATS leaf sectors for each EU Member State, giving 1{,}080 country-sector cells. The payroll, asset and profit shares each sum to 100\% within every Member State up to numerical precision. Fifteen Member States use EUKLEMS tangible-stock shares for the asset leg, of which seven require within-country investment-based gap-filling for suppressed EUKLEMS cells. Twelve Member States fall back to FATS investment because EUKLEMS tangible-stock coverage does not reach the 75\% turnover threshold. At the level of allocated 2022 sectoral levels, 98.1\% of payroll comes directly from FATS personnel costs, 83.2\% of tangible assets comes from EUKLEMS stock information including gap-filled cells, and 88.2\% of the profit denominator comes from FATS gross operating surplus. Table \ref{tab:fats_raw_structure} records the raw sectoral data structure and its use in the CbCR bridge.
+
+\begin{table}[H]
+\centering
+\caption{Raw FATS structure and use in the CbCR sectoral bridge}
+\label{tab:fats_raw_structure}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}L{2.8cm}L{3.2cm}L{3.8cm}X@{}}
+\toprule
+FATS component & Original partition & Variables used & Measurement implication \\
+\midrule
+Pre-2021 inward FATS & Reporting economy $\times$ broad activity aggregate $\times$ controlling country $\times$ year & Employment, turnover and personnel-cost indicators in the older \code{fats\_g1b\_08} structure & Used only as descriptive background because the sector taxonomy is not directly comparable with the post-2021 NACE structure \\
+Post-2021 inward FATS & Reporting economy $\times$ NACE activity $\times$ controlling country $\times$ year & Personnel costs, employment, turnover, value added and investment in \code{fats\_activ} & EU host-country sectoral shares for foreign-controlled enterprises; payroll-share proxy and sectoral exposure bridge only \\
+EUKLEMS \& INTANProd capital module & Country $\times$ NACE activity $\times$ year & Tangible capital stock and intangible capital stock & Preferred public source for sectoral tangible-asset shares; intangibles enter only as a robustness and interpretation layer \\
+FATS-to-CbCR bridge & EU affiliate jurisdiction $\times$ NACE sector $\times$ year & FATS sectoral shares applied to CbCR aggregate levels & Converts CbCR country-level payroll and asset proxies into sectoral SBIE ratios, without treating FATS as a tax dataset \\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \subsection{SBTI cap and sectoral effective floor}\label{app:sbti_details}
 
-The SBTI Safe Harbour lets qualifying incentives increase covered taxes only up to a substance-linked cap. Under Method 1, the cap is:
+The SBTI Safe Harbour lets qualifying incentives increase covered taxes only up to a substance linked cap. Under Method 1, the cap is:
 \begin{equation}\label{eq:substance_cap}
 \text{SC}_{p,j,t}^{\text{M1}} = 0.055 \times \max\!\left(\hat{W}_{p,j,t},\; \text{Depr}(A_{p,j,t})\right),
 \end{equation}
@@ -1506,6 +1525,18 @@ Here $\text{PersC}_{j,s}^{\text{FATS}}$ is FATS personnel cost and $\hat{K}_{j,s
 \tau_{j,s}^{\text{floor}}(t) = T - (T-\tau_j)\left[\sigma_W(t)\frac{W_{j,s}}{\pi_{j,s}} + \sigma_A(t)\frac{A_{j,s}}{\pi_{j,s}}\right].
 \end{equation}
 These equations define the sectoral exposure layer. They do not imply that FATS or EUKLEMS observe GloBE income, covered taxes or qualifying incentive claims.
+
+\subsection{Stage 2 implementation diagnostics}\label{app:results_stage2}
+
+These tables are needed only if the reader wants to audit the substance layer in detail. Table \ref{tab:app_stage2_payroll_fallback} records the payroll proxy hierarchy, and Table \ref{tab:app_stage2_asset_sensitivity} checks whether the sectoral asset allocator changes the substantive result.
+
+\input{generated/results_tables/appendix_stage2_payroll_fallback.tex}
+\input{generated/results_tables/appendix_stage2_asset_sensitivity.tex}
+
+\clearpage
+\section{Stage 3 behavioural module}\label{app:stage3_behaviour}
+
+This appendix supports Sections \ref{sec:estimation}, \ref{sec:behavioural} and \ref{sec:results_stage3}. It is necessary for evaluating the behavioural coefficient, but it should be read as a credibility and robustness appendix rather than as the main source of the revenue ranking. The central decomposition is driven by measurement and allocation; the behavioural appendix explains why the preferred semi-elasticity is used as a scenario coefficient.
 
 \subsection{Behavioural functional-form mappings}\label{app:behavioural_details}
 
@@ -1573,6 +1604,24 @@ The SESH band has the economic structure of a notch: a simplified ETR just below
 
 The implemented SESH term is a pre-reform exposure diagnostic and an upper-bound revenue sensitivity. The code bins jurisdiction-year average ETRs around the fifteen per cent threshold and records how much profit lies close enough to plausibly reach the safe harbour under covered-tax and income management. This diagnostic is useful for a later post-reform paper, but it is not evidence that firms have already bunched. For this reason, the main text includes only the operational liability filter in equation \eqref{eq:regime}.
 
+\subsection{Stage 3 estimation diagnostics}\label{app:results_stage3}
+
+These tables document the econometric support for the behavioural module. They are needed when assessing whether the fixed-effect semi-elasticity is credible; they are not needed to follow the arithmetic of the revenue pipeline.
+
+\input{generated/results_tables/stage3_model_comparison.tex}
+\input{generated/results_tables/stage3_regression_table.tex}
+\input{generated/results_tables/stage3_iv_diagnostics.tex}
+\input{generated/results_tables/stage3_econometric_scorecard.tex}
+\input{generated/results_tables/stage3_semielasticity.tex}
+\input{generated/results_tables/appendix_stage3_sample_summary.tex}
+\input{generated/results_tables/appendix_stage3_tax_coefficients.tex}
+\input{generated/results_tables/appendix_stage3_specification_tests.tex}
+\input{generated/results_tables/appendix_stage3_wald_tests.tex}
+\input{generated/results_tables/appendix_stage3_robustness.tex}
+\input{generated/results_tables/appendix_stage3_etr_tail_support.tex}
+\input{generated/results_tables/appendix_stage3_behaviour_by_year.tex}
+\input{generated/results_tables/appendix_stage3_behavioural_design.tex}
+
 \subsection{Uncertainty quantification}\label{sec:beta_uncertainty}
 
 The headline revenue number hides the same three uncertainty objects defined in Section \ref{sec:two_uncertainties}. The reallocation factor $\hat{\beta}_{j,t}^{e,m}$ is a nonlinear transformation of estimated tax coefficients, the selected functional form, the Stage 1 top-up rate and the SESH bandwidth. These channels should not be collapsed into one statistic. Following the standard distinction between aleatoric and epistemic uncertainty \citep{hullermeier2021}, the thesis treats coefficient sampling error as aleatoric and the choice of measurement or policy scenario as epistemic or institutional.
@@ -1583,6 +1632,41 @@ Object A covers the ETR measurement factor, the aggregate-versus-sectoral substa
 
 The BIC and Vuong test identify a preferred specification, but preference is not uniqueness. The quadratic and logarithmic specifications predict semi-elasticities that rise sharply below the lowest ETR observed in the estimation sample. A \emph{no-extrapolation} variant would cap $\hat{\varepsilon}(\tau)$ at $\hat{\varepsilon}(\tau_{\min})$ for all $\tau < \tau_{\min}$, where $\tau_{\min}$ is the 5th percentile of observed affiliate-level ETRs. The gap between the main and no-extrapolation estimates quantifies dependence on out-of-sample functional-form assumptions. In the present results, this is reported as a sensitivity margin rather than as the preferred estimand.
 
+\clearpage
+\section{Stage 4 allocation and decomposition diagnostics}\label{app:stage4_allocation}
+
+This appendix supports Sections \ref{sec:sbs}, \ref{sec:decomposition}, \ref{sec:results_factorial} and \ref{sec:results_sbs}. It is reader-essential for the second main claim of the paper: the SbS regime changes who can collect top-up tax, and this legal allocation factor is the second-largest source of scenario variance. The tables below document the allocation totals, the US-parented exposure affected by SbS, the decomposition-window robustness checks, and jurisdiction-influence diagnostics.
+
+\subsection{Allocation diagnostics}\label{app:results_stage45}
+
+\input{generated/results_tables/appendix_stage45_summary.tex}
+\input{generated/results_tables/appendix_stage45_sbs_source_exposure.tex}
+\input{generated/results_tables/appendix_stage45_h4_regression.tex}
+
+\subsection{Decomposition and influence diagnostics}\label{app:results_stage46}
+
+\input{generated/results_tables/appendix_stage46_measurement_sample_decomposition.tex}
+\input{generated/results_tables/appendix_stage46_top_scenarios.tex}
+\input{generated/results_tables/appendix_stage46_country_anova.tex}
+\input{generated/results_tables/appendix_jurisdiction_influence_summary.tex}
+\input{generated/results_tables/appendix_jurisdiction_influence_decomposition.tex}
+
+\clearpage
+\section{Country-level policy appendix}\label{app:country_policy}
+
+This appendix supports Section \ref{sec:results_sbs}. It is useful for readers who want to move from the EU aggregate to finance-ministry interpretation. It is not needed to understand the main decomposition, but it is needed for country-specific claims about QDMTT protection, residual IIR/UTPR exposure, SbS extinguishment, fiscal salience and typology membership.
+
+\subsection{Full country policy matrix}\label{app:country_policy_matrix}
+
+\input{generated/results_tables/appendix_country_policy_matrix.tex}
+\input{generated/results_tables/appendix_country_fiscal_salience_full.tex}
+
+\subsection{Country typology diagnostics}\label{app:country_typology}
+
+\input{generated/results_tables/appendix_country_typology_features.tex}
+\input{generated/results_tables/appendix_country_typology_cluster_stability.tex}
+
+\clearpage
 \section{Online appendix map}\label{app:online}
 
 The online appendix is the replication layer. It should contain the full run order for \path{code/01_data_cleaning.R} through \path{code/11_sesh_notch_bunching_diagnostic.R}, the session information for the R and Python environments, checksums or timestamps for raw source files, and the log files needed to reproduce the generated tables in \path{writing/generated/}. It should also contain source-download metadata for regularly updated databases, including the OECD CbCR tables, OECD forward-looking ETRs, OECD statutory CIT rates, Eurostat FATS, EUKLEMS \& INTANProd, OECD and ILO wage data, World Bank macro variables, BEPS implementation indicators and Pillar Two implementation records.

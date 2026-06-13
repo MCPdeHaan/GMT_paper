@@ -293,6 +293,9 @@ run_stage1_pipeline <- function() {
       )
     )
 
+  # Average ETR branch: treats the affiliate-year mean ETR as representative
+  # of all positive profits. This is the conservative fallback when the public
+  # CbCR distributional tables cannot support a lower-tail split.
   average_metrics <- affiliate_year_base |>
     rowwise() |>
     mutate(
@@ -306,6 +309,8 @@ run_stage1_pipeline <- function() {
     ) |>
     select(-avg_metrics)
 
+  # Percentile/Beta branch: fits a bounded ETR distribution from public
+  # percentile tables, then integrates the mass below the 15 per cent floor.
   percentile_rows <- panel |>
     filter(year %in% PERCENTILE_YEARS, has_any_percentile_set)
 
@@ -501,6 +506,8 @@ run_stage1_pipeline <- function() {
       percentile_rate_20_30, percentile_rate_30
     )
 
+  # Direct Table IV branch: uses observed low-tax bracket shares when Table IV
+  # directly partitions positive profit by ETR band.
   direct_affiliate_year <- t4_brackets |>
     filter(year %in% DIRECT_YEARS, etr_bracket %in% T4_POSITIVE_BRACKETS) |>
     group_by(affiliate, year) |>
@@ -546,6 +553,8 @@ run_stage1_pipeline <- function() {
     ) |>
     select(-direct_metrics)
 
+  # BSPI branch: transports stable Table IV bracket shapes from anchor years
+  # into 2017 and 2018, when the direct distributional table is unavailable.
   bspi_anchor <- direct_affiliate_year |>
     filter(year %in% BSPI_ANCHOR_YEARS) |>
     group_by(affiliate) |>
@@ -690,6 +699,8 @@ run_stage1_pipeline <- function() {
       bspi_low_mean_etr_gap = validation_low_mean_etr - anchor_low_mean_etr
     )
 
+  # Branch selection: combine direct, fitted percentile, transported shape and
+  # average ETR evidence into one affiliate-year low-tax profit estimate.
   affiliate_year_stage1 <- affiliate_year_base |>
     left_join(
       average_metrics |>
@@ -750,6 +761,8 @@ run_stage1_pipeline <- function() {
       stage1_positive_profit_flag = total_analysis_profit_positive > 0
     )
 
+  # Cross-validation diagnostics: compare fitted percentile rates against
+  # direct Table IV rates in years where both public sources overlap.
   crossval_affiliate_year <- affiliate_year_stage1 |>
     filter(
       year %in% BSPI_VALIDATION_YEARS,
@@ -819,6 +832,8 @@ run_stage1_pipeline <- function() {
     )
   }
 
+  # Bilateral mapping: transport the selected affiliate-year low-tax rate back
+  # to each parent-affiliate cell so later stages preserve the CbCR spine.
   bilateral_stage1 <- panel |>
     left_join(
       affiliate_year_stage1 |>

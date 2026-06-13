@@ -235,7 +235,17 @@ build_influence_targets <- function(stage1_bilateral, estimation_sample,
       leverage_topup = max_or_na(leverage_topup),
       .groups = "drop"
     ) |>
-    mutate(case_id = case_id(leave_dimension, jurisdiction)) |>
+    mutate(
+      included_high_leverage = str_detect(target_reason, "high_leverage"),
+      included_named_target = str_detect(target_reason, "named"),
+      target_inclusion_reason = case_when(
+        included_high_leverage & included_named_target ~ "both",
+        included_high_leverage                         ~ "high_leverage",
+        included_named_target                          ~ "named_target",
+        TRUE                                           ~ "unspecified"
+      ),
+      case_id = case_id(leave_dimension, jurisdiction)
+    ) |>
     left_join(jurisdiction_lookup, by = "jurisdiction") |>
     arrange(leave_dimension, desc(str_detect(target_reason, "named")),
             desc(leverage_profit), jurisdiction)
