@@ -641,11 +641,11 @@ A first route compresses all parent-reported profit in affiliate jurisdiction $j
 \begin{equation}\label{eq:avg_etr}
 \bar{\tau}_{j,t}=\frac{\sum_p \theta_{p,j,t}}{\sum_p \pi^{*}_{p,j,t}}.
 \end{equation}
-It then applies a binary rule:
+It then applies a binary rule, treating all profit in jurisdiction $j$ as low-taxed only if this average ETR falls below the threshold:
 \begin{equation}\label{eq:average_lowtax_share}
 s_{j,t}^{<T,\text{avg}}=\mathbb{1}\{\bar{\tau}_{j,t}<T\}.
 \end{equation}
-This average rule is transparent and close to the first generation of public-data revenue simulations \citep{barake2022}. It asks whether the average jurisdiction is below the floor, while the policy object is the profit mass below the floor. If a jurisdiction has an average ETR of 16\%, equation \eqref{eq:average_lowtax_share} assigns zero low-taxed profit, even if a substantial share of affiliates inside that jurisdiction is taxed below 15\%. This concern is empirically material: \citet{hugger2026} show that 53.2\% of globally low-taxed profit is located in jurisdictions whose average ETR exceeds 15\%.
+This average rule is transparent and close to the first generation of public-data revenue simulations \citep{barake2022}. It asks whether the average jurisdiction is below the floor, while the policy object is the profit mass below the floor. If a jurisdiction has an average ETR of 16\%, equation \eqref{eq:average_lowtax_share} assigns zero low-taxed profit, even if a substantial share of affiliates inside that jurisdiction is taxed below 15\%. \citet{hugger2026} show that 53.2\% of globally low-taxed profit is located in jurisdictions whose average ETR exceeds 15\%.
 
 The distributional route keeps the 15\% threshold but changes the question. Instead of asking whether the average jurisdiction is below the floor, it asks what share of profit inside the jurisdiction is below the floor. Let $F_{j,t}^{e}$ denote the profit-weighted ETR distribution implied by branch $e$, so that $F_{j,t}^{e}(\tau)$ is the share of corrected profit with an ETR no higher than $\tau$. The low-taxed share is:
 \begin{equation}\label{eq:lowtax_share}
