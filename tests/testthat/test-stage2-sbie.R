@@ -1,4 +1,5 @@
-source(file.path("..", "..", "code", "04_stage2_sbie.R"))
+setwd(normalizePath(file.path("..", ".."), mustWork = TRUE))
+source("code/04_stage2_sbie.R")
 
 library(testthat)
 

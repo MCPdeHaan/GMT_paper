@@ -1,27 +1,27 @@
-leave_dimension,jurisdiction,target_reason,leverage_profit,leverage_topup,case_id,jurisdiction_name
-affiliate,USA,high_leverage+named,5796522351761.265,262764800201.14474,affiliate_USA,United States
-affiliate,DEU,high_leverage+named,1094227210739.268,36218003761.96545,affiliate_DEU,Germany
-affiliate,NLD,high_leverage+named,997044405302.1049,97612465729.83621,affiliate_NLD,Netherlands
-affiliate,CHE,named,NA,NA,affiliate_CHE,Switzerland
-affiliate,FRA,named,NA,NA,affiliate_FRA,France
-affiliate,IRL,named,NA,NA,affiliate_IRL,Ireland
-affiliate,LUX,named,NA,NA,affiliate_LUX,Luxembourg
-affiliate,SGP,named,NA,NA,affiliate_SGP,Singapore
-affiliate,CHN,high_leverage,6164648920235.801,63522913675.17358,affiliate_CHN,China
-affiliate,JPN,high_leverage,1948466532559.8513,24362355799.340965,affiliate_JPN,Japan
-affiliate,GBR,high_leverage,1870042363544.3862,107972189637.11087,affiliate_GBR,United Kingdom
-affiliate,CAN,high_leverage,1223991176350.391,32735473467.506504,affiliate_CAN,Canada
-affiliate,HKG,high_leverage,952305047433.6956,66347633979.325485,affiliate_HKG,"Hong Kong SAR, China"
-parent,USA,high_leverage+named,9816374483680.105,578568527778.4579,parent_USA,United States
-parent,DEU,high_leverage+named,1839693179851.3083,72566817623.79602,parent_DEU,Germany
-parent,FRA,high_leverage+named,1098992639298.8018,38926293007.103806,parent_FRA,France
-parent,CHE,named,NA,NA,parent_CHE,Switzerland
-parent,IRL,named,NA,NA,parent_IRL,Ireland
-parent,LUX,named,NA,NA,parent_LUX,Luxembourg
-parent,NLD,named,NA,NA,parent_NLD,Netherlands
-parent,SGP,named,NA,NA,parent_SGP,Singapore
-parent,CHN,high_leverage,5048989393642.295,103897635199.44962,parent_CHN,China
-parent,JPN,high_leverage,3023084806136.0815,83719931214.95607,parent_JPN,Japan
-parent,CAN,high_leverage,1200050430392.0112,38651990387.05235,parent_CAN,Canada
-parent,HKG,high_leverage,980741986494.1201,39820118445.840485,parent_HKG,"Hong Kong SAR, China"
-parent,SAU,high_leverage,967920756375.8026,38996026077.628815,parent_SAU,Saudi Arabia
+leave_dimension,jurisdiction,target_reason,leverage_profit,leverage_topup,included_high_leverage,included_named_target,target_inclusion_reason,case_id,jurisdiction_name
+affiliate,USA,high_leverage+named,6599181354947.036,295058169504.1646,TRUE,TRUE,both,affiliate_USA,United States
+affiliate,NLD,high_leverage+named,1043865789946.4501,102186788629.96329,TRUE,TRUE,both,affiliate_NLD,Netherlands
+affiliate,DEU,high_leverage+named,1032954879160.7832,34223026332.693943,TRUE,TRUE,both,affiliate_DEU,Germany
+affiliate,CHE,named,NA,NA,FALSE,TRUE,named_target,affiliate_CHE,Switzerland
+affiliate,FRA,named,NA,NA,FALSE,TRUE,named_target,affiliate_FRA,France
+affiliate,IRL,named,NA,NA,FALSE,TRUE,named_target,affiliate_IRL,Ireland
+affiliate,LUX,named,NA,NA,FALSE,TRUE,named_target,affiliate_LUX,Luxembourg
+affiliate,SGP,named,NA,NA,FALSE,TRUE,named_target,affiliate_SGP,Singapore
+affiliate,CHN,high_leverage,5798945467975.177,59846138015.27047,TRUE,FALSE,high_leverage,affiliate_CHN,China
+affiliate,GBR,high_leverage,1939310991999.702,112031169650.55072,TRUE,FALSE,high_leverage,affiliate_GBR,United Kingdom
+affiliate,JPN,high_leverage,1780872937456.6714,22198737029.21029,TRUE,FALSE,high_leverage,affiliate_JPN,Japan
+affiliate,CAN,high_leverage,1090502489150.93,29153246406.523113,TRUE,FALSE,high_leverage,affiliate_CAN,Canada
+affiliate,HKG,high_leverage,1043612179390.91,72707845964.27289,TRUE,FALSE,high_leverage,affiliate_HKG,"Hong Kong SAR, China"
+parent,USA,high_leverage+named,10619033486865.879,610861897081.4775,TRUE,TRUE,both,parent_USA,United States
+parent,DEU,high_leverage+named,1807785295174.2231,73045362615.02289,TRUE,TRUE,both,parent_DEU,Germany
+parent,FRA,high_leverage+named,1097028832044.6947,39814844201.96309,TRUE,TRUE,both,parent_FRA,France
+parent,CHE,named,NA,NA,FALSE,TRUE,named_target,parent_CHE,Switzerland
+parent,IRL,named,NA,NA,FALSE,TRUE,named_target,parent_IRL,Ireland
+parent,LUX,named,NA,NA,FALSE,TRUE,named_target,parent_LUX,Luxembourg
+parent,NLD,named,NA,NA,FALSE,TRUE,named_target,parent_NLD,Netherlands
+parent,SGP,named,NA,NA,FALSE,TRUE,named_target,parent_SGP,Singapore
+parent,CHN,high_leverage,4738459774535.7,104443721378.5434,TRUE,FALSE,high_leverage,parent_CHN,China
+parent,JPN,high_leverage,2882367311522.4805,83736381764.72878,TRUE,FALSE,high_leverage,parent_JPN,Japan
+parent,CAN,high_leverage,1071366491492.55,35389504585.373764,TRUE,FALSE,high_leverage,parent_CAN,Canada
+parent,HKG,high_leverage,1007005472420.8503,41839331165.78004,TRUE,FALSE,high_leverage,parent_HKG,"Hong Kong SAR, China"
+parent,SAU,high_leverage,999119252887.1276,40158867172.4345,TRUE,FALSE,high_leverage,parent_SAU,Saudi Arabia

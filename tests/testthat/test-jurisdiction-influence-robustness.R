@@ -1,4 +1,5 @@
-source(file.path("..", "..", "code", "10_jurisdiction_influence_robustness.R"))
+setwd(normalizePath(file.path("..", ".."), mustWork = TRUE))
+source("code/10_jurisdiction_influence_robustness.R")
 
 library(testthat)
 
@@ -31,10 +32,14 @@ test_that("Influence target selection keeps named and high-leverage cases", {
   stage1 <- tibble::tibble(
     parent = c("USA", "DEU", "GBR", "GBR"),
     affiliate = c("NLD", "IRL", "SGP", "CAN"),
-    parent_jurisdiction_name = c("United States", "Germany", "United Kingdom",
-                                 "United Kingdom"),
-    affiliate_jurisdiction_name = c("Netherlands", "Ireland", "Singapore",
-                                    "Canada"),
+    parent_jurisdiction_name = c(
+      "United States", "Germany", "United Kingdom",
+      "United Kingdom"
+    ),
+    affiliate_jurisdiction_name = c(
+      "Netherlands", "Ireland", "Singapore",
+      "Canada"
+    ),
     year = 2022,
     stage1_positive_profit_flag = TRUE,
     analysis_profit_positive = c(100, 50, 500, 25),
@@ -49,9 +54,9 @@ test_that("Influence target selection keeps named and high-leverage cases", {
   targets <- build_influence_targets(stage1, estimation_sample, lookup, top_n = 1)
 
   expect_true(any(targets$leave_dimension == "parent" &
-                    targets$jurisdiction == "USA"))
+    targets$jurisdiction == "USA"))
   expect_true(any(targets$leave_dimension == "affiliate" &
-                    targets$jurisdiction == "SGP"))
+    targets$jurisdiction == "SGP"))
   expect_true(any(str_detect(targets$target_reason, "high_leverage")))
 })
 

@@ -12,17 +12,10 @@ library(readr)
 library(stringr)
 library(tibble)
 
-source(if (file.exists("code/00_helpers.R")) {
-  "code/00_helpers.R"
-} else {
-  file.path("..", "..", "code/00_helpers.R")
-})
+source("code/00_helpers.R")
 
-PROFIT_RECONCILIATION_UPPER_BOUND <- 0.85
-PUBLIC_ETR_PARITY_CAP <- 0.555
 MIN_PARITY_FOREIGN_PROFIT <- 1e9
 MIN_PARITY_DOMESTIC_PROFIT <- 1e7
-EPS_RHO <- 1e-5
 
 AGGREGATE_AFFILIATES_RECON <- c(
   "A", "A_O", "E", "E_O", "F", "F_O", "S", "S_O", "W", "W_O", "WXD",
@@ -43,55 +36,6 @@ CONDUIT_HAVENS_RECON <- c(
 ZERO_TAX_OR_LOW_TAX_RECON <- c(
   "BHS", "BHR", "BMU", "CYM", "GGY", "IMN", "JEY", "VGB", "ARE", "MUS"
 )
-
-normalize_code <- function(x) {
-  case_when(
-    x == "XKX" ~ "XKV",
-    TRUE       ~ x
-  )
-}
-
-clamp_interval <- function(x, lower, upper) {
-  pmin(pmax(x, lower), upper)
-}
-
-bounded_logit <- function(rho, upper_bound = PROFIT_RECONCILIATION_UPPER_BOUND) {
-  qlogis(clamp_interval(rho / upper_bound, EPS_RHO, 1 - EPS_RHO))
-}
-
-inverse_bounded_logit <- function(x,
-                                  upper_bound = PROFIT_RECONCILIATION_UPPER_BOUND) {
-  upper_bound * plogis(x)
-}
-
-rho_to_logit_se <- function(rho, rho_se,
-                            upper_bound = PROFIT_RECONCILIATION_UPPER_BOUND) {
-  rho_safe <- clamp_interval(rho, EPS_RHO, upper_bound - EPS_RHO)
-  derivative <- (1 / rho_safe) + (1 / (upper_bound - rho_safe))
-  clamp_interval(rho_se * derivative, 0.08, 3.50)
-}
-
-weighted_mean_clean <- function(x, w) {
-  keep <- is.finite(x) & is.finite(w) & w > 0
-  if (!any(keep)) return(NA_real_)
-  weighted.mean(x[keep], w[keep])
-}
-
-weighted_rate_clean <- function(amount, weight) {
-  keep <- is.finite(amount) & is.finite(weight) & weight > 0
-  if (!any(keep)) return(NA_real_)
-  sum(amount[keep], na.rm = TRUE) / sum(weight[keep], na.rm = TRUE)
-}
-
-safe_log1p_scale <- function(x, scale) {
-  if_else(!is.na(x) & x > 0, log1p(x / scale), 0)
-}
-
-first_non_missing_num <- function(x) {
-  idx <- which(!is.na(x))
-  if (length(idx) == 0) return(NA_real_)
-  x[idx[1]]
-}
 
 profit_reconciliation_source_precision <- function(signal_type) {
   case_when(
@@ -129,9 +73,11 @@ build_parent_year_targets <- function(panel, cit_statutory) {
     left_join(domestic, by = c("parent", "year")) |>
     left_join(
       cit_statutory |>
-        select(parent = jurisdiction, year,
-               parent_cit_standard = cit_standard,
-               parent_cit_top_all = cit_top_all),
+        select(
+          parent = jurisdiction, year,
+          parent_cit_standard = cit_standard,
+          parent_cit_top_all = cit_top_all
+        ),
       by = c("parent", "year")
     )
 
@@ -167,8 +113,10 @@ build_parent_year_targets <- function(panel, cit_statutory) {
       year_factor = factor(year, levels = sort(unique(panel$year))),
       parent_group = factor(
         parent_group,
-        levels = c("large_upe", "investment_hub", "zero_tax_or_low_tax",
-                   "residual")
+        levels = c(
+          "large_upe", "investment_hub", "zero_tax_or_low_tax",
+          "residual"
+        )
       )
     )
 }
@@ -195,14 +143,18 @@ build_adjusted_profit_signal <- function(panel) {
         sum(profit_adj_panelai, na.rm = TRUE),
         sum(profit_panelai, na.rm = TRUE)
       ),
-      rho_signal = clamp_interval(rho_signal_raw, 0,
-                                  PROFIT_RECONCILIATION_UPPER_BOUND),
+      rho_signal = clamp_interval(
+        rho_signal_raw, 0,
+        PROFIT_RECONCILIATION_UPPER_BOUND
+      ),
       profit_weight = sum(profit_panelai, na.rm = TRUE),
       cells = n(),
       adjusted_above_reported_cells =
         sum(adjusted_above_reported_flag, na.rm = TRUE),
-      support_score = clamp_interval(log1p(profit_weight / 1e9) / log1p(100),
-                                     0.35, 1),
+      support_score = clamp_interval(
+        log1p(profit_weight / 1e9) / log1p(100),
+        0.35, 1
+      ),
       signal_type = "observed_adjusted_profit",
       source = "OECD adjusted profit, domestic parent-year cell",
       source_citation_key = "oecd2025a",
@@ -219,15 +171,19 @@ build_adjusted_profit_signal <- function(panel) {
         sum(profit_adj_panelai, na.rm = TRUE),
         sum(profit_panelai, na.rm = TRUE)
       ),
-      rho_signal = clamp_interval(rho_signal_raw, 0,
-                                  PROFIT_RECONCILIATION_UPPER_BOUND),
+      rho_signal = clamp_interval(
+        rho_signal_raw, 0,
+        PROFIT_RECONCILIATION_UPPER_BOUND
+      ),
       profit_weight = sum(profit_panelai, na.rm = TRUE),
       cells = n(),
       years = n_distinct(year),
       adjusted_above_reported_cells =
         sum(adjusted_above_reported_flag, na.rm = TRUE),
-      support_score = clamp_interval(log1p(profit_weight / 1e9) / log1p(100),
-                                     0.25, 0.85),
+      support_score = clamp_interval(
+        log1p(profit_weight / 1e9) / log1p(100),
+        0.25, 0.85
+      ),
       .groups = "drop"
     )
 
@@ -303,8 +259,10 @@ build_etr_parity_signal <- function(panel, cit_statutory) {
     ) |>
     mutate(
       implied_correction_rate_raw = 1 - domestic_etr / foreign_etr,
-      rho_signal = clamp_interval(implied_correction_rate_raw, 0,
-                                  PUBLIC_ETR_PARITY_CAP),
+      rho_signal = clamp_interval(
+        implied_correction_rate_raw, 0,
+        PUBLIC_ETR_PARITY_CAP
+      ),
       implied_reduction = rho_signal * domestic_profit,
       asset_intensity_gap = abs(log(
         pmax(domestic_asset_intensity, 1e-12) /
@@ -321,7 +279,7 @@ build_etr_parity_signal <- function(panel, cit_statutory) {
         clamp_interval(log1p(domestic_profit / 1e9) / log1p(100), 0, 1),
       intensity_similarity_score =
         exp(-0.15 * coalesce(asset_intensity_gap, 0) -
-              0.15 * coalesce(employee_intensity_gap, 0)),
+          0.15 * coalesce(employee_intensity_gap, 0)),
       support_score = clamp_interval(
         0.15 + 0.30 * parent_support_score +
           0.20 * foreign_mass_score +
@@ -374,8 +332,10 @@ expand_manual_anchor_signals <- function(anchors, targets) {
 
   country_anchors <- anchors_model |>
     filter(parent != "ALL") |>
-    select(parent, year_start, year_end, rho, rho_se, source_type,
-           source_citation_key, scope, applies_to, notes)
+    select(
+      parent, year_start, year_end, rho, rho_se, source_type,
+      source_citation_key, scope, applies_to, notes
+    )
 
   country_signals <- targets |>
     select(parent, year, domestic_profit_mass) |>
@@ -384,8 +344,10 @@ expand_manual_anchor_signals <- function(anchors, targets) {
     transmute(
       parent,
       year,
-      rho_signal = clamp_interval(rho, 0,
-                                  PROFIT_RECONCILIATION_UPPER_BOUND),
+      rho_signal = clamp_interval(
+        rho, 0,
+        PROFIT_RECONCILIATION_UPPER_BOUND
+      ),
       signal_type = source_type,
       source = paste0(source_type, ": ", source_citation_key),
       source_citation_key,
@@ -402,8 +364,10 @@ expand_manual_anchor_signals <- function(anchors, targets) {
 
   fallback_anchors <- anchors_model |>
     filter(parent == "ALL") |>
-    select(year_start, year_end, rho, rho_se, source_type,
-           source_citation_key, scope, applies_to, notes)
+    select(
+      year_start, year_end, rho, rho_se, source_type,
+      source_citation_key, scope, applies_to, notes
+    )
 
   fallback_signals <- targets |>
     select(parent, year, domestic_profit_mass) |>
@@ -412,8 +376,10 @@ expand_manual_anchor_signals <- function(anchors, targets) {
     transmute(
       parent,
       year,
-      rho_signal = clamp_interval(rho, 0,
-                                  PROFIT_RECONCILIATION_UPPER_BOUND),
+      rho_signal = clamp_interval(
+        rho, 0,
+        PROFIT_RECONCILIATION_UPPER_BOUND
+      ),
       signal_type = source_type,
       source = paste0(source_type, ": ", source_citation_key),
       source_citation_key,
@@ -443,10 +409,12 @@ fit_prior_reconciliation_model <- function(evidence, targets) {
     mutate(
       signal_upper_bound = PROFIT_RECONCILIATION_UPPER_BOUND,
       y_signal = bounded_logit(rho_signal, signal_upper_bound),
-      source_se = coalesce(source_se,
-                           profit_reconciliation_source_precision(signal_type)),
+      source_se = coalesce(
+        source_se,
+        profit_reconciliation_source_precision(signal_type)
+      ),
       logit_se = rho_to_logit_se(rho_signal, source_se, signal_upper_bound),
-      logit_weight = 1 / (logit_se ^ 2),
+      logit_weight = 1 / (logit_se^2),
       parent_group = factor(
         parent_group,
         levels = levels(targets$parent_group)
@@ -480,9 +448,10 @@ fit_prior_reconciliation_model <- function(evidence, targets) {
     )
 
   prior_y <- as.numeric(stats::predict(fit, newdata = target_data))
-  residual_sigma <- sqrt(weighted.mean(stats::residuals(fit) ^ 2,
-                                       model_data$logit_weight,
-                                       na.rm = TRUE))
+  residual_sigma <- sqrt(weighted.mean(stats::residuals(fit)^2,
+    model_data$logit_weight,
+    na.rm = TRUE
+  ))
   if (!is.finite(residual_sigma) || residual_sigma <= 0) {
     residual_sigma <- 0.75
   }
@@ -505,10 +474,12 @@ combine_parent_year_evidence <- function(prior, evidence) {
     filter(signal_type != "fallback_prior") |>
     mutate(
       y_signal = bounded_logit(rho_signal),
-      source_se = coalesce(source_se,
-                           profit_reconciliation_source_precision(signal_type)),
+      source_se = coalesce(
+        source_se,
+        profit_reconciliation_source_precision(signal_type)
+      ),
       logit_se = rho_to_logit_se(rho_signal, source_se),
-      logit_weight = 1 / (logit_se ^ 2),
+      logit_weight = 1 / (logit_se^2),
       source_priority = case_when(
         signal_type == "observed_adjusted_profit" ~ 1L,
         signal_type == "macro_reconciliation" ~ 2L,
@@ -525,7 +496,7 @@ combine_parent_year_evidence <- function(prior, evidence) {
       parent,
       year,
       y_signal = prior_y,
-      logit_weight = 1 / (prior_se_y ^ 2),
+      logit_weight = 1 / (prior_se_y^2),
       signal_type = "fallback_prior",
       source = "partial-pooling prior",
       source_priority = 8L
@@ -534,8 +505,10 @@ combine_parent_year_evidence <- function(prior, evidence) {
   combined <- bind_rows(
     prior_rows,
     exact_evidence |>
-      select(parent, year, y_signal, logit_weight, signal_type, source,
-             source_priority)
+      select(
+        parent, year, y_signal, logit_weight, signal_type, source,
+        source_priority
+      )
   ) |>
     group_by(parent, year) |>
     summarise(
@@ -556,11 +529,15 @@ combine_parent_year_evidence <- function(prior, evidence) {
     summarise(
       main_source = first(signal_type),
       external_anchor_flag = any(signal_type %in%
-                                   c("macro_reconciliation",
-                                     "official_country_note")),
+        c(
+          "macro_reconciliation",
+          "official_country_note"
+        )),
       observed_adjusted_signal_flag = any(signal_type %in%
-                                            c("observed_adjusted_profit",
-                                              "observed_adjusted_profit_parent")),
+        c(
+          "observed_adjusted_profit",
+          "observed_adjusted_profit_parent"
+        )),
       public_signal_flag = any(signal_type == "public_etr_parity"),
       exact_signal_count = n(),
       .groups = "drop"
@@ -587,9 +564,11 @@ combine_parent_year_evidence <- function(prior, evidence) {
 
 build_holdout_validation <- function(evidence, targets) {
   holdout_rows <- evidence |>
-    filter(signal_type %in% c("observed_adjusted_profit",
-                              "macro_reconciliation",
-                              "official_country_note")) |>
+    filter(signal_type %in% c(
+      "observed_adjusted_profit",
+      "macro_reconciliation",
+      "official_country_note"
+    )) |>
     mutate(row_id = row_number())
 
   if (nrow(holdout_rows) == 0) {
@@ -600,7 +579,8 @@ build_holdout_validation <- function(evidence, targets) {
     heldout <- holdout_rows[i, ]
     train <- evidence |>
       anti_join(heldout |> select(parent, year, signal_type, source),
-                by = c("parent", "year", "signal_type", "source"))
+        by = c("parent", "year", "signal_type", "source")
+      )
 
     fit_i <- fit_prior_reconciliation_model(train, targets)
     pred_i <- fit_i$target_prior |>
@@ -634,7 +614,8 @@ build_etr_balance_diagnostic <- function(parity_cells, predictions,
 
   parity_cells |>
     left_join(predictions |> select(parent, year, rho_hat_pt),
-              by = c("parent", "year")) |>
+      by = c("parent", "year")
+    ) |>
     left_join(observed_adj_domestic, by = c("parent", "year")) |>
     mutate(
       static_rate = case_when(
@@ -671,8 +652,10 @@ build_revenue_sensitivity_proxy <- function(panel, predictions,
                                             n_draws = 500,
                                             seed = 20260613) {
   domestic_prediction <- predictions |>
-    select(parent, year, rho_hat_pt, rho_lo_pt, rho_hi_pt, posterior_y,
-           posterior_sd)
+    select(
+      parent, year, rho_hat_pt, rho_lo_pt, rho_hi_pt, posterior_y,
+      posterior_sd
+    )
 
   base <- panel |>
     filter(year %in% MAIN_YEARS) |>
@@ -756,11 +739,13 @@ build_revenue_sensitivity_proxy <- function(panel, predictions,
       summarise(
         draw_id = .env$draw_id,
         positive_profit = sum(pmax(coalesce(profit_draw, 0), 0),
-                              na.rm = TRUE),
+          na.rm = TRUE
+        ),
         mechanical_pre_sbie_topup = sum(topup_draw, na.rm = TRUE),
         eu27_mechanical_pre_sbie_topup =
           sum(if_else(affiliate %in% EU27_ISO3, topup_draw, 0),
-              na.rm = TRUE)
+            na.rm = TRUE
+          )
       )
   }))
 
@@ -784,8 +769,10 @@ build_revenue_sensitivity_proxy <- function(panel, predictions,
         quantile(eu27_mechanical_pre_sbie_topup, 0.975, na.rm = TRUE)
     )
 
-  list(point_interval = interval, draw_interval = draw_interval,
-       draws = draw_summary)
+  list(
+    point_interval = interval, draw_interval = draw_interval,
+    draws = draw_summary
+  )
 }
 
 run_profit_reconciliation_model <- function(in_dir = PROCESSED_DIR,
@@ -821,14 +808,16 @@ run_profit_reconciliation_model <- function(in_dir = PROCESSED_DIR,
   parent_year_direct <- adjusted$parent_year |>
     transmute(
       parent, year, rho_signal, signal_type, source, source_citation_key,
-      profit_weight, source_se = profit_reconciliation_source_precision(signal_type),
+      profit_weight,
+      source_se = profit_reconciliation_source_precision(signal_type),
       support_score, scope, notes
     )
 
   parent_overall_expanded <- targets |>
     select(parent, year) |>
     anti_join(parent_year_direct |> select(parent, year),
-              by = c("parent", "year")) |>
+      by = c("parent", "year")
+    ) |>
     inner_join(adjusted$parent_overall, by = "parent") |>
     transmute(
       parent,
@@ -853,15 +842,21 @@ run_profit_reconciliation_model <- function(in_dir = PROCESSED_DIR,
     parent_overall_expanded,
     manual_signals,
     parity |>
-      select(parent, year, rho_signal, signal_type, source,
-             source_citation_key, profit_weight, source_se, support_score,
-             scope, notes)
+      select(
+        parent, year, rho_signal, signal_type, source,
+        source_citation_key, profit_weight, source_se, support_score,
+        scope, notes
+      )
   ) |>
     mutate(
-      rho_signal = clamp_interval(rho_signal, 0,
-                                  PROFIT_RECONCILIATION_UPPER_BOUND),
-      source_se = coalesce(source_se,
-                           profit_reconciliation_source_precision(signal_type)),
+      rho_signal = clamp_interval(
+        rho_signal, 0,
+        PROFIT_RECONCILIATION_UPPER_BOUND
+      ),
+      source_se = coalesce(
+        source_se,
+        profit_reconciliation_source_precision(signal_type)
+      ),
       support_score = clamp_interval(coalesce(support_score, 0.50), 0.05, 1)
     ) |>
     filter(year %in% CORE_YEARS)
@@ -869,24 +864,31 @@ run_profit_reconciliation_model <- function(in_dir = PROCESSED_DIR,
   stopifnot(nrow(evidence) > 0)
   stopifnot(all(evidence$rho_signal >= 0, na.rm = TRUE))
   stopifnot(all(evidence$rho_signal <= PROFIT_RECONCILIATION_UPPER_BOUND,
-                na.rm = TRUE))
+    na.rm = TRUE
+  ))
 
   prior_fit <- fit_prior_reconciliation_model(evidence, targets)
   predictions <- combine_parent_year_evidence(prior_fit$target_prior, evidence) |>
     left_join(
       targets |>
-        select(parent, year, parent_group, parent_is_large_upe,
-               parent_is_investment_hub, parent_is_conduit_haven,
-               parent_is_zero_tax_or_low_tax, domestic_profit_mass,
-               domestic_tax_mass, domestic_holding_share),
+        select(
+          parent, year, parent_group, parent_is_large_upe,
+          parent_is_investment_hub, parent_is_conduit_haven,
+          parent_is_zero_tax_or_low_tax, domestic_profit_mass,
+          domestic_tax_mass, domestic_holding_share
+        ),
       by = c("parent", "year")
     ) |>
     mutate(
-      rho_hat_pt = clamp_interval(rho_hat_pt, 0,
-                                  PROFIT_RECONCILIATION_UPPER_BOUND),
+      rho_hat_pt = clamp_interval(
+        rho_hat_pt, 0,
+        PROFIT_RECONCILIATION_UPPER_BOUND
+      ),
       rho_lo_pt = clamp_interval(rho_lo_pt, 0, rho_hat_pt),
-      rho_hi_pt = clamp_interval(rho_hi_pt, rho_hat_pt,
-                                  PROFIT_RECONCILIATION_UPPER_BOUND),
+      rho_hi_pt = clamp_interval(
+        rho_hi_pt, rho_hat_pt,
+        PROFIT_RECONCILIATION_UPPER_BOUND
+      ),
       main_source = recode(
         main_source,
         "observed_adjusted_profit_parent" = "observed_adjusted_profit",
@@ -960,42 +962,78 @@ run_profit_reconciliation_model <- function(in_dir = PROCESSED_DIR,
         weighted_mean_clean(gap_hybrid, domestic_profit)
     )
 
-  write_csv(anchors,
-            file.path(diag_dir, "step02a_profit_correction_anchors.csv"))
-  write_csv(evidence,
-            file.path(diag_dir, "step02a_profit_correction_evidence.csv"))
-  write_csv(evidence_summary,
-            file.path(diag_dir, "step02a_profit_correction_evidence_summary.csv"))
-  write_csv(predictions,
-            file.path(diag_dir, "step02a_profit_correction_parent_year.csv"))
-  write_csv(prediction_top20,
-            file.path(diag_dir, "step02a_profit_correction_parent_year_top20.csv"))
-  write_csv(holdout,
-            file.path(diag_dir, "step02a_profit_correction_validation_holdout.csv"))
-  write_csv(parity,
-            file.path(diag_dir, "step02a_profit_correction_etr_parity_cell.csv"))
-  write_csv(etr_balance,
-            file.path(diag_dir, "profit_correction_domestic_foreign_etr_balance.csv"))
-  write_csv(etr_balance_summary,
-            file.path(diag_dir, "step02a_profit_correction_etr_balance_summary.csv"))
-  write_csv(revenue_sensitivity$point_interval,
-            file.path(diag_dir, "step02a_profit_correction_revenue_sensitivity.csv"))
-  write_csv(revenue_sensitivity$draw_interval,
-            file.path(diag_dir,
-                      "step02a_profit_correction_revenue_draw_interval.csv"))
-  write_csv(revenue_sensitivity$draws,
-            file.path(diag_dir, "step02a_profit_correction_revenue_draws.csv"))
+  write_csv(
+    anchors,
+    file.path(diag_dir, "step02a_profit_correction_anchors.csv")
+  )
+  write_csv(
+    evidence,
+    file.path(diag_dir, "step02a_profit_correction_evidence.csv")
+  )
+  write_csv(
+    evidence_summary,
+    file.path(diag_dir, "step02a_profit_correction_evidence_summary.csv")
+  )
+  write_csv(
+    predictions,
+    file.path(diag_dir, "step02a_profit_correction_parent_year.csv")
+  )
+  write_csv(
+    prediction_top20,
+    file.path(diag_dir, "step02a_profit_correction_parent_year_top20.csv")
+  )
+  write_csv(
+    holdout,
+    file.path(diag_dir, "step02a_profit_correction_validation_holdout.csv")
+  )
+  write_csv(
+    parity,
+    file.path(diag_dir, "step02a_profit_correction_etr_parity_cell.csv")
+  )
+  write_csv(
+    etr_balance,
+    file.path(diag_dir, "profit_correction_domestic_foreign_etr_balance.csv")
+  )
+  write_csv(
+    etr_balance_summary,
+    file.path(diag_dir, "step02a_profit_correction_etr_balance_summary.csv")
+  )
+  write_csv(
+    revenue_sensitivity$point_interval,
+    file.path(diag_dir, "step02a_profit_correction_revenue_sensitivity.csv")
+  )
+  write_csv(
+    revenue_sensitivity$draw_interval,
+    file.path(
+      diag_dir,
+      "step02a_profit_correction_revenue_draw_interval.csv"
+    )
+  )
+  write_csv(
+    revenue_sensitivity$draws,
+    file.path(diag_dir, "step02a_profit_correction_revenue_draws.csv")
+  )
 
-  saveRDS(predictions,
-          file.path(out_dir, "profit_correction_parent_year.rds"))
-  saveRDS(evidence,
-          file.path(out_dir, "profit_correction_evidence.rds"))
-  saveRDS(adjusted$parent_year,
-          file.path(out_dir, "profit_correction_observed_adjusted_parent_year.rds"))
-  saveRDS(parity,
-          file.path(out_dir, "profit_correction_etr_parity_parent_year.rds"))
-  saveRDS(revenue_sensitivity$draws,
-          file.path(out_dir, "profit_correction_revenue_draws.rds"))
+  saveRDS(
+    predictions,
+    file.path(out_dir, "profit_correction_parent_year.rds")
+  )
+  saveRDS(
+    evidence,
+    file.path(out_dir, "profit_correction_evidence.rds")
+  )
+  saveRDS(
+    adjusted$parent_year,
+    file.path(out_dir, "profit_correction_observed_adjusted_parent_year.rds")
+  )
+  saveRDS(
+    parity,
+    file.path(out_dir, "profit_correction_etr_parity_parent_year.rds")
+  )
+  saveRDS(
+    revenue_sensitivity$draws,
+    file.path(out_dir, "profit_correction_revenue_draws.rds")
+  )
 
   invisible(list(
     predictions = predictions,

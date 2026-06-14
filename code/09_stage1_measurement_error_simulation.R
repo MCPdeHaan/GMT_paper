@@ -5,26 +5,26 @@
 # Stage 2 to Stage 4.6 revenue machinery. The calibration uses the 2021-2022
 # overlap where Table I percentile-fit estimates can be compared with direct
 # Table IV low-tax bracket observations.
-library(dplyr); library(tidyr); library(readr); library(purrr); library(tibble)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(purrr)
+library(tibble)
 
-source(if (file.exists("code/00_helpers.R")) {
-  "code/00_helpers.R"
-} else {
-  file.path("..", "..", "code/00_helpers.R")
-})
+source("code/00_helpers.R")
 
 source_pipeline_script("code/04_stage2_sbie.R")
 source_pipeline_script("code/05_stage3_behavioral.R")
 source_pipeline_script("code/06_stage4_5_revenue_allocation_sbs.R")
 source_pipeline_script("code/07_stage4_6_revenue_pipeline_decomposition.R")
 
-IN   <- "data/processed"
-OUT  <- IN
+IN <- "data/processed"
+OUT <- IN
 DIAG <- file.path(OUT, "diagnostics")
 dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
 
 MEASUREMENT_ERROR_DRAWS <- 500L
-MEASUREMENT_ERROR_SEED  <- 20260503L
+MEASUREMENT_ERROR_SEED <- 20260503L
 SIM_CONSERVATION_TOLERANCE <- 1
 
 measurement_low_mean_etr <- function(low_share, topup_rate,
@@ -94,19 +94,25 @@ calibrate_stage1_measurement_error <- function(crossval_affiliate_year,
       mean(calibration_sample$low_share_error_raw, na.rm = TRUE),
       stats::sd(calibration_sample$low_share_error_raw, na.rm = TRUE),
       stats::quantile(calibration_sample$low_share_error_raw, 0.05,
-                      na.rm = TRUE, names = FALSE),
+        na.rm = TRUE, names = FALSE
+      ),
       stats::quantile(calibration_sample$low_share_error_raw, 0.50,
-                      na.rm = TRUE, names = FALSE),
+        na.rm = TRUE, names = FALSE
+      ),
       stats::quantile(calibration_sample$low_share_error_raw, 0.95,
-                      na.rm = TRUE, names = FALSE),
+        na.rm = TRUE, names = FALSE
+      ),
       mean(calibration_sample$low_mean_etr_error_raw, na.rm = TRUE),
       stats::sd(calibration_sample$low_mean_etr_error_raw, na.rm = TRUE),
       stats::quantile(calibration_sample$low_mean_etr_error_raw, 0.05,
-                      na.rm = TRUE, names = FALSE),
+        na.rm = TRUE, names = FALSE
+      ),
       stats::quantile(calibration_sample$low_mean_etr_error_raw, 0.50,
-                      na.rm = TRUE, names = FALSE),
+        na.rm = TRUE, names = FALSE
+      ),
       stats::quantile(calibration_sample$low_mean_etr_error_raw, 0.95,
-                      na.rm = TRUE, names = FALSE)
+        na.rm = TRUE, names = FALSE
+      )
     )
   )
 
@@ -151,7 +157,8 @@ draw_stage1_measurement_error <- function(stage1_affiliate_year,
     mutate(
       low_share_error = sample(calibration$low_share_errors, n, replace = TRUE),
       low_mean_etr_error = sample(calibration$low_mean_etr_errors, n,
-                                  replace = TRUE),
+        replace = TRUE
+      ),
       draw_low_share = case_when(
         !stage1_positive_profit_flag | is.na(baseline_low_share) ~ NA_real_,
         TRUE ~ pmin(pmax(baseline_low_share + low_share_error, 0), 1)
@@ -160,7 +167,7 @@ draw_stage1_measurement_error <- function(stage1_affiliate_year,
         is.na(draw_low_share) | draw_low_share <= 0 ~ NA_real_,
         TRUE ~ pmin(
           pmax(coalesce(baseline_low_mean_etr, threshold) +
-                 low_mean_etr_error, 0),
+            low_mean_etr_error, 0),
           threshold
         )
       ),
@@ -177,6 +184,11 @@ draw_stage1_measurement_error <- function(stage1_affiliate_year,
       draw_low_share, draw_low_mean_etr,
       draw_topup_rate, draw_liability_rate
     )
+}
+
+stage1_draw_for_id <- function(stage1_draws, draw_id) {
+  stage1_draws |>
+    filter(.data$draw_id == .env$draw_id)
 }
 
 apply_stage1_measurement_draw <- function(stage1_affiliate_year,
@@ -218,7 +230,7 @@ recompute_stage2_distributional <- function(stage2_bilateral,
         stage1_distributional_low_share * analysis_profit_positive,
       stage1_topup_tax_distributional =
         stage1_lowtax_profit_distributional *
-        stage1_distributional_topup_rate,
+          stage1_distributional_topup_rate,
       stage2_sbie_shield_distributional =
         stage1_lowtax_profit_distributional * coalesce(stage2_phi, 0),
       stage2_excess_lowtax_profit_distributional =
@@ -226,8 +238,10 @@ recompute_stage2_distributional <- function(stage2_bilateral,
       stage2_topup_tax_distributional =
         coalesce(stage1_topup_tax_distributional, 0) * stage2_filter,
       stage2_effective_floor_distributional =
-        compute_effective_floor(stage1_distributional_topup_rate, stage2_phi,
-                                threshold)
+        compute_effective_floor(
+          stage1_distributional_topup_rate, stage2_phi,
+          threshold
+        )
     ) |>
     select(-draw_low_share, -draw_topup_rate, -draw_liability_rate)
 }
@@ -245,8 +259,10 @@ update_stage2_sectoral_distributional <- function(stage2_sectoral_matrix,
     left_join(draw_rates_2022, by = "affiliate") |>
     mutate(
       stage1_distributional_topup_rate =
-        coalesce(draw_distributional_topup_rate,
-                 stage1_distributional_topup_rate),
+        coalesce(
+          draw_distributional_topup_rate,
+          stage1_distributional_topup_rate
+        ),
       sectoral_floor_distributional = compute_effective_floor(
         stage1_distributional_topup_rate,
         sectoral_phi
@@ -277,14 +293,17 @@ update_behavioural_affiliate_year <- function(behavioural_affiliate_year,
       update_row = etr_measurement == "distributional" &
         !is.na(draw_low_share),
       stage1_low_share = if_else(update_row, draw_low_share,
-                                 stage1_low_share),
+        stage1_low_share
+      ),
       stage1_topup_rate = if_else(update_row, draw_topup_rate,
-                                  stage1_topup_rate),
+        stage1_topup_rate
+      ),
       tau_low = if_else(
         update_row,
         if_else(stage1_low_share > 0 & stage1_topup_rate > 0,
-                threshold - stage1_topup_rate,
-                NA_real_),
+          threshold - stage1_topup_rate,
+          NA_real_
+        ),
         tau_low
       ),
       beta_raw_unclamped = if_else(
@@ -324,8 +343,10 @@ update_behavioural_affiliate_year <- function(behavioural_affiliate_year,
       behavioural_liability_filter = regimes$behavioural_liability_filter,
       behavioural_regime = regimes$behavioural_regime
     ) |>
-    select(-draw_low_share, -draw_topup_rate, -update_row,
-           -beta_raw_unclamped)
+    select(
+      -draw_low_share, -draw_topup_rate, -update_row,
+      -beta_raw_unclamped
+    )
 }
 
 summarise_draw_interval <- function(draws, value_col, group_vars) {
@@ -335,16 +356,26 @@ summarise_draw_interval <- function(draws, value_col, group_vars) {
       draws = n(),
       mean = mean(.data[[value_col]], na.rm = TRUE),
       sd = stats::sd(.data[[value_col]], na.rm = TRUE),
-      p025 = stats::quantile(.data[[value_col]], 0.025, na.rm = TRUE,
-                             names = FALSE),
-      p05 = stats::quantile(.data[[value_col]], 0.05, na.rm = TRUE,
-                            names = FALSE),
-      p50 = stats::quantile(.data[[value_col]], 0.50, na.rm = TRUE,
-                            names = FALSE),
-      p95 = stats::quantile(.data[[value_col]], 0.95, na.rm = TRUE,
-                            names = FALSE),
-      p975 = stats::quantile(.data[[value_col]], 0.975, na.rm = TRUE,
-                             names = FALSE),
+      p025 = stats::quantile(.data[[value_col]], 0.025,
+        na.rm = TRUE,
+        names = FALSE
+      ),
+      p05 = stats::quantile(.data[[value_col]], 0.05,
+        na.rm = TRUE,
+        names = FALSE
+      ),
+      p50 = stats::quantile(.data[[value_col]], 0.50,
+        na.rm = TRUE,
+        names = FALSE
+      ),
+      p95 = stats::quantile(.data[[value_col]], 0.95,
+        na.rm = TRUE,
+        names = FALSE
+      ),
+      p975 = stats::quantile(.data[[value_col]], 0.975,
+        na.rm = TRUE,
+        names = FALSE
+      ),
       min = min(.data[[value_col]], na.rm = TRUE),
       max = max(.data[[value_col]], na.rm = TRUE),
       .groups = "drop"
@@ -360,7 +391,8 @@ build_simulation_conservation_diagnostics <- function(source_panel,
     summarise(
       pre_allocation_topup = sum(topup_after_behaviour, na.rm = TRUE),
       sbs_extinguished_topup = sum(stage4_sbs_extinguished_liability,
-                                   na.rm = TRUE),
+        na.rm = TRUE
+      ),
       zero_liability = sum(stage4_zero_liability, na.rm = TRUE),
       .groups = "drop"
     )
@@ -475,8 +507,9 @@ run_one_measurement_error_draw <- function(draw_id,
 }
 
 run_stage1_measurement_error_simulation <- function(
-    n_draws = MEASUREMENT_ERROR_DRAWS,
-    seed = MEASUREMENT_ERROR_SEED) {
+  n_draws = MEASUREMENT_ERROR_DRAWS,
+  seed = MEASUREMENT_ERROR_SEED
+) {
   stage1_affiliate_year <- readRDS(file.path(IN, "stage1_affiliate_year.rds"))
   stage2_bilateral <- readRDS(file.path(IN, "stage2_bilateral_panel.rds"))
   stage2_sectoral_matrix <- readRDS(file.path(IN, "stage2_sectoral_matrix.rds"))
@@ -511,8 +544,7 @@ run_stage1_measurement_error_simulation <- function(
       message(sprintf("Measurement-error draw %d of %d", draw_id, n_draws))
     }
 
-    stage1_draw <- stage1_draws |>
-      filter(.data$draw_id == draw_id)
+    stage1_draw <- stage1_draw_for_id(stage1_draws, draw_id)
 
     results[[draw_id]] <- run_one_measurement_error_draw(
       draw_id = draw_id,
@@ -545,12 +577,15 @@ run_stage1_measurement_error_simulation <- function(
       rate_scenario == "initial"
     ) |>
     select(all_of(SCENARIO_VARS), country, country_name, year,
-           baseline_revenue = revenue)
+      baseline_revenue = revenue
+    )
 
   baseline_preferred_summary <- baseline_preferred_country_year |>
     group_by(factor4_sbs, factor5_behaviour) |>
-    summarise(baseline_eu_revenue = sum(baseline_revenue, na.rm = TRUE),
-              .groups = "drop")
+    summarise(
+      baseline_eu_revenue = sum(baseline_revenue, na.rm = TRUE),
+      .groups = "drop"
+    )
 
   scenario_interval <- summarise_draw_interval(
     scenario_draws,
@@ -565,8 +600,10 @@ run_stage1_measurement_error_simulation <- function(
       p95_bn = p95 / 1e9,
       baseline_eu_revenue_bn = baseline_eu_revenue / 1e9,
       p90_width_bn = (p95 - p05) / 1e9,
-      p95_minus_p05_to_baseline = safe_divide(p95 - p05,
-                                              baseline_eu_revenue)
+      p95_minus_p05_to_baseline = safe_divide(
+        p95 - p05,
+        baseline_eu_revenue
+      )
     )
 
   preferred_interval <- summarise_draw_interval(
@@ -575,7 +612,8 @@ run_stage1_measurement_error_simulation <- function(
     c("factor4_sbs", "factor5_behaviour")
   ) |>
     left_join(baseline_preferred_summary,
-              by = c("factor4_sbs", "factor5_behaviour")) |>
+      by = c("factor4_sbs", "factor5_behaviour")
+    ) |>
     mutate(
       mean_bn = mean / 1e9,
       p05_bn = p05 / 1e9,
@@ -624,38 +662,64 @@ run_stage1_measurement_error_simulation <- function(
     ))
   )
 
-  write_csv(calibration$summary,
-            file.path(DIAG, "step9_stage1_measurement_error_calibration.csv"))
-  write_csv(summary,
-            file.path(DIAG, "step9_stage1_measurement_error_summary.csv"))
-  write_csv(draw_diagnostics,
-            file.path(DIAG, "step9_stage1_measurement_error_draw_diagnostics.csv"))
-  write_csv(scenario_draws,
-            file.path(DIAG, "step9_stage1_measurement_error_scenario_draws.csv"))
-  write_csv(scenario_interval,
-            file.path(DIAG, "step9_stage1_measurement_error_scenario_interval.csv"))
-  write_csv(preferred_interval,
-            file.path(DIAG, "step9_stage1_measurement_error_preferred_interval.csv"))
+  write_csv(
+    calibration$summary,
+    file.path(DIAG, "step9_stage1_measurement_error_calibration.csv")
+  )
+  write_csv(
+    summary,
+    file.path(DIAG, "step9_stage1_measurement_error_summary.csv")
+  )
+  write_csv(
+    draw_diagnostics,
+    file.path(DIAG, "step9_stage1_measurement_error_draw_diagnostics.csv")
+  )
+  write_csv(
+    scenario_draws,
+    file.path(DIAG, "step9_stage1_measurement_error_scenario_draws.csv")
+  )
+  write_csv(
+    scenario_interval,
+    file.path(DIAG, "step9_stage1_measurement_error_scenario_interval.csv")
+  )
+  write_csv(
+    preferred_interval,
+    file.path(DIAG, "step9_stage1_measurement_error_preferred_interval.csv")
+  )
   write_csv(
     preferred_country_year_interval,
-    file.path(DIAG,
-              "step9_stage1_measurement_error_preferred_country_year_interval.csv")
+    file.path(
+      DIAG,
+      "step9_stage1_measurement_error_preferred_country_year_interval.csv"
+    )
   )
 
-  saveRDS(calibration,
-          file.path(OUT, "stage1_measurement_error_calibration.rds"))
-  saveRDS(stage1_draws,
-          file.path(OUT, "stage1_measurement_error_stage1_draws.rds"))
-  saveRDS(scenario_draws,
-          file.path(OUT, "stage1_measurement_error_scenario_draws.rds"))
-  saveRDS(scenario_interval,
-          file.path(OUT, "stage1_measurement_error_scenario_interval.rds"))
-  saveRDS(preferred_interval,
-          file.path(OUT, "stage1_measurement_error_preferred_interval.rds"))
+  saveRDS(
+    calibration,
+    file.path(OUT, "stage1_measurement_error_calibration.rds")
+  )
+  saveRDS(
+    stage1_draws,
+    file.path(OUT, "stage1_measurement_error_stage1_draws.rds")
+  )
+  saveRDS(
+    scenario_draws,
+    file.path(OUT, "stage1_measurement_error_scenario_draws.rds")
+  )
+  saveRDS(
+    scenario_interval,
+    file.path(OUT, "stage1_measurement_error_scenario_interval.rds")
+  )
+  saveRDS(
+    preferred_interval,
+    file.path(OUT, "stage1_measurement_error_preferred_interval.rds")
+  )
   saveRDS(
     preferred_country_year_interval,
-    file.path(OUT,
-              "stage1_measurement_error_preferred_country_year_interval.rds")
+    file.path(
+      OUT,
+      "stage1_measurement_error_preferred_country_year_interval.rds"
+    )
   )
 
   message("\nStep 9 outputs written:")
@@ -675,7 +739,9 @@ run_stage1_measurement_error_simulation <- function(
 parse_int_arg <- function(flag, default) {
   args <- commandArgs(trailingOnly = TRUE)
   hit <- args[grepl(paste0("^", flag, "="), args)]
-  if (length(hit) == 0) return(default)
+  if (length(hit) == 0) {
+    return(default)
+  }
   as.integer(sub(paste0("^", flag, "="), "", hit[1]))
 }
 

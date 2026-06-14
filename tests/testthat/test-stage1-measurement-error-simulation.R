@@ -1,4 +1,5 @@
-source(file.path("..", "..", "code", "09_stage1_measurement_error_simulation.R"))
+setwd(normalizePath(file.path("..", ".."), mustWork = TRUE))
+source("code/09_stage1_measurement_error_simulation.R")
 
 library(testthat)
 library(tibble)
@@ -44,13 +45,30 @@ test_that("measurement-error draws stay inside economic support", {
   )
 
   expect_true(all(draws$draw_low_share >= 0 & draws$draw_low_share <= 1,
-                  na.rm = TRUE))
+    na.rm = TRUE
+  ))
   expect_true(all(draws$draw_topup_rate >= 0 & draws$draw_topup_rate <= GMT_RATE,
-                  na.rm = TRUE))
-  expect_true(all(draws$draw_low_mean_etr >= 0 &
-                    draws$draw_low_mean_etr <= GMT_RATE,
-                  na.rm = TRUE))
+    na.rm = TRUE
+  ))
+  expect_true(all(
+    draws$draw_low_mean_etr >= 0 &
+      draws$draw_low_mean_etr <= GMT_RATE,
+    na.rm = TRUE
+  ))
   expect_true(all(is.na(draws$draw_low_share[draws$affiliate == "CCC"])))
+})
+
+test_that("one measurement-error draw is selected by draw id", {
+  draws <- tibble(
+    draw_id = c(1L, 1L, 2L, 2L),
+    affiliate = c("AAA", "BBB", "AAA", "BBB"),
+    year = c(2020L, 2020L, 2020L, 2020L)
+  )
+
+  selected <- stage1_draw_for_id(draws, 2L)
+
+  expect_equal(nrow(selected), 2)
+  expect_true(all(selected$draw_id == 2L))
 })
 
 test_that("Stage 2 distributional tax is recomputed from drawn Stage 1 rates", {

@@ -1,80 +1,78 @@
 library(testthat)
 library(dplyr)
-library(readr)
 
-repo_root <- if (dir.exists(file.path("..", "..", "code"))) {
-  normalizePath(file.path("..", ".."), mustWork = TRUE)
-} else {
-  normalizePath(".", mustWork = TRUE)
-}
+setwd(normalizePath(file.path("..", ".."), mustWork = TRUE))
+repo_root <- getwd()
 
 repo_path <- function(...) file.path(repo_root, ...)
 
-source(repo_path("code", "00_helpers.R"))
+source_from_repo <- function(path) {
+  source(path)
+}
+
+source_from_repo("code/00_regression_checks.R")
 
 processed_path <- function(file) repo_path("data", "processed", file)
 
+baseline_path <- function(env_var, ...) {
+  value <- Sys.getenv(env_var)
+  if (nzchar(value)) value else repo_path(...)
+}
+
 expect_unique_key <- function(df, keys, label) {
   expect_true(all(keys %in% names(df)),
-              info = paste(label, "is missing expected key columns"))
+    info = paste(label, "is missing expected key columns")
+  )
   key_df <- df[, keys, drop = FALSE]
   expect_equal(nrow(unique(key_df)), nrow(df),
-               info = paste(label, "has duplicate key rows"))
+    info = paste(label, "has duplicate key rows")
+  )
 }
 
 expect_scenario_id_matches_factors <- function(df, label) {
   expected <- paste0("x", do.call(paste0, df[FACTOR_COLS]))
   expect_identical(df$scenario_id, expected,
-                   info = paste(label, "scenario_id does not match factors"))
+    info = paste(label, "scenario_id does not match factors")
+  )
 }
 
-compare_data_frames <- function(current, baseline, tolerance = 1e-10,
-                                label = "data frame") {
-  expect_identical(names(current), names(baseline), info = label)
-  expect_identical(nrow(current), nrow(baseline), info = label)
-
-  for (column in names(baseline)) {
-    current_col <- current[[column]]
-    baseline_col <- baseline[[column]]
-    column_label <- paste(label, column)
-
-    if (is.double(current_col) && is.double(baseline_col)) {
-      expect_equal(current_col, baseline_col, tolerance = tolerance,
-                   info = column_label)
-    } else {
-      expect_identical(current_col, baseline_col, info = column_label)
-    }
-  }
-}
-
-compare_objects <- function(current, baseline, tolerance = 1e-10,
-                            label = "object") {
-  if (is.data.frame(current) && is.data.frame(baseline)) {
-    compare_data_frames(current, baseline, tolerance = tolerance, label = label)
-  } else {
-    expect_equal(current, baseline, tolerance = tolerance, info = label)
-  }
+latex_labels <- function(path) {
+  lines <- readLines(path, warn = FALSE)
+  matches <- regmatches(lines, gregexpr("\\\\label\\{[^}]+\\}", lines))
+  unlist(matches, use.names = FALSE)
 }
 
 test_that("main analytical outputs have unique keys", {
-  expect_unique_key(readRDS(processed_path("base_panel.rds")),
-                    c("parent", "affiliate", "year"),
-                    "base panel")
-  expect_unique_key(readRDS(processed_path("stage1_affiliate_year.rds")),
-                    c("affiliate", "year"),
-                    "Stage 1 affiliate-year")
-  expect_unique_key(readRDS(processed_path("stage4_5_revenue_country_year.rds")),
-                    c(SCENARIO_VARS, "country", "year"),
-                    "Stage 4.5 country-year revenue")
-  expect_unique_key(readRDS(processed_path("stage4_5_revenue_by_channel.rds")),
-                    c(SCENARIO_VARS, "country", "year", "channel"),
-                    "Stage 4.5 channel revenue")
-  expect_unique_key(readRDS(processed_path("stage3_revenue_country_year.rds")),
-                    c(SCENARIO_VARS, "country", "year"),
-                    "Stage 3 country-year revenue")
-  expect_unique_key(readRDS(processed_path("stage3_revenue_by_channel.rds")),
-                    c(SCENARIO_VARS, "country", "year", "channel"),
-                    "Stage 3 channel revenue")
+  expect_unique_key(
+    readRDS(processed_path("base_panel.rds")),
+    c("parent", "affiliate", "year"),
+    "base panel"
+  )
+  expect_unique_key(
+    readRDS(processed_path("stage1_affiliate_year.rds")),
+    c("affiliate", "year"),
+    "Stage 1 affiliate-year"
+  )
+  expect_unique_key(
+    readRDS(processed_path("stage4_5_revenue_country_year.rds")),
+    c(SCENARIO_VARS, "country", "year"),
+    "Stage 4.5 country-year revenue"
+  )
+  expect_unique_key(
+    readRDS(processed_path("stage4_5_revenue_by_channel.rds")),
+    c(SCENARIO_VARS, "country", "year", "channel"),
+    "Stage 4.5 channel revenue"
+  )
+  expect_unique_key(
+    readRDS(processed_path("stage3_revenue_country_year.rds")),
+    c(SCENARIO_VARS, "country", "year"),
+    "Stage 3 country-year revenue"
+  )
+  expect_unique_key(
+    readRDS(processed_path("stage3_revenue_by_channel.rds")),
+    c(SCENARIO_VARS, "country", "year", "channel"),
+    "Stage 3 channel revenue"
+  )
 })
 
 test_that("allocation and country-year channel totals conserve revenue", {
@@ -89,19 +87,23 @@ test_that("allocation and country-year channel totals conserve revenue", {
 
     check <- country_year |>
       select(all_of(c(SCENARIO_VARS, "country", "year")), revenue) |>
-      left_join(channel,
-                by = c(SCENARIO_VARS, "country", "year")) |>
-      mutate(channel_revenue = coalesce(channel_revenue, 0),
-             gap = revenue - channel_revenue)
+      left_join(channel, by = c(SCENARIO_VARS, "country", "year")) |>
+      mutate(
+        channel_revenue = coalesce(channel_revenue, 0),
+        gap = revenue - channel_revenue
+      )
 
     expect_true(max(abs(check$gap), na.rm = TRUE) <= 1e-3,
-                info = paste(prefix, "country-year revenue"))
+      info = paste(prefix, "country-year revenue")
+    )
   }
 })
 
 test_that("final revenue matrices contain the complete 32-scenario EU27 design", {
-  for (file in c("stage4_5_revenue_country_year.rds",
-                 "stage3_revenue_country_year.rds")) {
+  for (file in c(
+    "stage4_5_revenue_country_year.rds",
+    "stage3_revenue_country_year.rds"
+  )) {
     revenue <- readRDS(processed_path(file))
     completeness <- revenue |>
       filter(country %in% EU27_ISO3, year %in% MAIN_YEARS) |>
@@ -109,7 +111,8 @@ test_that("final revenue matrices contain the complete 32-scenario EU27 design",
       summarise(scenarios = n_distinct(scenario_id), .groups = "drop")
 
     expect_true(nrow(completeness) == length(EU27_ISO3) * length(MAIN_YEARS),
-                info = file)
+      info = file
+    )
     expect_true(all(completeness$scenarios == 32L), info = file)
 
     design <- revenue |>
@@ -119,62 +122,58 @@ test_that("final revenue matrices contain the complete 32-scenario EU27 design",
   }
 })
 
-test_that("processed RDS outputs remain equivalent to the baseline", {
-  baseline_files <- list.files(repo_path("data", "baseline_processed"),
-                               pattern = "\\.rds$", full.names = FALSE)
-  expect_gt(length(baseline_files), 0)
+test_that("pipeline outputs match the golden master", {
+  differences <- compare_pipeline_outputs(
+    processed_dir = repo_path("data", "processed"),
+    generated_dir = repo_path("writing", "generated"),
+    baseline_processed_dir = baseline_path(
+      "GMT_BASELINE_PROCESSED_DIR",
+      "data",
+      "baseline_processed"
+    ),
+    baseline_diagnostics_dir = baseline_path(
+      "GMT_BASELINE_DIAGNOSTICS_DIR",
+      "data",
+      "baseline_diagnostics"
+    ),
+    baseline_generated_dir = baseline_path(
+      "GMT_BASELINE_GENERATED_DIR",
+      "writing",
+      "baseline_generated"
+    ),
+    tolerance = 1e-8
+  )
 
-  for (file in baseline_files) {
-    current_file <- repo_path("data", "processed", file)
-    baseline_file <- repo_path("data", "baseline_processed", file)
-    expect_true(file.exists(current_file), info = file)
-    compare_objects(readRDS(current_file), readRDS(baseline_file),
-                    tolerance = 1e-8, label = file)
-  }
+  expect_equal(
+    nrow(differences),
+    0L,
+    info = format_pipeline_differences(differences, n = 30L)
+  )
 })
-
-test_that("diagnostic CSV outputs remain equivalent to the baseline", {
-  baseline_files <- list.files(repo_path("data", "baseline_diagnostics"),
-                               pattern = "\\.csv$", full.names = FALSE)
-  expect_gt(length(baseline_files), 0)
-
-  for (file in baseline_files) {
-    current_file <- repo_path("data", "processed", "diagnostics", file)
-    baseline_file <- repo_path("data", "baseline_diagnostics", file)
-    expect_true(file.exists(current_file), info = file)
-    current <- read_csv(current_file, show_col_types = FALSE)
-    baseline <- read_csv(baseline_file, show_col_types = FALSE)
-    compare_data_frames(current, baseline, tolerance = 1e-10, label = file)
-  }
-})
-
-latex_labels <- function(path) {
-  lines <- readLines(path, warn = FALSE)
-  matches <- regmatches(lines, gregexpr("\\\\label\\{[^}]+\\}", lines))
-  unlist(matches, use.names = FALSE)
-}
 
 test_that("generated LaTeX tables remain present and well formed", {
-  baseline_files <- list.files(repo_path("writing", "baseline_generated"),
-                               pattern = "\\.tex$", recursive = TRUE,
-                               full.names = FALSE)
-  expect_gt(length(baseline_files), 0)
+  generated_files <- list.files(repo_path("writing", "generated"),
+    pattern = "\\.tex$", recursive = TRUE,
+    full.names = TRUE
+  )
+  expect_gt(length(generated_files), 0)
 
-  for (file in baseline_files) {
-    current_file <- repo_path("writing", "generated", file)
-    baseline_file <- repo_path("writing", "baseline_generated", file)
-    expect_true(file.exists(current_file), info = file)
-    expect_identical(latex_labels(current_file), latex_labels(baseline_file),
-                     info = file)
-
+  for (current_file in generated_files) {
+    rel_file <- substring(
+      current_file,
+      nchar(repo_path("writing", "generated")) + 2L
+    )
+    labels <- latex_labels(current_file)
+    expect_identical(labels, unique(labels), info = rel_file)
     table_text <- paste(readLines(current_file, warn = FALSE), collapse = "\n")
     expect_false(grepl("\\b(NA|NaN|Inf)\\b", table_text),
-                 info = file)
+      info = rel_file
+    )
   }
 })
 
 test_that("measurement-error draws are reproducible with a fixed seed", {
-  source(repo_path("code", "09_stage1_measurement_error_simulation.R"))
+  source_from_repo("code/09_stage1_measurement_error_simulation.R")
 
   toy_stage1 <- tibble::tibble(
     affiliate = c("AAA", "BBB"),
@@ -189,20 +188,26 @@ test_that("measurement-error draws are reproducible with a fixed seed", {
   )
 
   first <- draw_stage1_measurement_error(toy_stage1, toy_calibration,
-                                         n_draws = 5L, seed = 123L)
+    n_draws = 5L, seed = 123L
+  )
   second <- draw_stage1_measurement_error(toy_stage1, toy_calibration,
-                                          n_draws = 5L, seed = 123L)
+    n_draws = 5L, seed = 123L
+  )
   expect_identical(first, second)
 })
 
 test_that("country typology cluster stability is reproducible with a fixed seed", {
-  source(repo_path("code", "07_stage4_6_revenue_pipeline_decomposition.R"))
+  source_from_repo("code/07_stage4_6_revenue_pipeline_decomposition.R")
 
   scaled_matrix <- matrix(seq(-2.5, 2.5, length.out = 40), nrow = 10)
-  first <- build_cluster_stability(scaled_matrix, k_values = 2:3,
-                                   draws = 5L, seed = 987L)
-  second <- build_cluster_stability(scaled_matrix, k_values = 2:3,
-                                    draws = 5L, seed = 987L)
+  first <- build_cluster_stability(scaled_matrix,
+    k_values = 2:3,
+    draws = 5L, seed = 987L
+  )
+  second <- build_cluster_stability(scaled_matrix,
+    k_values = 2:3,
+    draws = 5L, seed = 987L
+  )
 
   expect_identical(first, second)
 })

@@ -1,5 +1,5 @@
-source(file.path("..", "..", "code",
-                 "07_stage4_6_revenue_pipeline_decomposition.R"))
+setwd(normalizePath(file.path("..", ".."), mustWork = TRUE))
+source("code/07_stage4_6_revenue_pipeline_decomposition.R")
 
 library(testthat)
 
@@ -18,8 +18,10 @@ toy_stage4_6_design <- function() {
       x3_rates = as.integer(rate_scenario == "long_run"),
       x4_sbs = as.integer(factor4_sbs == "sbs"),
       x5_behaviour = as.integer(factor5_behaviour == "behavioural"),
-      scenario_id = paste0("x", x1_etr, x2_substance, x3_rates, x4_sbs,
-                           x5_behaviour)
+      scenario_id = paste0(
+        "x", x1_etr, x2_substance, x3_rates, x4_sbs,
+        x5_behaviour
+      )
     )
 }
 
@@ -89,11 +91,15 @@ test_that("Stage 4.6 Shapley attribution allocates interactions exactly once", {
 test_that("country imputation exposure is weighted by row-level low-taxed profit", {
   stage1_toy <- tibble::tibble(
     affiliate = c("NLD", "NLD", "NLD", "USA"),
-    affiliate_jurisdiction_name = c("Netherlands", "Netherlands",
-                                    "Netherlands", "United States"),
+    affiliate_jurisdiction_name = c(
+      "Netherlands", "Netherlands",
+      "Netherlands", "United States"
+    ),
     year = c(2017L, 2019L, 2021L, 2021L),
-    stage1_distributional_source = c("shape_transport", "direct_t4",
-                                     "percentile_fit", "shape_transport"),
+    stage1_distributional_source = c(
+      "shape_transport", "direct_t4",
+      "percentile_fit", "shape_transport"
+    ),
     bspi_high_tv_flag = c(FALSE, FALSE, FALSE, FALSE),
     stage1_lowtax_profit_distributional = c(30, 70, 10, 100)
   )

@@ -4,18 +4,18 @@
 # Public CbCR currently observes the pre-reform ETR distribution. This script
 # therefore estimates exposure around the 15 per cent threshold and a placebo
 # bunching diagnostic. It does not identify realised post-SESH bunching.
-library(dplyr); library(tidyr); library(readr); library(purrr); library(tibble)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(purrr)
+library(tibble)
 
-source(if (file.exists("code/00_helpers.R")) {
-  "code/00_helpers.R"
-} else {
-  file.path("..", "..", "code/00_helpers.R")
-})
+source("code/00_helpers.R")
 
 source_pipeline_script("code/05_stage3_behavioral.R")
 
-IN   <- "data/processed"
-OUT  <- IN
+IN <- "data/processed"
+OUT <- IN
 DIAG <- file.path(OUT, "diagnostics")
 dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
 
@@ -86,7 +86,7 @@ fit_notch_counterfactual_density <- function(binned_density,
     filter(
       is.finite(observed_share),
       !(bin_midpoint >= threshold - excluded_bandwidth &
-          bin_midpoint < threshold + excluded_bandwidth)
+        bin_midpoint < threshold + excluded_bandwidth)
     )
 
   effective_order <- min(
@@ -114,7 +114,7 @@ fit_notch_counterfactual_density <- function(binned_density,
         NA_real_
       },
       estimation_bin = !(bin_midpoint >= threshold - excluded_bandwidth &
-                           bin_midpoint < threshold + excluded_bandwidth),
+        bin_midpoint < threshold + excluded_bandwidth),
       polynomial_order = effective_order,
       excluded_bandwidth = excluded_bandwidth
     )
@@ -125,8 +125,10 @@ summarise_notch_counterfactual <- function(fitted_density,
                                            bunching_bandwidth =
                                              SESH_BANDWIDTH_BASELINE) {
   dominated_region <- fitted_density |>
-    filter(bin_lower >= threshold - bunching_bandwidth,
-           bin_upper <= threshold)
+    filter(
+      bin_lower >= threshold - bunching_bandwidth,
+      bin_upper <= threshold
+    )
 
   threshold_bin <- fitted_density |>
     filter(bin_lower <= threshold, bin_upper > threshold)
@@ -185,8 +187,10 @@ prepare_notch_sample <- function(stage1_affiliate_year, sample_name) {
       total_analysis_profit_positive > 0
     ) |>
     mutate(sample = sample_name) |>
-    select(sample, affiliate, affiliate_name, affiliate_is_eu27, year,
-           avg_etr_stage1, total_analysis_profit_positive)
+    select(
+      sample, affiliate, affiliate_name, affiliate_is_eu27, year,
+      avg_etr_stage1, total_analysis_profit_positive
+    )
 }
 
 estimate_notch_sample <- function(notch_sample,
@@ -216,7 +220,8 @@ estimate_notch_sample <- function(notch_sample,
     mutate(
       affiliate_years = nrow(notch_sample),
       weighted_profit = sum(notch_sample$total_analysis_profit_positive,
-                            na.rm = TRUE),
+        na.rm = TRUE
+      ),
       bin_width = bin_width,
       polynomial_order = first(density$polynomial_order),
       excluded_bandwidth = excluded_bandwidth,
@@ -268,12 +273,18 @@ run_sesh_notch_bunching_diagnostic <- function() {
   summary <- imap_dfr(results, ~ mutate(.x$summary, sample = .y, .before = 1))
   assignments <- imap_dfr(results, ~ .x$assignments)
 
-  write_csv(density,
-            file.path(DIAG, "step11_sesh_notch_density_bins.csv"))
-  write_csv(summary,
-            file.path(DIAG, "step11_sesh_notch_summary.csv"))
-  write_csv(assignments,
-            file.path(DIAG, "step11_sesh_notch_assignment.csv"))
+  write_csv(
+    density,
+    file.path(DIAG, "step11_sesh_notch_density_bins.csv")
+  )
+  write_csv(
+    summary,
+    file.path(DIAG, "step11_sesh_notch_summary.csv")
+  )
+  write_csv(
+    assignments,
+    file.path(DIAG, "step11_sesh_notch_assignment.csv")
+  )
 
   saveRDS(density, file.path(OUT, "sesh_notch_density_bins.rds"))
   saveRDS(summary, file.path(OUT, "sesh_notch_summary.rds"))

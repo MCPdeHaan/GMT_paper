@@ -7,16 +7,15 @@
 # 2. a 2022 EU27 sectoral effective-floor matrix using CbCR levels, FATS
 #    foreign-control sector shares and EUKLEMS tangible-capital stock shares,
 #    with an SBTI-capacity overlay and a mechanical 2024-2033 transition path.
-library(dplyr); library(tidyr); library(readr); library(tibble)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(tibble)
 
-source(if (file.exists("code/00_helpers.R")) {
-  "code/00_helpers.R"
-} else {
-  file.path("..", "..", "code/00_helpers.R")
-})
+source("code/00_helpers.R")
 
-IN   <- "data/processed"
-OUT  <- IN
+IN <- "data/processed"
+OUT <- IN
 DIAG <- file.path(OUT, "diagnostics")
 dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
 
@@ -75,8 +74,10 @@ cluster_vcov_lm <- function(fit, cluster) {
   } else {
     factor(cluster[used_rows])
   }
-  bread <- solve_crossprod_checked(sqrt(weights) * x,
-                                   "Stage 2 clustered weighted regression")
+  bread <- solve_crossprod_checked(
+    sqrt(weights) * x,
+    "Stage 2 clustered weighted regression"
+  )
   scores <- x * as.numeric(residuals * weights)
   meat <- matrix(0, ncol(x), ncol(x))
 
@@ -174,7 +175,7 @@ build_transition_rates <- function(years = SECTORAL_TRANSITION_YEARS,
       rate_scenario = case_when(
         transition_year == min(transition_year) ~ "initial",
         transition_year == max(transition_year) ~ "long_run",
-        TRUE                                    ~ "transition"
+        TRUE ~ "transition"
       )
     )
 }
@@ -189,18 +190,26 @@ run_stage2_pipeline <- function() {
     file.path(IN, "base_panel_bea_us_parent_sector_benchmark.rds")
   )
 
-  assert_unique_keys(stage1_bilateral,
-                     c("parent", "affiliate", "year"),
-                     "stage1 bilateral input")
-  assert_unique_keys(stage1_affiliate_year,
-                     c("affiliate", "year"),
-                     "stage1 affiliate-year input")
-  assert_unique_keys(fats_sector_shares,
-                     c("affiliate", "year", "nace_r2"),
-                     "FATS sector shares input")
-  assert_unique_keys(bea_us_parent_sector_benchmark,
-                     c("measure", "year", "affiliate", "bea_sector_group"),
-                     "BEA US-parent sector benchmark input")
+  assert_unique_keys(
+    stage1_bilateral,
+    c("parent", "affiliate", "year"),
+    "stage1 bilateral input"
+  )
+  assert_unique_keys(
+    stage1_affiliate_year,
+    c("affiliate", "year"),
+    "stage1 affiliate-year input"
+  )
+  assert_unique_keys(
+    fats_sector_shares,
+    c("affiliate", "year", "nace_r2"),
+    "FATS sector shares input"
+  )
+  assert_unique_keys(
+    bea_us_parent_sector_benchmark,
+    c("measure", "year", "affiliate", "bea_sector_group"),
+    "BEA US-parent sector benchmark input"
+  )
 
   # Aggregate bilateral Stage 2 filter. Missing payroll enters as a conservative
   # zero contribution so that the panel remains complete for downstream work;
@@ -248,16 +257,20 @@ run_stage2_pipeline <- function() {
       stage2_effective_floor_distributional =
         compute_effective_floor(stage1_distributional_topup_rate, stage2_phi),
       stage2_effective_floor_distributional_strict =
-        compute_effective_floor(stage1_distributional_topup_rate_strict,
-                                stage2_phi)
+        compute_effective_floor(
+          stage1_distributional_topup_rate_strict,
+          stage2_phi
+        )
     )
 
-  assert_unique_keys(stage2_bilateral,
-                     c("rate_scenario", "parent", "affiliate", "year"),
-                     "stage2 bilateral")
+  assert_unique_keys(
+    stage2_bilateral,
+    c("rate_scenario", "parent", "affiliate", "year"),
+    "stage2 bilateral"
+  )
 
   if (any(stage2_bilateral$stage2_filter < 0, na.rm = TRUE) ||
-      any(stage2_bilateral$stage2_filter > 1, na.rm = TRUE)) {
+    any(stage2_bilateral$stage2_filter > 1, na.rm = TRUE)) {
     stop("Stage 2 filter leaves the [0, 1] interval")
   }
 
@@ -322,16 +335,19 @@ run_stage2_pipeline <- function() {
       rows_with_phi_cap = sum(stage2_phi_capped_flag, na.rm = TRUE),
       distributional_topup_in_payroll_fallback_rows = sum(
         if_else(stage2_payroll_zero_fallback_flag,
-                stage1_topup_tax_distributional,
-                0),
+          stage1_topup_tax_distributional,
+          0
+        ),
         na.rm = TRUE
       ),
       .groups = "drop"
     )
 
-  assert_unique_keys(stage2_affiliate_year,
-                     c("rate_scenario", "affiliate", "year"),
-                     "stage2 affiliate-year")
+  assert_unique_keys(
+    stage2_affiliate_year,
+    c("rate_scenario", "affiliate", "year"),
+    "stage2 affiliate-year"
+  )
 
   stage2_scenario_by_year <- bind_rows(
     stage2_bilateral |>
@@ -383,8 +399,9 @@ run_stage2_pipeline <- function() {
       ),
       distributional_topup_in_payroll_fallback_rows = sum(
         if_else(stage2_payroll_zero_fallback_flag,
-                stage1_topup_tax_distributional,
-                0),
+          stage1_topup_tax_distributional,
+          0
+        ),
         na.rm = TRUE
       ),
       .groups = "drop"
@@ -402,20 +419,23 @@ run_stage2_pipeline <- function() {
       ),
       positive_profit_in_fallback_rows = sum(
         if_else(stage2_payroll_zero_fallback_flag,
-                analysis_profit_positive,
-                0),
+          analysis_profit_positive,
+          0
+        ),
         na.rm = TRUE
       ),
       stage1_distributional_topup_in_fallback_rows = sum(
         if_else(stage2_payroll_zero_fallback_flag,
-                stage1_topup_tax_distributional,
-                0),
+          stage1_topup_tax_distributional,
+          0
+        ),
         na.rm = TRUE
       ),
       fallback_share_of_stage1_distributional_topup = safe_divide(
         sum(if_else(stage2_payroll_zero_fallback_flag,
-                    stage1_topup_tax_distributional,
-                    0), na.rm = TRUE),
+          stage1_topup_tax_distributional,
+          0
+        ), na.rm = TRUE),
         sum(stage1_topup_tax_distributional, na.rm = TRUE)
       ),
       .groups = "drop"
@@ -445,8 +465,8 @@ run_stage2_pipeline <- function() {
     )
 
   if (max(abs(sectoral_weights_check$payroll_share_sum - 1), na.rm = TRUE) > 1e-8 ||
-      max(abs(sectoral_weights_check$asset_share_sum - 1), na.rm = TRUE) > 1e-8 ||
-      max(abs(sectoral_weights_check$profit_share_sum - 1), na.rm = TRUE) > 1e-8) {
+    max(abs(sectoral_weights_check$asset_share_sum - 1), na.rm = TRUE) > 1e-8 ||
+    max(abs(sectoral_weights_check$profit_share_sum - 1), na.rm = TRUE) > 1e-8) {
     stop("Sectoral Stage 2 weights do not sum to one")
   }
 
@@ -479,9 +499,11 @@ run_stage2_pipeline <- function() {
       by = "affiliate"
     )
 
-  assert_unique_keys(sectoral_reference_base,
-                     c("affiliate"),
-                     "sectoral reference base")
+  assert_unique_keys(
+    sectoral_reference_base,
+    c("affiliate"),
+    "sectoral reference base"
+  )
 
   transition_rates <- build_transition_rates()
 
@@ -549,16 +571,19 @@ run_stage2_pipeline <- function() {
         sectoral_floor_distributional_sbti - sectoral_floor_distributional,
       sectoral_delta_floor_distributional_strict =
         sectoral_floor_distributional_strict_sbti -
-        sectoral_floor_distributional_strict
+          sectoral_floor_distributional_strict
     )
 
-  assert_unique_keys(stage2_sectoral_matrix,
-                     c("affiliate", "transition_year", "nace_r2"),
-                     "stage2 sectoral matrix")
+  assert_unique_keys(
+    stage2_sectoral_matrix,
+    c("affiliate", "transition_year", "nace_r2"),
+    "stage2 sectoral matrix"
+  )
 
   if (any(stage2_sectoral_matrix$sectoral_floor_distributional < 0, na.rm = TRUE) ||
-      any(stage2_sectoral_matrix$sectoral_floor_distributional > GMT_RATE,
-          na.rm = TRUE)) {
+    any(stage2_sectoral_matrix$sectoral_floor_distributional > GMT_RATE,
+      na.rm = TRUE
+    )) {
     stop("Sectoral Stage 2 floor leaves [0, GMT_RATE]")
   }
 
@@ -624,8 +649,10 @@ run_stage2_pipeline <- function() {
     arrange(affiliate)
 
   stage2_sectoral_country_summary <- stage2_sectoral_matrix |>
-    filter(transition_year %in% c(min(SECTORAL_TRANSITION_YEARS),
-                                  max(SECTORAL_TRANSITION_YEARS))) |>
+    filter(transition_year %in% c(
+      min(SECTORAL_TRANSITION_YEARS),
+      max(SECTORAL_TRANSITION_YEARS)
+    )) |>
     group_by(affiliate, affiliate_name, transition_year, rate_scenario) |>
     summarise(
       sectors = n(),
@@ -666,8 +693,10 @@ run_stage2_pipeline <- function() {
   stage2_irl_nld_comparison <- stage2_sectoral_matrix |>
     filter(
       affiliate %in% c("IRL", "NLD"),
-      transition_year %in% c(min(SECTORAL_TRANSITION_YEARS),
-                             max(SECTORAL_TRANSITION_YEARS))
+      transition_year %in% c(
+        min(SECTORAL_TRANSITION_YEARS),
+        max(SECTORAL_TRANSITION_YEARS)
+      )
     ) |>
     group_by(affiliate, affiliate_name, transition_year, rate_scenario) |>
     arrange(sectoral_floor_average, .by_group = TRUE) |>
@@ -747,12 +776,14 @@ run_stage2_pipeline <- function() {
   bea_fats_broad_sector_validation <- bea_us_parent_sector_benchmark |>
     filter(
       affiliate %in% EU27_ISO3,
-      measure %in% c("employment", "compensation",
-                     "ppe_expenditures", "total_assets"),
+      measure %in% c(
+        "employment", "compensation",
+        "ppe_expenditures", "total_assets"
+      ),
       (measure %in% c("employment", "total_assets") &
-         year == SECTORAL_REFERENCE_YEAR) |
+        year == SECTORAL_REFERENCE_YEAR) |
         (measure %in% c("compensation", "ppe_expenditures") &
-           year == SECTORAL_REFERENCE_YEAR + 1L),
+          year == SECTORAL_REFERENCE_YEAR + 1L),
       !is.na(nace_r2)
     ) |>
     transmute(
@@ -767,15 +798,16 @@ run_stage2_pipeline <- function() {
       bea_share_denominator
     ) |>
     left_join(fats_broad_sector_reference,
-              by = c("affiliate", "nace_broad")) |>
+      by = c("affiliate", "nace_broad")
+    ) |>
     mutate(
       fats_reference_year = SECTORAL_REFERENCE_YEAR,
       fats_comparator_share = case_when(
-        measure == "employment"       ~ fats_employee_share,
-        measure == "compensation"     ~ fats_payroll_share,
+        measure == "employment" ~ fats_employee_share,
+        measure == "compensation" ~ fats_payroll_share,
         measure == "ppe_expenditures" ~ fats_investment_share,
-        measure == "total_assets"     ~ fats_asset_share,
-        TRUE                          ~ NA_real_
+        measure == "total_assets" ~ fats_asset_share,
+        TRUE ~ NA_real_
       ),
       share_gap = bea_sector_share - fats_comparator_share,
       abs_share_gap = abs(share_gap),
@@ -806,7 +838,8 @@ run_stage2_pipeline <- function() {
         bea_sector_share
       ),
       share_correlation = safe_cor(bea_sector_share, fats_comparator_share,
-                                   min_pairs = 2L),
+        min_pairs = 2L
+      ),
       mean_bea_top_level_coverage_ratio = weighted_mean_available(
         bea_top_level_coverage_ratio,
         bea_share_denominator
@@ -958,48 +991,74 @@ run_stage2_pipeline <- function() {
       stage2_sectoral_h5_regression_clustered$p_value[
         stage2_sectoral_h5_regression_clustered$model_variant == "unweighted" &
           stage2_sectoral_h5_regression_clustered$term ==
-          "sectoral_capital_intensity"
+            "sectoral_capital_intensity"
       ][1],
       stage2_sectoral_h5_regression_clustered$p_value[
         stage2_sectoral_h5_regression_clustered$model_variant ==
           "profit_weighted" &
           stage2_sectoral_h5_regression_clustered$term ==
-          "sectoral_capital_intensity"
+            "sectoral_capital_intensity"
       ][1],
       stage2_sectoral_h5_regression$r_squared[1]
     )
   )
 
   write_csv(stage2_summary, file.path(DIAG, "step4_stage2_summary.csv"))
-  write_csv(stage2_scenario_by_year,
-            file.path(DIAG, "step4_stage2_scenario_by_year.csv"))
-  write_csv(stage2_payroll_fallback_by_year,
-            file.path(DIAG, "step4_stage2_payroll_fallback_by_year.csv"))
-  write_csv(sectoral_weights_check,
-            file.path(DIAG, "step4_stage2_sectoral_weights_check.csv"))
-  write_csv(sectoral_bridge_source_summary,
-            file.path(DIAG, "step4_stage2_sectoral_bridge_source_summary.csv"))
-  write_csv(sectoral_bridge_country_quality,
-            file.path(DIAG, "step4_stage2_sectoral_bridge_country_quality.csv"))
-  write_csv(stage2_sectoral_country_summary,
-            file.path(DIAG, "step4_stage2_sectoral_country_summary.csv"))
-  write_csv(stage2_sectoral_h5_regression,
-            file.path(DIAG, "step4_stage2_sectoral_h5_regression.csv"))
-  write_csv(stage2_sectoral_h5_regression_clustered,
-            file.path(DIAG,
-                      "step4_stage2_sectoral_h5_regression_clustered.csv"))
-  write_csv(stage2_sectoral_h5_model_tests,
-            file.path(DIAG, "step4_stage2_sectoral_h5_model_tests.csv"))
-  write_csv(stage2_sectoral_asset_sensitivity,
-            file.path(DIAG, "step4_stage2_sectoral_asset_sensitivity.csv"))
-  write_csv(bea_fats_broad_sector_validation,
-            file.path(DIAG, "step4_stage2_bea_fats_broad_sector_validation.csv"))
+  write_csv(
+    stage2_scenario_by_year,
+    file.path(DIAG, "step4_stage2_scenario_by_year.csv")
+  )
+  write_csv(
+    stage2_payroll_fallback_by_year,
+    file.path(DIAG, "step4_stage2_payroll_fallback_by_year.csv")
+  )
+  write_csv(
+    sectoral_weights_check,
+    file.path(DIAG, "step4_stage2_sectoral_weights_check.csv")
+  )
+  write_csv(
+    sectoral_bridge_source_summary,
+    file.path(DIAG, "step4_stage2_sectoral_bridge_source_summary.csv")
+  )
+  write_csv(
+    sectoral_bridge_country_quality,
+    file.path(DIAG, "step4_stage2_sectoral_bridge_country_quality.csv")
+  )
+  write_csv(
+    stage2_sectoral_country_summary,
+    file.path(DIAG, "step4_stage2_sectoral_country_summary.csv")
+  )
+  write_csv(
+    stage2_sectoral_h5_regression,
+    file.path(DIAG, "step4_stage2_sectoral_h5_regression.csv")
+  )
+  write_csv(
+    stage2_sectoral_h5_regression_clustered,
+    file.path(
+      DIAG,
+      "step4_stage2_sectoral_h5_regression_clustered.csv"
+    )
+  )
+  write_csv(
+    stage2_sectoral_h5_model_tests,
+    file.path(DIAG, "step4_stage2_sectoral_h5_model_tests.csv")
+  )
+  write_csv(
+    stage2_sectoral_asset_sensitivity,
+    file.path(DIAG, "step4_stage2_sectoral_asset_sensitivity.csv")
+  )
+  write_csv(
+    bea_fats_broad_sector_validation,
+    file.path(DIAG, "step4_stage2_bea_fats_broad_sector_validation.csv")
+  )
   write_csv(
     bea_fats_broad_sector_validation_summary,
     file.path(DIAG, "step4_stage2_bea_fats_broad_sector_validation_summary.csv")
   )
-  write_csv(stage2_irl_nld_comparison,
-            file.path(DIAG, "step4_stage2_irl_nld_comparison.csv"))
+  write_csv(
+    stage2_irl_nld_comparison,
+    file.path(DIAG, "step4_stage2_irl_nld_comparison.csv")
+  )
 
   saveRDS(stage2_bilateral, file.path(OUT, "stage2_bilateral_panel.rds"))
   saveRDS(stage2_affiliate_year, file.path(OUT, "stage2_affiliate_year.rds"))

@@ -27,7 +27,7 @@ Total & 16,915 & 58 & 228 & 17.9 & 4.5 & 2,438 & 9,572 \\
 
 \vspace{0.5em}
 \begin{minipage}{0.93\textwidth}
-\footnotesize \textit{Notes:} The merged panel keeps country-like affiliate jurisdictions only; regional aggregates, \code{W}, \code{W\_O}, \code{WXD}, and \code{STLS} are excluded. ``Any percentile set'' equals one when either the full Panel A-I percentile set or the panel-agnostic \code{\_T} fall-back is available in Table I. ``Table IV below-15 observed'' equals one when the bilateral cell has a direct \code{RATE\_0-15} observation in Table IV. ``Stage 1 hybrid-ready'' requires positive corrected profit, non-missing SBIE inputs, a non-missing Panel A-I ETR, and at least one Stage 1 low-tax source, either a percentile set or Table IV. ``Behavioural-ready'' is the broader Hines--Rice sample with positive corrected profit, non-missing Panel A-I ETR, and non-missing SBIE inputs. Fiscal year 2016 is retained for coverage diagnostics only and does not enter either estimation sample. Source: author's calculations based on \texttt{data/processed/base\_panel.rds}.
+\footnotesize \textit{Notes:} The merged panel keeps country-like affiliate jurisdictions only; regional aggregates, \code{W}, \code{W\_O}, \code{WXD}, and \code{STLS} are excluded. ``Any percentile set'' equals one when either the full Panel A-I percentile set or the panel-agnostic \code{\_T} fall-back is available in Table I. ``Table IV below-15 observed'' equals one when the bilateral cell has a direct \code{RATE\_0-15} observation in Table IV. ``Stage 1 hybrid-ready'' requires positive corrected profit, non-missing SBIE inputs, a non-missing Panel A-I ETR, and at least one Stage 1 low-tax source, either a percentile set or Table IV. ``Behavioural-ready'' is the broader Hines--Rice sample with positive corrected profit, non-missing Panel A-I ETR, and non-missing SBIE inputs. Fiscal year 2016 is retained for coverage diagnostics only and does not enter either estimation sample.
 \end{minipage}
 \end{table}
 
@@ -55,7 +55,7 @@ Holding share, Panel A-I (per cent) & 7,798 & 9.372 & 21.315 & 0.000 & 4.370 & 1
 
 \vspace{0.5em}
 \begin{minipage}{0.93\textwidth}
-\footnotesize \textit{Notes:} The behavioural estimation sample consists of the 2017--2022 pair-year cells with positive baseline-corrected profit, a non-missing Panel A-I ETR, a non-missing wage-based payroll proxy, and non-missing SBIE tangible assets. The reported payroll variable is not an observed CbCR item. It is constructed as screened employee counts times the affiliate-jurisdiction annual wage benchmark. The statutory CIT variable uses the combined top-all rate where available and falls back to the standard statutory rate otherwise. All statistics are unweighted across pair-year cells. Monetary variables are expressed in USD billions, GDP per capita in USD thousands, population in millions, and employment in thousands of persons. Source: author's calculations based on \texttt{data/processed/base\_panel.rds}.
+\footnotesize \textit{Notes:} The behavioural estimation sample consists of the 2017--2022 pair-year cells with positive baseline-corrected profit, a non-missing Panel A-I ETR, a non-missing wage-based payroll proxy, and non-missing SBIE tangible assets. The reported payroll variable is not an observed CbCR item. It is constructed as screened employee counts times the affiliate-jurisdiction annual wage benchmark. The statutory CIT variable uses the combined top-all rate where available and falls back to the standard statutory rate otherwise. All statistics are unweighted across pair-year cells. Monetary variables are expressed in USD billions, GDP per capita in USD thousands, population in millions, and employment in thousands of persons.
 \end{minipage}
 \end{table}
 
@@ -72,8 +72,8 @@ Total pair-year cells & 16,915 & 100.0 \\
 Domestic cells & 318 & 1.9 \\
 EU-27 affiliate cells & 3,903 & 23.1 \\
 Observed \code{PROFIT\_ADJ} cells & 36 & 0.2 \\
-Domestic Hugger correction & 308 & 1.8 \\
-Conduit or haven overlay & 1,436 & 8.5 \\
+Modelled domestic UPE correction & 308 & 1.8 \\
+Rows left unchanged by preferred profit reconciliation & 16,571 & 98.0 \\
 Employee counts capped by plausibility rule & 9 & 0.1 \\
 Wage benchmark more than 5 years away & 612 & 3.6 \\
 Wage-based payroll proxy available & 14,610 & 86.4 \\
@@ -91,6 +91,6 @@ Behavioural estimation sample & 9,572 & 56.6 \\
 
 \vspace{0.5em}
 \begin{minipage}{0.93\textwidth}
-\footnotesize \textit{Notes:} Shares are calculated relative to the full merged panel. ``Domestic Hugger correction'' identifies cells where the baseline profit correction applies the domestic UPE adjustment rather than observed \code{PROFIT\_ADJ}. ``Conduit or haven overlay'' identifies non-US foreign cells that receive the 10 per cent conduit overlay in the baseline correction. The employee-cap row identifies cells where reported CbCR employee counts exceeded a conservative plausibility cap based on the number of constituent entities and the host-jurisdiction population. ``Wage benchmark more than 5 years away'' flags cells where the nearest available jurisdiction wage observation is temporally distant and should therefore be treated as a sensitivity issue rather than as a cleaning failure. The payroll rows refer to the wage-based proxy used in Step 2, not to observed CbCR \code{EARNINGS}. The Stage 1 rows count pair-year cells in the bilateral base panel; the affiliate-year coverage used in the actual Stage 1 aggregation is reported separately in the Step 2 diagnostics. Source: author's calculations based on \texttt{data/processed/base\_panel.rds}.
+\footnotesize \textit{Notes:} Shares are calculated relative to the full merged panel. ``Modelled domestic UPE correction'' identifies domestic cells where the preferred profit correction uses the parent-year reconciliation model rather than observed \code{PROFIT\_ADJ}. Rows left unchanged are foreign affiliate cells, plus cells where no preferred reconciliation adjustment is applied. The employee-cap row identifies cells where reported CbCR employee counts exceeded a conservative plausibility cap based on the number of constituent entities and the host-jurisdiction population. ``Wage benchmark more than 5 years away'' flags cells where the nearest available jurisdiction wage observation is temporally distant and should therefore be treated as a sensitivity issue rather than as a cleaning failure. The payroll rows refer to the wage-based proxy used in Step 2, not to observed CbCR \code{EARNINGS}. The Stage 1 rows count pair-year cells in the bilateral base panel; the affiliate-year coverage used in the actual Stage 1 aggregation is reported separately in the Step 2 diagnostics.
 \end{minipage}
 \end{table}

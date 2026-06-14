@@ -5,23 +5,7 @@ library(dplyr)
 library(readr)
 library(tibble)
 
-source(if (file.exists("code/00_helpers.R")) {
-  "code/00_helpers.R"
-} else {
-  file.path("..", "..", "code/00_helpers.R")
-})
-
-weighted_mean_clean <- function(x, w) {
-  keep <- is.finite(x) & is.finite(w) & w > 0
-  if (!any(keep)) return(NA_real_)
-  weighted.mean(x[keep], w[keep])
-}
-
-weighted_rate <- function(amount, weight) {
-  keep <- is.finite(amount) & is.finite(weight) & weight > 0
-  if (!any(keep)) return(NA_real_)
-  sum(amount[keep], na.rm = TRUE) / sum(weight[keep], na.rm = TRUE)
-}
+source("code/00_helpers.R")
 
 run_profit_correction_validation <- function(in_dir = PROCESSED_DIR,
                                              out_dir = PROCESSED_DIR) {
@@ -115,7 +99,7 @@ run_profit_correction_validation <- function(in_dir = PROCESSED_DIR,
       domestic_profit = sum(domestic_profit, na.rm = TRUE),
       implied_reduction = sum(implied_reduction, na.rm = TRUE),
       profit_weighted_correction_rate =
-        weighted_rate(implied_reduction, domestic_profit),
+        weighted_rate_clean(implied_reduction, domestic_profit),
       median_correction_rate = median(implied_correction_rate, na.rm = TRUE),
       p25_correction_rate =
         as.numeric(quantile(implied_correction_rate, 0.25, na.rm = TRUE)),
@@ -130,15 +114,19 @@ run_profit_correction_validation <- function(in_dir = PROCESSED_DIR,
       years = n_distinct(year),
       domestic_profit = sum(domestic_profit, na.rm = TRUE),
       implied_reduction = sum(implied_reduction, na.rm = TRUE),
-      public_proxy_rate = weighted_rate(implied_reduction, domestic_profit),
+      public_proxy_rate = weighted_rate_clean(implied_reduction, domestic_profit),
       median_country_year_rate =
         median(implied_correction_rate, na.rm = TRUE),
       aggregate_domestic_etr =
-        safe_divide(sum(domestic_tax, na.rm = TRUE),
-                    sum(domestic_profit, na.rm = TRUE)),
+        safe_divide(
+          sum(domestic_tax, na.rm = TRUE),
+          sum(domestic_profit, na.rm = TRUE)
+        ),
       aggregate_foreign_etr =
-        safe_divide(sum(foreign_tax, na.rm = TRUE),
-                    sum(foreign_profit, na.rm = TRUE)),
+        safe_divide(
+          sum(foreign_tax, na.rm = TRUE),
+          sum(foreign_profit, na.rm = TRUE)
+        ),
       minimum_foreign_parent_support = min(foreign_parents, na.rm = TRUE),
       .groups = "drop"
     ) |>
@@ -170,7 +158,8 @@ run_profit_correction_validation <- function(in_dir = PROCESSED_DIR,
 
   benchmark_comparison <- benchmark_exposed |>
     left_join(etr_parity_by_parent,
-              by = c("parent", "parent_jurisdiction_name")) |>
+      by = c("parent", "parent_jurisdiction_name")
+    ) |>
     mutate(
       public_proxy_gap = public_proxy_rate - benchmark_rate,
       public_proxy_available = !is.na(public_proxy_rate)
@@ -234,31 +223,51 @@ run_profit_correction_validation <- function(in_dir = PROCESSED_DIR,
   stopifnot(nrow(observed_by_parent) > 0)
   stopifnot(nrow(etr_parity_by_parent) > 0)
   stopifnot(all(validation_summary$implied_rate >= 0 |
-                  is.na(validation_summary$implied_rate)))
+    is.na(validation_summary$implied_rate)))
   stopifnot(all(validation_summary$implied_rate <= 1 |
-                  is.na(validation_summary$implied_rate)))
+    is.na(validation_summary$implied_rate)))
 
-  write_csv(observed_by_parent,
-            file.path(diag_dir, "step12_profit_correction_observed_adjusted.csv"))
-  write_csv(etr_parity,
-            file.path(diag_dir, "step12_profit_correction_etr_parity_cell.csv"))
-  write_csv(etr_parity_summary,
-            file.path(diag_dir, "step12_profit_correction_etr_parity_summary.csv"))
-  write_csv(etr_parity_by_parent,
-            file.path(diag_dir, "step12_profit_correction_etr_parity_by_parent.csv"))
-  write_csv(benchmark_comparison,
-            file.path(diag_dir, "step12_profit_correction_benchmark_comparison.csv"))
-  write_csv(validation_summary,
-            file.path(diag_dir, "step12_profit_correction_validation_summary.csv"))
+  write_csv(
+    observed_by_parent,
+    file.path(diag_dir, "step12_profit_correction_observed_adjusted.csv")
+  )
+  write_csv(
+    etr_parity,
+    file.path(diag_dir, "step12_profit_correction_etr_parity_cell.csv")
+  )
+  write_csv(
+    etr_parity_summary,
+    file.path(diag_dir, "step12_profit_correction_etr_parity_summary.csv")
+  )
+  write_csv(
+    etr_parity_by_parent,
+    file.path(diag_dir, "step12_profit_correction_etr_parity_by_parent.csv")
+  )
+  write_csv(
+    benchmark_comparison,
+    file.path(diag_dir, "step12_profit_correction_benchmark_comparison.csv")
+  )
+  write_csv(
+    validation_summary,
+    file.path(diag_dir, "step12_profit_correction_validation_summary.csv")
+  )
 
-  saveRDS(observed_by_parent,
-          file.path(out_dir, "profit_correction_observed_adjusted.rds"))
-  saveRDS(etr_parity_by_parent,
-          file.path(out_dir, "profit_correction_etr_parity_by_parent.rds"))
-  saveRDS(benchmark_comparison,
-          file.path(out_dir, "profit_correction_benchmark_comparison.rds"))
-  saveRDS(validation_summary,
-          file.path(out_dir, "profit_correction_validation_summary.rds"))
+  saveRDS(
+    observed_by_parent,
+    file.path(out_dir, "profit_correction_observed_adjusted.rds")
+  )
+  saveRDS(
+    etr_parity_by_parent,
+    file.path(out_dir, "profit_correction_etr_parity_by_parent.rds")
+  )
+  saveRDS(
+    benchmark_comparison,
+    file.path(out_dir, "profit_correction_benchmark_comparison.rds")
+  )
+  saveRDS(
+    validation_summary,
+    file.path(out_dir, "profit_correction_validation_summary.rds")
+  )
 
   invisible(list(
     observed_by_parent = observed_by_parent,

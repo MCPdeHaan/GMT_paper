@@ -1,4 +1,5 @@
-source(file.path("..", "..", "code", "03_stage1_etr.R"))
+setwd(normalizePath(file.path("..", ".."), mustWork = TRUE))
+source("code/03_stage1_etr.R")
 
 library(testthat)
 
@@ -27,7 +28,8 @@ test_that("beta integrals recover the hand-worked uniform example", {
   expect_equal(beta_mass_below(1, 1, 0.15), 0.15, tolerance = 1e-10)
   expect_equal(beta_avg_topup_rate(1, 1, 0.15), 0.075, tolerance = 1e-10)
   expect_equal(unname(shares), c(0.15, 0.05, 0.10, 0.70),
-               tolerance = 1e-10)
+    tolerance = 1e-10
+  )
   expect_equal(sum(shares), 1, tolerance = 1e-10)
 })
 
@@ -52,8 +54,10 @@ test_that("beta boundary cases behave as degenerate distributions", {
 })
 
 test_that("direct rule handles zero-low-share partitions", {
-  metrics <- direct_rule_metrics(low_profit = 0, low_tax = 0,
-                                 positive_profit_total = 100)
+  metrics <- direct_rule_metrics(
+    low_profit = 0, low_tax = 0,
+    positive_profit_total = 100
+  )
 
   expect_equal(unname(metrics["low_share"]), 0)
   expect_equal(unname(metrics["low_mean_etr"]), 0)

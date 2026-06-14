@@ -121,4 +121,4 @@ This repository estimates Global Minimum Tax revenue using public OECD CbCR data
 </tbody>
 </table>
 
-Before refactoring or auditing output equivalence, run `Rscript dev/create_baseline_outputs.R` once. The regression tests compare `data/processed`, `data/processed/diagnostics` and `writing/generated` against `data/baseline_processed`, `data/baseline_diagnostics` and `writing/baseline_generated`.
+Before refactoring or auditing output equivalence, run `Rscript code/00_regression_checks.R snapshot --overwrite` once. The regression tests compare `data/processed`, `data/processed/diagnostics` and `writing/generated` against `data/baseline_processed`, `data/baseline_diagnostics` and `writing/baseline_generated`. For an isolated refactor baseline, set `GMT_BASELINE_PROCESSED_DIR`, `GMT_BASELINE_DIAGNOSTICS_DIR` and `GMT_BASELINE_GENERATED_DIR` before running `Rscript tests/testthat.R`.

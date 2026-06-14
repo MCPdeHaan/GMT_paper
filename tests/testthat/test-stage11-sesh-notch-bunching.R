@@ -1,4 +1,5 @@
-source(file.path("..", "..", "code", "11_sesh_notch_bunching_diagnostic.R"))
+setwd(normalizePath(file.path("..", ".."), mustWork = TRUE))
+source("code/11_sesh_notch_bunching_diagnostic.R")
 
 library(testthat)
 library(tibble)

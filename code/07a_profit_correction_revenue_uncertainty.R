@@ -12,31 +12,16 @@ library(tidyr)
 library(readr)
 library(tibble)
 
-source(if (file.exists("code/00_helpers.R")) {
-  "code/00_helpers.R"
-} else {
-  file.path("..", "..", "code/00_helpers.R")
-})
+source("code/00_helpers.R")
 
 IN <- "data/processed"
 OUT <- IN
 DIAG <- file.path(OUT, "diagnostics")
 
-PROFIT_RECONCILIATION_UPPER_BOUND <- 0.85
-EPS_RHO <- 1e-5
 FOREIGN_HOLDING_CHAIN_AFFILIATES <- c(
   "NLD", "LUX", "IRL", "CHE", "SGP", "HKG", "BMU", "CYM"
 )
 FOREIGN_HOLDING_CHAIN_RATE <- 0.10
-
-clamp_interval <- function(x, lower, upper) {
-  pmin(pmax(x, lower), upper)
-}
-
-inverse_bounded_logit <- function(x,
-                                  upper_bound = PROFIT_RECONCILIATION_UPPER_BOUND) {
-  upper_bound * plogis(x)
-}
 
 compute_draw_phi <- function(sbie, profit) {
   clamp_interval(safe_divide(sbie, profit), 0, 1)
@@ -130,14 +115,14 @@ add_foreign_holding_chain_flags <- function(source_panel) {
         safe_divide(analysis_profit_base, employees_panelai),
       foreign_holding_chain_correction_flag =
         !is_domestic &
-        affiliate %in% FOREIGN_HOLDING_CHAIN_AFFILIATES &
-        coalesce(analysis_profit_base, 0) > 0 &
-        coalesce(holding_share_panelai, 0) >= 0.30 &
-        coalesce(related_party_revenue_share, 0) >= 0.50 &
-        (
-          coalesce(profit_per_employee_reconciliation, 0) >= 1e6 |
-          coalesce(profit_to_assets_reconciliation, 0) >= 1
-        ),
+          affiliate %in% FOREIGN_HOLDING_CHAIN_AFFILIATES &
+          coalesce(analysis_profit_base, 0) > 0 &
+          coalesce(holding_share_panelai, 0) >= 0.30 &
+          coalesce(related_party_revenue_share, 0) >= 0.50 &
+          (
+            coalesce(profit_per_employee_reconciliation, 0) >= 1e6 |
+              coalesce(profit_to_assets_reconciliation, 0) >= 1
+          ),
       profit_foreign_holding_chain_sensitivity = if_else(
         foreign_holding_chain_correction_flag,
         analysis_profit_base * (1 - FOREIGN_HOLDING_CHAIN_RATE),
@@ -181,8 +166,8 @@ compute_preferred_revenue_from_profit <- function(source_panel, profit_value,
       ),
       eu27_revenue_draw =
         if_else(affiliate_is_eu27, qdmtt_liability_draw, 0) +
-        if_else(parent_is_eu27, iir_liability_draw, 0) +
-        utpr_pool_draw * eu27_utpr_share
+          if_else(parent_is_eu27, iir_liability_draw, 0) +
+          utpr_pool_draw * eu27_utpr_share
     ) |>
     group_by(factor4_sbs) |>
     summarise(
@@ -191,11 +176,13 @@ compute_preferred_revenue_from_profit <- function(source_panel, profit_value,
       positive_profit = sum(profit_draw, na.rm = TRUE),
       global_allocated_revenue =
         sum(qdmtt_liability_draw + iir_liability_draw + utpr_pool_draw,
-            na.rm = TRUE),
+          na.rm = TRUE
+        ),
       eu27_final_revenue = sum(eu27_revenue_draw, na.rm = TRUE),
       eu27_qdmtt_revenue =
         sum(if_else(affiliate_is_eu27, qdmtt_liability_draw, 0),
-            na.rm = TRUE),
+          na.rm = TRUE
+        ),
       eu27_iir_revenue =
         sum(if_else(parent_is_eu27, iir_liability_draw, 0), na.rm = TRUE),
       eu27_utpr_revenue = sum(utpr_pool_draw * eu27_utpr_share, na.rm = TRUE),
@@ -252,7 +239,8 @@ build_foreign_holding_chain_summary <- function(source_panel) {
         n_distinct(affiliate[foreign_holding_chain_correction_flag]),
       flagged_profit =
         sum(analysis_profit_base[foreign_holding_chain_correction_flag],
-            na.rm = TRUE),
+          na.rm = TRUE
+        ),
       profit_reduction = sum(flagged_profit_reduction, na.rm = TRUE),
       mean_holding_share = weighted_mean_available(
         holding_share_panelai[foreign_holding_chain_correction_flag],
@@ -365,17 +353,21 @@ run_profit_correction_revenue_uncertainty <- function(in_dir = IN,
   )
 
   saveRDS(
-    list(points = point_sensitivity,
-         foreign_holding_chain = holding_chain_summary,
-         draws = draw_sensitivity,
-         interval = draw_interval),
+    list(
+      points = point_sensitivity,
+      foreign_holding_chain = holding_chain_summary,
+      draws = draw_sensitivity,
+      interval = draw_interval
+    ),
     file.path(out_dir, "profit_correction_final_revenue_uncertainty.rds")
   )
 
-  invisible(list(points = point_sensitivity,
-                 foreign_holding_chain = holding_chain_summary,
-                 draws = draw_sensitivity,
-                 interval = draw_interval))
+  invisible(list(
+    points = point_sensitivity,
+    foreign_holding_chain = holding_chain_summary,
+    draws = draw_sensitivity,
+    interval = draw_interval
+  ))
 }
 
 if (is_direct_script_run("code/07a_profit_correction_revenue_uncertainty.R")) {

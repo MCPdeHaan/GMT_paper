@@ -1,4 +1,5 @@
-source(file.path("..", "..", "code", "05_stage3_behavioral.R"))
+setwd(normalizePath(file.path("..", ".."), mustWork = TRUE))
+source("code/05_stage3_behavioral.R")
 
 library(testthat)
 
@@ -44,8 +45,10 @@ test_that("lower-tail ETR bands and tail-balance weights are transparent", {
   tau <- c(0.02, 0.05, 0.10, 0.16, NA_real_)
   expect_equal(
     classify_etr_tail_band(tau),
-    c("below_5pct", "five_to_15pct", "five_to_15pct",
-      "at_or_above_15pct", "missing")
+    c(
+      "below_5pct", "five_to_15pct", "five_to_15pct",
+      "at_or_above_15pct", "missing"
+    )
   )
 
   tail <- c(TRUE, FALSE, FALSE, FALSE)
@@ -53,7 +56,8 @@ test_that("lower-tail ETR bands and tail-balance weights are transparent", {
 
   expect_equal(mean(weights), 1, tolerance = 1e-12)
   expect_equal(weighted.mean(as.numeric(tail), weights), 0.50,
-               tolerance = 1e-12)
+    tolerance = 1e-12
+  )
   expect_equal(weights[tail], 2)
   expect_equal(unique(weights[!tail]), 2 / 3)
 })
@@ -133,8 +137,10 @@ test_that("OECD simulated fixed-project EATR is selected and scaled", {
     measure = c("EATR", "EATR", "EMTR", "EATR", "EATR"),
     asset_type = c("BASELINE", "BASELINE", "BASELINE", "IBTI", "BASELINE"),
     etr_scenario = c("FIXED", "FIXED", "FIXED", "FIXED", "CS"),
-    tax_type = c("COMPOSITE", "COMPOSITE", "COMPOSITE", "COMPOSITE",
-                 "COMPOSITE"),
+    tax_type = c(
+      "COMPOSITE", "COMPOSITE", "COMPOSITE", "COMPOSITE",
+      "COMPOSITE"
+    ),
     regime = c("_Z", "_Z", "_Z", "_N", "_Z"),
     value = c(25, 26, 30, 10, 40)
   )
@@ -332,8 +338,10 @@ test_that("factorial effects recover a single active main effect", {
     x5_behaviour = c(0L, 1L)
   ) |>
     mutate(
-      scenario_id = paste0("x", x1_etr, x2_substance, x3_rates, x4_sbs,
-                           x5_behaviour),
+      scenario_id = paste0(
+        "x", x1_etr, x2_substance, x3_rates, x4_sbs,
+        x5_behaviour
+      ),
       revenue = 10 + 5 * x1_etr
     )
 

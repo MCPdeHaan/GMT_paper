@@ -5,16 +5,17 @@
 # Hines-Rice profit-shifting semi-elasticities, maps them into behavioural
 # filters, allocates post-behaviour top-up tax through the QDMTT/IIR/UTPR
 # waterfall, and builds the 2^5 revenue scenario matrix.
-library(dplyr); library(tidyr); library(readr); library(purrr); library(tibble); library(stringr)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(purrr)
+library(tibble)
+library(stringr)
 
-source(if (file.exists("code/00_helpers.R")) {
-  "code/00_helpers.R"
-} else {
-  file.path("..", "..", "code/00_helpers.R")
-})
+source("code/00_helpers.R")
 
-IN   <- "data/processed"
-OUT  <- IN
+IN <- "data/processed"
+OUT <- IN
 DIAG <- file.path(OUT, "diagnostics")
 dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
 
@@ -34,10 +35,6 @@ STRATEGIC_MAX_REALLOCATION_SHARE <- BEHAVIOURAL_MAX_REALLOCATION_SHARE
 DIAGNOSTIC_CHANNEL_PRIOR_TP_IP <- 0.82
 DIAGNOSTIC_CHANNEL_PRIOR_DEBT <- 0.18
 DIAGNOSTIC_CHANNEL_PRIOR_SUBSTANCE <- 0
-
-normalise_tax_rate_unit <- function(x) {
-  if_else(!is.na(x) & abs(x) > 1, x / 100, x)
-}
 
 winsorise <- function(x, probs = ETR_WINSOR_PROBS) {
   bounds <- stats::quantile(x, probs, na.rm = TRUE, names = FALSE)
@@ -62,9 +59,9 @@ classify_etr_tail_band <- function(tau,
                                    threshold = GMT_RATE) {
   case_when(
     is.na(tau) | !is.finite(tau) ~ "missing",
-    tau < cutoff                 ~ "below_5pct",
-    tau < threshold              ~ "five_to_15pct",
-    TRUE                         ~ "at_or_above_15pct"
+    tau < cutoff ~ "below_5pct",
+    tau < threshold ~ "five_to_15pct",
+    TRUE ~ "at_or_above_15pct"
   )
 }
 
@@ -79,7 +76,9 @@ tail_balance_weights <- function(tail_indicator,
   valid <- !is.na(tail_indicator)
   weights <- rep(NA_real_, length(tail_indicator))
 
-  if (!any(valid)) return(weights)
+  if (!any(valid)) {
+    return(weights)
+  }
 
   observed_tail_share <- mean(tail_indicator[valid])
   if (observed_tail_share <= 0 || observed_tail_share >= 1) {
@@ -137,9 +136,10 @@ summarise_stage3_etr_tail_support <- function(estimation_sample,
 }
 
 summarise_stage3_tail_reweighting_feasibility <- function(
-    estimation_sample,
-    cutoff = LOW_ETR_TAIL_CUTOFF,
-    target_tail_share = TAIL_REWEIGHT_TARGET_SHARE) {
+  estimation_sample,
+  cutoff = LOW_ETR_TAIL_CUTOFF,
+  target_tail_share = TAIL_REWEIGHT_TARGET_SHARE
+) {
   base <- estimation_sample |>
     filter(is.finite(tau)) |>
     mutate(tail_flag = tau < cutoff)
@@ -514,15 +514,21 @@ build_fixest_equivalence_diagnostic <- function(manual_fit,
 fit_fe_2sls <- function(data, y_col, endogenous_col, instrument_col,
                         exog_cols, model_spec, t0 = NA_real_) {
   model_data <- data |>
-    select(pair_id, parent, year, affiliate, all_of(y_col),
-           all_of(endogenous_col), all_of(instrument_col),
-           all_of(exog_cols)) |>
-    filter(if_all(c(all_of(y_col), all_of(endogenous_col),
-                    all_of(instrument_col), all_of(exog_cols)), is.finite))
+    select(
+      pair_id, parent, year, affiliate, all_of(y_col),
+      all_of(endogenous_col), all_of(instrument_col),
+      all_of(exog_cols)
+    ) |>
+    filter(if_all(c(
+      all_of(y_col), all_of(endogenous_col),
+      all_of(instrument_col), all_of(exog_cols)
+    ), is.finite))
 
   mat <- model_data |>
-    select(all_of(y_col), all_of(endogenous_col),
-           all_of(instrument_col), all_of(exog_cols)) |>
+    select(
+      all_of(y_col), all_of(endogenous_col),
+      all_of(instrument_col), all_of(exog_cols)
+    ) |>
     as.matrix()
 
   mat_resid <- demean_two_way(mat, model_data$pair_id, model_data$year)
@@ -739,8 +745,10 @@ prepare_estimation_sample <- function(base_panel,
 
 estimate_stage3_models <- function(estimation_sample) {
   x_linear <- c("log_assets", "log_payroll", "tau", "log_gdp_pc", "log_population")
-  x_quadratic <- c("log_assets", "log_payroll", "tau", "tau_sq",
-                   "log_gdp_pc", "log_population")
+  x_quadratic <- c(
+    "log_assets", "log_payroll", "tau", "tau_sq",
+    "log_gdp_pc", "log_population"
+  )
 
   linear_fit <- fit_fe_ols(estimation_sample, x_linear, "linear")
   quadratic_fit <- fit_fe_ols(estimation_sample, x_quadratic, "quadratic")
@@ -756,8 +764,10 @@ estimate_stage3_models <- function(estimation_sample) {
 
     fit_fe_ols(
       grid_sample,
-      c("log_assets", "log_payroll", "tau", "log_tau",
-        "log_gdp_pc", "log_population"),
+      c(
+        "log_assets", "log_payroll", "tau", "log_tau",
+        "log_gdp_pc", "log_population"
+      ),
       "logarithmic",
       t0 = t0,
       compute_vcov = FALSE
@@ -776,8 +786,10 @@ estimate_stage3_models <- function(estimation_sample) {
   log_fit <- estimation_sample |>
     mutate(log_tau = log(best_t0 + tau)) |>
     fit_fe_ols(
-      x_cols = c("log_assets", "log_payroll", "tau", "log_tau",
-                 "log_gdp_pc", "log_population"),
+      x_cols = c(
+        "log_assets", "log_payroll", "tau", "log_tau",
+        "log_gdp_pc", "log_population"
+      ),
       model_spec = "logarithmic",
       t0 = best_t0
     )
@@ -880,39 +892,50 @@ wald_test_terms <- function(fit, terms, test_label,
 
 stage3_model_wald_tests <- function(model_fits) {
   bind_rows(
-    wald_test_terms(model_fits$linear, "tau",
-                    "cluster_wald_tax_terms"),
+    wald_test_terms(
+      model_fits$linear, "tau",
+      "cluster_wald_tax_terms"
+    ),
     wald_test_terms(
       model_fits$linear,
       "tau",
       "cluster_wald_tax_terms",
       inference = "parent_affiliate_clustered",
       vcov = model_fits$linear$vcov_two_way,
-      df_den = max(min(model_fits$linear$n_parents,
-                       model_fits$linear$n_affiliates) - 1, 1)
+      df_den = max(min(
+        model_fits$linear$n_parents,
+        model_fits$linear$n_affiliates
+      ) - 1, 1)
     ),
-    wald_test_terms(model_fits$quadratic, c("tau", "tau_sq"),
-                    "cluster_wald_tax_terms"),
+    wald_test_terms(
+      model_fits$quadratic, c("tau", "tau_sq"),
+      "cluster_wald_tax_terms"
+    ),
     wald_test_terms(
       model_fits$quadratic,
       c("tau", "tau_sq"),
       "cluster_wald_tax_terms",
       inference = "parent_affiliate_clustered",
       vcov = model_fits$quadratic$vcov_two_way,
-      df_den = max(min(model_fits$quadratic$n_parents,
-                       model_fits$quadratic$n_affiliates) - 1, 1)
+      df_den = max(min(
+        model_fits$quadratic$n_parents,
+        model_fits$quadratic$n_affiliates
+      ) - 1, 1)
     ),
-    wald_test_terms(model_fits$logarithmic, c("tau", "log_tau"),
-                    "cluster_wald_tax_terms")
-    ,
+    wald_test_terms(
+      model_fits$logarithmic, c("tau", "log_tau"),
+      "cluster_wald_tax_terms"
+    ),
     wald_test_terms(
       model_fits$logarithmic,
       c("tau", "log_tau"),
       "cluster_wald_tax_terms",
       inference = "parent_affiliate_clustered",
       vcov = model_fits$logarithmic$vcov_two_way,
-      df_den = max(min(model_fits$logarithmic$n_parents,
-                       model_fits$logarithmic$n_affiliates) - 1, 1)
+      df_den = max(min(
+        model_fits$logarithmic$n_parents,
+        model_fits$logarithmic$n_affiliates
+      ) - 1, 1)
     )
   )
 }
@@ -1097,8 +1120,10 @@ semielasticity_schedule_one <- function(fit, tau_grid,
     variance <- as.numeric(t(gradient) %*% v %*% gradient)
     std_error <- sqrt(if_else(variance >= 0, variance, NA_real_))
     statistic <- estimate / std_error
-    p_value <- 2 * stats::pt(abs(statistic), df = df_inference,
-                             lower.tail = FALSE)
+    p_value <- 2 * stats::pt(abs(statistic),
+      df = df_inference,
+      lower.tail = FALSE
+    )
 
     beta3 <- fit$coefficients["tau"]
     beta4 <- case_when(
@@ -1137,25 +1162,27 @@ semielasticity_schedule_one <- function(fit, tau_grid,
 
 stage3_semielasticity_schedule <- function(model_fits,
                                            tau_grid = c(0.05, 0.10, 0.15, 0.30)) {
-  bind_rows(lapply(model_fits[c("linear", "quadratic", "logarithmic")],
-                   function(fit) {
-    bind_rows(
-      semielasticity_schedule_one(
-        fit,
-        tau_grid,
-        inference = "affiliate_clustered",
-        vcov = fit$vcov,
-        df_inference = max(fit$n_affiliates - 1, 1)
-      ),
-      semielasticity_schedule_one(
-        fit,
-        tau_grid,
-        inference = "parent_affiliate_clustered",
-        vcov = fit$vcov_two_way,
-        df_inference = max(min(fit$n_parents, fit$n_affiliates) - 1, 1)
+  bind_rows(lapply(
+    model_fits[c("linear", "quadratic", "logarithmic")],
+    function(fit) {
+      bind_rows(
+        semielasticity_schedule_one(
+          fit,
+          tau_grid,
+          inference = "affiliate_clustered",
+          vcov = fit$vcov,
+          df_inference = max(fit$n_affiliates - 1, 1)
+        ),
+        semielasticity_schedule_one(
+          fit,
+          tau_grid,
+          inference = "parent_affiliate_clustered",
+          vcov = fit$vcov_two_way,
+          df_inference = max(min(fit$n_parents, fit$n_affiliates) - 1, 1)
+        )
       )
-    )
-  }))
+    }
+  ))
 }
 
 build_model_diagnostics <- function(model_fits, sample_name) {
@@ -1166,16 +1193,18 @@ build_model_diagnostics <- function(model_fits, sample_name) {
       wald |>
         filter(inference == "affiliate_clustered") |>
         select(model_spec,
-               tax_terms_joint_f = f_statistic,
-               tax_terms_joint_p_value = p_value),
+          tax_terms_joint_f = f_statistic,
+          tax_terms_joint_p_value = p_value
+        ),
       by = "model_spec"
     ) |>
     left_join(
       wald |>
         filter(inference == "parent_affiliate_clustered") |>
         select(model_spec,
-               tax_terms_joint_f_two_way = f_statistic,
-               tax_terms_joint_p_value_two_way = p_value),
+          tax_terms_joint_f_two_way = f_statistic,
+          tax_terms_joint_p_value_two_way = p_value
+        ),
       by = "model_spec"
     ) |>
     mutate(sample = sample_name, .before = model_spec)
@@ -1206,7 +1235,7 @@ vuong_test <- function(fit_a, fit_b, label_a, label_b) {
     interpretation = case_when(
       statistic > 0 ~ paste(label_a, "favoured"),
       statistic < 0 ~ paste(label_b, "favoured"),
-      TRUE          ~ "tie"
+      TRUE ~ "tie"
     )
   )
 }
@@ -1235,8 +1264,9 @@ clarke_test <- function(fit_a, fit_b, label_a, label_b) {
     p_value = p_value,
     mean_loglik_diff = mean(diff),
     interpretation = if_else(wins_a > n / 2,
-                             paste(label_a, "favoured"),
-                             paste(label_b, "favoured"))
+      paste(label_a, "favoured"),
+      paste(label_b, "favoured")
+    )
   )
 }
 
@@ -1266,22 +1296,30 @@ j_test <- function(data, current_x_cols, alternative_fit,
 
 run_specification_tests <- function(estimation_sample, model_fits) {
   bind_rows(
-    vuong_test(model_fits$logarithmic, model_fits$quadratic,
-               "logarithmic", "quadratic"),
-    clarke_test(model_fits$logarithmic, model_fits$quadratic,
-                "logarithmic", "quadratic"),
+    vuong_test(
+      model_fits$logarithmic, model_fits$quadratic,
+      "logarithmic", "quadratic"
+    ),
+    clarke_test(
+      model_fits$logarithmic, model_fits$quadratic,
+      "logarithmic", "quadratic"
+    ),
     j_test(
       estimation_sample |> mutate(log_tau = log(model_fits$logarithmic$t0 + tau)),
-      c("log_assets", "log_payroll", "tau", "tau_sq",
-        "log_gdp_pc", "log_population"),
+      c(
+        "log_assets", "log_payroll", "tau", "tau_sq",
+        "log_gdp_pc", "log_population"
+      ),
       model_fits$logarithmic,
       "quadratic",
       "logarithmic"
     ),
     j_test(
       estimation_sample |> mutate(log_tau = log(model_fits$logarithmic$t0 + tau)),
-      c("log_assets", "log_payroll", "tau", "log_tau",
-        "log_gdp_pc", "log_population"),
+      c(
+        "log_assets", "log_payroll", "tau", "log_tau",
+        "log_gdp_pc", "log_population"
+      ),
       model_fits$quadratic,
       "logarithmic",
       "quadratic"
@@ -1324,14 +1362,14 @@ apply_behavioural_regime <- function(tau_low, beta_raw,
   tibble(
     beta_applied = beta_applied,
     behavioural_liability_filter = case_when(
-      in_band    ~ 0,
+      in_band ~ 0,
       below_band ~ 1 - beta_applied,
-      TRUE       ~ 1
+      TRUE ~ 1
     ),
     behavioural_regime = case_when(
-      in_band    ~ "sesh_bunching_topup_zero",
+      in_band ~ "sesh_bunching_topup_zero",
       below_band ~ "semi_elasticity_reallocation",
-      TRUE       ~ "no_low_tax_response"
+      TRUE ~ "no_low_tax_response"
     )
   )
 }
@@ -1375,8 +1413,10 @@ build_behavioural_affiliate_year <- function(stage1_affiliate_year,
       stage1_distributional_topup_rate_strict
     ) |>
     pivot_longer(
-      cols = c(average_low_share, stage1_distributional_low_share,
-               stage1_distributional_low_share_strict),
+      cols = c(
+        average_low_share, stage1_distributional_low_share,
+        stage1_distributional_low_share_strict
+      ),
       names_to = "low_share_measure",
       values_to = "stage1_low_share"
     ) |>
@@ -1392,9 +1432,11 @@ build_behavioural_affiliate_year <- function(stage1_affiliate_year,
         TRUE ~ stage1_distributional_topup_rate_strict
       )
     ) |>
-    select(-low_share_measure, -average_topup_rate,
-           -stage1_distributional_topup_rate,
-           -stage1_distributional_topup_rate_strict) |>
+    select(
+      -low_share_measure, -average_topup_rate,
+      -stage1_distributional_topup_rate,
+      -stage1_distributional_topup_rate_strict
+    ) |>
     tidyr::crossing(tax_coefficients, tibble(eta = SESH_BANDWIDTH_SENSITIVITY)) |>
     mutate(
       tau_low = if_else(
@@ -1481,8 +1523,8 @@ build_policy_tracker_diagnostics <- function(oecd_central_record) {
 }
 
 build_sectoral_factor2_bridge <- function(stage2_bilateral,
-                                           stage1_affiliate_year,
-                                           stage2_sectoral_matrix) {
+                                          stage1_affiliate_year,
+                                          stage2_sectoral_matrix) {
   stage2_country_2022 <- stage2_bilateral |>
     filter(year == 2022, affiliate_is_eu27, analysis_profit_positive > 0) |>
     group_by(rate_scenario, affiliate) |>
@@ -1519,15 +1561,19 @@ build_sectoral_factor2_bridge <- function(stage2_bilateral,
         ),
       sectoral_tax_per_profit_distributional =
         first(distributional_low_share) *
-        weighted_mean_available(
-          pmax(first(stage1_distributional_topup_rate) *
-                 (1 - sectoral_phi) - sectoral_kappa, 0),
-          sectoral_profit_proxy
-        ),
-      weighted_sectoral_phi = weighted_mean_available(sectoral_phi,
-                                                      sectoral_profit_proxy),
-      weighted_sectoral_kappa = weighted_mean_available(sectoral_kappa,
-                                                        sectoral_profit_proxy),
+          weighted_mean_available(
+            pmax(first(stage1_distributional_topup_rate) *
+              (1 - sectoral_phi) - sectoral_kappa, 0),
+            sectoral_profit_proxy
+          ),
+      weighted_sectoral_phi = weighted_mean_available(
+        sectoral_phi,
+        sectoral_profit_proxy
+      ),
+      weighted_sectoral_kappa = weighted_mean_available(
+        sectoral_kappa,
+        sectoral_profit_proxy
+      ),
       .groups = "drop"
     )
 
@@ -1548,7 +1594,8 @@ build_sectoral_factor2_bridge <- function(stage2_bilateral,
         1
       ),
       sectoral_scale_average = if_else(is.na(sectoral_scale_average), 1,
-                                       pmax(sectoral_scale_average, 0)),
+        pmax(sectoral_scale_average, 0)
+      ),
       sectoral_scale_distributional = if_else(
         is.na(sectoral_scale_distributional),
         1,
@@ -1620,9 +1667,9 @@ add_behavioural_response <- function(scenario_panel) {
         ),
       strategic_response_eligible =
         factor5_behaviour == "behavioural" &
-        static_behavioural_regime == "semi_elasticity_reallocation" &
-        topup_after_stage2 > 0 &
-        coalesce(stage2_excess_lowtax_profit_selected, 0) > 0,
+          static_behavioural_regime == "semi_elasticity_reallocation" &
+          topup_after_stage2 > 0 &
+          coalesce(stage2_excess_lowtax_profit_selected, 0) > 0,
       strategic_beta_applied = if_else(
         strategic_response_eligible,
         pmin(
@@ -1668,10 +1715,10 @@ add_behavioural_response <- function(scenario_panel) {
         (1 + 0.50 * ip_holding_score + 0.25 * conduit_haven_score),
       debt_channel_raw = DIAGNOSTIC_CHANNEL_PRIOR_DEBT *
         (1 + 0.20 * (1 - ip_holding_score) +
-           0.10 * profit_to_assets_score),
+          0.10 * profit_to_assets_score),
       substance_channel_raw = DIAGNOSTIC_CHANNEL_PRIOR_SUBSTANCE *
         (1 + 1.25 * substance_anchor_score +
-           0.50 * as.numeric(factor2_substance == "sectoral_sbie_sbti")),
+          0.50 * as.numeric(factor2_substance == "sectoral_sbie_sbti")),
       behavioural_channel_total =
         tp_ip_channel_raw + debt_channel_raw + substance_channel_raw,
       channel_transfer_pricing_ip_share =
@@ -1708,8 +1755,10 @@ build_factorial_revenue <- function(stage2_bilateral,
       x3_rates = as.integer(rate_scenario == "long_run"),
       x4_sbs = as.integer(factor4_sbs == "sbs"),
       x5_behaviour = as.integer(factor5_behaviour == "behavioural"),
-      scenario_id = paste0("x", x1_etr, x2_substance, x3_rates, x4_sbs,
-                           x5_behaviour)
+      scenario_id = paste0(
+        "x", x1_etr, x2_substance, x3_rates, x4_sbs,
+        x5_behaviour
+      )
     )
 
   behaviour_preferred <- behavioural_affiliate_year |>
@@ -1728,34 +1777,42 @@ build_factorial_revenue <- function(stage2_bilateral,
     )
 
   policy_affiliate <- policy_flags |>
-    select(affiliate = jurisdiction,
-           affiliate_policy_qdmtt_by_2026 = qdmtt_by_2026,
-           affiliate_policy_iir_utpr_by_2026 = iir_utpr_by_2026,
-           affiliate_policy_iir_by_2026 = iir_by_2026,
-           affiliate_policy_utpr_by_2026 = utpr_by_2026,
-           affiliate_policy_iir_utpr_explicit_by_2026 =
-             iir_utpr_explicit_by_2026,
-           affiliate_policy_iir_utpr_ambiguous_by_2026 =
-             iir_utpr_ambiguous_by_2026)
+    select(
+      affiliate = jurisdiction,
+      affiliate_policy_qdmtt_by_2026 = qdmtt_by_2026,
+      affiliate_policy_iir_utpr_by_2026 = iir_utpr_by_2026,
+      affiliate_policy_iir_by_2026 = iir_by_2026,
+      affiliate_policy_utpr_by_2026 = utpr_by_2026,
+      affiliate_policy_iir_utpr_explicit_by_2026 =
+        iir_utpr_explicit_by_2026,
+      affiliate_policy_iir_utpr_ambiguous_by_2026 =
+        iir_utpr_ambiguous_by_2026
+    )
 
   policy_parent <- policy_flags |>
-    select(parent = jurisdiction,
-           parent_policy_iir_utpr_by_2026 = iir_utpr_by_2026,
-           parent_policy_iir_by_2026 = iir_by_2026,
-           parent_policy_utpr_by_2026 = utpr_by_2026,
-           parent_policy_sbs_by_2026 = sbs_by_2026,
-           parent_policy_iir_utpr_explicit_by_2026 =
-             iir_utpr_explicit_by_2026,
-           parent_policy_iir_utpr_ambiguous_by_2026 =
-             iir_utpr_ambiguous_by_2026)
+    select(
+      parent = jurisdiction,
+      parent_policy_iir_utpr_by_2026 = iir_utpr_by_2026,
+      parent_policy_iir_by_2026 = iir_by_2026,
+      parent_policy_utpr_by_2026 = utpr_by_2026,
+      parent_policy_sbs_by_2026 = sbs_by_2026,
+      parent_policy_iir_utpr_explicit_by_2026 =
+        iir_utpr_explicit_by_2026,
+      parent_policy_iir_utpr_ambiguous_by_2026 =
+        iir_utpr_ambiguous_by_2026
+    )
 
   scenario_panel <- stage2_bilateral |>
-    inner_join(scenario_design, by = "rate_scenario",
-               relationship = "many-to-many") |>
+    inner_join(scenario_design,
+      by = "rate_scenario",
+      relationship = "many-to-many"
+    ) |>
     left_join(
       sectoral_bridge |>
-        select(rate_scenario, affiliate,
-               sectoral_scale_average, sectoral_scale_distributional),
+        select(
+          rate_scenario, affiliate,
+          sectoral_scale_average, sectoral_scale_distributional
+        ),
       by = c("rate_scenario", "affiliate")
     ) |>
     left_join(policy_affiliate, by = "affiliate") |>
@@ -1798,7 +1855,8 @@ build_factorial_revenue <- function(stage2_bilateral,
     mutate(
       qdmtt_topup = if_else(qdmtt_flag, topup_after_behaviour, 0),
       iir_topup = if_else(!qdmtt_flag & parent_iir_utpr_flag & !sbs_exempt,
-                          topup_after_behaviour, 0),
+        topup_after_behaviour, 0
+      ),
       utpr_source_proxy_topup = if_else(
         !qdmtt_flag & !parent_iir_utpr_flag & !sbs_exempt,
         topup_after_behaviour,
@@ -1851,8 +1909,10 @@ build_factorial_revenue <- function(stage2_bilateral,
 
   country_lookup <- stage2_bilateral |>
     filter(affiliate %in% EU27_ISO3) |>
-    distinct(country = affiliate,
-             country_name = affiliate_jurisdiction_name)
+    distinct(
+      country = affiliate,
+      country_name = affiliate_jurisdiction_name
+    )
 
   scenario_country_year <- channel_revenue |>
     group_by(across(all_of(SCENARIO_VARS)), country, year) |>
@@ -1943,8 +2003,10 @@ compute_stage3_factorial_anova <- function(country_year_revenue) {
 }
 
 run_stage3_h4_tests <- function(country_year_revenue, scenario_panel) {
-  other_factors <- c("rate_scenario", "factor1_etr", "factor2_substance",
-                     "factor5_behaviour", "country", "country_name", "year")
+  other_factors <- c(
+    "rate_scenario", "factor1_etr", "factor2_substance",
+    "factor5_behaviour", "country", "country_name", "year"
+  )
 
   h4_pairs <- country_year_revenue |>
     select(all_of(other_factors), factor4_sbs, revenue) |>
@@ -1965,8 +2027,10 @@ run_stage3_h4_tests <- function(country_year_revenue, scenario_panel) {
 
   country_policy <- scenario_panel |>
     filter(affiliate %in% EU27_ISO3) |>
-    distinct(country = affiliate,
-             country_qdmtt = qdmtt_flag) |>
+    distinct(
+      country = affiliate,
+      country_qdmtt = qdmtt_flag
+    ) |>
     group_by(country) |>
     summarise(country_qdmtt = any(country_qdmtt, na.rm = TRUE), .groups = "drop")
 
@@ -1983,7 +2047,8 @@ run_stage3_h4_tests <- function(country_year_revenue, scenario_panel) {
     summarise(
       total_topup = sum(topup_after_behaviour, na.rm = TRUE),
       us_parented_topup = sum(if_else(parent == "USA", topup_after_behaviour, 0),
-                              na.rm = TRUE),
+        na.rm = TRUE
+      ),
       us_parented_topup_share = safe_divide(us_parented_topup, total_topup),
       .groups = "drop"
     )
@@ -2029,7 +2094,8 @@ run_stage3_h4_tests <- function(country_year_revenue, scenario_panel) {
       n = length(h4_pairs$delta_sbs_minus_universal),
       mean_delta = mean(h4_pairs$delta_sbs_minus_universal, na.rm = TRUE),
       median_delta = stats::median(h4_pairs$delta_sbs_minus_universal,
-                                   na.rm = TRUE),
+        na.rm = TRUE
+      ),
       statistic = unname(wt_two_sided$statistic),
       p_value_two_sided = wt_two_sided$p.value,
       p_value_less = wt_less$p.value
@@ -2075,8 +2141,9 @@ build_reallocation_matrix <- function(scenario_panel) {
   destination_weights <- scenario_panel |>
     filter(analysis_profit_positive > 0) |>
     group_by(across(all_of(SCENARIO_VARS)),
-             year,
-             destination = affiliate) |>
+      year,
+      destination = affiliate
+    ) |>
     summarise(
       destination_name = first(affiliate_jurisdiction_name),
       destination_is_eu27 = first(affiliate %in% EU27_ISO3),
@@ -2095,7 +2162,7 @@ build_reallocation_matrix <- function(scenario_panel) {
     mutate(
       high_tax_destination =
         coalesce(destination_cit_rate >= GMT_RATE, FALSE) &
-        !destination_is_conduit_haven
+          !destination_is_conduit_haven
     ) |>
     group_by(across(all_of(SCENARIO_VARS)), year) |>
     mutate(has_high_tax_destination = any(high_tax_destination, na.rm = TRUE)) |>
@@ -2125,8 +2192,9 @@ build_reallocation_matrix <- function(scenario_panel) {
 
   matrix <- destination_weights |>
     left_join(source_totals,
-              by = c(SCENARIO_VARS, "year"),
-              relationship = "many-to-many") |>
+      by = c(SCENARIO_VARS, "year"),
+      relationship = "many-to-many"
+    ) |>
     mutate(
       total_reallocated_profit = coalesce_zero(total_reallocated_profit),
       weighted_source_tau = coalesce(weighted_source_tau, 0),
@@ -2138,7 +2206,7 @@ build_reallocation_matrix <- function(scenario_panel) {
         reallocated_profit_received * destination_cit_rate,
       ordinary_cit_net_recovery =
         reallocated_profit_received *
-        pmax(destination_cit_rate - weighted_source_tau, 0)
+          pmax(destination_cit_rate - weighted_source_tau, 0)
     )
 
   scenario_year_keys <- scenario_panel |>
@@ -2200,11 +2268,13 @@ build_reallocation_matrix <- function(scenario_panel) {
 
   destination_summary <- matrix |>
     filter(behavioural_channel != "none") |>
-    group_by(across(all_of(SCENARIO_VARS)),
-             destination,
-             destination_name,
-             destination_is_eu27,
-             behavioural_channel) |>
+    group_by(
+      across(all_of(SCENARIO_VARS)),
+      destination,
+      destination_name,
+      destination_is_eu27,
+      behavioural_channel
+    ) |>
     summarise(
       reallocated_profit_received =
         sum(reallocated_profit_received, na.rm = TRUE),
@@ -2338,11 +2408,15 @@ run_stage3_pipeline <- function() {
   oecd_central_record <- readRDS(file.path(IN, "oecd_pillar2_central_record.rds"))
 
   assert_unique_keys(base_panel, c("parent", "affiliate", "year"), "base panel")
-  assert_unique_keys(stage1_affiliate_year, c("affiliate", "year"),
-                     "stage1 affiliate-year")
-  assert_unique_keys(stage2_bilateral,
-                     c("rate_scenario", "parent", "affiliate", "year"),
-                     "stage2 bilateral")
+  assert_unique_keys(
+    stage1_affiliate_year, c("affiliate", "year"),
+    "stage1 affiliate-year"
+  )
+  assert_unique_keys(
+    stage2_bilateral,
+    c("rate_scenario", "parent", "affiliate", "year"),
+    "stage2 bilateral"
+  )
 
   estimation_sample <- prepare_estimation_sample(
     base_panel,
@@ -2482,7 +2556,8 @@ run_stage3_pipeline <- function() {
         na.rm = TRUE
       ),
       sign_restricted_affiliate_years = sum(beta_sign_restricted_flag,
-                                            na.rm = TRUE),
+        na.rm = TRUE
+      ),
       .groups = "drop"
     )
 
@@ -2519,7 +2594,8 @@ run_stage3_pipeline <- function() {
       ),
       semi_elasticity_reallocation_rows =
         sum(behavioural_regime == "semi_elasticity_reallocation",
-            na.rm = TRUE),
+          na.rm = TRUE
+        ),
       sesh_rows =
         sum(behavioural_regime == "sesh_bunching_topup_zero", na.rm = TRUE),
       .groups = "drop"
@@ -2543,7 +2619,8 @@ run_stage3_pipeline <- function() {
       ),
       semi_elasticity_reallocation_rows =
         sum(behavioural_regime == "semi_elasticity_reallocation",
-            na.rm = TRUE),
+          na.rm = TRUE
+        ),
       .groups = "drop"
     )
 
@@ -2605,13 +2682,13 @@ run_stage3_pipeline <- function() {
         tax_endogeneity_diagnostics$diagnostic ==
           "simulated_tax_code_eatr_first_stage_for_cbcr_etr" &
           tax_endogeneity_diagnostics$inference ==
-          "parent_affiliate_clustered"
+            "parent_affiliate_clustered"
       ][1],
       tax_endogeneity_diagnostics$f_statistic[
         tax_endogeneity_diagnostics$diagnostic ==
           "lagged_statutory_cit_first_stage_for_cbcr_etr" &
           tax_endogeneity_diagnostics$inference ==
-          "parent_affiliate_clustered"
+            "parent_affiliate_clustered"
       ][1],
       model_fits$logarithmic$t0,
       tail_metric("low_tail_row_share"),
@@ -2631,109 +2708,207 @@ run_stage3_pipeline <- function() {
     )
   )
 
-  write_csv(stage3_summary,
-            file.path(DIAG, "step5_stage3_summary.csv"))
-  write_csv(robustness_summary,
-            file.path(DIAG, "step5_stage3_estimation_sample_summary.csv"))
-  write_csv(model_comparison,
-            file.path(DIAG, "step5_stage3_model_comparison.csv"))
-  write_csv(model_fits$log_grid,
-            file.path(DIAG, "step5_stage3_log_t0_grid.csv"))
-  write_csv(fixest_equivalence,
-            file.path(DIAG, "step5_stage3_fixest_equivalence.csv"))
-  write_csv(coefficients,
-            file.path(DIAG, "step5_stage3_coefficients.csv"))
-  write_csv(model_wald_tests,
-            file.path(DIAG, "step5_stage3_model_wald_tests.csv"))
-  write_csv(tax_endogeneity_diagnostics,
-            file.path(DIAG, "step5_stage3_tax_endogeneity_diagnostics.csv"))
-  write_csv(tax_instrument_coverage,
-            file.path(DIAG, "step5_stage3_tax_instrument_coverage.csv"))
-  write_csv(semielasticity_schedule,
-            file.path(DIAG, "step5_stage3_semielasticity_schedule.csv"))
-  write_csv(robustness_model_comparison,
-            file.path(DIAG, "step5_stage3_model_robustness.csv"))
-  write_csv(specification_tests,
-            file.path(DIAG, "step5_stage3_specification_tests.csv"))
-  write_csv(etr_tail_support,
-            file.path(DIAG, "step5_stage3_etr_tail_support.csv"))
-  write_csv(tail_reweighting_feasibility,
-            file.path(DIAG, "step5_stage3_tail_reweighting_feasibility.csv"))
-  write_csv(behavioural_by_year,
-            file.path(DIAG, "step5_stage3_behaviour_by_year.csv"))
-  write_csv(policy_flags,
-            file.path(DIAG, "step5_stage3_policy_flags.csv"))
-  write_csv(policy_tracker_diagnostics,
-            file.path(DIAG, "step5_stage3_policy_tracker_diagnostics.csv"))
-  write_csv(sectoral_bridge,
-            file.path(DIAG, "step5_stage3_sectoral_factor2_bridge.csv"))
-  write_csv(revenue_objects$scenario_summary,
-            file.path(DIAG, "step5_stage3_factorial_scenario_summary.csv"))
-  write_csv(strategy_scenario_summary,
-            file.path(DIAG, "step5_stage3_strategy_scenario_summary.csv"))
-  write_csv(strategy_by_year,
-            file.path(DIAG, "step5_stage3_strategy_by_year.csv"))
-  write_csv(scenario_spread,
-            file.path(DIAG, "step5_stage3_scenario_spread_country_year.csv"))
-  write_csv(anova_objects$pooled,
-            file.path(DIAG, "step5_stage3_anova_pooled.csv"))
-  write_csv(anova_objects$by_country,
-            file.path(DIAG, "step5_stage3_anova_by_country.csv"))
-  write_csv(h4_objects$test_summary,
-            file.path(DIAG, "step5_stage3_h4_wilcoxon.csv"))
-  write_csv(h4_objects$country_regression_sample,
-            file.path(DIAG, "step5_stage3_h4_country_regression_sample.csv"))
-  write_csv(h4_objects$regression,
-            file.path(DIAG, "step5_stage3_h4_regression.csv"))
-  write_csv(reallocation_objects$conservation,
-            file.path(DIAG, "step5_stage3_reallocation_conservation.csv"))
-  write_csv(reallocation_objects$channel_summary,
-            file.path(DIAG, "step5_stage3_reallocation_channel_summary.csv"))
-  write_csv(reallocation_objects$destination_summary,
-            file.path(DIAG, "step5_stage3_reallocation_destination_summary.csv"))
-  write_csv(behavioural_identification_design,
-            file.path(DIAG, "step5_stage3_behavioural_identification_design.csv"))
+  write_csv(
+    stage3_summary,
+    file.path(DIAG, "step5_stage3_summary.csv")
+  )
+  write_csv(
+    robustness_summary,
+    file.path(DIAG, "step5_stage3_estimation_sample_summary.csv")
+  )
+  write_csv(
+    model_comparison,
+    file.path(DIAG, "step5_stage3_model_comparison.csv")
+  )
+  write_csv(
+    model_fits$log_grid,
+    file.path(DIAG, "step5_stage3_log_t0_grid.csv")
+  )
+  write_csv(
+    fixest_equivalence,
+    file.path(DIAG, "step5_stage3_fixest_equivalence.csv")
+  )
+  write_csv(
+    coefficients,
+    file.path(DIAG, "step5_stage3_coefficients.csv")
+  )
+  write_csv(
+    model_wald_tests,
+    file.path(DIAG, "step5_stage3_model_wald_tests.csv")
+  )
+  write_csv(
+    tax_endogeneity_diagnostics,
+    file.path(DIAG, "step5_stage3_tax_endogeneity_diagnostics.csv")
+  )
+  write_csv(
+    tax_instrument_coverage,
+    file.path(DIAG, "step5_stage3_tax_instrument_coverage.csv")
+  )
+  write_csv(
+    semielasticity_schedule,
+    file.path(DIAG, "step5_stage3_semielasticity_schedule.csv")
+  )
+  write_csv(
+    robustness_model_comparison,
+    file.path(DIAG, "step5_stage3_model_robustness.csv")
+  )
+  write_csv(
+    specification_tests,
+    file.path(DIAG, "step5_stage3_specification_tests.csv")
+  )
+  write_csv(
+    etr_tail_support,
+    file.path(DIAG, "step5_stage3_etr_tail_support.csv")
+  )
+  write_csv(
+    tail_reweighting_feasibility,
+    file.path(DIAG, "step5_stage3_tail_reweighting_feasibility.csv")
+  )
+  write_csv(
+    behavioural_by_year,
+    file.path(DIAG, "step5_stage3_behaviour_by_year.csv")
+  )
+  write_csv(
+    policy_flags,
+    file.path(DIAG, "step5_stage3_policy_flags.csv")
+  )
+  write_csv(
+    policy_tracker_diagnostics,
+    file.path(DIAG, "step5_stage3_policy_tracker_diagnostics.csv")
+  )
+  write_csv(
+    sectoral_bridge,
+    file.path(DIAG, "step5_stage3_sectoral_factor2_bridge.csv")
+  )
+  write_csv(
+    revenue_objects$scenario_summary,
+    file.path(DIAG, "step5_stage3_factorial_scenario_summary.csv")
+  )
+  write_csv(
+    strategy_scenario_summary,
+    file.path(DIAG, "step5_stage3_strategy_scenario_summary.csv")
+  )
+  write_csv(
+    strategy_by_year,
+    file.path(DIAG, "step5_stage3_strategy_by_year.csv")
+  )
+  write_csv(
+    scenario_spread,
+    file.path(DIAG, "step5_stage3_scenario_spread_country_year.csv")
+  )
+  write_csv(
+    anova_objects$pooled,
+    file.path(DIAG, "step5_stage3_anova_pooled.csv")
+  )
+  write_csv(
+    anova_objects$by_country,
+    file.path(DIAG, "step5_stage3_anova_by_country.csv")
+  )
+  write_csv(
+    h4_objects$test_summary,
+    file.path(DIAG, "step5_stage3_h4_wilcoxon.csv")
+  )
+  write_csv(
+    h4_objects$country_regression_sample,
+    file.path(DIAG, "step5_stage3_h4_country_regression_sample.csv")
+  )
+  write_csv(
+    h4_objects$regression,
+    file.path(DIAG, "step5_stage3_h4_regression.csv")
+  )
+  write_csv(
+    reallocation_objects$conservation,
+    file.path(DIAG, "step5_stage3_reallocation_conservation.csv")
+  )
+  write_csv(
+    reallocation_objects$channel_summary,
+    file.path(DIAG, "step5_stage3_reallocation_channel_summary.csv")
+  )
+  write_csv(
+    reallocation_objects$destination_summary,
+    file.path(DIAG, "step5_stage3_reallocation_destination_summary.csv")
+  )
+  write_csv(
+    behavioural_identification_design,
+    file.path(DIAG, "step5_stage3_behavioural_identification_design.csv")
+  )
 
   saveRDS(estimation_sample, file.path(OUT, "stage3_estimation_sample.rds"))
   saveRDS(model_comparison, file.path(OUT, "stage3_model_comparison.rds"))
   saveRDS(coefficients, file.path(OUT, "stage3_model_coefficients.rds"))
   saveRDS(model_wald_tests, file.path(OUT, "stage3_model_wald_tests.rds"))
-  saveRDS(tax_endogeneity_diagnostics,
-          file.path(OUT, "stage3_tax_endogeneity_diagnostics.rds"))
-  saveRDS(tax_instrument_coverage,
-          file.path(OUT, "stage3_tax_instrument_coverage.rds"))
-  saveRDS(semielasticity_schedule,
-          file.path(OUT, "stage3_semielasticity_schedule.rds"))
-  saveRDS(robustness_model_comparison,
-          file.path(OUT, "stage3_model_robustness.rds"))
-  saveRDS(etr_tail_support,
-          file.path(OUT, "stage3_etr_tail_support.rds"))
-  saveRDS(tail_reweighting_feasibility,
-          file.path(OUT, "stage3_tail_reweighting_feasibility.rds"))
-  saveRDS(behavioural_affiliate_year,
-          file.path(OUT, "stage3_behavioral_affiliate_year.rds"))
-  saveRDS(revenue_objects$scenario_panel,
-          file.path(OUT, "stage3_factorial_pair_year.rds"))
-  saveRDS(revenue_objects$channel_revenue,
-          file.path(OUT, "stage3_revenue_by_channel.rds"))
-  saveRDS(scenario_country_year,
-          file.path(OUT, "stage3_revenue_country_year.rds"))
-  saveRDS(anova_objects$pooled,
-          file.path(OUT, "stage3_anova_pooled.rds"))
-  saveRDS(anova_objects$by_country,
-          file.path(OUT, "stage3_anova_by_country.rds"))
-  saveRDS(reallocation_objects$matrix,
-          file.path(OUT, "stage3_reallocation_matrix.rds"))
-  saveRDS(reallocation_objects$conservation,
-          file.path(OUT, "stage3_reallocation_conservation.rds"))
-  saveRDS(reallocation_objects$channel_summary,
-          file.path(OUT, "stage3_reallocation_channel_summary.rds"))
-  saveRDS(reallocation_objects$destination_summary,
-          file.path(OUT, "stage3_reallocation_destination_summary.rds"))
-  saveRDS(behavioural_identification_design,
-          file.path(OUT, "stage3_behavioural_identification_design.rds"))
-  saveRDS(strategy_scenario_summary,
-          file.path(OUT, "stage3_strategy_scenario_summary.rds"))
+  saveRDS(
+    tax_endogeneity_diagnostics,
+    file.path(OUT, "stage3_tax_endogeneity_diagnostics.rds")
+  )
+  saveRDS(
+    tax_instrument_coverage,
+    file.path(OUT, "stage3_tax_instrument_coverage.rds")
+  )
+  saveRDS(
+    semielasticity_schedule,
+    file.path(OUT, "stage3_semielasticity_schedule.rds")
+  )
+  saveRDS(
+    robustness_model_comparison,
+    file.path(OUT, "stage3_model_robustness.rds")
+  )
+  saveRDS(
+    etr_tail_support,
+    file.path(OUT, "stage3_etr_tail_support.rds")
+  )
+  saveRDS(
+    tail_reweighting_feasibility,
+    file.path(OUT, "stage3_tail_reweighting_feasibility.rds")
+  )
+  saveRDS(
+    behavioural_affiliate_year,
+    file.path(OUT, "stage3_behavioral_affiliate_year.rds")
+  )
+  saveRDS(
+    revenue_objects$scenario_panel,
+    file.path(OUT, "stage3_factorial_pair_year.rds")
+  )
+  saveRDS(
+    revenue_objects$channel_revenue,
+    file.path(OUT, "stage3_revenue_by_channel.rds")
+  )
+  saveRDS(
+    scenario_country_year,
+    file.path(OUT, "stage3_revenue_country_year.rds")
+  )
+  saveRDS(
+    anova_objects$pooled,
+    file.path(OUT, "stage3_anova_pooled.rds")
+  )
+  saveRDS(
+    anova_objects$by_country,
+    file.path(OUT, "stage3_anova_by_country.rds")
+  )
+  saveRDS(
+    reallocation_objects$matrix,
+    file.path(OUT, "stage3_reallocation_matrix.rds")
+  )
+  saveRDS(
+    reallocation_objects$conservation,
+    file.path(OUT, "stage3_reallocation_conservation.rds")
+  )
+  saveRDS(
+    reallocation_objects$channel_summary,
+    file.path(OUT, "stage3_reallocation_channel_summary.rds")
+  )
+  saveRDS(
+    reallocation_objects$destination_summary,
+    file.path(OUT, "stage3_reallocation_destination_summary.rds")
+  )
+  saveRDS(
+    behavioural_identification_design,
+    file.path(OUT, "stage3_behavioural_identification_design.rds")
+  )
+  saveRDS(
+    strategy_scenario_summary,
+    file.path(OUT, "stage3_strategy_scenario_summary.rds")
+  )
 
   message("\nStep 5 outputs written:")
   message(" - data/processed/stage3_estimation_sample.rds")

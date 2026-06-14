@@ -6,16 +6,16 @@
 # QDMTT/IIR/UTPR waterfall separate from the behavioural model and replaces
 # the earlier source-country UTPR proxy with a parent-year substance-weighted
 # UTPR allocation.
-library(dplyr); library(tidyr); library(readr); library(tibble); library(stringr)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(tibble)
+library(stringr)
 
-source(if (file.exists("code/00_helpers.R")) {
-  "code/00_helpers.R"
-} else {
-  file.path("..", "..", "code/00_helpers.R")
-})
+source("code/00_helpers.R")
 
-IN   <- "data/processed"
-OUT  <- IN
+IN <- "data/processed"
+OUT <- IN
 DIAG <- file.path(OUT, "diagnostics")
 dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
 
@@ -24,14 +24,16 @@ compute_utpr_raw_weight <- function(employee_share, asset_share) {
     !is.na(employee_share) & !is.na(asset_share) ~
       0.50 * employee_share + 0.50 * asset_share,
     !is.na(employee_share) ~ employee_share,
-    !is.na(asset_share)    ~ asset_share,
-    TRUE                   ~ NA_real_
+    !is.na(asset_share) ~ asset_share,
+    TRUE ~ NA_real_
   )
 }
 
 normalise_positive_weights <- function(weight) {
   total <- sum(weight, na.rm = TRUE)
-  if (is.na(total) || total <= 0) return(rep(NA_real_, length(weight)))
+  if (is.na(total) || total <= 0) {
+    return(rep(NA_real_, length(weight)))
+  }
   weight / total
 }
 
@@ -39,11 +41,11 @@ allocation_regime <- function(topup_after_behaviour, qdmtt_flag,
                               parent_iir_utpr_flag, sbs_exempt) {
   case_when(
     is.na(topup_after_behaviour) | topup_after_behaviour <= 0 ~ "zero",
-    qdmtt_flag                                                ~ "qdmtt",
-    !qdmtt_flag & parent_iir_utpr_flag & !sbs_exempt          ~ "iir",
-    !qdmtt_flag & !parent_iir_utpr_flag & !sbs_exempt         ~ "utpr",
-    !qdmtt_flag & sbs_exempt                                  ~ "sbs_extinguished",
-    TRUE                                                      ~ "unclassified"
+    qdmtt_flag ~ "qdmtt",
+    !qdmtt_flag & parent_iir_utpr_flag & !sbs_exempt ~ "iir",
+    !qdmtt_flag & !parent_iir_utpr_flag & !sbs_exempt ~ "utpr",
+    !qdmtt_flag & sbs_exempt ~ "sbs_extinguished",
+    TRUE ~ "unclassified"
   )
 }
 
@@ -87,8 +89,8 @@ build_source_panel <- function(stage3_panel) {
       ),
       stage4_conservation_gap =
         stage4_qdmtt_liability + stage4_iir_liability + stage4_utpr_pool +
-        stage4_sbs_extinguished_liability + stage4_zero_liability -
-        topup_after_behaviour
+          stage4_sbs_extinguished_liability + stage4_zero_liability -
+          topup_after_behaviour
     )
 
   if (any(source_panel$stage4_allocation_regime == "unclassified", na.rm = TRUE)) {
@@ -144,21 +146,25 @@ build_parent_year_utpr_weights <- function(collector_activity) {
       employee_total = sum(employee_base, na.rm = TRUE),
       asset_total = sum(asset_base, na.rm = TRUE),
       employee_share = if_else(employee_total > 0,
-                               employee_base / employee_total,
-                               NA_real_),
+        employee_base / employee_total,
+        NA_real_
+      ),
       asset_share = if_else(asset_total > 0,
-                            asset_base / asset_total,
-                            NA_real_),
+        asset_base / asset_total,
+        NA_real_
+      ),
       raw_weight = compute_utpr_raw_weight(employee_share, asset_share),
       utpr_weight = normalise_positive_weights(raw_weight),
       utpr_weight_source = "parent_year"
     ) |>
     ungroup() |>
     filter(!is.na(utpr_weight), utpr_weight > 0) |>
-    select(parent, year, collector, collector_name, collector_is_eu27,
-           collector_utpr_explicit_flag, collector_utpr_ambiguous_flag,
-           employee_share, asset_share, raw_weight, utpr_weight,
-           utpr_weight_source)
+    select(
+      parent, year, collector, collector_name, collector_is_eu27,
+      collector_utpr_explicit_flag, collector_utpr_ambiguous_flag,
+      employee_share, asset_share, raw_weight, utpr_weight,
+      utpr_weight_source
+    )
 
   fallback_weights <- collector_activity |>
     filter(collector_utpr_flag) |>
@@ -177,21 +183,25 @@ build_parent_year_utpr_weights <- function(collector_activity) {
       employee_total = sum(employee_base, na.rm = TRUE),
       asset_total = sum(asset_base, na.rm = TRUE),
       employee_share = if_else(employee_total > 0,
-                               employee_base / employee_total,
-                               NA_real_),
+        employee_base / employee_total,
+        NA_real_
+      ),
       asset_share = if_else(asset_total > 0,
-                            asset_base / asset_total,
-                            NA_real_),
+        asset_base / asset_total,
+        NA_real_
+      ),
       raw_weight = compute_utpr_raw_weight(employee_share, asset_share),
       utpr_weight = normalise_positive_weights(raw_weight),
       utpr_weight_source = "global_year_fallback"
     ) |>
     ungroup() |>
     filter(!is.na(utpr_weight), utpr_weight > 0) |>
-    select(year, collector, collector_name, collector_is_eu27,
-           collector_utpr_explicit_flag, collector_utpr_ambiguous_flag,
-           employee_share, asset_share, raw_weight, utpr_weight,
-           utpr_weight_source)
+    select(
+      year, collector, collector_name, collector_is_eu27,
+      collector_utpr_explicit_flag, collector_utpr_ambiguous_flag,
+      employee_share, asset_share, raw_weight, utpr_weight,
+      utpr_weight_source
+    )
 
   parent_year_check <- parent_year_weights |>
     group_by(parent, year) |>
@@ -219,21 +229,27 @@ allocate_stage4_revenue <- function(source_panel, utpr_weights) {
   qdmtt_allocation <- source_panel |>
     filter(stage4_qdmtt_liability > 0) |>
     group_by(across(all_of(SCENARIO_VARS)),
-             country = affiliate, country_name = affiliate_jurisdiction_name,
-             year) |>
-    summarise(revenue = sum(stage4_qdmtt_liability, na.rm = TRUE),
-              source_rows = n(),
-              .groups = "drop") |>
+      country = affiliate, country_name = affiliate_jurisdiction_name,
+      year
+    ) |>
+    summarise(
+      revenue = sum(stage4_qdmtt_liability, na.rm = TRUE),
+      source_rows = n(),
+      .groups = "drop"
+    ) |>
     mutate(channel = "QDMTT", allocation_weight_source = "source_qdmtt")
 
   iir_allocation <- source_panel |>
     filter(stage4_iir_liability > 0) |>
     group_by(across(all_of(SCENARIO_VARS)),
-             country = parent, country_name = parent_jurisdiction_name,
-             year) |>
-    summarise(revenue = sum(stage4_iir_liability, na.rm = TRUE),
-              source_rows = n(),
-              .groups = "drop") |>
+      country = parent, country_name = parent_jurisdiction_name,
+      year
+    ) |>
+    summarise(
+      revenue = sum(stage4_iir_liability, na.rm = TRUE),
+      source_rows = n(),
+      .groups = "drop"
+    ) |>
     mutate(channel = "IIR", allocation_weight_source = "parent_iir")
 
   utpr_pool <- source_panel |>
@@ -273,8 +289,10 @@ allocate_stage4_revenue <- function(source_panel, utpr_weights) {
 
   utpr_pool_check <- bind_rows(utpr_parent_year, utpr_fallback) |>
     group_by(across(all_of(SCENARIO_VARS)), parent, year) |>
-    summarise(allocated_utpr_pool = sum(revenue, na.rm = TRUE),
-              .groups = "drop") |>
+    summarise(
+      allocated_utpr_pool = sum(revenue, na.rm = TRUE),
+      .groups = "drop"
+    ) |>
     left_join(utpr_pool, by = c(SCENARIO_VARS, "parent", "year")) |>
     mutate(utpr_pool_gap = allocated_utpr_pool - utpr_pool)
 
@@ -284,10 +302,11 @@ allocate_stage4_revenue <- function(source_panel, utpr_weights) {
 
   utpr_allocation <- bind_rows(utpr_parent_year, utpr_fallback) |>
     group_by(across(all_of(SCENARIO_VARS)),
-             country = collector, country_name = collector_name, year,
-             allocation_weight_source = utpr_weight_source,
-             collector_utpr_explicit_flag,
-             collector_utpr_ambiguous_flag) |>
+      country = collector, country_name = collector_name, year,
+      allocation_weight_source = utpr_weight_source,
+      collector_utpr_explicit_flag,
+      collector_utpr_ambiguous_flag
+    ) |>
     summarise(
       revenue = sum(revenue, na.rm = TRUE),
       source_rows = sum(source_rows, na.rm = TRUE),
@@ -301,21 +320,27 @@ allocate_stage4_revenue <- function(source_panel, utpr_weights) {
     utpr_allocation
   ) |>
     mutate(country_is_eu27 = country %in% EU27_ISO3) |>
-    select(all_of(SCENARIO_VARS), country, country_name, country_is_eu27,
-           year, channel, allocation_weight_source,
-           collector_utpr_explicit_flag, collector_utpr_ambiguous_flag,
-           revenue, source_rows)
+    select(
+      all_of(SCENARIO_VARS), country, country_name, country_is_eu27,
+      year, channel, allocation_weight_source,
+      collector_utpr_explicit_flag, collector_utpr_ambiguous_flag,
+      revenue, source_rows
+    )
 
   revenue_by_channel_eu27 <- revenue_by_channel_global |>
     filter(country_is_eu27) |>
-    group_by(across(all_of(SCENARIO_VARS)), country, country_name,
-             year, channel) |>
+    group_by(
+      across(all_of(SCENARIO_VARS)), country, country_name,
+      year, channel
+    ) |>
     summarise(revenue = sum(revenue, na.rm = TRUE), .groups = "drop")
 
   country_lookup <- source_panel |>
     filter(affiliate %in% EU27_ISO3) |>
-    distinct(country = affiliate,
-             country_name = affiliate_jurisdiction_name)
+    distinct(
+      country = affiliate,
+      country_name = affiliate_jurisdiction_name
+    )
 
   revenue_country_year_eu27 <- revenue_by_channel_eu27 |>
     group_by(across(all_of(SCENARIO_VARS)), country, year) |>
@@ -343,7 +368,8 @@ build_conservation_diagnostics <- function(source_panel, revenue_global) {
     summarise(
       pre_allocation_topup = sum(topup_after_behaviour, na.rm = TRUE),
       sbs_extinguished_topup = sum(stage4_sbs_extinguished_liability,
-                                   na.rm = TRUE),
+        na.rm = TRUE
+      ),
       zero_liability = sum(stage4_zero_liability, na.rm = TRUE),
       .groups = "drop"
     )
@@ -374,10 +400,11 @@ build_sbs_source_exposure <- function(source_panel) {
   source_panel |>
     filter(affiliate %in% EU27_ISO3) |>
     group_by(across(all_of(SCENARIO_VARS)),
-             source_country = affiliate,
-             source_country_name = affiliate_jurisdiction_name,
-             year,
-             source_qdmtt = qdmtt_flag) |>
+      source_country = affiliate,
+      source_country_name = affiliate_jurisdiction_name,
+      year,
+      source_qdmtt = qdmtt_flag
+    ) |>
     summarise(
       total_topup_after_behaviour = sum(topup_after_behaviour, na.rm = TRUE),
       us_parented_topup = sum(
@@ -385,7 +412,8 @@ build_sbs_source_exposure <- function(source_panel) {
         na.rm = TRUE
       ),
       sbs_extinguished_topup = sum(stage4_sbs_extinguished_liability,
-                                   na.rm = TRUE),
+        na.rm = TRUE
+      ),
       us_parented_extinguished_topup = sum(
         if_else(parent == "USA", stage4_sbs_extinguished_liability, 0),
         na.rm = TRUE
@@ -450,8 +478,10 @@ build_policy_ambiguity_diagnostics <- function(source_panel, revenue_global) {
 }
 
 run_stage4_5_h4_tests <- function(revenue_country_year_eu27, source_panel) {
-  other_factors <- c("rate_scenario", "factor1_etr", "factor2_substance",
-                     "factor5_behaviour", "country", "country_name", "year")
+  other_factors <- c(
+    "rate_scenario", "factor1_etr", "factor2_substance",
+    "factor5_behaviour", "country", "country_name", "year"
+  )
 
   h4_pairs <- revenue_country_year_eu27 |>
     select(all_of(other_factors), factor4_sbs, revenue) |>
@@ -550,7 +580,8 @@ run_stage4_5_h4_tests <- function(revenue_country_year_eu27, source_panel) {
       n = length(h4_pairs$delta_sbs_minus_universal),
       mean_delta = mean(h4_pairs$delta_sbs_minus_universal, na.rm = TRUE),
       median_delta = stats::median(h4_pairs$delta_sbs_minus_universal,
-                                   na.rm = TRUE),
+        na.rm = TRUE
+      ),
       statistic = unname(wt_two_sided$statistic),
       p_value_two_sided = wt_two_sided$p.value,
       p_value_less = wt_less$p.value
@@ -617,9 +648,11 @@ run_stage4_5_pipeline <- function() {
         min_weight_sum = min(tapply(utpr_weight, paste(parent, year), sum)),
         max_weight_sum = max(tapply(utpr_weight, paste(parent, year), sum)),
         eu27_weight_mean = mean(
-          tapply(if_else(collector_is_eu27, utpr_weight, 0),
-                 paste(parent, year),
-                 sum),
+          tapply(
+            if_else(collector_is_eu27, utpr_weight, 0),
+            paste(parent, year),
+            sum
+          ),
           na.rm = TRUE
         ),
         .groups = "drop"
@@ -670,43 +703,77 @@ run_stage4_5_pipeline <- function() {
     )
   )
 
-  write_csv(stage4_5_summary,
-            file.path(DIAG, "step6_stage4_5_summary.csv"))
-  write_csv(scenario_summary,
-            file.path(DIAG, "step6_stage4_5_scenario_summary.csv"))
-  write_csv(channel_summary,
-            file.path(DIAG, "step6_stage4_5_channel_summary.csv"))
-  write_csv(conservation,
-            file.path(DIAG, "step6_stage4_5_conservation_by_scenario.csv"))
-  write_csv(utpr_weight_summary,
-            file.path(DIAG, "step6_stage4_5_utpr_weight_summary.csv"))
-  write_csv(h4_objects$test_summary,
-            file.path(DIAG, "step6_stage4_5_h4_wilcoxon.csv"))
-  write_csv(h4_objects$country_regression_sample,
-            file.path(DIAG, "step6_stage4_5_h4_country_regression_sample.csv"))
-  write_csv(h4_objects$regression,
-            file.path(DIAG, "step6_stage4_5_h4_regression.csv"))
-  write_csv(sbs_source_exposure,
-            file.path(DIAG, "step6_stage4_5_sbs_source_exposure.csv"))
-  write_csv(policy_ambiguity,
-            file.path(DIAG, "step6_stage4_5_policy_ambiguity.csv"))
+  write_csv(
+    stage4_5_summary,
+    file.path(DIAG, "step6_stage4_5_summary.csv")
+  )
+  write_csv(
+    scenario_summary,
+    file.path(DIAG, "step6_stage4_5_scenario_summary.csv")
+  )
+  write_csv(
+    channel_summary,
+    file.path(DIAG, "step6_stage4_5_channel_summary.csv")
+  )
+  write_csv(
+    conservation,
+    file.path(DIAG, "step6_stage4_5_conservation_by_scenario.csv")
+  )
+  write_csv(
+    utpr_weight_summary,
+    file.path(DIAG, "step6_stage4_5_utpr_weight_summary.csv")
+  )
+  write_csv(
+    h4_objects$test_summary,
+    file.path(DIAG, "step6_stage4_5_h4_wilcoxon.csv")
+  )
+  write_csv(
+    h4_objects$country_regression_sample,
+    file.path(DIAG, "step6_stage4_5_h4_country_regression_sample.csv")
+  )
+  write_csv(
+    h4_objects$regression,
+    file.path(DIAG, "step6_stage4_5_h4_regression.csv")
+  )
+  write_csv(
+    sbs_source_exposure,
+    file.path(DIAG, "step6_stage4_5_sbs_source_exposure.csv")
+  )
+  write_csv(
+    policy_ambiguity,
+    file.path(DIAG, "step6_stage4_5_policy_ambiguity.csv")
+  )
 
   saveRDS(source_panel, file.path(OUT, "stage4_5_allocation_source_panel.rds"))
-  saveRDS(utpr_weights$parent_year_weights,
-          file.path(OUT, "stage4_5_utpr_parent_year_weights.rds"))
-  saveRDS(utpr_weights$fallback_weights,
-          file.path(OUT, "stage4_5_utpr_fallback_weights.rds"))
-  saveRDS(allocation_objects$revenue_by_channel_global,
-          file.path(OUT, "stage4_5_revenue_by_channel_global.rds"))
-  saveRDS(allocation_objects$revenue_by_channel_eu27,
-          file.path(OUT, "stage4_5_revenue_by_channel.rds"))
-  saveRDS(allocation_objects$revenue_country_year_eu27,
-          file.path(OUT, "stage4_5_revenue_country_year.rds"))
+  saveRDS(
+    utpr_weights$parent_year_weights,
+    file.path(OUT, "stage4_5_utpr_parent_year_weights.rds")
+  )
+  saveRDS(
+    utpr_weights$fallback_weights,
+    file.path(OUT, "stage4_5_utpr_fallback_weights.rds")
+  )
+  saveRDS(
+    allocation_objects$revenue_by_channel_global,
+    file.path(OUT, "stage4_5_revenue_by_channel_global.rds")
+  )
+  saveRDS(
+    allocation_objects$revenue_by_channel_eu27,
+    file.path(OUT, "stage4_5_revenue_by_channel.rds")
+  )
+  saveRDS(
+    allocation_objects$revenue_country_year_eu27,
+    file.path(OUT, "stage4_5_revenue_country_year.rds")
+  )
   saveRDS(conservation, file.path(OUT, "stage4_5_allocation_conservation.rds"))
-  saveRDS(sbs_source_exposure,
-          file.path(OUT, "stage4_5_sbs_source_exposure.rds"))
-  saveRDS(policy_ambiguity,
-          file.path(OUT, "stage4_5_policy_ambiguity.rds"))
+  saveRDS(
+    sbs_source_exposure,
+    file.path(OUT, "stage4_5_sbs_source_exposure.rds")
+  )
+  saveRDS(
+    policy_ambiguity,
+    file.path(OUT, "stage4_5_policy_ambiguity.rds")
+  )
 
   message("\nStep 6 outputs written:")
   message(" - data/processed/stage4_5_revenue_by_channel.rds")

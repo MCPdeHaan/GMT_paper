@@ -10,8 +10,8 @@ payroll,fats_personnel_costs,919,0,547548700026.3488,0.9814999939420009
 payroll,fats_employees_scaled_to_personnel_costs,37,0,10094008409.50333,0.0180938593997233
 payroll,fats_turnover_scaled_to_personnel_costs,7,0,226576745.9312815,4.061466582757837e-4
 payroll,missing_payroll_allocator,117,117,0,0
-profit,fats_gross_operating_surplus,901,0,985434865751.4553,0.8804807523596313
-profit,fats_value_added_scaled_to_gos,15,0,71514475764.36127,0.06389779945282642
-profit,fats_value_added,20,0,55113558804.247986,0.0492436683617609
-profit,fats_turnover_scaled_to_gos,11,0,7138017031.682055,0.006377779825781445
+profit,fats_gross_operating_surplus,901,0,964947589535.0703,0.8780322554714858
+profit,fats_value_added_scaled_to_gos,15,0,71702163607.1303,0.06524376361672436
+profit,fats_value_added,20,0,55593704549.52099,0.0505862352784884
+profit,fats_turnover_scaled_to_gos,11,0,6745313531.623425,0.006137745633301462
 profit,missing_profit_allocator,133,133,0,0

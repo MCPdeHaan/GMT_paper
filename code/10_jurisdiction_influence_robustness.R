@@ -11,11 +11,7 @@ library(purrr)
 library(tibble)
 library(stringr)
 
-source(if (file.exists("code/00_helpers.R")) {
-  "code/00_helpers.R"
-} else {
-  file.path("..", "..", "code/00_helpers.R")
-})
+source("code/00_helpers.R")
 
 source_pipeline_script("code/05_stage3_behavioral.R")
 stage3_estimate_models <- estimate_stage3_models
@@ -63,47 +59,65 @@ case_id <- function(leave_dimension, jurisdiction) {
 
 parse_arg_int <- function(prefix, default) {
   arg <- grep(paste0("^", prefix), commandArgs(trailingOnly = TRUE), value = TRUE)
-  if (length(arg) == 0) return(default)
+  if (length(arg) == 0) {
+    return(default)
+  }
   as.integer(sub(prefix, "", arg[1]))
 }
 
 first_available <- function(x) {
   x <- x[!is.na(x)]
-  if (length(x) == 0) return(NA_character_)
+  if (length(x) == 0) {
+    return(NA_character_)
+  }
   as.character(x[1])
 }
 
 max_or_na <- function(x) {
   x <- x[!is.na(x)]
-  if (length(x) == 0) return(NA_real_)
+  if (length(x) == 0) {
+    return(NA_real_)
+  }
   max(x)
 }
 
 build_jurisdiction_lookup <- function(stage1_bilateral, stage3_panel) {
   bind_rows(
     stage1_bilateral |>
-      transmute(jurisdiction = parent,
-                jurisdiction_name = parent_jurisdiction_name),
+      transmute(
+        jurisdiction = parent,
+        jurisdiction_name = parent_jurisdiction_name
+      ),
     stage1_bilateral |>
-      transmute(jurisdiction = affiliate,
-                jurisdiction_name = affiliate_jurisdiction_name),
+      transmute(
+        jurisdiction = affiliate,
+        jurisdiction_name = affiliate_jurisdiction_name
+      ),
     stage3_panel |>
-      transmute(jurisdiction = parent,
-                jurisdiction_name = parent_jurisdiction_name),
+      transmute(
+        jurisdiction = parent,
+        jurisdiction_name = parent_jurisdiction_name
+      ),
     stage3_panel |>
-      transmute(jurisdiction = affiliate,
-                jurisdiction_name = affiliate_jurisdiction_name)
+      transmute(
+        jurisdiction = affiliate,
+        jurisdiction_name = affiliate_jurisdiction_name
+      )
   ) |>
     filter(is_jurisdiction_code(jurisdiction)) |>
     group_by(jurisdiction) |>
-    summarise(jurisdiction_name = first_available(jurisdiction_name),
-              .groups = "drop")
+    summarise(
+      jurisdiction_name = first_available(jurisdiction_name),
+      .groups = "drop"
+    )
 }
 
 build_country_lookup <- function(stage3_panel) {
   stage3_panel |>
-    transmute(country = affiliate,
-              country_name = affiliate_jurisdiction_name) |>
+    transmute(
+      country = affiliate,
+      country_name = affiliate_jurisdiction_name
+    ) |>
     filter(country %in% EU27_ISO3) |>
     group_by(country) |>
     summarise(country_name = first_available(country_name), .groups = "drop")
@@ -115,8 +129,10 @@ summarise_stage1_liability <- function(stage1_bilateral, case_id_value) {
       filter(year %in% MAIN_YEARS, stage1_positive_profit_flag) |>
       mutate(scope = "global"),
     stage1_bilateral |>
-      filter(year %in% MAIN_YEARS, stage1_positive_profit_flag,
-             affiliate_is_eu27) |>
+      filter(
+        year %in% MAIN_YEARS, stage1_positive_profit_flag,
+        affiliate_is_eu27
+      ) |>
       mutate(scope = "eu27")
   ) |>
     group_by(scope) |>
@@ -140,9 +156,11 @@ summarise_stage1_liability <- function(stage1_bilateral, case_id_value) {
 summarise_case_dropped_mass <- function(stage1_bilateral, estimation_sample,
                                         leave_dimension, jurisdiction) {
   dropped_stage1 <- stage1_bilateral |>
-    filter(.data[[leave_dimension]] == jurisdiction,
-           year %in% MAIN_YEARS,
-           stage1_positive_profit_flag) |>
+    filter(
+      .data[[leave_dimension]] == jurisdiction,
+      year %in% MAIN_YEARS,
+      stage1_positive_profit_flag
+    ) |>
     summarise(
       dropped_stage1_pair_years = n(),
       dropped_stage1_profit =
@@ -240,15 +258,17 @@ build_influence_targets <- function(stage1_bilateral, estimation_sample,
       included_named_target = str_detect(target_reason, "named"),
       target_inclusion_reason = case_when(
         included_high_leverage & included_named_target ~ "both",
-        included_high_leverage                         ~ "high_leverage",
-        included_named_target                          ~ "named_target",
-        TRUE                                           ~ "unspecified"
+        included_high_leverage ~ "high_leverage",
+        included_named_target ~ "named_target",
+        TRUE ~ "unspecified"
       ),
       case_id = case_id(leave_dimension, jurisdiction)
     ) |>
     left_join(jurisdiction_lookup, by = "jurisdiction") |>
-    arrange(leave_dimension, desc(str_detect(target_reason, "named")),
-            desc(leverage_profit), jurisdiction)
+    arrange(
+      leave_dimension, desc(str_detect(target_reason, "named")),
+      desc(leverage_profit), jurisdiction
+    )
 }
 
 filter_leave_one <- function(df, leave_dimension, jurisdiction) {
@@ -337,25 +357,33 @@ summarise_revenue_decomposition <- function(revenue_country_year,
     group_by(factor4_sbs, factor5_behaviour) |>
     summarise(eu_revenue = sum(eu_revenue, na.rm = TRUE), .groups = "drop") |>
     mutate(metric = paste("preferred", factor4_sbs, factor5_behaviour,
-                          "revenue", sep = "_")) |>
+      "revenue",
+      sep = "_"
+    )) |>
     select(metric, value = eu_revenue)
 
   selected_main_effects <- main_effects |>
     filter(effect %in% c("x1_etr", "x4_sbs", "x5_behaviour")) |>
-    transmute(metric = paste0(effect, "_main_effect"),
-              value = high_minus_low)
+    transmute(
+      metric = paste0(effect, "_main_effect"),
+      value = high_minus_low
+    )
 
   selected_anova <- anova_objects$pooled |>
     filter(effect %in% c("x1_etr", "x4_sbs", "x5_behaviour")) |>
-    transmute(metric = paste0(effect, "_eta_squared"),
-              value = eta_squared)
+    transmute(
+      metric = paste0(effect, "_eta_squared"),
+      value = eta_squared
+    )
 
   largest_effect <- anova_objects$pooled |>
     arrange(desc(eta_squared)) |>
     slice(1) |>
-    transmute(metric = "largest_anova_effect",
-              value = NA_real_,
-              value_label = effect)
+    transmute(
+      metric = "largest_anova_effect",
+      value = NA_real_,
+      value_label = effect
+    )
 
   spread <- scenario_summary |>
     summarise(
@@ -365,12 +393,18 @@ summarise_revenue_decomposition <- function(revenue_country_year,
     )
 
   list(
-    scenario_summary = scenario_summary |> mutate(case_id = case_id_value,
-                                                  .before = 1),
-    anova_pooled = anova_objects$pooled |> mutate(case_id = case_id_value,
-                                                  .before = 1),
-    main_effects = main_effects |> mutate(case_id = case_id_value,
-                                          .before = 1),
+    scenario_summary = scenario_summary |> mutate(
+      case_id = case_id_value,
+      .before = 1
+    ),
+    anova_pooled = anova_objects$pooled |> mutate(
+      case_id = case_id_value,
+      .before = 1
+    ),
+    main_effects = main_effects |> mutate(
+      case_id = case_id_value,
+      .before = 1
+    ),
     revenue_metrics = bind_rows(
       preferred,
       selected_main_effects,
@@ -393,12 +427,16 @@ normalise_case_summary <- function(cases, jurisdiction_lookup, dropped_mass,
     pull(model_spec)
 
   semielasticity_key <- semielasticity |>
-    filter(inference == "parent_affiliate_clustered",
-           model_spec == baseline_model,
-           tau == 0.05) |>
-    select(case_id, leave_semielasticity_5 = semi_elasticity,
-           leave_semielasticity_5_se = std_error,
-           leave_semielasticity_5_p = p_value)
+    filter(
+      inference == "parent_affiliate_clustered",
+      model_spec == baseline_model,
+      tau == 0.05
+    ) |>
+    select(case_id,
+      leave_semielasticity_5 = semi_elasticity,
+      leave_semielasticity_5_se = std_error,
+      leave_semielasticity_5_p = p_value
+    )
 
   preferred_model <- model_comparison |>
     arrange(case_id, bic_rank) |>
@@ -410,27 +448,30 @@ normalise_case_summary <- function(cases, jurisdiction_lookup, dropped_mass,
   stage1_key <- stage1_rates |>
     filter(scope == "global") |>
     select(case_id,
-           leave_stage1_distributional_liability_rate =
-             distributional_liability_rate,
-           leave_stage1_positive_profit = positive_profit)
+      leave_stage1_distributional_liability_rate =
+        distributional_liability_rate,
+      leave_stage1_positive_profit = positive_profit
+    )
 
   numeric_revenue_metrics <- c(
-      "preferred_sbs_behavioural_revenue",
-      "preferred_universal_behavioural_revenue",
-      "x1_etr_main_effect",
-      "x4_sbs_main_effect",
-      "x5_behaviour_main_effect",
-      "x1_etr_eta_squared",
-      "x4_sbs_eta_squared",
-      "x5_behaviour_eta_squared",
-      "eu_revenue_scenario_spread"
+    "preferred_sbs_behavioural_revenue",
+    "preferred_universal_behavioural_revenue",
+    "x1_etr_main_effect",
+    "x4_sbs_main_effect",
+    "x5_behaviour_main_effect",
+    "x1_etr_eta_squared",
+    "x4_sbs_eta_squared",
+    "x5_behaviour_eta_squared",
+    "eu_revenue_scenario_spread"
   )
 
   revenue_key <- revenue_metrics |>
     filter(metric %in% numeric_revenue_metrics) |>
     select(case_id, metric, value) |>
-    pivot_wider(names_from = metric, values_from = value,
-                names_prefix = "leave_") |>
+    pivot_wider(
+      names_from = metric, values_from = value,
+      names_prefix = "leave_"
+    ) |>
     left_join(
       revenue_metrics |>
         filter(metric == "largest_anova_effect") |>
@@ -443,13 +484,17 @@ normalise_case_summary <- function(cases, jurisdiction_lookup, dropped_mass,
     left_join(preferred_model, by = "case_id") |>
     left_join(stage1_key, by = "case_id") |>
     left_join(revenue_key, by = "case_id") |>
-    rename_with(~ str_replace(.x, "^leave_", "baseline_"),
-                -case_id) |>
+    rename_with(
+      ~ str_replace(.x, "^leave_", "baseline_"),
+      -case_id
+    ) |>
     rename(baseline_preferred_model = preferred_model)
 
   cases |>
-    left_join(jurisdiction_lookup, by = "jurisdiction",
-              suffix = c("", "_lookup")) |>
+    left_join(jurisdiction_lookup,
+      by = "jurisdiction",
+      suffix = c("", "_lookup")
+    ) |>
     mutate(
       jurisdiction_name = coalesce(jurisdiction_name, jurisdiction_name_lookup)
     ) |>
@@ -464,20 +509,26 @@ normalise_case_summary <- function(cases, jurisdiction_lookup, dropped_mass,
       semielasticity_5_abs_change =
         leave_semielasticity_5 - baseline_semielasticity_5,
       semielasticity_5_pct_change =
-        safe_divide(semielasticity_5_abs_change,
-                          baseline_semielasticity_5),
+        safe_divide(
+          semielasticity_5_abs_change,
+          baseline_semielasticity_5
+        ),
       stage1_liability_rate_abs_change =
         leave_stage1_distributional_liability_rate -
-        baseline_stage1_distributional_liability_rate,
+          baseline_stage1_distributional_liability_rate,
       stage1_liability_rate_pct_change =
-        safe_divide(stage1_liability_rate_abs_change,
-                          baseline_stage1_distributional_liability_rate),
+        safe_divide(
+          stage1_liability_rate_abs_change,
+          baseline_stage1_distributional_liability_rate
+        ),
       preferred_sbs_behavioural_revenue_abs_change =
         as.numeric(leave_preferred_sbs_behavioural_revenue) -
-        as.numeric(baseline_preferred_sbs_behavioural_revenue),
+          as.numeric(baseline_preferred_sbs_behavioural_revenue),
       preferred_sbs_behavioural_revenue_pct_change =
-        safe_divide(preferred_sbs_behavioural_revenue_abs_change,
-                          as.numeric(baseline_preferred_sbs_behavioural_revenue)),
+        safe_divide(
+          preferred_sbs_behavioural_revenue_abs_change,
+          as.numeric(baseline_preferred_sbs_behavioural_revenue)
+        ),
       largest_anova_effect_stable =
         leave_largest_anova_effect == baseline_largest_anova_effect,
       preferred_model_stable =
@@ -485,9 +536,11 @@ normalise_case_summary <- function(cases, jurisdiction_lookup, dropped_mass,
       semielasticity_sign_stable =
         sign(leave_semielasticity_5) == sign(baseline_semielasticity_5)
     ) |>
-    arrange(leave_dimension,
-            desc(abs(preferred_sbs_behavioural_revenue_pct_change)),
-            jurisdiction)
+    arrange(
+      leave_dimension,
+      desc(abs(preferred_sbs_behavioural_revenue_pct_change)),
+      jurisdiction
+    )
 }
 
 add_baseline_model_case_id <- function(model_comparison) {
@@ -500,8 +553,10 @@ run_jurisdiction_influence_suite <- function(top_n = DEFAULT_TOP_N) {
   stage3_panel <- readRDS(file.path(IN, "stage3_factorial_pair_year.rds"))
   estimation_sample <- readRDS(file.path(IN, "stage3_estimation_sample.rds"))
   country_lookup <- build_country_lookup(stage3_panel)
-  jurisdiction_lookup <- build_jurisdiction_lookup(stage1_bilateral,
-                                                   stage3_panel)
+  jurisdiction_lookup <- build_jurisdiction_lookup(
+    stage1_bilateral,
+    stage3_panel
+  )
 
   baseline_stage1 <- summarise_stage1_liability(stage1_bilateral, "baseline")
   baseline_semielasticity <- read_csv(
@@ -542,9 +597,11 @@ run_jurisdiction_influence_suite <- function(top_n = DEFAULT_TOP_N) {
     )
 
     stage1_case <- summarise_stage1_liability(
-      filter_leave_one(stage1_bilateral,
-                       target$leave_dimension,
-                       target$jurisdiction),
+      filter_leave_one(
+        stage1_bilateral,
+        target$leave_dimension,
+        target$jurisdiction
+      ),
       target$case_id
     )
 
@@ -582,10 +639,14 @@ run_jurisdiction_influence_suite <- function(top_n = DEFAULT_TOP_N) {
   }
 
   dropped_mass <- bind_rows(map(case_outputs, "dropped_mass"))
-  stage1_rates <- bind_rows(baseline_stage1,
-                            bind_rows(map(case_outputs, "stage1")))
-  semielasticity <- bind_rows(baseline_semielasticity,
-                              bind_rows(map(case_outputs, "semielasticity")))
+  stage1_rates <- bind_rows(
+    baseline_stage1,
+    bind_rows(map(case_outputs, "stage1"))
+  )
+  semielasticity <- bind_rows(
+    baseline_semielasticity,
+    bind_rows(map(case_outputs, "semielasticity"))
+  )
   model_comparison <- bind_rows(
     baseline_model_comparison,
     bind_rows(map(case_outputs, "model_comparison"))
@@ -618,41 +679,75 @@ run_jurisdiction_influence_suite <- function(top_n = DEFAULT_TOP_N) {
     revenue_metrics
   )
 
-  write_csv(targets,
-            file.path(DIAG, "step10_jurisdiction_influence_cases.csv"))
-  write_csv(case_summary,
-            file.path(DIAG, "step10_jurisdiction_influence_case_summary.csv"))
-  write_csv(stage1_rates,
-            file.path(DIAG, "step10_jurisdiction_influence_stage1_rates.csv"))
-  write_csv(semielasticity,
-            file.path(DIAG, "step10_jurisdiction_influence_semielasticity.csv"))
-  write_csv(model_comparison,
-            file.path(DIAG, "step10_jurisdiction_influence_model_comparison.csv"))
-  write_csv(revenue_summary,
-            file.path(DIAG, "step10_jurisdiction_influence_revenue_summary.csv"))
-  write_csv(anova_pooled,
-            file.path(DIAG, "step10_jurisdiction_influence_anova_pooled.csv"))
-  write_csv(main_effects,
-            file.path(DIAG, "step10_jurisdiction_influence_main_effects.csv"))
-  write_csv(revenue_metrics,
-            file.path(DIAG, "step10_jurisdiction_influence_revenue_metrics.csv"))
-  write_csv(conservation,
-            file.path(DIAG, "step10_jurisdiction_influence_conservation.csv"))
+  write_csv(
+    targets,
+    file.path(DIAG, "step10_jurisdiction_influence_cases.csv")
+  )
+  write_csv(
+    case_summary,
+    file.path(DIAG, "step10_jurisdiction_influence_case_summary.csv")
+  )
+  write_csv(
+    stage1_rates,
+    file.path(DIAG, "step10_jurisdiction_influence_stage1_rates.csv")
+  )
+  write_csv(
+    semielasticity,
+    file.path(DIAG, "step10_jurisdiction_influence_semielasticity.csv")
+  )
+  write_csv(
+    model_comparison,
+    file.path(DIAG, "step10_jurisdiction_influence_model_comparison.csv")
+  )
+  write_csv(
+    revenue_summary,
+    file.path(DIAG, "step10_jurisdiction_influence_revenue_summary.csv")
+  )
+  write_csv(
+    anova_pooled,
+    file.path(DIAG, "step10_jurisdiction_influence_anova_pooled.csv")
+  )
+  write_csv(
+    main_effects,
+    file.path(DIAG, "step10_jurisdiction_influence_main_effects.csv")
+  )
+  write_csv(
+    revenue_metrics,
+    file.path(DIAG, "step10_jurisdiction_influence_revenue_metrics.csv")
+  )
+  write_csv(
+    conservation,
+    file.path(DIAG, "step10_jurisdiction_influence_conservation.csv")
+  )
 
-  saveRDS(case_summary,
-          file.path(OUT, "jurisdiction_influence_case_summary.rds"))
-  saveRDS(stage1_rates,
-          file.path(OUT, "jurisdiction_influence_stage1_rates.rds"))
-  saveRDS(semielasticity,
-          file.path(OUT, "jurisdiction_influence_semielasticity.rds"))
-  saveRDS(model_comparison,
-          file.path(OUT, "jurisdiction_influence_model_comparison.rds"))
-  saveRDS(revenue_summary,
-          file.path(OUT, "jurisdiction_influence_revenue_summary.rds"))
-  saveRDS(anova_pooled,
-          file.path(OUT, "jurisdiction_influence_anova_pooled.rds"))
-  saveRDS(main_effects,
-          file.path(OUT, "jurisdiction_influence_main_effects.rds"))
+  saveRDS(
+    case_summary,
+    file.path(OUT, "jurisdiction_influence_case_summary.rds")
+  )
+  saveRDS(
+    stage1_rates,
+    file.path(OUT, "jurisdiction_influence_stage1_rates.rds")
+  )
+  saveRDS(
+    semielasticity,
+    file.path(OUT, "jurisdiction_influence_semielasticity.rds")
+  )
+  saveRDS(
+    model_comparison,
+    file.path(OUT, "jurisdiction_influence_model_comparison.rds")
+  )
+  saveRDS(
+    revenue_summary,
+    file.path(OUT, "jurisdiction_influence_revenue_summary.rds")
+  )
+  saveRDS(
+    anova_pooled,
+    file.path(OUT, "jurisdiction_influence_anova_pooled.rds")
+  )
+  saveRDS(
+    main_effects,
+    file.path(OUT, "jurisdiction_influence_main_effects.rds")
+  )
 
   message("\nStep 10 outputs written:")
   message(" - diagnostics/step10_jurisdiction_influence_*.csv")

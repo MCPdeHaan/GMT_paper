@@ -4,18 +4,18 @@
 # Executes the Section 4.6 revenue pipeline after the legal Stage 4.5
 # allocation. The script treats the Stage 4.5 country-year revenue matrix as
 # the final object for the 2^5 counterfactual decomposition.
-library(dplyr); library(tidyr); library(readr); library(tibble); library(stringr)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(tibble)
+library(stringr)
 
-source(if (file.exists("code/00_helpers.R")) {
-  "code/00_helpers.R"
-} else {
-  file.path("..", "..", "code/00_helpers.R")
-})
+source("code/00_helpers.R")
 
-IN   <- "data/processed"
-OUT  <- IN
+IN <- "data/processed"
+OUT <- IN
 DIAG <- file.path(OUT, "diagnostics")
-GEN  <- "writing/generated"
+GEN <- "writing/generated"
 dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
 dir.create(GEN, showWarnings = FALSE, recursive = TRUE)
 
@@ -158,8 +158,10 @@ validate_revenue_inputs <- function(revenue_country_year,
   scenarios <- revenue_country_year |>
     distinct(across(all_of(SCENARIO_VARS))) |>
     mutate(
-      scenario_id_check = paste0("x", x1_etr, x2_substance, x3_rates,
-                                 x4_sbs, x5_behaviour),
+      scenario_id_check = paste0(
+        "x", x1_etr, x2_substance, x3_rates,
+        x4_sbs, x5_behaviour
+      ),
       scenario_id_valid = scenario_id == scenario_id_check
     )
 
@@ -179,7 +181,7 @@ validate_revenue_inputs <- function(revenue_country_year,
   }
 
   if (n_distinct(revenue_country_year$country) != 27 ||
-      !setequal(unique(revenue_country_year$year), MAIN_YEARS)) {
+    !setequal(unique(revenue_country_year$year), MAIN_YEARS)) {
     stop("Stage 4.6 revenue matrix is not the expected EU27 by 2017-2022 panel")
   }
 
@@ -188,7 +190,7 @@ validate_revenue_inputs <- function(revenue_country_year,
   }
 
   if (any(revenue_country_year$revenue < -1e-8, na.rm = TRUE) ||
-      any(revenue_by_channel$revenue < -1e-8, na.rm = TRUE)) {
+    any(revenue_by_channel$revenue < -1e-8, na.rm = TRUE)) {
     stop("Stage 4.6 revenue inputs contain negative revenue")
   }
 
@@ -315,9 +317,11 @@ build_shapley_factor_attribution <- function(anova_df) {
     mutate(
       allocated_eta_squared = eta_squared / interaction_order,
       main_eta_squared = if_else(interaction_order == 1L,
-                                 allocated_eta_squared, 0),
+        allocated_eta_squared, 0
+      ),
       interaction_eta_squared = if_else(interaction_order >= 2L,
-                                        allocated_eta_squared, 0)
+        allocated_eta_squared, 0
+      )
     ) |>
     group_by(effect = factor) |>
     summarise(
@@ -328,13 +332,17 @@ build_shapley_factor_attribution <- function(anova_df) {
     ) |>
     left_join(
       FACTOR_TAXONOMY |>
-        select(effect, effect_label = mechanism_class, economic_object,
-               uncertainty_class),
+        select(effect,
+          effect_label = mechanism_class, economic_object,
+          uncertainty_class
+        ),
       by = "effect"
     ) |>
     mutate(factor_label = FACTOR_LABELS[effect]) |>
     relocate(factor_label, effect_label, economic_object,
-             uncertainty_class, .after = effect) |>
+      uncertainty_class,
+      .after = effect
+    ) |>
     arrange(desc(shapley_eta_squared))
 }
 
@@ -345,10 +353,14 @@ build_uncertainty_summary <- function(anova_df) {
     summarise(
       eta_squared = sum(effect_eta_squared, na.rm = TRUE),
       main_eta_squared = sum(if_else(interaction_order == 1L,
-                                     effect_eta_squared, 0), na.rm = TRUE),
-      interaction_eta_squared = sum(if_else(interaction_order >= 2L,
-                                            effect_eta_squared, 0),
-                                    na.rm = TRUE),
+        effect_eta_squared, 0
+      ), na.rm = TRUE),
+      interaction_eta_squared = sum(
+        if_else(interaction_order >= 2L,
+          effect_eta_squared, 0
+        ),
+        na.rm = TRUE
+      ),
       effects = n(),
       .groups = "drop"
     ) |>
@@ -443,8 +455,10 @@ compute_main_effects <- function(scenario_totals,
         level = as.integer(.data[[factor_col]]),
         mean_revenue = mean_revenue
       ) |>
-      pivot_wider(names_from = level, values_from = mean_revenue,
-                  names_prefix = "level_") |>
+      pivot_wider(
+        names_from = level, values_from = mean_revenue,
+        names_prefix = "level_"
+      ) |>
       mutate(
         high_minus_low = level_1 - level_0,
         pct_high_minus_low = safe_divide(high_minus_low, level_0)
@@ -455,8 +469,10 @@ compute_main_effects <- function(scenario_totals,
 }
 
 build_h4_pairs <- function(revenue_country_year) {
-  other_factors <- c("rate_scenario", "factor1_etr", "factor2_substance",
-                     "factor5_behaviour", "country", "country_name", "year")
+  other_factors <- c(
+    "rate_scenario", "factor1_etr", "factor2_substance",
+    "factor5_behaviour", "country", "country_name", "year"
+  )
 
   revenue_country_year |>
     select(all_of(other_factors), factor4_sbs, revenue) |>
@@ -482,7 +498,8 @@ build_h4_summary <- function(h4_pairs) {
     n = length(h4_pairs$delta_sbs_minus_universal),
     mean_delta = mean(h4_pairs$delta_sbs_minus_universal, na.rm = TRUE),
     median_delta = stats::median(h4_pairs$delta_sbs_minus_universal,
-                                 na.rm = TRUE),
+      na.rm = TRUE
+    ),
     statistic = unname(wt_two_sided$statistic),
     p_value_two_sided = wt_two_sided$p.value,
     p_value_less = wt_less$p.value
@@ -690,22 +707,26 @@ build_stage1_imputation_exposure <- function(stage1_bilateral) {
     mutate(
       high_risk_imputation_branch =
         stage1_distributional_source %in%
-        c("shape_transport", "percentile_fit", "avg_only") |
-        coalesce(bspi_high_tv_flag, FALSE),
+          c("shape_transport", "percentile_fit", "avg_only") |
+          coalesce(bspi_high_tv_flag, FALSE),
       lowtax_distributional_row =
         coalesce_zero(stage1_lowtax_profit_distributional)
     ) |>
-    group_by(country = affiliate,
-             country_name = affiliate_jurisdiction_name) |>
+    group_by(
+      country = affiliate,
+      country_name = affiliate_jurisdiction_name
+    ) |>
     summarise(
       lowtax_distributional =
         sum(lowtax_distributional_row, na.rm = TRUE),
       high_risk_imputation_lowtax =
         sum(if_else(high_risk_imputation_branch,
-                    lowtax_distributional_row, 0), na.rm = TRUE),
+          lowtax_distributional_row, 0
+        ), na.rm = TRUE),
       direct_t4_lowtax =
         sum(if_else(stage1_distributional_source == "direct_t4",
-                    lowtax_distributional_row, 0), na.rm = TRUE),
+          lowtax_distributional_row, 0
+        ), na.rm = TRUE),
       high_risk_imputation_share =
         safe_divide(high_risk_imputation_lowtax, lowtax_distributional),
       direct_t4_lowtax_share =
@@ -735,8 +756,10 @@ build_country_typology_feature_matrix <- function(fiscal_salience_country,
       preferred_channel_revenue =
         qdmtt_revenue + iir_revenue + utpr_revenue,
       residual_iir_utpr_exposure =
-        safe_divide(iir_revenue + utpr_revenue,
-                    preferred_channel_revenue)
+        safe_divide(
+          iir_revenue + utpr_revenue,
+          preferred_channel_revenue
+        )
     )
 
   imputation_exposure <- build_stage1_imputation_exposure(stage1_bilateral)
@@ -755,8 +778,10 @@ build_country_typology_feature_matrix <- function(fiscal_salience_country,
     ) |>
     left_join_checked(
       imputation_exposure |>
-        select(country, high_risk_imputation_share,
-               direct_t4_lowtax_share),
+        select(
+          country, high_risk_imputation_share,
+          direct_t4_lowtax_share
+        ),
       by = "country",
       label = "country typology Stage 1 exposure"
     ) |>
@@ -780,9 +805,11 @@ build_country_typology_feature_matrix <- function(fiscal_salience_country,
       direct_t4_lowtax_share
     ) |>
     mutate(
-      across(c(qdmtt_share, residual_iir_utpr_exposure,
-               sbs_extinguished_share, high_risk_imputation_share,
-               direct_t4_lowtax_share), nan_to_na)
+      across(c(
+        qdmtt_share, residual_iir_utpr_exposure,
+        sbs_extinguished_share, high_risk_imputation_share,
+        direct_t4_lowtax_share
+      ), nan_to_na)
     ) |>
     arrange(country)
 }
@@ -798,11 +825,15 @@ prepare_typology_matrix <- function(feature_matrix) {
   imputation_summary <- tibble(
     feature = TYPOLOGY_FEATURES,
     missing_values =
-      vapply(transformed[TYPOLOGY_FEATURES],
-             function(x) sum(is.na(x)), integer(1)),
+      vapply(
+        transformed[TYPOLOGY_FEATURES],
+        function(x) sum(is.na(x)), integer(1)
+      ),
     imputation_value =
-      vapply(transformed[TYPOLOGY_FEATURES],
-             function(x) median(x, na.rm = TRUE), numeric(1))
+      vapply(
+        transformed[TYPOLOGY_FEATURES],
+        function(x) median(x, na.rm = TRUE), numeric(1)
+      )
   )
 
   imputed <- transformed
@@ -847,8 +878,10 @@ run_country_typology_pca <- function(feature_matrix) {
     as_tibble()
 
   scores <- as.data.frame(pca$x) |>
-    mutate(country = feature_matrix$country,
-           country_name = feature_matrix$country_name) |>
+    mutate(
+      country = feature_matrix$country,
+      country_name = feature_matrix$country_name
+    ) |>
     relocate(country, country_name)
 
   component_diagnostics <- bind_rows(lapply(
@@ -858,8 +891,10 @@ run_country_typology_pca <- function(feature_matrix) {
         select(feature, loading = all_of(component)) |>
         left_join(TYPOLOGY_FEATURE_GROUPS, by = "feature") |>
         group_by(policy_dimension) |>
-        summarise(abs_loading = sum(abs(loading), na.rm = TRUE),
-                  .groups = "drop") |>
+        summarise(
+          abs_loading = sum(abs(loading), na.rm = TRUE),
+          .groups = "drop"
+        ) |>
         arrange(desc(abs_loading))
 
       tibble(
@@ -914,7 +949,8 @@ build_cluster_stability <- function(scaled_matrix,
     stability_draws <- replicate(draws, {
       jittered <- scaled_matrix +
         matrix(stats::rnorm(length(scaled_matrix), 0, jitter_sd),
-               nrow = nrow(scaled_matrix))
+          nrow = nrow(scaled_matrix)
+        )
       candidate <- stats::kmeans(jittered, centers = k, nstart = 20)
       pairwise_cluster_agreement(baseline$cluster, candidate$cluster)
     })
@@ -955,8 +991,10 @@ run_country_typology_clusters <- function(feature_matrix,
                                           selected_k = 4L,
                                           seed = 20260606L) {
   set.seed(seed)
-  cluster_fit <- stats::kmeans(scaled_matrix, centers = selected_k,
-                               nstart = 100)
+  cluster_fit <- stats::kmeans(scaled_matrix,
+    centers = selected_k,
+    nstart = 100
+  )
 
   country_clusters <- feature_matrix |>
     mutate(cluster_id = cluster_fit$cluster)
@@ -1022,8 +1060,8 @@ build_measurement_sample_coverage <- function(stage1_bilateral,
         coalesce_zero(stage1_lowtax_profit_distributional),
       high_risk_imputation_branch =
         stage1_distributional_source %in%
-        c("shape_transport", "percentile_fit", "avg_only") |
-        coalesce(bspi_high_tv_flag, FALSE)
+          c("shape_transport", "percentile_fit", "avg_only") |
+          coalesce(bspi_high_tv_flag, FALSE)
     )
 
   lowtax_total <- sum(eu_bilateral$lowtax_distributional, na.rm = TRUE)
@@ -1060,22 +1098,26 @@ build_measurement_sample_coverage <- function(stage1_bilateral,
 build_measurement_sample_decomposition <- function(revenue_country_year,
                                                    stage1_bilateral,
                                                    stage1_affiliate_year) {
-  sample_anova <- bind_rows(lapply(seq_len(nrow(DECOMPOSITION_SAMPLES)),
-                                   function(i) {
-    sample_def <- DECOMPOSITION_SAMPLES[i, ]
-    sample_revenue <- revenue_country_year |>
-      filter(year >= sample_def$start_year,
-             year <= sample_def$end_year)
+  sample_anova <- bind_rows(lapply(
+    seq_len(nrow(DECOMPOSITION_SAMPLES)),
+    function(i) {
+      sample_def <- DECOMPOSITION_SAMPLES[i, ]
+      sample_revenue <- revenue_country_year |>
+        filter(
+          year >= sample_def$start_year,
+          year <= sample_def$end_year
+        )
 
-    compute_factorial_anova(sample_revenue)$pooled |>
-      mutate(
-        sample_id = sample_def$sample_id,
-        sample_label = sample_def$sample_label,
-        start_year = sample_def$start_year,
-        end_year = sample_def$end_year
-      ) |>
-      relocate(sample_id, sample_label, start_year, end_year)
-  }))
+      compute_factorial_anova(sample_revenue)$pooled |>
+        mutate(
+          sample_id = sample_def$sample_id,
+          sample_label = sample_def$sample_label,
+          start_year = sample_def$start_year,
+          end_year = sample_def$end_year
+        ) |>
+        relocate(sample_id, sample_label, start_year, end_year)
+    }
+  ))
 
   sample_main_effects <- sample_anova |>
     filter(interaction_order == 1L) |>
@@ -1084,88 +1126,92 @@ build_measurement_sample_decomposition <- function(revenue_country_year,
     mutate(main_effect_rank = row_number()) |>
     ungroup()
 
-  sample_summary <- bind_rows(lapply(seq_len(nrow(DECOMPOSITION_SAMPLES)),
-                                     function(i) {
-    sample_def <- DECOMPOSITION_SAMPLES[i, ]
-    sample_revenue <- revenue_country_year |>
-      filter(year >= sample_def$start_year,
-             year <= sample_def$end_year)
-    scenario_summary <- build_scenario_summary(sample_revenue)
-    coverage <- build_measurement_sample_coverage(
-      stage1_bilateral,
-      stage1_affiliate_year,
-      sample_def$start_year:sample_def$end_year
-    )
-	    main_effects <- sample_main_effects |>
-	      filter(sample_id == sample_def$sample_id) |>
-	      arrange(main_effect_rank)
-	    allocated_effects <- build_shapley_factor_attribution(
-	      sample_anova |> filter(sample_id == sample_def$sample_id)
-	    )
-	    interaction_eta <- sample_anova |>
-	      filter(sample_id == sample_def$sample_id, interaction_order >= 2L) |>
-	      summarise(value = sum(eta_squared, na.rm = TRUE), .groups = "drop") |>
-	      pull(value)
-	    preferred_revenue <- sample_revenue |>
-	      filter_preferred_core(behaviour = "behavioural") |>
-	      filter(factor4_sbs == "sbs") |>
-	      summarise(value = sum(revenue, na.rm = TRUE), .groups = "drop") |>
-	      pull(value)
+  sample_summary <- bind_rows(lapply(
+    seq_len(nrow(DECOMPOSITION_SAMPLES)),
+    function(i) {
+      sample_def <- DECOMPOSITION_SAMPLES[i, ]
+      sample_revenue <- revenue_country_year |>
+        filter(
+          year >= sample_def$start_year,
+          year <= sample_def$end_year
+        )
+      scenario_summary <- build_scenario_summary(sample_revenue)
+      coverage <- build_measurement_sample_coverage(
+        stage1_bilateral,
+        stage1_affiliate_year,
+        sample_def$start_year:sample_def$end_year
+      )
+      main_effects <- sample_main_effects |>
+        filter(sample_id == sample_def$sample_id) |>
+        arrange(main_effect_rank)
+      allocated_effects <- build_shapley_factor_attribution(
+        sample_anova |> filter(sample_id == sample_def$sample_id)
+      )
+      interaction_eta <- sample_anova |>
+        filter(sample_id == sample_def$sample_id, interaction_order >= 2L) |>
+        summarise(value = sum(eta_squared, na.rm = TRUE), .groups = "drop") |>
+        pull(value)
+      preferred_revenue <- sample_revenue |>
+        filter_preferred_core(behaviour = "behavioural") |>
+        filter(factor4_sbs == "sbs") |>
+        summarise(value = sum(revenue, na.rm = TRUE), .groups = "drop") |>
+        pull(value)
 
-	    tibble(
-	      sample_id = sample_def$sample_id,
-	      sample_label = sample_def$sample_label,
-	      start_year = sample_def$start_year,
-      end_year = sample_def$end_year,
-      country_years = n_distinct(sample_revenue$country) *
-        n_distinct(sample_revenue$year),
-      eu_revenue_min = min(scenario_summary$eu_revenue, na.rm = TRUE),
-      eu_revenue_max = max(scenario_summary$eu_revenue, na.rm = TRUE),
-      eu_revenue_spread =
-        max(scenario_summary$eu_revenue, na.rm = TRUE) -
-        min(scenario_summary$eu_revenue, na.rm = TRUE),
-      etr_measurement_eta = main_effects$eta_squared[
-        match("x1_etr", main_effects$effect)
-      ],
-      sbs_regime_eta = main_effects$eta_squared[
-        match("x4_sbs", main_effects$effect)
-      ],
-      substance_specification_eta = main_effects$eta_squared[
-        match("x2_substance", main_effects$effect)
-      ],
-	      behavioural_response_eta = main_effects$eta_squared[
-	        match("x5_behaviour", main_effects$effect)
-	      ],
-	      sbie_rate_endpoint_eta = main_effects$eta_squared[
-	        match("x3_rates", main_effects$effect)
-	      ],
-	      etr_measurement_allocated_eta =
-	        allocated_effects$shapley_eta_squared[
-	          match("x1_etr", allocated_effects$effect)
-	        ],
-	      sbs_regime_allocated_eta =
-	        allocated_effects$shapley_eta_squared[
-	          match("x4_sbs", allocated_effects$effect)
-	        ],
-	      substance_specification_allocated_eta =
-	        allocated_effects$shapley_eta_squared[
-	          match("x2_substance", allocated_effects$effect)
-	        ],
-	      behavioural_response_allocated_eta =
-	        allocated_effects$shapley_eta_squared[
-	          match("x5_behaviour", allocated_effects$effect)
-	        ],
-	      sbie_rate_endpoint_allocated_eta =
-	        allocated_effects$shapley_eta_squared[
-	          match("x3_rates", allocated_effects$effect)
-	        ],
-	      interaction_eta = interaction_eta,
-	      preferred_behavioural_sbs_revenue = preferred_revenue,
-	      main_effect_ranking =
-	        paste(main_effects$effect_label, collapse = " > ")
-	    ) |>
-      bind_cols(coverage)
-  }))
+      tibble(
+        sample_id = sample_def$sample_id,
+        sample_label = sample_def$sample_label,
+        start_year = sample_def$start_year,
+        end_year = sample_def$end_year,
+        country_years = n_distinct(sample_revenue$country) *
+          n_distinct(sample_revenue$year),
+        eu_revenue_min = min(scenario_summary$eu_revenue, na.rm = TRUE),
+        eu_revenue_max = max(scenario_summary$eu_revenue, na.rm = TRUE),
+        eu_revenue_spread =
+          max(scenario_summary$eu_revenue, na.rm = TRUE) -
+            min(scenario_summary$eu_revenue, na.rm = TRUE),
+        etr_measurement_eta = main_effects$eta_squared[
+          match("x1_etr", main_effects$effect)
+        ],
+        sbs_regime_eta = main_effects$eta_squared[
+          match("x4_sbs", main_effects$effect)
+        ],
+        substance_specification_eta = main_effects$eta_squared[
+          match("x2_substance", main_effects$effect)
+        ],
+        behavioural_response_eta = main_effects$eta_squared[
+          match("x5_behaviour", main_effects$effect)
+        ],
+        sbie_rate_endpoint_eta = main_effects$eta_squared[
+          match("x3_rates", main_effects$effect)
+        ],
+        etr_measurement_allocated_eta =
+          allocated_effects$shapley_eta_squared[
+            match("x1_etr", allocated_effects$effect)
+          ],
+        sbs_regime_allocated_eta =
+          allocated_effects$shapley_eta_squared[
+            match("x4_sbs", allocated_effects$effect)
+          ],
+        substance_specification_allocated_eta =
+          allocated_effects$shapley_eta_squared[
+            match("x2_substance", allocated_effects$effect)
+          ],
+        behavioural_response_allocated_eta =
+          allocated_effects$shapley_eta_squared[
+            match("x5_behaviour", allocated_effects$effect)
+          ],
+        sbie_rate_endpoint_allocated_eta =
+          allocated_effects$shapley_eta_squared[
+            match("x3_rates", allocated_effects$effect)
+          ],
+        interaction_eta = interaction_eta,
+        preferred_behavioural_sbs_revenue = preferred_revenue,
+        main_effect_ranking =
+          paste(main_effects$effect_label, collapse = " > ")
+      ) |>
+        bind_cols(coverage)
+    }
+  ))
 
   list(
     anova = sample_anova,
@@ -1204,12 +1250,6 @@ build_hypothesis_summary <- function(anova_pooled, h4_summary) {
       h4_summary$p_value_less
     ))
   )
-}
-
-latex_escape <- function(x) {
-  x |>
-    str_replace_all("&", "\\\\&") |>
-    str_replace_all("_", "\\\\_")
 }
 
 format_bn <- function(x, digits = 1) {
@@ -1295,30 +1335,36 @@ write_generated_latex <- function(anova_pooled, preferred_channel_summary,
     "\\toprule",
     "Effect & Order & Share (\\%) \\\\",
     "\\midrule",
-    paste0(top_anova$effect, " & ", top_anova$order, " & ",
-           top_anova$share, " \\\\"),
+    paste0(
+      top_anova$effect, " & ", top_anova$order, " & ",
+      top_anova$share, " \\\\"
+    ),
     "\\bottomrule",
     "\\end{tabular}",
     "\\end{table}",
     "",
-    if (nrow(behavioural_channel_table) > 0) c(
-      "\\begin{table}[H]",
-      "\\centering",
-      "\\caption{Behavioural preferred-core revenue by collection channel}",
-      "\\label{tab:stage4_6_preferred_behavioural_channels_generated}",
-      "\\small",
-      "\\begin{tabular}{@{}llr@{}}",
-      "\\toprule",
-      "Regime & Channel & Revenue (USD bn) \\\\",
-      "\\midrule",
-      paste0(behavioural_channel_table$regime, " & ",
-             behavioural_channel_table$channel, " & ",
-             behavioural_channel_table$revenue, " \\\\"),
-      "\\bottomrule",
-      "\\end{tabular}",
-      "\\end{table}",
-      ""
-    ),
+    if (nrow(behavioural_channel_table) > 0) {
+      c(
+        "\\begin{table}[H]",
+        "\\centering",
+        "\\caption{Behavioural preferred-core revenue by collection channel}",
+        "\\label{tab:stage4_6_preferred_behavioural_channels_generated}",
+        "\\small",
+        "\\begin{tabular}{@{}llr@{}}",
+        "\\toprule",
+        "Regime & Channel & Revenue (USD bn) \\\\",
+        "\\midrule",
+        paste0(
+          behavioural_channel_table$regime, " & ",
+          behavioural_channel_table$channel, " & ",
+          behavioural_channel_table$revenue, " \\\\"
+        ),
+        "\\bottomrule",
+        "\\end{tabular}",
+        "\\end{table}",
+        ""
+      )
+    },
     "\\begin{table}[H]",
     "\\centering",
     "\\caption{Mechanical preferred-core revenue by collection channel}",
@@ -1328,8 +1374,10 @@ write_generated_latex <- function(anova_pooled, preferred_channel_summary,
     "\\toprule",
     "Regime & Channel & Revenue (USD bn) \\\\",
     "\\midrule",
-    paste0(channel_table$regime, " & ", channel_table$channel, " & ",
-           channel_table$revenue, " \\\\"),
+    paste0(
+      channel_table$regime, " & ", channel_table$channel, " & ",
+      channel_table$revenue, " \\\\"
+    ),
     "\\bottomrule",
     "\\end{tabular}",
     "\\end{table}",
@@ -1343,8 +1391,10 @@ write_generated_latex <- function(anova_pooled, preferred_channel_summary,
     "\\toprule",
     "Country & Minimum & Maximum & Spread (USD bn) \\\\",
     "\\midrule",
-    paste0(selected_spread$country, " & ", selected_spread$minimum, " & ",
-           selected_spread$maximum, " & ", selected_spread$spread, " \\\\"),
+    paste0(
+      selected_spread$country, " & ", selected_spread$minimum, " & ",
+      selected_spread$maximum, " & ", selected_spread$spread, " \\\\"
+    ),
     "\\bottomrule",
     "\\end{tabular}",
     "\\end{table}"
@@ -1440,8 +1490,10 @@ run_stage4_6_pipeline <- function() {
       stage1_bilateral,
       stage1_affiliate_year
     )
-  hypothesis_summary <- build_hypothesis_summary(anova_objects$pooled,
-                                                 h4_summary)
+  hypothesis_summary <- build_hypothesis_summary(
+    anova_objects$pooled,
+    h4_summary
+  )
 
   stage4_6_summary <- bind_rows(
     validation_summary,
@@ -1480,156 +1532,316 @@ run_stage4_6_pipeline <- function() {
     )
   )
 
-  write_csv(stage4_6_summary,
-            file.path(DIAG, "step7_stage4_6_summary.csv"))
-  write_csv(hypothesis_summary,
-            file.path(DIAG, "step7_stage4_6_hypothesis_summary.csv"))
-  write_csv(scenario_summary,
-            file.path(DIAG, "step7_stage4_6_scenario_summary.csv"))
-  write_csv(scenario_design,
-            file.path(DIAG, "step7_stage4_6_scenario_design.csv"))
-  write_csv(scenario_spread_country_year,
-            file.path(DIAG, "step7_stage4_6_scenario_spread_country_year.csv"))
-  write_csv(scenario_spread_country,
-            file.path(DIAG, "step7_stage4_6_scenario_spread_country.csv"))
-  write_csv(anova_objects$pooled,
-            file.path(DIAG, "step7_stage4_6_anova_pooled.csv"))
-  write_csv(anova_pooled_taxonomy,
-            file.path(DIAG, "step7_stage4_6_structural_variance_pooled.csv"))
-  write_csv(shapley_attribution,
-            file.path(DIAG, "step7_stage4_6_shapley_factor_attribution.csv"))
-  write_csv(uncertainty_summary,
-            file.path(DIAG, "step7_stage4_6_uncertainty_summary.csv"))
-  write_csv(anova_objects$by_country,
-            file.path(DIAG, "step7_stage4_6_anova_by_country.csv"))
-  write_csv(anova_objects$by_country_year,
-            file.path(DIAG, "step7_stage4_6_anova_by_country_year.csv"))
-  write_csv(main_effects_pooled,
-            file.path(DIAG, "step7_stage4_6_main_effects_pooled.csv"))
-  write_csv(main_effects_by_country,
-            file.path(DIAG, "step7_stage4_6_main_effects_by_country.csv"))
-  write_csv(h4_summary,
-            file.path(DIAG, "step7_stage4_6_h4_wilcoxon.csv"))
-  write_csv(h4_pairs,
-            file.path(DIAG, "step7_stage4_6_h4_pairs.csv"))
-  write_csv(preferred_outputs$channel_summary,
-            file.path(DIAG, "step7_stage4_6_preferred_channel_summary.csv"))
-  write_csv(preferred_outputs$year_channel,
-            file.path(DIAG, "step7_stage4_6_preferred_channel_by_year.csv"))
-  write_csv(preferred_outputs$country_year,
-            file.path(DIAG, "step7_stage4_6_preferred_country_year.csv"))
-  write_csv(preferred_behavioural_outputs$channel_summary,
-            file.path(DIAG,
-                      "step7_stage4_6_preferred_behavioural_channel_summary.csv"))
-  write_csv(preferred_behavioural_outputs$year_channel,
-            file.path(DIAG,
-                      "step7_stage4_6_preferred_behavioural_channel_by_year.csv"))
-  write_csv(preferred_behavioural_outputs$country_year,
-            file.path(DIAG,
-                      "step7_stage4_6_preferred_behavioural_country_year.csv"))
-  write_csv(fiscal_salience_country_year,
-            file.path(DIAG,
-                      "step7_stage4_6_fiscal_salience_country_year.csv"))
-  write_csv(fiscal_salience_country,
-            file.path(DIAG,
-                      "step7_stage4_6_fiscal_salience_country.csv"))
-  write_csv(country_typology_feature_matrix,
-            file.path(DIAG,
-                      "step7_stage4_6_country_typology_feature_matrix.csv"))
-  write_csv(country_typology_pca$summary,
-            file.path(DIAG,
-                      "step7_stage4_6_country_typology_pca_summary.csv"))
-  write_csv(country_typology_pca$loadings,
-            file.path(DIAG,
-                      "step7_stage4_6_country_typology_pca_loadings.csv"))
-  write_csv(country_typology_pca$scores,
-            file.path(DIAG,
-                      "step7_stage4_6_country_typology_pca_scores.csv"))
-  write_csv(country_typology_pca$imputation_summary,
-            file.path(DIAG,
-                      "step7_stage4_6_country_typology_imputation.csv"))
-  write_csv(country_typology_stability,
-            file.path(DIAG,
-                      "step7_stage4_6_country_typology_cluster_stability.csv"))
-  write_csv(country_typology_clusters$clusters,
-            file.path(DIAG,
-                      "step7_stage4_6_country_typology_clusters.csv"))
-  write_csv(country_typology_clusters$profiles,
-            file.path(DIAG,
-                      "step7_stage4_6_country_typology_cluster_profiles.csv"))
-  write_csv(measurement_sample_decomposition$anova,
-            file.path(DIAG,
-                      "step7_stage4_6_measurement_sample_anova.csv"))
-  write_csv(measurement_sample_decomposition$main_effects,
-            file.path(DIAG,
-                      "step7_stage4_6_measurement_sample_main_effects.csv"))
-  write_csv(measurement_sample_decomposition$summary,
-            file.path(DIAG,
-                      "step7_stage4_6_measurement_sample_summary.csv"))
+  write_csv(
+    stage4_6_summary,
+    file.path(DIAG, "step7_stage4_6_summary.csv")
+  )
+  write_csv(
+    hypothesis_summary,
+    file.path(DIAG, "step7_stage4_6_hypothesis_summary.csv")
+  )
+  write_csv(
+    scenario_summary,
+    file.path(DIAG, "step7_stage4_6_scenario_summary.csv")
+  )
+  write_csv(
+    scenario_design,
+    file.path(DIAG, "step7_stage4_6_scenario_design.csv")
+  )
+  write_csv(
+    scenario_spread_country_year,
+    file.path(DIAG, "step7_stage4_6_scenario_spread_country_year.csv")
+  )
+  write_csv(
+    scenario_spread_country,
+    file.path(DIAG, "step7_stage4_6_scenario_spread_country.csv")
+  )
+  write_csv(
+    anova_objects$pooled,
+    file.path(DIAG, "step7_stage4_6_anova_pooled.csv")
+  )
+  write_csv(
+    anova_pooled_taxonomy,
+    file.path(DIAG, "step7_stage4_6_structural_variance_pooled.csv")
+  )
+  write_csv(
+    shapley_attribution,
+    file.path(DIAG, "step7_stage4_6_shapley_factor_attribution.csv")
+  )
+  write_csv(
+    uncertainty_summary,
+    file.path(DIAG, "step7_stage4_6_uncertainty_summary.csv")
+  )
+  write_csv(
+    anova_objects$by_country,
+    file.path(DIAG, "step7_stage4_6_anova_by_country.csv")
+  )
+  write_csv(
+    anova_objects$by_country_year,
+    file.path(DIAG, "step7_stage4_6_anova_by_country_year.csv")
+  )
+  write_csv(
+    main_effects_pooled,
+    file.path(DIAG, "step7_stage4_6_main_effects_pooled.csv")
+  )
+  write_csv(
+    main_effects_by_country,
+    file.path(DIAG, "step7_stage4_6_main_effects_by_country.csv")
+  )
+  write_csv(
+    h4_summary,
+    file.path(DIAG, "step7_stage4_6_h4_wilcoxon.csv")
+  )
+  write_csv(
+    h4_pairs,
+    file.path(DIAG, "step7_stage4_6_h4_pairs.csv")
+  )
+  write_csv(
+    preferred_outputs$channel_summary,
+    file.path(DIAG, "step7_stage4_6_preferred_channel_summary.csv")
+  )
+  write_csv(
+    preferred_outputs$year_channel,
+    file.path(DIAG, "step7_stage4_6_preferred_channel_by_year.csv")
+  )
+  write_csv(
+    preferred_outputs$country_year,
+    file.path(DIAG, "step7_stage4_6_preferred_country_year.csv")
+  )
+  write_csv(
+    preferred_behavioural_outputs$channel_summary,
+    file.path(
+      DIAG,
+      "step7_stage4_6_preferred_behavioural_channel_summary.csv"
+    )
+  )
+  write_csv(
+    preferred_behavioural_outputs$year_channel,
+    file.path(
+      DIAG,
+      "step7_stage4_6_preferred_behavioural_channel_by_year.csv"
+    )
+  )
+  write_csv(
+    preferred_behavioural_outputs$country_year,
+    file.path(
+      DIAG,
+      "step7_stage4_6_preferred_behavioural_country_year.csv"
+    )
+  )
+  write_csv(
+    fiscal_salience_country_year,
+    file.path(
+      DIAG,
+      "step7_stage4_6_fiscal_salience_country_year.csv"
+    )
+  )
+  write_csv(
+    fiscal_salience_country,
+    file.path(
+      DIAG,
+      "step7_stage4_6_fiscal_salience_country.csv"
+    )
+  )
+  write_csv(
+    country_typology_feature_matrix,
+    file.path(
+      DIAG,
+      "step7_stage4_6_country_typology_feature_matrix.csv"
+    )
+  )
+  write_csv(
+    country_typology_pca$summary,
+    file.path(
+      DIAG,
+      "step7_stage4_6_country_typology_pca_summary.csv"
+    )
+  )
+  write_csv(
+    country_typology_pca$loadings,
+    file.path(
+      DIAG,
+      "step7_stage4_6_country_typology_pca_loadings.csv"
+    )
+  )
+  write_csv(
+    country_typology_pca$scores,
+    file.path(
+      DIAG,
+      "step7_stage4_6_country_typology_pca_scores.csv"
+    )
+  )
+  write_csv(
+    country_typology_pca$imputation_summary,
+    file.path(
+      DIAG,
+      "step7_stage4_6_country_typology_imputation.csv"
+    )
+  )
+  write_csv(
+    country_typology_stability,
+    file.path(
+      DIAG,
+      "step7_stage4_6_country_typology_cluster_stability.csv"
+    )
+  )
+  write_csv(
+    country_typology_clusters$clusters,
+    file.path(
+      DIAG,
+      "step7_stage4_6_country_typology_clusters.csv"
+    )
+  )
+  write_csv(
+    country_typology_clusters$profiles,
+    file.path(
+      DIAG,
+      "step7_stage4_6_country_typology_cluster_profiles.csv"
+    )
+  )
+  write_csv(
+    measurement_sample_decomposition$anova,
+    file.path(
+      DIAG,
+      "step7_stage4_6_measurement_sample_anova.csv"
+    )
+  )
+  write_csv(
+    measurement_sample_decomposition$main_effects,
+    file.path(
+      DIAG,
+      "step7_stage4_6_measurement_sample_main_effects.csv"
+    )
+  )
+  write_csv(
+    measurement_sample_decomposition$summary,
+    file.path(
+      DIAG,
+      "step7_stage4_6_measurement_sample_summary.csv"
+    )
+  )
 
   saveRDS(scenario_summary, file.path(OUT, "stage4_6_scenario_summary.rds"))
-  saveRDS(scenario_spread_country_year,
-          file.path(OUT, "stage4_6_scenario_spread_country_year.rds"))
-  saveRDS(scenario_spread_country,
-          file.path(OUT, "stage4_6_scenario_spread_country.rds"))
+  saveRDS(
+    scenario_spread_country_year,
+    file.path(OUT, "stage4_6_scenario_spread_country_year.rds")
+  )
+  saveRDS(
+    scenario_spread_country,
+    file.path(OUT, "stage4_6_scenario_spread_country.rds")
+  )
   saveRDS(anova_objects$pooled, file.path(OUT, "stage4_6_anova_pooled.rds"))
-  saveRDS(anova_pooled_taxonomy,
-          file.path(OUT, "stage4_6_structural_variance_pooled.rds"))
-  saveRDS(shapley_attribution,
-          file.path(OUT, "stage4_6_shapley_factor_attribution.rds"))
-  saveRDS(uncertainty_summary,
-          file.path(OUT, "stage4_6_uncertainty_summary.rds"))
-  saveRDS(anova_objects$by_country,
-          file.path(OUT, "stage4_6_anova_by_country.rds"))
-  saveRDS(anova_objects$by_country_year,
-          file.path(OUT, "stage4_6_anova_by_country_year.rds"))
-  saveRDS(main_effects_pooled,
-          file.path(OUT, "stage4_6_main_effects_pooled.rds"))
-  saveRDS(main_effects_by_country,
-          file.path(OUT, "stage4_6_main_effects_by_country.rds"))
+  saveRDS(
+    anova_pooled_taxonomy,
+    file.path(OUT, "stage4_6_structural_variance_pooled.rds")
+  )
+  saveRDS(
+    shapley_attribution,
+    file.path(OUT, "stage4_6_shapley_factor_attribution.rds")
+  )
+  saveRDS(
+    uncertainty_summary,
+    file.path(OUT, "stage4_6_uncertainty_summary.rds")
+  )
+  saveRDS(
+    anova_objects$by_country,
+    file.path(OUT, "stage4_6_anova_by_country.rds")
+  )
+  saveRDS(
+    anova_objects$by_country_year,
+    file.path(OUT, "stage4_6_anova_by_country_year.rds")
+  )
+  saveRDS(
+    main_effects_pooled,
+    file.path(OUT, "stage4_6_main_effects_pooled.rds")
+  )
+  saveRDS(
+    main_effects_by_country,
+    file.path(OUT, "stage4_6_main_effects_by_country.rds")
+  )
   saveRDS(h4_pairs, file.path(OUT, "stage4_6_h4_pairs.rds"))
-  saveRDS(preferred_outputs$country_year,
-          file.path(OUT, "stage4_6_preferred_country_year.rds"))
-  saveRDS(preferred_outputs$channel_summary,
-          file.path(OUT, "stage4_6_preferred_channel_summary.rds"))
-  saveRDS(preferred_behavioural_outputs$country_year,
-          file.path(OUT, "stage4_6_preferred_behavioural_country_year.rds"))
-  saveRDS(preferred_behavioural_outputs$channel_summary,
-          file.path(OUT,
-                    "stage4_6_preferred_behavioural_channel_summary.rds"))
-  saveRDS(fiscal_salience_country_year,
-          file.path(OUT, "stage4_6_fiscal_salience_country_year.rds"))
-  saveRDS(fiscal_salience_country,
-          file.path(OUT, "stage4_6_fiscal_salience_country.rds"))
-  saveRDS(country_typology_feature_matrix,
-          file.path(OUT, "stage4_6_country_typology_feature_matrix.rds"))
-  saveRDS(country_typology_pca$summary,
-          file.path(OUT, "stage4_6_country_typology_pca_summary.rds"))
-  saveRDS(country_typology_pca$loadings,
-          file.path(OUT, "stage4_6_country_typology_pca_loadings.rds"))
-  saveRDS(country_typology_pca$scores,
-          file.path(OUT, "stage4_6_country_typology_pca_scores.rds"))
-  saveRDS(country_typology_pca$imputation_summary,
-          file.path(OUT, "stage4_6_country_typology_imputation.rds"))
-  saveRDS(country_typology_stability,
-          file.path(OUT, "stage4_6_country_typology_cluster_stability.rds"))
-  saveRDS(country_typology_clusters$clusters,
-          file.path(OUT, "stage4_6_country_typology_clusters.rds"))
-  saveRDS(country_typology_clusters$profiles,
-          file.path(OUT, "stage4_6_country_typology_cluster_profiles.rds"))
-  saveRDS(measurement_sample_decomposition$anova,
-          file.path(OUT, "stage4_6_measurement_sample_anova.rds"))
-  saveRDS(measurement_sample_decomposition$main_effects,
-          file.path(OUT, "stage4_6_measurement_sample_main_effects.rds"))
-  saveRDS(measurement_sample_decomposition$summary,
-          file.path(OUT, "stage4_6_measurement_sample_summary.rds"))
-  saveRDS(hypothesis_summary,
-          file.path(OUT, "stage4_6_hypothesis_summary.rds"))
+  saveRDS(
+    preferred_outputs$country_year,
+    file.path(OUT, "stage4_6_preferred_country_year.rds")
+  )
+  saveRDS(
+    preferred_outputs$channel_summary,
+    file.path(OUT, "stage4_6_preferred_channel_summary.rds")
+  )
+  saveRDS(
+    preferred_behavioural_outputs$country_year,
+    file.path(OUT, "stage4_6_preferred_behavioural_country_year.rds")
+  )
+  saveRDS(
+    preferred_behavioural_outputs$channel_summary,
+    file.path(
+      OUT,
+      "stage4_6_preferred_behavioural_channel_summary.rds"
+    )
+  )
+  saveRDS(
+    fiscal_salience_country_year,
+    file.path(OUT, "stage4_6_fiscal_salience_country_year.rds")
+  )
+  saveRDS(
+    fiscal_salience_country,
+    file.path(OUT, "stage4_6_fiscal_salience_country.rds")
+  )
+  saveRDS(
+    country_typology_feature_matrix,
+    file.path(OUT, "stage4_6_country_typology_feature_matrix.rds")
+  )
+  saveRDS(
+    country_typology_pca$summary,
+    file.path(OUT, "stage4_6_country_typology_pca_summary.rds")
+  )
+  saveRDS(
+    country_typology_pca$loadings,
+    file.path(OUT, "stage4_6_country_typology_pca_loadings.rds")
+  )
+  saveRDS(
+    country_typology_pca$scores,
+    file.path(OUT, "stage4_6_country_typology_pca_scores.rds")
+  )
+  saveRDS(
+    country_typology_pca$imputation_summary,
+    file.path(OUT, "stage4_6_country_typology_imputation.rds")
+  )
+  saveRDS(
+    country_typology_stability,
+    file.path(OUT, "stage4_6_country_typology_cluster_stability.rds")
+  )
+  saveRDS(
+    country_typology_clusters$clusters,
+    file.path(OUT, "stage4_6_country_typology_clusters.rds")
+  )
+  saveRDS(
+    country_typology_clusters$profiles,
+    file.path(OUT, "stage4_6_country_typology_cluster_profiles.rds")
+  )
+  saveRDS(
+    measurement_sample_decomposition$anova,
+    file.path(OUT, "stage4_6_measurement_sample_anova.rds")
+  )
+  saveRDS(
+    measurement_sample_decomposition$main_effects,
+    file.path(OUT, "stage4_6_measurement_sample_main_effects.rds")
+  )
+  saveRDS(
+    measurement_sample_decomposition$summary,
+    file.path(OUT, "stage4_6_measurement_sample_summary.rds")
+  )
+  saveRDS(
+    hypothesis_summary,
+    file.path(OUT, "stage4_6_hypothesis_summary.rds")
+  )
 
-  write_generated_latex(anova_objects$pooled,
-                        preferred_outputs$channel_summary,
-                        scenario_spread_country,
-                        preferred_behavioural_outputs$channel_summary)
+  write_generated_latex(
+    anova_objects$pooled,
+    preferred_outputs$channel_summary,
+    scenario_spread_country,
+    preferred_behavioural_outputs$channel_summary
+  )
 
   message("\nStep 7 outputs written:")
   message(" - data/processed/stage4_6_anova_*.rds")

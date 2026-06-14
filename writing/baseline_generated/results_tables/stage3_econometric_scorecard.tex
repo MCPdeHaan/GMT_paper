@@ -9,20 +9,19 @@
 \toprule
 Diagnostic & Result & Reading \\
 \midrule
-Preferred fixed-effect model & Linear; $N=$8,971; pairs $=$ 1,936; within $R^2=$ 0.0340; $\Delta$BIC log $=$ 5.26, quadratic $=$ 7.56. & The tax-profit relationship is visible after pair and year fixed effects, but the extra nonlinear parameters add little baseline fit. \\
-Joint tax-term tests & Linear $F=$ 30.31, $p=$ $1.6 \times 10^{-6}$; quadratic $p=$ $1.6 \times 10^{-6}$; logarithmic $p=$ $1.4 \times 10^{-6}$. & The tax terms are jointly relevant under two-way clustered inference. \\
-Non-nested nonlinear tests & Vuong $p=$ 0.376; Clarke $p=$ $5.2 \times 10^{-56}$; J-test $p=$ 0.199 and 0.283. & The logarithmic form is stronger than the quadratic form, but these tests do not overturn the linear BIC choice. \\
-Tax-code IV diagnostics & First-stage $F=$ 11.28 for simulated EATR and 20.34 for lagged statutory CIT; 2SLS $p=$ 0.815 and 0.467. & External tax-code variation is relevant, yet the reduced-form profit response is too imprecise to replace the fixed-effect estimate. \\
-Low-ETR support & Below 5\% ETR: 17.5\% of rows and 10.4\% of profit; 5--15\% ETR: 27.9\% of rows. & The GMT-relevant tail is present, while extreme lower-tail curvature remains weakly supported. \\
+Preferred fixed-effect model & Linear; $N=$8,971; pairs $=$ 1,936; within $R^2=$ 0.0339; $\Delta$BIC log $=$ 5.40, quadratic $=$ 7.54. & The tax-profit relationship is visible after pair and year fixed effects, but the extra nonlinear parameters add little baseline fit. \\
+Joint tax-term tests & Linear $F=$ 30.47, $p=$ $1.5 \times 10^{-6}$; quadratic $p=$ $1.5 \times 10^{-6}$; logarithmic $p=$ $1.2 \times 10^{-6}$. & The tax terms are jointly relevant under two-way clustered inference. \\
+Non-nested nonlinear tests & Vuong $p=$ 0.386; Clarke $p=$ $1.5 \times 10^{-54}$; J-test $p=$ 0.215 and 0.302. & The logarithmic form is stronger than the quadratic form, but these tests do not overturn the linear BIC choice. \\
+Tax-code IV diagnostics & First-stage $F=$ 12.05 for simulated EATR and 17.49 for lagged statutory CIT; 2SLS $p=$ 0.824 and 0.507. & External tax-code variation is relevant, yet the reduced-form profit response is too imprecise to replace the fixed-effect estimate. \\
+Low-ETR support & Below 5\% ETR: 17.4\% of rows and 10.1\% of profit; 5--15\% ETR: 27.3\% of rows. & The GMT-relevant tail is present, while extreme lower-tail curvature remains weakly supported. \\
 Sample robustness & Linear is BIC-preferred in 3 of 4 reported samples; the balanced-pair sample selects logarithmic. & The baseline coefficient survives standard sample cuts, with curvature becoming stronger only in the balanced subset. \\
-Jurisdiction influence & Leave-one semi-elasticity range 1.41--1.61; preferred model stable in 25 of 26 cases; revenue change -26.8\% to 2.3\%. & The behavioural coefficient is stable; final revenue remains exposed to high-leverage jurisdictions. \\
+Jurisdiction influence & Leave-one semi-elasticity range 1.40--1.60; preferred model stable in 25 of 26 cases; revenue change -27.9\% to 2.7\%. & The behavioural coefficient is stable; final revenue remains exposed to high-leverage jurisdictions. \\
 \bottomrule
 \end{tabular}
 }
 
 \vspace{0.5em}
 \begin{minipage}{0.96\textwidth}
-\footnotesize\raggedright \textit{Notes:} The table compacts the formal diagnostics that support the Stage 3 behavioural counterfactual. It is generated from the same fixed-effect, IV, model-selection, tail-support and influence outputs used in the appendix.
+\footnotesize\raggedright \textit{Notes:} The table compacts the formal diagnostics that support the Stage 3 behavioural counterfactual. It is generated from the same fixed-effect, IV, model-selection, tail-support and influence outputs used in the appendix. Source files: data/processed/diagnostics/step5\_stage3\_model\_comparison.csv; data/processed/diagnostics/step5\_stage3\_model\_wald\_tests.csv; data/processed/diagnostics/step5\_stage3\_tax\_endogeneity\_diagnostics.csv; data/processed/diagnostics/step5\_stage3\_specification\_tests.csv; data/processed/diagnostics/step5\_stage3\_etr\_tail\_support.csv; data/processed/diagnostics/step5\_stage3\_model\_robustness.csv; data/processed/diagnostics/step10\_jurisdiction\_influence\_case\_summary.csv.
 \end{minipage}
 \end{table}
-

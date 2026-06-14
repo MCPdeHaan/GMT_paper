@@ -3,13 +3,13 @@ OECD observed adjusted profit,Domestic parent cell,GBR,United Kingdom,4,53266258
 OECD observed adjusted profit,Domestic parent cell,NLD,Netherlands,6,242661677942,0.22432622697437588,NA,Direct public CbCR adjustment where observed
 OECD observed adjusted profit,Foreign affiliate cell,NLD,Netherlands,26,75708637123,0,NA,Direct public CbCR adjustment where observed
 Public CbCR ETR-parity proxy,All supported domestic country-years,ALL,Supported domestic cells,258,30105892229188.47,0.14055798227920452,0.324,Diagnostic only; foreign affiliates are an imperfect control group
-Public CbCR ETR-parity proxy,Largest benchmark-exposed parents,USA,United States,6,9286209576403.23,0.03281623202800599,0.54,Compared with benchmark calibration
-Public CbCR ETR-parity proxy,Largest benchmark-exposed parents,CHN,China,6,6174075315014.189,0.13156935998017,0.32400000000000007,Compared with benchmark calibration
-Public CbCR ETR-parity proxy,Largest benchmark-exposed parents,JPN,Japan,6,2541305477995.15,0.10768480332155272,0.32400000000000007,Compared with benchmark calibration
-Public CbCR ETR-parity proxy,Largest benchmark-exposed parents,SAU,Saudi Arabia,5,1342688140941.93,0,0.324,Compared with benchmark calibration
-Public CbCR ETR-parity proxy,Largest benchmark-exposed parents,CAN,Canada,6,1280902384159.78,0.4667678261373798,0.32400000000000007,Compared with benchmark calibration
-Public CbCR ETR-parity proxy,Largest benchmark-exposed parents,DEU,Germany,6,1033121190933,0.38622099102423973,0.324,Compared with benchmark calibration
-Public CbCR ETR-parity proxy,Largest benchmark-exposed parents,KOR,"Korea, Rep.",6,836591278930.5701,0.025970229673468175,0.324,Compared with benchmark calibration
-Public CbCR ETR-parity proxy,Largest benchmark-exposed parents,FRA,France,6,660738926147.34,0.15994078752999522,0.324,Compared with benchmark calibration
-Public CbCR ETR-parity proxy,Largest benchmark-exposed parents,BRA,Brazil,6,599790326681.79,0.4533286246749157,0.324,Compared with benchmark calibration
-Public CbCR ETR-parity proxy,Largest benchmark-exposed parents,AUS,Australia,6,590003297459.53,0.05654289459884936,0.324,Compared with benchmark calibration
+Public CbCR ETR-parity proxy,Largest benchmark-exposed parents,USA,United States,6,9286209576403.23,0.03281623202800599,0.45356441004461373,Compared with benchmark calibration
+Public CbCR ETR-parity proxy,Largest benchmark-exposed parents,CHN,China,6,6174075315014.189,0.13156935998017,0.38323210093846805,Compared with benchmark calibration
+Public CbCR ETR-parity proxy,Largest benchmark-exposed parents,JPN,Japan,6,2541305477995.15,0.10768480332155272,0.3899478352973904,Compared with benchmark calibration
+Public CbCR ETR-parity proxy,Largest benchmark-exposed parents,CAN,Canada,6,1280902384159.78,0.4667678261373798,0.4282145668945916,Compared with benchmark calibration
+Public CbCR ETR-parity proxy,Largest benchmark-exposed parents,SAU,Saudi Arabia,5,1342688140941.93,0,0.30154829705374847,Compared with benchmark calibration
+Public CbCR ETR-parity proxy,Largest benchmark-exposed parents,DEU,Germany,6,1033121190933,0.38622099102423973,0.38330798062824595,Compared with benchmark calibration
+Public CbCR ETR-parity proxy,Largest benchmark-exposed parents,KOR,"Korea, Rep.",6,836591278930.5701,0.025970229673468175,0.30421439763493374,Compared with benchmark calibration
+Public CbCR ETR-parity proxy,Largest benchmark-exposed parents,FRA,France,6,660738926147.34,0.15994078752999522,0.3531673406621872,Compared with benchmark calibration
+Public CbCR ETR-parity proxy,Largest benchmark-exposed parents,BRA,Brazil,6,599790326681.79,0.4533286246749157,0.35571863735775455,Compared with benchmark calibration
+Public CbCR ETR-parity proxy,Largest benchmark-exposed parents,IDN,Indonesia,6,445802675647,0.44057165859990294,0.40578516585141594,Compared with benchmark calibration
