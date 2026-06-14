@@ -140,6 +140,19 @@
   \renewcommand{\headrulewidth}{0pt}
 }
 
+\makeatletter
+\renewcommand{\listoftables}{%
+  \section*{\listtablename}%
+  \markboth{\MakeUppercase{\listtablename}}{\MakeUppercase{\listtablename}}%
+  \@starttoc{lot}%
+}
+\renewcommand{\listoffigures}{%
+  \section*{\listfigurename}%
+  \markboth{\MakeUppercase{\listfigurename}}{\MakeUppercase{\listfigurename}}%
+  \@starttoc{lof}%
+}
+\makeatother
+
 \usepackage{adjustbox}
 
 \newcommand{\workingnote}[1]{\ifworkingdoc\textcolor{red}{\textit{[Working note: #1]}}\fi}
@@ -231,7 +244,6 @@ This paper estimates how much revenue EU Member States could collect under the G
 \addcontentsline{toc}{section}{List of Tables}
 \listoftables
 
-\newpage
 \phantomsection
 \addcontentsline{toc}{section}{List of Figures}
 \listoffigures
@@ -367,8 +379,6 @@ The paper contributes to the GMT revenue literature in five ways. First, it tran
 
 Section \ref{sec:litreview} reviews the profit-shifting literature, the Global Minimum Tax rules and the tax-competition mechanisms that motivate the hypotheses. Section \ref{sec:data} documents how the CbCR panel is constructed and cleaned and introduces the supplementary substance, sectoral, macro, tax-rate and legal-status data. Section \ref{sec:measurement_framework} turns those inputs into measured revenue objects. Section \ref{sec:methodology} estimates the behavioural semi-elasticity, maps it into a counterfactual reallocation factor, applies the allocation rules, defines the revenue equation, decomposes the 32-scenario spread and constructs the country typology. Section \ref{sec:results} reports the results in the same order: measured low-taxed profit, substance and SBTI exposure, behavioural estimates, allocation and factorial decomposition, country heterogeneity and hypothesis tests. Section \ref{sec:discussion} interprets the uncertainty ranking, policy implications and limitations. The appendices mirror this order. Appendix \ref{app:data} audits data construction, Appendices \ref{app:stage1_measurement}--\ref{app:stage4_allocation} document the four empirical stages, Appendix \ref{app:country_policy} collects country-level policy material, and the online replication material is separated from the reader appendix.
 
-\newpage
-
 \section{Literature and institutional framework}\label{sec:literature}\label{sec:litreview}
 
 Revenue uncertainty surrounding the Global Minimum Tax decomposes into four distinct channels: measurement of the low-taxed profit base, the behavioural semi-elasticity governing how MNEs reallocate profits in response to the new floor, substance-based exclusions that reduce the effective minimum rate below its headline 15\%, and the legal allocation rules that determine which government collects the top-up tax. Plausible alternatives within any single channel produce revenue estimates that differ by factors of two or more. Section \ref{sec:beps} establishes the profit-shifting magnitudes the GMT targets. Section \ref{sec:design} describes the legal mechanics. Section \ref{sec:theory_lit} connects tax-competition welfare models to the contested semi-elasticity values. Sections \ref{sec:measurement}--\ref{sec:allocation_lit} ground each uncertainty channel in institutional detail and empirical evidence, and Section \ref{sec:theoretical_framework} synthesises them into testable hypotheses.
@@ -470,8 +480,6 @@ The previous four hypotheses concern the aggregate revenue distribution. H5 conc
 
 Three dimensions drive the prediction. Fiscal salience varies because large economies with broad domestic CIT bases are less sensitive to GMT revenue changes than small open economies that host MNE headquarters or intermediate holding structures. Allocation exposure varies because the SbS factor differentially affects countries depending on their share of US-parented affiliates and whether they have enacted a QDMTT. Measurement risk varies because the gap between distributional and jurisdiction-average ETR measurement depends on the within-country dispersion of firm-level ETRs, which \citet{hugger2026} show is jurisdiction-specific. These three dimensions are conceptually orthogonal: a country can have high fiscal salience but low allocation exposure (large QDMTT-equipped source country), or low salience but high allocation exposure (small non-QDMTT jurisdiction with US-heavy affiliate population). Standard clustering applied to the scenario-spread profiles across these dimensions should therefore produce interpretable country groupings. The null hypothesis is that country-level exposure is not systematically separable into distinct clusters. Rejecting it enables targeted policy recommendations: countries should improve measurement data, enacting a QDMTT, or managing semi-elasticity uncertainty rather than requiring bespoke country-by-country analysis.
 
-\newpage
-
 \section{Data}\label{data}\label{sec:data}\label{sec:descriptive}
 
 \subsection{OECD Country-by-Country Reporting}\label{sec:CbCR}
@@ -560,53 +568,47 @@ The cleaned CbCR panel from Section \ref{sec:data} provides the accounting input
 
 \subsection{Notation and indexing conventions}\label{sec:notation}
 
-The empirical objects are indexed at parent-affiliate-year level. Subscript $p$ denotes the parent jurisdiction, $j$ denotes the affiliate or source jurisdiction, $s$ denotes the collector jurisdiction and $t$ denotes the fiscal year, with $t \in \{2017,\ldots,2022\}$. All monetary values are in current USD unless explicitly stated otherwise, consistent with the CbCR source data. No Purchasing Power Parity (PPP) adjustment is applied to revenue calculations because the GMT applies to nominal profit and tax liabilities in the group's reporting currency. PPP-adjusted wage data enter only through the payroll proxy $\hat{W}_{p,j,t}$. Table \ref{tab:notation} collects the recurrent symbols used. 
+The empirical objects are indexed at parent-affiliate-year level. Subscripts $p$, $j$, $s$, $q$ and $t$ denote parent jurisdiction, affiliate or source jurisdiction, collector jurisdiction, sector and fiscal year, with $t \in \{2017,\ldots,2022\}$. Monetary values are in current USD unless stated otherwise. PPP adjustments are not applied to revenue calculations because the GMT applies to nominal profit and tax liabilities; PPP-adjusted wages enter only through the payroll proxy $\hat{W}_{p,j,t}$. Table \ref{tab:notation} collects the recurrent symbols used.
 
 \begin{table}[H]
 \centering
-\caption{Core notation for the revenue pipeline}
+\caption{Core Notation for the Revenue Pipeline}
 \label{tab:notation}
 \footnotesize
-\renewcommand{\arraystretch}{1.08}
-\begin{tabularx}{\textwidth}{@{}L{3.1cm}X@{}}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.00}
+\begin{tabularx}{\textwidth}{@{}L{3.15cm}X@{}}
 \toprule
-Symbol & Definition and empirical role \\
+Symbol & Meaning in the empirical pipeline \\
 \midrule
-\multicolumn{2}{@{}l}{\textit{Indices and scenario labels}} \\
-$p,j,s,t$ & Parent jurisdiction, affiliate or source jurisdiction, collector jurisdiction and fiscal year. \\
-$e,a,m,r$ & ETR measurement branch, substance branch, behavioural semi-elasticity model and legal allocation regime, respectively. \\
-$\mathbf{x}$ & Factorial scenario vector $(x_1,\ldots,x_5)\in\{0,1\}^5$. \\
-\addlinespace
-\multicolumn{2}{@{}l}{\textit{Observed and constructed CbCR inputs}} \\
-$\pi_{p,j,t}$ & Reported profit before income tax in CbCR. \\
-$\pi^{*}_{p,j,t}$ & Corrected positive-profit base after the double-counting correction. \\
-$\theta_{p,j,t}$ & Income tax accrued in CbCR, used as the public proxy for current covered taxes. \\
-$A_{p,j,t}$ & Tangible assets excluding cash and cash equivalents. \\
-$N_{p,j,t}$ & Number of employees, measured as full-time equivalent employment where reported. \\
-$\bar{w}_{j,t}$, $\hat{W}_{p,j,t}$ & Average annual wage in affiliate jurisdiction $j$ and the payroll proxy $\hat{W}_{p,j,t}=N_{p,j,t}\bar{w}_{j,t}$. \\
-$\tau_{p,j,t}$ & CbCR effective tax rate, $\theta_{p,j,t}/\pi^{*}_{p,j,t}$, after the denominator and bounding rules. \\
-\addlinespace
-\multicolumn{2}{@{}l}{\textit{Low-taxed-base and substance-shield objects}} \\
-$T$ & Global minimum tax rate, fixed at $0.15$. \\
-$F_{j,t}^{e}$ & Profit-weighted ETR distribution implied by measurement branch $e$. \\
-$s_{j,t}^{<T,e}$ & Share of corrected profit in affiliate jurisdiction $j$ and year $t$ with ETR below $T$. \\
-$\ell_{p,j,t}^{e}$ & Measured low-taxed profit, $s_{j,t}^{<T,e}\pi^{*}_{p,j,t}$. \\
-$\bar{\delta}_{j,t}^{\text{top},e}$ & Average top-up gap on the low-taxed slice, conditional on the slice being below $T$. \\
-$\lambda_{j,t}^{e}$ & Pre-SBIE liability rate on corrected profit, $s_{j,t}^{<T,e}\bar{\delta}_{j,t}^{\text{top},e}$. \\
-$\sigma_W(t),\sigma_A(t)$ & Payroll and tangible-asset carve-out rates in the SBIE. \\
-$\text{SBIE}_{p,j,t}$, $\bar{\phi}_{p,j,t}^{a}$ & Substance-Based Income Exclusion and the bounded SBIE-to-profit shield ratio under substance branch $a$. \\
-$\kappa_{j,q,t}$ & Sectoral SBTI-capacity proxy for sector $q$ in affiliate jurisdiction $j$. \\
-\addlinespace
-\multicolumn{2}{@{}l}{\textit{Behavioural, allocation and uncertainty objects}} \\
+\multicolumn{2}{@{}l}{\textit{Indices and Scenarios}} \\
+$p,j,s,q,t$ & Parent, affiliate/source, collector, sector and fiscal year. \\
+$e,a,m,r$ & ETR measurement, substance, behavioural and legal-allocation branches. \\
+$\mathbf{x}\in\{0,1\}^5$ & Factorial scenario vector. \\
+\addlinespace[2pt]
+\multicolumn{2}{@{}l}{\textit{CbCR Inputs and Tax Measures}} \\
+$\pi_{p,j,t}$, $\pi^{*}_{p,j,t}$ & Reported profit and corrected positive-profit base. \\
+$\theta_{p,j,t}$, $\tau_{p,j,t}$ & Income tax accrued and bounded CbCR ETR, $\theta_{p,j,t}/\pi^{*}_{p,j,t}$. \\
+$A_{p,j,t}$, $N_{p,j,t}$, $\hat{W}_{p,j,t}$ & Tangible assets, employees and payroll proxy $N_{p,j,t}\bar{w}_{j,t}$. \\
+\addlinespace[2pt]
+\multicolumn{2}{@{}l}{\textit{Low-Taxed Base and Substance Shield}} \\
+$T$, $F_{j,t}^{e}$ & GMT rate ($0.15$) and profit-weighted ETR distribution under branch $e$. \\
+$s_{j,t}^{<T,e}$, $\ell_{p,j,t}^{e}$ & Low-taxed profit share and measured low-taxed profit, $s_{j,t}^{<T,e}\pi^{*}_{p,j,t}$. \\
+$\bar{\delta}_{j,t}^{\text{top},e}$, $\lambda_{j,t}^{e}$ & Average top-up gap and pre-SBIE liability rate, $s_{j,t}^{<T,e}\bar{\delta}_{j,t}^{\text{top},e}$. \\
+$\sigma_W(t)$, $\sigma_A(t)$ & Payroll and tangible-asset carve-out rates in the SBIE. \\
+$\text{SBIE}_{p,j,t}$, $\bar{\phi}_{p,j,t}^{a}$ & Substance exclusion and bounded SBIE-to-profit shield ratio. \\
+$\kappa_{j,q,t}$ & Sectoral SBTI-capacity proxy. \\
+\addlinespace[2pt]
+\multicolumn{2}{@{}l}{\textit{Behaviour, Allocation and Uncertainty}} \\
 $\tau_{j,t}^{\text{low},e}$ & Implied ETR of the low-taxed slice, $T-\bar{\delta}_{j,t}^{\text{top},e}$. \\
-$\hat{\beta}_{j,t}^{e,m}$, $m_{j,t}^{\text{beh},e,m}$ & Reallocated-profit fraction and behavioural liability filter under ETR branch $e$ and semi-elasticity model $m$. \\
-$L_{p,j,t}$ & Post-substance, post-behaviour top-up liability before allocation across collector jurisdictions. \\
-$\mathbb{1}_j^{\text{Q}},\mathbb{1}_p^{\text{IIR}}$ & Indicators for source-country QDMTT and parent-country IIR status. \\
-$\mathbb{1}_s^{\text{UTPR}},\mathbb{1}_p^{\text{SbS}}$ & Indicators for collector-country UTPR and parent-country qualified Side-by-Side status. \\
+$\hat{\beta}_{j,t}^{e,m}$, $m_{j,t}^{\text{beh},e,m}$ & Reallocated-profit fraction and behavioural liability filter. \\
+$L_{p,j,t}$ & Top-up liability after substance and behaviour, before allocation. \\
+$\mathbb{1}_j^{\text{Q}}$, $\mathbb{1}_p^{\text{IIR}}$ & Source-country QDMTT and parent-country IIR status indicators. \\
+$\mathbb{1}_s^{\text{UTPR}}$, $\mathbb{1}_p^{\text{SbS}}$ & Collector-country UTPR and parent-country Side-by-Side status indicators. \\
 $\omega_{s,p,t}^{\text{U}}$, $a_{s,p,j,t}^{(r)}$ & UTPR collector weight and regime-specific allocation weight. \\
-$R_{s,t}(\mathbf{x})$ & Revenue of collector jurisdiction $s$ in year $t$ under scenario vector $\mathbf{x}$. \\
+$R_{s,t}(\mathbf{x})$ & Collector-country revenue in scenario $\mathbf{x}$. \\
 $\eta_i^2$ & Share of factorial scenario variance attributable to factor $i$. \\
-$\mathcal{U}^{A},\mathcal{U}^{B},\mathcal{U}^{C}$ & Scenario uncertainty, Stage 1 measurement uncertainty and coefficient-propagation uncertainty. \\
+$\mathcal{U}^{A}$, $\mathcal{U}^{B}$, $\mathcal{U}^{C}$ & Scenario, Stage 1 measurement and coefficient-propagation uncertainty. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -744,9 +746,9 @@ Equation \eqref{eq:etr_pillar2} shows the tax concept in one line. The effective
 
 \subsection{Sectoral substance and SBTI exposure}\label{sec:sbti_amplification}\label{sec:sbti}\label{sec:sbie_decomp}
 
-The aggregate SBIE shield can hide large sector differences. Manufacturing cells generally have more payroll and tangible assets relative to profit than holding or intellectual-property cells, so the same headline floor can imply different effective floors across sectors \citep{devereux2023,schjelderup2024}. The sectoral branch keeps the CbCR country-level liability base fixed and uses Eurostat FATS and EUKLEMS shares only to allocate payroll, tangible assets and profit across EU host-country sectors \citep{eurostat2025fats,euklemsintanprod2025}. Appendix \ref{app:sector} documents the bridge and its coverage thresholds. FATS and EUKLEMS are therefore not alternative tax datasets; they are allocation devices for the public CbCR substance inputs.
+The aggregate SBIE shield can hide large sector differences. Manufacturing cells generally have more payroll and tangible assets relative to profit than holding or intellectual-property cells, so the same headline floor can imply different effective floors across sectors \citep{devereux2023,schjelderup2024}. The sectoral branch keeps the CbCR country-level liability base fixed and uses Eurostat FATS and EUKLEMS shares only to allocate payroll, tangible assets and profit across EU host-country sectors \citep{eurostat2025fats,euklemsintanprod2025}. Appendix \ref{app:sector} documents the bridge and its coverage thresholds.
 
-For sector $q$ in jurisdiction $j$, the sectoral shield ratio is:
+For sector $q$ in jurisdiction $j$, the sectoral shield ratio later used in the revenue scenarios:
 \begin{equation}\label{eq:rho_sector}
 \phi_{j,q,t}=\sigma_W(t)\frac{W_{j,q,t}}{\pi_{j,q,t}}+\sigma_A(t)\frac{A_{j,q,t}}{\pi_{j,q,t}}.
 \end{equation}
@@ -754,54 +756,24 @@ The country-level ratio is the profit-weighted sector average:
 \begin{equation}\label{eq:rho_sectoral}
 \phi_{j,t}=\sum_q\omega_{j,q,t}\phi_{j,q,t},\quad \omega_{j,q,t}=\frac{\pi_{j,q,t}}{\pi_{j,t}}.
 \end{equation}
-These equations define the sectoral substance exposure used later in the revenue scenarios. The point of the branch is not to claim that the sectoral allocation is observed perfectly. It is to test whether the aggregate CbCR shield is misleading when low-taxed profit is concentrated in asset-light activities, a risk that would be invisible in a country-level average.
 
-The January 2026 SBTI Safe Harbour adds a related but distinct exposure margin. It can protect qualifying tax incentives up to a substance-linked cap \citep{oecd2026}. The economic mechanism is different from the SBIE. The SBIE reduces the excess-profit base; the SBTI can increase covered taxes by allowing qualifying incentives to be treated favourably up to the cap. Public data do not observe actual qualifying tax incentives, safe-harbour elections or the legal classification of local credits. The empirical object is therefore an exposure index, not realised SBTI take-up.
-
-The SBTI-capacity proxy normalises the public-data approximation of the cap by profit:
+The January 2026 SBTI Safe Harbour adds a related but distinct exposure margin. It can protect qualifying tax incentives up to a substance-linked cap \citep{oecd2026}. The SBIE reduces the excess-profit base; the SBTI can increase covered taxes by allowing qualifying incentives to be treated favourably up to the cap. Public data do not observe actual qualifying tax incentives, safe-harbour elections or the legal classification of local credits. The empirical object is therefore an exposure index. The SBTI-capacity proxy normalises the public-data approximation of the cap by profit:
 \begin{equation}\label{eq:sbti_capacity}
 \kappa_{j,q,t} = \frac{\max\!\left(0.055\,W_{j,q,t},\; 0.01\,A_{j,q,t}\right)}{\pi_{j,q,t}}
 \end{equation}
 The legal cap and the public-data simplification behind equation \eqref{eq:sbti_capacity} are derived in Appendix \ref{app:sbti_details}. In the main estimates, $\kappa_{j,q,t}$ measures capacity. A high value means that a sector-country cell has enough payroll or tangible assets relative to profit to shelter qualifying incentives if such incentives exist. A low value means that the SBTI channel is unlikely to matter even if the jurisdiction offers tax incentives, because there is little substance against which the legal cap can be computed.
 
-\subsection{Outputs passed to the revenue model}\label{sec:measurement_outputs}
-
-The revenue model in Section \ref{sec:methodology} receives the following measurement objects: corrected positive profit $\pi^{*}_{p,j,t}$; the selected low-taxed share $s_{j,t}^{<T,e}$ from equation \eqref{eq:lowtax_share}; low-taxed profit $\ell_{p,j,t}^{e}$ from equation \eqref{eq:lowtax_profit}; the average top-up gap $\bar{\delta}_{j,t}^{\text{top},e}$ from equation \eqref{eq:topup_gap}; the liability rate $\lambda_{j,t}^{e}$ from equation \eqref{eq:liability_rate}; the SBIE shield ratio $\bar{\phi}_{p,j,t}^{a}$ from equation \eqref{eq:sbie_ratio}; and the sectoral SBTI exposure index $\kappa_{j,q,t}$ from equation \eqref{eq:sbti_capacity}. These objects are measured before behavioural responses and before legal allocation. Section \ref{sec:methodology} changes the counterfactual amount and collector country, but it does not redefine the measured low-taxed base.
-
-
-\newpage
-
 \section{Methodology}\label{sec:methodology}
 
-The empirical design is organised around the four questions that make public-data GMT revenue estimates diverge. First, do public CbCR data reveal the profit taxed below 15\%? Section \ref{sec:measurement_framework} answers this with jurisdiction-average and distributional ETR measurement. Second, how much of that low-taxed base is treated as attached to real activity? Section \ref{sec:SBIE} measures the payroll-and-asset shield. Third, if the reform raises the effective tax rate in low-tax jurisdictions, how much reported profit should remain there? This section estimates and applies the behavioural semi-elasticity. Fourth, which government collects the remaining top-up tax? The allocation block below translates legal rule order into collector-country revenue.
+This chapter turns the measured CbCR inputs into EU collector-country revenue estimates. It first estimates how reported profit responds when effective tax rates change, because the revenue counterfactual depends on how much profit remains in low-tax jurisdictions once the 15\% floor binds. It then applies the legal order of QDMTTs, IIRs, UTPRs and the Side-by-Side safe harbour to assign collection rights over the remaining top-up tax.
 
-The chapter therefore follows a decision sequence rather than a catalogue of techniques. Each tool has a limited job: fixed effects compare changes within the same parent-affiliate relationship; model selection asks whether the tax response is linear or concentrated at low rates; IV diagnostics test whether the tax variation used for identification is credible; tail-support checks ask whether the data contain enough observations where the GMT binds; the factorial decomposition measures which modelling choice moves the revenue estimate most; and PCA compresses country patterns for classification.
-
-\begin{table}[H]
-\centering
-\caption{Empirical choices in the revenue methodology}
-\label{tab:methodology_map}
-\small
-\begin{tabular}{@{}p{3.2cm}p{3.7cm}p{3.7cm}p{3.1cm}@{}}
-\toprule
-Decision question & Empirical object & Formal object & Main diagnostic \\
-\midrule
-How much profit is below the floor? & Low-taxed profit share and top-up gap & $s_{j,t}^{<T,e}$, $\bar{\delta}_{j,t}^{\text{top},e}$ & Table IV support and Stage 1 validation \\
-How much is shielded by substance? & Payroll-and-asset shield & $\bar{\phi}_{p,j,t}$ & Aggregate versus sectoral SBIE comparison \\
-How much reported profit remains after the floor rises? & Tax semi-elasticity of reported profit & $\hat{\beta}_3$, $m_{j,t}^{\text{beh}}$ & Fixed effects, BIC, IV and tail support \\
-Who collects the residual top-up? & Collection channel and collector country & $a_{s,p,j,t}^{(r)}$ & QDMTT, IIR, UTPR and SbS status \\
-Which choices drive the spread? & Scenario revenue matrix & $R_{s,t}(\mathbf{x})$ & Orthogonal factorial and Shapley-style shares \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-The input objects are the corrected profit base $\pi^{*}_{p,j,t}$, low-taxed profit $\ell_{p,j,t}$, the average top-up rate $\bar{\delta}_{j,t}^{\text{top}}$, the SBIE shield and the legal allocation indicators constructed in Sections \ref{sec:data} and \ref{sec:measurement_framework}. The output is a revenue matrix for EU collector countries under 32 policy and measurement scenarios.
+The final step combines the measurement, substance, behavioural and allocation choices into a 32-scenario revenue matrix. That matrix is used to decompose the spread across estimates and to group Member States with similar exposure patterns. The method therefore follows the revenue calculation itself: define the low-taxed base, adjust it for substance and behaviour, allocate the residual liability, and identify which choices drive uncertainty.
 
 \subsection{Panel estimation of profit-shifting semi-elasticities}\label{sec:estimation}
 
-The policy question is simple: if the GMT raises the effective tax rate faced by low-taxed affiliates, how much reported profit should remain in those affiliates? The answer is governed by a tax semi-elasticity. A semi-elasticity of one means that a one percentage-point increase in the ETR is associated with about one per cent lower reported profit, conditional on the controls and fixed effects in the model. The behavioural step is therefore a counterfactual filter, not the whole revenue model.
+The policy question is simple: if the GMT raises the effective tax rate faced by low-taxed affiliates, how much reported profit should remain in those affiliates? The answer is governed by a tax semi-elasticity. A semi-elasticity of one means that a one percentage-point increase in the ETR is associated with about one per cent lower reported profit, conditional on the controls and fixed effects in the model. 
 
-The estimation uses the Hines--Rice logic that reported profit in a jurisdiction reflects both real activity and the tax incentive to book income there \citep{hines1994}. The usual cross-sectional risk is that low-tax jurisdictions differ from high-tax jurisdictions in persistent ways. A pure comparison of Luxembourg and Germany, for example, would mix tax incentives with treaty networks, sector composition, legal infrastructure and headquarters patterns. The panel design instead compares changes within the same parent-affiliate relationship over time. Parent--affiliate fixed effects absorb time-invariant bilateral differences, while year fixed effects absorb common shocks such as the TCJA, the COVID contraction and the post-2020 recovery.
+The estimation uses the Hines--Rice logic that reported profit in a jurisdiction reflects both real activity and the tax incentive to book income there \citep{hines1994}. The usual cross-sectional risk is that low-tax jurisdictions differ from high-tax jurisdictions in persistent ways. A pure comparison of Luxembourg and Germany, for example, would mix tax incentives with treaty networks, sector composition, legal infrastructure and headquarters patterns. The panel design instead compares changes within the same parent-affiliate relationship over time. Parent--affiliate fixed effects absorb time-invariant bilateral differences, while year fixed effects absorb common shocks.
 
 \subsubsection{Estimation framework}\label{sec:hines_rice}
 
@@ -821,7 +793,7 @@ Following \citet{garcia-bernardo2024}, the logarithmic specification allows a sh
 \begin{equation}\label{eq:panel_log}
 \log \pi_{p,j,t}^{*} = \beta_0 + \beta_1 \log A_{p,j,t} + \beta_2 \log \hat{W}_{p,j,t} + \beta_3 \, \tau_{p,j,t} + \beta_4 \log(t_0 + \tau_{p,j,t}) + \mathbf{\beta}_x \mathbf{X}_{p,j,t} + \alpha_{pj} + \gamma_t + \varepsilon_{p,j,t}
 \end{equation}
-where $t_0$ is a small offset selected by minimising the BIC over the grid $t_0 \in [0.001, 0.200]$. The implied semi-elasticity is $\varepsilon(\tau) = \beta_3 + \beta_4/(t_0+\tau)$. The BIC ranks the three models on the common estimation sample, and the Vuong test compares the two non-nested nonlinear alternatives. Appendix \ref{app:behavioural_details} gives the functional-form mappings and Figure \ref{fig:semi_elasticity_forms} shows the implied curve shapes.
+where $t_0$ is a small offset selected by minimising the BIC over the grid $t_0 \in [0.001, 0.200]$, in line with \citep{garcia-bernardo2024}. The implied semi-elasticity is $\varepsilon(\tau) = \beta_3 + \beta_4/(t_0+\tau)$. The BIC ranks the three models on the common estimation sample, and the Vuong test compares the two non-nested nonlinear alternatives. Appendix \ref{app:behavioural_details} gives the functional-form mappings and Figure \ref{fig:semi_elasticity_forms} shows the implied curve shapes.
 
 \subsubsection{Identification}\label{sec:identification}
 
@@ -1095,8 +1067,6 @@ R^{\pm}
 R^{\text{pref}}\frac{G_{\text{lin}}^{\pm}(\bar{\tau})}{G_{\text{lin}}(\bar{\tau})}.
 \end{equation}
 This is a local coefficient-propagation bound. A full coefficient bootstrap would resample the relevant clusters, re-estimate the behavioural model and rerun the revenue allocation. The results keep Objects A, B and C separate.
-
-\newpage
 
 \section{Results}\label{sec:results}\label{sec:se_results}
 
