@@ -797,9 +797,11 @@ where $t_0$ is a small offset selected by minimising the BIC over the grid $t_0 
 
 \subsubsection{Identification}\label{sec:identification}
 
-Identifying variation comes from within-pair movement in the CbCR ETR over 2017--2022. The pair fixed effect $\alpha_{pj}$ absorbs slowly changing bilateral features: treaty access, distance, language, legal-system similarity and persistent MNE group structure. The year fixed effect $\gamma_t$ absorbs common shocks. Relative to cross-sectional CbCR estimates, the within-pair design asks whether the same parent-affiliate cell reports less profit when its effective tax rate rises rather than whether low-tax cells report more profit than high-tax cells.
+Identifying variation comes from within-pair movement in the CbCR ETR over 2017--2022. The pair fixed effect $\alpha_{pj}$ absorbs persistent bilateral features, including treaty access, distance, language, legal-system similarity and stable MNE group structure. The year fixed effect $\gamma_t$ absorbs common shocks. This follows the panel version of the Hines--Rice design, where fixed effects reduce bias from time-invariant unobserved profitability differences and the tax coefficient is identified from changes within units rather than from levels across low- and high-tax locations \citep{dharmapala2014,heckemeyer2017}. 
 
-The remaining concern is mechanical tax endogeneity. The CbCR ETR equals tax accrued divided by reported profit, so profit shifting can affect the dependent variable and the tax denominator simultaneously. The fixed-effect coefficient serves as the preferred behavioural input because it uses the full public panel; the IV and tail-support diagnostics delimit how far a causal reading of that coefficient can be pushed. Section \ref{sec:results_stage3} and Appendix \ref{app:results_stage3} assess whether within-pair and lower-tail support are sufficient for the revenue counterfactual.
+Affiliate-clustered standard errors are retained as a one-way diagnostic for host-country shocks. Model selection proceeds in two stages. The BIC ranks the linear, quadratic and logarithmic specifications on the common sample. A \citet{vuong1989} test then compares the two non-nested nonlinear specifications through their observation-level log-likelihoods.
+
+The remaining concern is mechanical tax endogeneity. The CbCR ETR equals tax accrued divided by reported profit, so profit shifting can affect the dependent variable and the tax denominator simultaneously. CbCR definitions of profit and current-year tax accrued can distort ETRs when dividends, equity income, loss offsets or timing differences affect the denominator and numerator asymmetrically \citep{bobeldijk2019,blouin2023}. The fixed-effect coefficient serves as the preferred behavioural input because it uses the full public panel. 
 
 \subsubsection{Instrumental-variable robustness}\label{sec:iv_strategy}
 
@@ -816,50 +818,35 @@ The second stage replaces the potentially endogenous CbCR ETR in the linear Hine
 \end{equation}
 The reduced form is estimated in parallel by replacing $\tau_{p,j,t}$ in \eqref{eq:iv_second_stage} with each excluded instrument. A useful instrument should have a relevant first stage and a same-signed reduced form. The identifying assumption remains demanding, since tax reforms can respond to fiscal pressure or avoidance activity. The IV estimates are therefore reported as credibility diagnostics for the linear tax coefficient. Extending the IV design to the quadratic or logarithmic specifications would require separate excluded instruments for nonlinear tax terms and a multivariate weak-instrument assessment, which the public CbCR panel cannot support credibly.
 
-\subsubsection{Inference}\label{sec:inference}
-
-The main regression table reports parent-and-affiliate two-way clustered standard errors, because residual correlation can run through the parent side of the CbCR reporting system as well as through common host-country tax shocks \citep{cameron2008}. Affiliate-clustered standard errors are retained as a one-way diagnostic for host-country shocks. Model selection proceeds in two stages. The BIC ranks the linear, quadratic and logarithmic specifications on the common sample. A \citet{vuong1989} test then compares the two non-nested nonlinear specifications through their observation-level log-likelihoods.
-
-\subsubsection{Connection to the revenue counterfactual}\label{sec:counterfactual}
-
-The preferred Hines--Rice coefficient becomes a liability filter in the revenue equation. The counterfactual holds tangible assets and payroll at their pre-reform values, consistent with the short-run profit-allocation horizon of the semi-elasticity model. Real investment and employment can respond over longer horizons, as shown in \citet{bilicka2022} and \citet{suarezserrato2018}, although public CbCR cannot separate book-profit relocation from real-activity relocation. The implemented mapping is reported in Section \ref{sec:reallocation_mapping}. The rejected quadratic and logarithmic mappings remain in Appendix \ref{app:behavioural_details}.
-
-\subsubsection{Robustness}\label{sec:estimation_robustness}
-Five robustness checks discipline the behavioural estimate. The balanced-panel check tests whether expanding CbCR coverage over time drives the coefficient. The wage-quality check examines whether stale wage proxies distort the payroll control. The pandemic exclusion removes 2020--2021 to test whether profit compression in those years alters the tax coefficient. The cluster comparison contrasts host-country-only clustering against two-way clustering to assess whether inference is driven by a single side of the bilateral structure. The FE-2SLS diagnostics test whether tax-code variation supports the fixed-effect association.
-
-A lower-tail support diagnostic assesses whether nonlinear terms are identified where the GMT bites most, below an ETR of 5 per cent. Inverse probability weighting is not used: a below-5 per cent ETR is itself a symptom of avoidance behaviour rather than an externally assigned treatment, so reweighting by propensity conflates the treatment and the outcome. The pipeline therefore reports support counts, profit shares, within-pair switching support and an illustrative tail-balanced design.
-
-The jurisdiction-influence exercise drops one major parent or affiliate jurisdiction at a time, refits the Stage 3 model, recomputes the Stage 1 liability rate and rebuilds the EU revenue decomposition to check whether the ranking of uncertainty channels depends on a single dominant country. The full-sample estimate remains preferred because large jurisdictions are part of the policy population.
+\subsubsection{Robustness checks}\label{sec:estimation_robustness}
+Five robustness checks are implemented on the the behavioural estimate. The balanced-panel check tests whether expanding CbCR coverage over time drives the coefficient. The wage-quality check examines whether stale wage proxies distort the payroll control. The pandemic exclusion removes 2020--2021 to test whether profit compression in those years alters the tax coefficient. The cluster comparison contrasts host-country-only clustering against two-way clustering to assess whether inference is driven by a single side of the bilateral structure. The FE-2SLS diagnostics test whether tax-code variation supports the fixed-effect association. A lower-tail support diagnostic assesses whether nonlinear terms are identified where the GMT bites most, below an ETR of 5 per cent. The jurisdiction-influence exercise drops one major parent or affiliate jurisdiction at a time, refits the Stage 3 model, recomputes the Stage 1 liability rate and rebuilds the EU revenue decomposition to check whether the ranking of uncertainty channels depends on a single dominant country. The full-sample estimate remains preferred because large jurisdictions are part of the policy population.
 
 \subsection{Behavioural counterfactual response}\label{sec:behavioural}
 
-The behavioural estimate has to be translated into the object used by a revenue model. The tax floor raises the ETR on the low-taxed slice from its measured value to 15\%, and the semi-elasticity predicts the fraction of reported profit that remains in that slice. This creates the liability filter $m_{j,t}^{\text{beh}}$ in equation \eqref{eq:pipeline}. The filter has two margins. The estimated margin applies the BIC-preferred linear semi-elasticity below the safe-harbour band. The safe-harbour margin sets top-up liability to zero in a narrow band below 15\%, reflecting the Simplified ETR Safe Harbour (SESH) introduced in the January 2026 Administrative Guidance \citep{oecd2026}.
-
+The behavioural estimate has to be translated into the object used by a revenue model. The tax floor raises the ETR on the low-taxed slice from its measured value to 15\%, and the semi-elasticity predicts the fraction of reported profit that remains in that slice. This creates the liability filter $m_{j,t}^{\text{beh}}$ in equation \eqref{eq:pipeline}. The filter has two margins. The estimated margin applies the BIC-preferred linear semi-elasticity below the safe-harbour band. The safe-harbour margin sets top-up liability to zero in a narrow band below 15\%, reflecting the Simplified ETR Safe Harbour (SESH) introduced in the January 2026 \citep{oecd2026}.
 
 \subsubsection{From semi-elasticity estimates to the reallocation factor}\label{sec:reallocation_mapping}
 
 For each ETR measurement branch, Stage 1 supplies the profit-weighted average top-up rate on the low-taxed slice, $\bar{\delta}_{j,t}^{\text{top},e}$. The implied ETR of the profit that enters the GMT base is:
 \begin{equation}\label{eq:tau_low_segment}
-\tau_{j,t}^{\text{low},e} = T - \bar{\delta}_{j,t}^{\text{top},e}.
+\tau_{j,t}^{\text{low},e} = T - \bar{\delta}_{j,t}^{\text{top},e}
 \end{equation}
 With $\hat{\beta}_3<0$ from the linear Hines--Rice model, the counterfactual profit ratio when the low-taxed slice is raised to $T$ is:
 \begin{equation}\label{eq:cf_linear}
-G_{\text{lin}}(\tau) = \exp\!\left[\hat{\beta}_3\,(T-\tau)\right].
+G_{\text{lin}}(\tau) = \exp\!\left[\hat{\beta}_3\,(T-\tau)\right]
 \end{equation}
-Reallocation is active only when the branch identifies a positive low-taxed share and a positive top-up rate. The raw affiliate-year response is:
+Reallocation is active only when the branch identifies a positive low-taxed share and a positive top-up rate. The affiliate-year response is bounded to the unit interval and looks the following:
 \begin{equation}\label{eq:beta_aggregated}
 \hat{\beta}_{j,t}^{e,m}
 \;=\;
 \mathbf{1}\{s_{j,t}^{<T,e}>0,\ \bar{\delta}_{j,t}^{\text{top},e}>0\}
-\cdot \left[1-G_{\text{lin}}\!\left(\tau_{j,t}^{\text{low},e}\right)\right],
+\cdot \left[1-G_{\text{lin}}\!\left(\tau_{j,t}^{\text{low},e}\right)\right]
 \end{equation}
-with the result bounded to the unit interval. In the final revenue matrix this response applies only to bilateral rows with positive post-SBIE low-taxed profit and legal collection exposure. Inside the SESH bandwidth, equation \eqref{eq:regime} sets top-up tax to zero and no cross-border reallocation is applied.
+In the final revenue matrix this response applies only to bilateral rows with positive post-SBIE low-taxed profit and legal collection exposure. 
 
 \subsubsection{Safe-harbour regime and bunching under the Simplified ETR Safe Harbour}\label{sec:bunching}\label{sec:sesh}
 
-The Simplified ETR Safe Harbour (SESH) creates a liability margin distinct from cross-border reallocation. An affiliate jurisdiction whose simplified ETR reaches fifteen per cent has its top-up tax deemed zero and avoids the full GloBE computation for that jurisdiction \citep{oecd2026}. The public CbCR panel ends before SESH can generate observed post-policy density around the threshold. The main revenue model therefore uses a transparent upper-bound filter, while Appendix \ref{app:sesh_details} records the structural bunching logic and the pre-reform density diagnostic.
-
-The implemented filter is:
+The Simplified ETR Safe Harbour (SESH) means that an affiliate jurisdiction whose simplified ETR reaches 15\% has its top-up tax deemed zero and avoids the full GloBE computation for that jurisdiction \citep{oecd2026}. The main revenue model therefore uses a transparent upper-bound filter: 
 \begin{equation}\label{eq:regime}
 m_{j,t}^{\text{beh},e,m} = \begin{cases}
 0 & \text{if } \tau_{j,t}^{\text{low},e} \in [T - \eta,\; T), \\[2pt]
@@ -867,11 +854,11 @@ m_{j,t}^{\text{beh},e,m} = \begin{cases}
 1 & \text{otherwise.}
 \end{cases}
 \end{equation}
-where $T = 0.15$ and the baseline bandwidth is $\eta = 0.02$. Inside the band $[T-\eta,T)$, pre-tax profit stays in place and top-up liability is set to zero. Below the band, the semi-elasticity response in \eqref{eq:beta_aggregated} applies. This is an upper-bound counterfactual, not a structural bunching estimate.
+where $T = 0.15$ and the baseline bandwidth is $\eta = 0.02$. Inside the band $[T-\eta,T)$, pre-tax profit stays in place and top-up liability is set to zero. Below the band, the semi-elasticity response in \eqref{eq:beta_aggregated} applies. Appendix \ref{app:sesh_details} records the structural bunching logic and the pre-reform density diagnostic.
 
 \subsubsection{Redistribution of reallocated profit}\label{sec:reallocation}
 
-The reallocated profit is assigned to destination jurisdictions only as a conservation check. The thesis adopts the formulary reallocation of \citet{garcia-bernardo2024}:
+The reallocated profit is assigned to destination jurisdictions. The thesis adopts the formulary reallocation of \citet{garcia-bernardo2024}:
 \begin{equation}\label{eq:reallocation}
 R_i = \tfrac{1}{4}\frac{N_i}{\sum_{k} N_k} + \tfrac{1}{4}\frac{W_i}{\sum_{k} W_k} + \tfrac{1}{2}\frac{\text{UPR}_i}{\sum_{k} \text{UPR}_k},
 \end{equation}
