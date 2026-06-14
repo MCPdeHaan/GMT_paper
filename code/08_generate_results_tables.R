@@ -98,14 +98,8 @@ coef_cell <- function(estimate, std_error, p_value, digits = 3) {
 }
 
 source_note <- function(files) {
-  files <- files[!is.na(files) & nzchar(files)]
-  if (length(files) == 0L) {
-    return("")
-  }
-  paste0(
-    "Source file", ifelse(length(files) == 1L, "", "s"), ": ",
-    paste(latex_escape(files), collapse = "; "), "."
-  )
+  # Source paths belong in pipeline diagnostics, not manuscript table notes.
+  ""
 }
 
 normalise_factor_label <- function(x) {
