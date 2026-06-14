@@ -846,7 +846,7 @@ In the final revenue matrix this response applies only to bilateral rows with po
 
 \subsubsection{Safe-harbour regime and bunching under the Simplified ETR Safe Harbour}\label{sec:bunching}\label{sec:sesh}
 
-The Simplified ETR Safe Harbour (SESH) means that an affiliate jurisdiction whose simplified ETR reaches 15\% has its top-up tax deemed zero and avoids the full GloBE computation for that jurisdiction \citep{oecd2026}. The main revenue model therefore uses a transparent upper-bound filter: 
+The Simplified ETR Safe Harbour (SESH) means that an affiliate jurisdiction whose simplified ETR reaches 15\% has its top-up tax deemed zero and avoids the full GloBE computation for that jurisdiction \citep{oecd2026}. The revenue model therefore uses an upper-bound filter: 
 \begin{equation}\label{eq:regime}
 m_{j,t}^{\text{beh},e,m} = \begin{cases}
 0 & \text{if } \tau_{j,t}^{\text{low},e} \in [T - \eta,\; T), \\[2pt]
@@ -864,29 +864,23 @@ R_i = \tfrac{1}{4}\frac{N_i}{\sum_{k} N_k} + \tfrac{1}{4}\frac{W_i}{\sum_{k} W_k
 \end{equation}
 with $N_i$ employment, $W_i$ payroll, and $\text{UPR}_i$ unrelated-party revenue of MNE activity in destination $i$. Summation is restricted to destinations with $\tau_{i,t} \geq T$ so that reallocated profit is not mechanically re-deposited in a second haven.
 
-Redistribution does not itself generate EU top-up revenue. An additional euro sent to a jurisdiction with $\tau_{i,t}\ge T$ enters above the floor and contributes zero to the GMT top-up. Equation \eqref{eq:reallocation} therefore verifies profit conservation and checks whether the implied re-reporting pattern aligns with real activity. The SBIE is evaluated on pre-response payroll and tangible assets throughout. This keeps the short-run reported-profit response separate from the longer-run real-activity response documented in \citet{bilicka2022} and \citet{suarezserrato2018}.
-
-Additional uncertainty is quantified in Appendix \ref{sec:beta_uncertainty}, which separates coefficient uncertainty from scenario spread and explains why the factorial behavioural contrast should not be read as a confidence interval.
+Redistribution does not itself generate EU top-up revenue. An additional euro sent to a jurisdiction with $\tau_{i,t}\ge T$ enters above the floor and contributes zero to the GMT top-up. Equation \eqref{eq:reallocation} therefore verifies profit conservation and checks whether the implied re-reporting pattern aligns with real activity. The SBIE is evaluated on pre-response payroll and tangible assets. This keeps the short-run reported-profit response separate from the longer-run real-activity response documented in \citet{bilicka2022} and \citet{suarezserrato2018}. Additional uncertainty is quantified in Appendix \ref{sec:beta_uncertainty}, which separates coefficient uncertainty from scenario spread and explains why the factorial behavioural contrast should not be read as a confidence interval.
 
 \subsection{Revenue allocation and the Side-by-Side Safe Harbour}\label{sec:sbs}\label{sec:jan2026}
 
 The previous steps compute how much top-up tax exists. The allocation step decides which government can collect it. The source-country top-up tax, labelled QDMTT in the legal rules, gives the host jurisdiction first collection rights. If the source country has no qualified domestic top-up, the parent-country backstop, the IIR, collects the residual. If source and parent collection are unavailable, the enforcement backstop, the UTPR, assigns liability to implementing jurisdictions using substance weights.
 
-The January 2026 Side-by-Side (SbS) Safe Harbour changes this rule order for qualifying parent jurisdictions \citep{oecd2026}. MNE groups headquartered in a jurisdiction with a ``Qualified SbS Regime'' may elect a deemed top-up tax of zero under both the IIR and the UTPR. The pipeline's OECD Central Record source lists the United States as the qualified SbS jurisdiction used in the empirical implementation \citep{oecdCentralRecord2026}.\footnote{The SbS Safe Harbour requires both an eligible domestic tax regime and an eligible worldwide tax regime. The US qualifies through its combination of the corporate income tax and the GILTI regime. See \citet{oecd2026}, Chapter 1, Section 4.} US-parented MNEs are therefore outside residual IIR and UTPR collection in the SbS scenario.
+The January 2026 Side-by-Side (SbS) Safe Harbour changes this rule order for qualifying parent jurisdictions \citep{oecd2026}. MNE groups headquartered in a jurisdiction with a ``Qualified SbS Regime'' (currently only the United States) may elect a deemed top-up tax of zero under both the IIR and the UTPR \citep{oecdCentralRecord2026, oecd2026}.\footnote{The SbS Safe Harbour could be extended to more countries in the near future.} US-parented MNEs are therefore outside residual IIR and UTPR collection in the SbS scenario. QDMTTs remain operative under the SbS Safe Harbour. The SbS package therefore creates a sharp discontinuity: for US-parented MNEs, the IIR and UTPR channels are switched off, while the QDMTT channel remains operational.
 
-QDMTTs remain operative under the SbS Safe Harbour. Jurisdictions that implement a qualified domestic top-up retain the right to tax US-owned affiliates operating within their borders. The SbS package therefore creates a sharp discontinuity: for US-parented MNEs, the IIR and UTPR channels are switched off, while the QDMTT channel remains operational.
-
-
-Let $L_{p,j,t}$ denote the post-behaviour, pre-allocation top-up liability from equation \eqref{eq:pipeline}. The implemented source-level waterfall assigns this liability to four mutually exclusive pools:
+The source-level waterfall assigns this liability to four mutually exclusive pools. The first pool is collected by the source jurisdiction $j$ through a QDMTT. The second is collected by the parent jurisdiction $p$ through the IIR. The third is a UTPR pool. The fourth is not revenue: it is the liability extinguished by the SbS election after the source jurisdiction has declined, or lacks, a QDMTT. Under the universal regime $\mathbb{1}_p^{\text{SbS}}=0$ for all parents; under the SbS regime it equals one for qualified US-parented groups.Let $L_{p,j,t}$ denote the post-behaviour, pre-allocation top-up liability from equation \eqref{eq:pipeline}: 
 \begin{align}
 L_{p,j,t}^{\text{Q}} &= \mathbb{1}_j^{\text{Q}} L_{p,j,t}, \label{eq:qdmtt_sbs} \\
 L_{p,j,t}^{\text{I}} &= (1-\mathbb{1}_j^{\text{Q}})\mathbb{1}_p^{\text{IIR}}(1-\mathbb{1}_p^{\text{SbS}})L_{p,j,t}, \label{eq:iir_sbs} \\
 L_{p,j,t}^{\text{U}} &= (1-\mathbb{1}_j^{\text{Q}})(1-\mathbb{1}_p^{\text{IIR}})(1-\mathbb{1}_p^{\text{SbS}})L_{p,j,t}, \label{eq:utpr_sbs} \\
 L_{p,j,t}^{\text{S}} &= (1-\mathbb{1}_j^{\text{Q}})\mathbb{1}_p^{\text{SbS}}L_{p,j,t}. \label{eq:sbs_extinguish}
 \end{align}
-The first pool is collected by the source jurisdiction $j$ through a QDMTT. The second is collected by the parent jurisdiction $p$ through the IIR. The third is a UTPR pool. The fourth is not revenue: it is the liability extinguished by the SbS election after the source jurisdiction has declined, or lacks, a QDMTT. Under the universal regime $\mathbb{1}_p^{\text{SbS}}=0$ for all parents; under the SbS regime it equals one for qualified US-parented groups.
 
-The UTPR pool is not assigned back to the source jurisdiction. It is allocated to implementing collector jurisdictions $s$ using parent-year substance weights built from the public CbCR employee and tangible-asset variables:
+The UTPR pool is  allocated to implementing collector jurisdictions $s$ using parent-year substance weights built from the public CbCR employee and tangible-asset variables:
 \begin{equation}\label{eq:utpr_weight}
 \omega_{s,p,t}^{\text{U}}
 =
@@ -912,7 +906,6 @@ R_{s,t}^{\text{QDMTT}} &= \sum_p \sum_j \mathbb{1}\{s=j\}L_{p,j,t}^{\text{Q}}, \
 R_{s,t}^{\text{IIR}} &= \sum_p \sum_j \mathbb{1}\{s=p\}L_{p,j,t}^{\text{I}}, \\
 R_{s,t}^{\text{UTPR}} &= \sum_p \sum_j \omega_{s,p,t}^{\text{U}}L_{p,j,t}^{\text{U}}.
 \end{align}
-Equation \eqref{eq:sbs_extinguish} formalises the core SbS consequence: US-parented residual IIR and UTPR liability is mechanically extinguished unless a QDMTT collects it first.
 
 \begin{figure}[H]
 \centering
@@ -959,7 +952,7 @@ Equation \eqref{eq:sbs_extinguish} formalises the core SbS consequence: US-paren
 
 \end{tikzpicture}
 }
-\caption[Allocation rule under the Side-by-Side Safe Harbour.]{Collection waterfall under the original GloBE rule order versus the January 2026 Side-by-Side Safe Harbour. For non-US-parented MNE groups, the QDMTT/IIR/UTPR cascade is unaffected. For US-parented groups, an SbS election sets both IIR and UTPR top-up to zero, leaving QDMTTs as the only operative collection channel. EU Member States that have not implemented a QDMTT therefore lose the residual top-up tax claim against US-owned affiliates, formalised in equation \eqref{eq:sbs_extinguish}.}
+\caption[Allocation rule under the Side-by-Side Safe Harbour.]{Collection waterfall under the original GloBE rule order versus the January 2026 Side-by-Side Safe Harbour.}
 \label{fig:sbs_waterfall}
 \end{figure}
 
@@ -975,7 +968,7 @@ R_{s,t}^{(r)} = \sum_p \sum_j a_{s,p,j,t}^{(r)} \cdot L_{p,j,t}
 \end{equation}
 where $a_{s,p,j,t}^{(r)}$ is the regime-specific allocation weight implied by the QDMTT/IIR/UTPR rule order under policy regime $r$ (Section \ref{sec:sbs}). For UTPR liabilities, $a_{s,p,j,t}^{(r)}$ is the parent-year substance weight in \eqref{eq:utpr_weight}, or the global year-level fallback where no parent-year collector key is available.
 
-Revenue uncertainty compounds multiplicatively. A positive ETR-measurement $\times$ SBIE interaction indicates that the distributional approach uncovers low-taxed profit concentrated in capital-intensive sectors with a large $\phi$, so the expanded base is partially offset by stronger SBIE shielding. The equation also identifies the highest-return data improvement: if ETR measurement dominates, within-jurisdiction ETR data from confidential CbCR microdata are the priority; if SBIE measurement dominates, better CbCR coverage of tangible assets and payroll matters more.
+Revenue uncertainty compounds. A positive ETR-measurement $\times$ SBIE interaction indicates that the distributional approach uncovers low-taxed profit concentrated in capital-intensive sectors with a large $\phi$, so the expanded base is partially offset by stronger SBIE shielding. The equation also identifies the highest-return data improvement. If ETR measurement dominates, within-jurisdiction ETR data from confidential CbCR microdata are the priority. If SBIE measurement dominates, better CbCR coverage of tangible assets and payroll matters more.
 
 \subsection{Counterfactual decomposition}\label{sec:decomposition}
 
@@ -983,7 +976,7 @@ The decomposition targets a concrete question: why do reasonable GMT revenue est
 
 \subsubsection{Factor definitions}\label{sec:factors}
 
-Table \ref{tab:factors} defines the five choices. The low level is the simpler or mechanical specification. The high level is the richer data, policy or behavioural alternative.
+Table \ref{tab:factors} defines the five choices. 
 
 \begin{table}[H]
 \centering
@@ -1019,15 +1012,15 @@ where $\bar{R}_{x_i = 1}$ and $\bar{R}_{x_i = 0}$ are the mean revenues across a
 \begin{equation}\label{eq:interaction_effect}
 \text{SS}_{ik} = \frac{n}{16} \left(\bar{R}_{x_i = 1, x_k = 1} - \bar{R}_{x_i = 1, x_k = 0} - \bar{R}_{x_i = 0, x_k = 1} + \bar{R}_{x_i = 0, x_k = 0}\right)^2
 \end{equation}
-A non-zero interaction means that the revenue effect of one choice depends on another choice. An ETR-measurement by SbS interaction, for example, says that the low-taxed profit newly revealed by distributional measurement is concentrated in ownership structures where the SbS regime changes collection rights. The share of explained variance attributable to each effect is $\eta_i^2=\text{SS}_i/\text{SS}_{\text{total}}$. The results report both the raw orthogonal contrasts and a Shapley-style allocation that divides interaction shares equally across the factors that create them \citep{shorrocks2013}. The decomposition is run for the pooled EU27 country-year matrix, for each Member State, and for selected country cases.
+A non-zero interaction means that the revenue effect of one choice depends on another choice. An ETR-measurement by SbS interaction, for example, says that the low-taxed profit newly revealed by distributional measurement is concentrated in ownership structures where the SbS regime changes collection rights. The share of explained variance attributable to each effect is $\eta_i^2=\text{SS}_i/\text{SS}_{\text{total}}$. The results report both the raw orthogonal contrasts and a Shapley-style allocation that divides interaction shares equally across the factors. The decomposition is run for the pooled EU27 country-year matrix, for each Member State, and for selected country cases.
 
 \subsection{Country typology as compression}\label{sec:country_typology_method}
 
-The country typology compresses the revenue matrix into policy-facing groups. It is a classification device, not a causal identification exercise. Each EU Member State is characterised by features that span fiscal scale, legal allocation exposure and measurement risk: preferred revenue, scenario spread, revenue relative to CIT and GDP, per-resident revenue, signed factorial main effects, QDMTT-preserved share, residual IIR/UTPR exposure, SbS-extinguished share, high-risk imputation share and direct Table IV support. Features are transformed where needed, median-imputed for PCA scaling, standardised, and compressed with principal components. PCA reveals whether cross-country variation is predominantly one-dimensional or whether fiscal scale and legal allocation risk are empirically separable. $k$-means clustering applied to the standardised feature matrix yields the selected four-cluster solution, chosen by jitter stability and interpretability. The full feature matrix and stability diagnostics are in Appendix \ref{app:country_policy}, Tables \ref{tab:app_country_typology_features} and \ref{tab:app_country_typology_cluster_stability}.
+The country typology compresses the revenue matrix into policy-facing groups. Each EU Member State is characterised by features that span fiscal scale, legal allocation exposure and measurement risk. Features are transformed where needed, median-imputed for Principal Component Analysis (PCA) scaling, standardised, and compressed. PCA reveals whether cross-country variation is predominantly one-dimensional or whether fiscal scale and legal allocation risk are empirically separable. $k$-means clustering applied to the standardised feature matrix yields the selected four-cluster solution, chosen by jitter stability and interpretability. The feature matrix and stability diagnostics are in Appendix \ref{app:country_policy}, Tables \ref{tab:app_country_typology_features} and \ref{tab:app_country_typology_cluster_stability}.
 
 \subsection{Scenario, measurement and coefficient uncertainty}\label{sec:two_uncertainties}
 
-Three uncertainty objects are kept distinct throughout. Object A is scenario uncertainty: the spread generated by the 32 modelling and policy configurations. For each EU collector country $s$ and year $t$:
+Three uncertainty objects are kept distinct. Object A is scenario uncertainty: the spread generated by the 32 modelling and policy configurations. For each EU collector country $s$ and year $t$ holding the Hines--Rice coefficient at its point estimate. The associated width is $\Delta^{A}_{s,t}=\max_{\mathbf{x}}R_{s,t}(\mathbf{x})-\min_{\mathbf{x}}R_{s,t}(\mathbf{x})$. Object A is a structural scenario spread.
 \begin{equation}\label{eq:object_a}
 \mathcal{U}^{A}_{s,t}
 =
@@ -1036,11 +1029,10 @@ Three uncertainty objects are kept distinct throughout. Object A is scenario unc
 \max_{\mathbf{x}\in\{0,1\}^5} R_{s,t}(\mathbf{x})
 \right],
 \end{equation}
-holding the Hines--Rice coefficient at its point estimate. The associated width is $\Delta^{A}_{s,t}=\max_{\mathbf{x}}R_{s,t}(\mathbf{x})-\min_{\mathbf{x}}R_{s,t}(\mathbf{x})$. Object A is a structural scenario spread, so it should not be read as a confidence interval.
 
-Object B is Stage 1 measurement uncertainty. It keeps the scenario fixed and propagates empirical residuals from the Table I percentile-fit versus Table IV validation through the preferred ETR branch. Table \ref{tab:stage1_measurement_error_interval} reports the interval. Table \ref{tab:stage1_bspi_updated} separately flags the affiliates where the pre-2019 BSPI shape-transport assumption is fragile.
+Object B is Stage 1 measurement uncertainty. It keeps the scenario fixed and propagates empirical residuals from the Table I percentile-fit versus Table IV validation through the preferred ETR branch. 
 
-Object C is Hines--Rice coefficient uncertainty within one scenario. The current implementation uses an interim local approximation: the two-way clustered standard error of the preferred linear ETR coefficient is propagated through equation \eqref{eq:cf_linear} at the mean observed below-threshold ETR used for the behavioural evaluation. For a 90\% bound,
+Object C is Hines--Rice coefficient uncertainty within one scenario. Two-way clustered standard error of the preferred linear ETR coefficient is channeled through equation \eqref{eq:cf_linear} at the mean observed below-threshold ETR used for the behavioural evaluation. For a 90\% bound,
 \begin{equation}\label{eq:object_c_approx}
 G_{\text{lin}}^{\pm}(\bar{\tau})
 =
@@ -1053,7 +1045,6 @@ R^{\pm}
 =
 R^{\text{pref}}\frac{G_{\text{lin}}^{\pm}(\bar{\tau})}{G_{\text{lin}}(\bar{\tau})}.
 \end{equation}
-This is a local coefficient-propagation bound. A full coefficient bootstrap would resample the relevant clusters, re-estimate the behavioural model and rerun the revenue allocation. The results keep Objects A, B and C separate.
 
 \section{Results}\label{sec:results}\label{sec:se_results}
 
