@@ -174,69 +174,72 @@
 
 \begin{frame}{Measurement framework}
 \footnotesize
-\begin{columns}[T]
-\begin{column}{0.30\textwidth}
-\begin{block}{1. Correct the profit base}
-  Reported positive profit is corrected for double-counting.
-  \vspace{0.25em}
-  \centering \highlight{\USD46.7 tn} \(\rightarrow\) \highlight{\USD34.8 tn}
-\end{block}
+\vspace{-0.15em}
+\begin{block}{Three translations}
+\scriptsize
+\begin{columns}[T,totalwidth=\linewidth]
+\begin{column}{0.31\linewidth}
+\textcolor{DkOrange}{\textbf{1. Correct the base}}\\[0.15em]
+Measured profit falls from \USD46.7 tn to \USD34.8 tn after removing double counting.
 \end{column}
-\begin{column}{0.30\textwidth}
-\begin{exampleblock}{2. Locate the low-taxed profit}
-  Table IV brackets and ETR distributions identify the low-taxed profit reported.
-\end{exampleblock}
+\begin{column}{0.31\linewidth}
+\textcolor{DkOrange}{\textbf{2. Locate the low-tax slice}}\\[0.15em]
+Use Table IV ETR brackets where observed and distributional evidence where public data are incomplete.
 \end{column}
-\begin{column}{0.30\textwidth}
-\begin{alertblock}{3. Compute the gap}
-  The gap to 15\% defines pre-allocation top-up exposure before substance, behaviour and collection rules.
-\end{alertblock}
+\begin{column}{0.31\linewidth}
+\textcolor{DkOrange}{\textbf{3. Apply the top-up gap}}\\[0.15em]
+Measure the distance to 15\% before substance, behaviour and allocation rules.
 \end{column}
 \end{columns}
+\end{block}
 
-\vspace{0.25em}
-\begin{center}
+\vspace{0.35em}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.53\textwidth}
+\begin{block}{EU27 sectoral shielding rate}
 \scriptsize
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{@{}L{4.55cm}rrL{3.15cm}@{}}
+\centering
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{@{}L{2.85cm}C{1.25cm}C{1.75cm}@{}}
   \toprule
-  EU27 liability object & Average ETR rule (\% of profit) & Distributional ETR rule (\% of profit) & Reading \\
+  Scenario & Average & Distributional \\
   \midrule
-  Before substance & 3.18 & 5.17 & low-taxed mass and gap, \\
-  After substance, initial rates & 3.00 & 4.73 & current transition shield, \\
-  After substance, long-run rates & 3.07 & 4.90 & smaller future shield. \\
+  Before substance & 3.18\% & 5.17\% \\
+  Initial SBIE & 3.00\% & 4.73\% \\
+  Long-run SBIE & 3.07\% & 4.90\% \\
   \bottomrule
 \end{tabular}
-}
-\end{center}
-
-\vspace{0.2em}
-\begin{block}{Why this matters}
-  The average rule asks whether a jurisdiction is low-taxed. \\ The distributional rule asks how much profit is low-taxed inside it. 
+\renewcommand{\arraystretch}{1}
 \end{block}
+\end{column}
+
+\begin{column}{0.43\textwidth}
+\begin{exampleblock}{Average versus distributional ETR}
+\scriptsize
+\textbf{Average ETR} asks whether a jurisdiction is below 15\% on average.\\[0.45em]
+\textbf{Distributional ETR} asks how much profit inside that jurisdiction is below 15\%.
+\end{exampleblock}
+\end{column}
+\end{columns}
 \end{frame}
 
 \section{Behaviour}
 
 \begin{frame}{Behavioural response: what is estimated}
 \footnotesize
-\begin{columns}[T]
-\begin{column}{0.48\textwidth}
 \begin{center}
-\resizebox{\linewidth}{!}{$
-\begin{aligned}
-  \log \pi^{*}_{pjt}={}& \alpha_{pj}+\gamma_t+\beta_{\tau}\tau_{pjt}\\
-  &+\beta_A\log A_{pjt}+\beta_W\log \widehat{W}_{pjt}
-  +X_{jt}'\delta+\varepsilon_{pjt}.
-\end{aligned}
-$}
+\resizebox{0.92\linewidth}{!}{$\log \pi^{*}_{pjt}= \alpha_{pj}+\gamma_t+\beta_{\tau}\tau_{pjt}+\beta_A\log A_{pjt}+\beta_W\log \widehat{W}_{pjt}+X_{jt}'\delta+\varepsilon_{pjt}$}
 \end{center}
 
-\begin{block}{Semi-elasticities}
-  Within the same parent-affiliate relationship over time, how much reported profit moves when the effective tax rate changes?
+\vspace{0.25em}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{Plain reading}
+  Within the same parent-affiliate relationship, compare years with different ETRs while holding relationship and year effects fixed.
 \end{block}
 \begin{alertblock}{Use in the forecast}
-  The coefficient is used as a scenario input for profit reallocation.
+  The coefficient reduces reported profit only in behavioural scenarios. It is a disciplined scenario input, not the main revenue-ranking result.
 \end{alertblock}
 \end{column}
 \begin{column}{0.49\textwidth}
@@ -292,29 +295,29 @@ $}
 \small
 \begin{center}
 \scriptsize
-\setlength{\tabcolsep}{3.5pt}
-\begin{tabular}{@{}lrrrrr@{}}
+\setlength{\tabcolsep}{7pt}
+\begin{tabular}{@{}lrrr@{}}
   \toprule
-  Group & SBIE (\%) & SBTI cap (\%) & Floor pre-SBTI (\%) & Floor post-SBTI (\%) & Change (pp) \\
+  Group & Floor before SBTI (\%) & Floor after SBTI (\%) & Change (pp) \\
   \midrule
-  EU27 weighted & 10.4 & 3.7 & 14.2 & 11.9 & -2.3 \\
-  Germany & 12.5 & 4.2 & 13.9 & 10.7 & -3.2 \\
-  France & 12.6 & 5.8 & 13.8 & 10.2 & -3.6 \\
-  Netherlands & 4.9 & 1.6 & 14.5 & 13.6 & -0.9 \\
-  Ireland & 8.6 & 1.0 & 14.7 & 13.7 & -1.0 \\
-  Luxembourg & 5.7 & 0.9 & 14.2 & 13.7 & -0.4 \\
+  EU27 weighted & 14.2 & 11.9 & -2.3 \\
+  Germany & 13.9 & 10.7 & -3.2 \\
+  France & 13.8 & 10.2 & -3.6 \\
+  Netherlands & 14.5 & 13.6 & -0.9 \\
+  Ireland & 14.7 & 13.7 & -1.0 \\
+  Luxembourg & 14.2 & 13.7 & -0.4 \\
   \bottomrule
 \end{tabular}
 \end{center}
 
-\vspace{0.55em}
-\begin{block}{Economic reading}
-  The headline 15\% floor applies to excess profit, not to all profit. Payroll, tangible assets and substance-linked incentives lower the effective floor most where foreign-controlled activity is more capital intensive.
+\vspace{0.45em}
+\begin{block}{Policy reading}
+  EU27 weighted: 10.4\% SBIE ratio and 3.7\% SBTI capacity. The relevant policy object is the effective floor after substance, before behaviour and allocation.
 \end{block}
 \note{This is the requested close-to-15-percent slide. Make clear that these are effective-floor results from the sectoral bridge, not observed safe-harbour claims.}
 \end{frame}
 
-\begin{frame}{Side-by-Side: 2022 collection example}
+\begin{frame}{Side-by-Side: EU27 collection example, 2022}
 \small
 \begin{center}
 \scriptsize
@@ -344,16 +347,17 @@ $}
   \bottomrule
 \end{tabular}
 \end{center}
-
-\vspace{0.08em}
-\scriptsize
-\note{Use the annual example because it is easier to explain than a six-year total. The country table shows that this is fiscal incidence, not a new estimate of the profit base.}
 \end{frame}
 
 \section{Combined Results}
 
 \begin{frame}{Revenue decomposition}
-\small
+\footnotesize
+\begin{block}{How to read this table}
+  Main share is the 32-scenario variance explained by one channel. Effect is the average change in cumulative EU revenue. Interactions add 6.0\%, but the ranking still survives.
+\end{block}
+
+\vspace{0.1em}
 \begin{center}
 \scriptsize
 \begin{tabular}{@{}L{2.55cm}C{1.85cm}C{2.05cm}L{4.55cm}@{}}
@@ -369,10 +373,6 @@ $}
 \end{tabular}
 \end{center}
 
-\vspace{0.1em}
-\begin{block}{Reading}
-  Interactions explain 6.0\% of pooled scenario variance. The ranking still survives: measurement first, collection rights second, behaviour and substance smaller but economically visible.
-\end{block}
 \note{This is an important table-only slide. It is the synthesis of the thesis.}
 \end{frame}
 
@@ -380,24 +380,24 @@ $}
 \small
 \begin{center}
 \scriptsize
-\setlength{\tabcolsep}{3.5pt}
-\begin{tabular}{@{}lrrrrL{2.25cm}@{}}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}L{1.65cm}r r r r L{2.6cm}@{}}
   \toprule
-  Country & Rev. (US\$ bn) & Rev./CIT (\%) & Spread/CIT (\%) & Domestic (\%) & Dominant channel \\
+  Country & Rev. & Rev./CIT & Spread/CIT & QDMTT & Dominant channel \\
   \midrule
-  Germany & 44.5 & 9.0 & 16.2 & 55.4 & measurement \\
-  Netherlands & 87.1 & 41.4 & 38.5 & 92.2 & measurement \\
-  France & 20.2 & 5.4 & 12.6 & 58.5 & measurement \\
-  Luxembourg & 51.7 & 225.1 & 181.7 & 92.6 & legal allocation \\
-  Ireland & 27.1 & 30.3 & 29.7 & 86.0 & substance \\
-  Hungary & 3.9 & 26.8 & 40.2 & 88.0 & measurement \\
+  Germany & 44.5 & 9.0 & 16.2 & 55.4 & ETR (84.1\%) \\
+  Netherlands & 87.1 & 41.4 & 38.5 & 92.2 & ETR (72.9\%) \\
+  France & 20.2 & 5.4 & 12.6 & 58.5 & ETR (72.7\%) \\
+  Luxembourg & 51.7 & 225.1 & 181.7 & 92.6 & SbS (58.0\%) \\
+  Ireland & 27.1 & 30.3 & 29.7 & 86.0 & substance (38.1\%) \\
+  Hungary & 3.9 & 26.8 & 40.2 & 88.0 & ETR (54.9\%) \\
   \bottomrule
 \end{tabular}
 \end{center}
 
-\vspace{0.45em}
+\vspace{0.3em}
 \begin{alertblock}{Policy reading}
-  A finance ministry should not rank cases by revenue alone. Fiscal salience, uncertainty and domestic collection exposure point to different priorities.
+  Dominant channel is the largest country-level main effect in the 32-scenario spread. Read each row in order: fiscal salience (Rev./CIT), uncertainty (Spread/CIT), protected domestic collection (QDMTT), then the channel that moves the forecast range most.
 \end{alertblock}
 \note{This replaces the abstract country typology with numbers.}
 \end{frame}
@@ -406,13 +406,13 @@ $}
 \footnotesize
 \begin{columns}[T]
 \begin{column}{0.48\textwidth}
-\begin{block}{1. Distributional ETR data}
-  Report profit and tax by ETR bands below 15\%. This is the largest forecast driver.
+\begin{block}{1. Measure the base}
+  Require bracket-level ETR reporting below 15\%. This directly targets the largest forecast driver.
 \end{block}
 \end{column}
 \begin{column}{0.48\textwidth}
-\begin{exampleblock}{2. Domestic collection capacity}
-  Monitor domestic coverage and residual exposure. Allocation changes fiscal incidence.
+\begin{exampleblock}{2. Secure collection rights}
+  Track QDMTT status and residual IIR/UTPR exposure. SbS changes who can collect, not where the low-taxed profit sits.
 \end{exampleblock}
 \end{column}
 \end{columns}
@@ -420,20 +420,20 @@ $}
 \vspace{0.35em}
 \begin{columns}[T]
 \begin{column}{0.48\textwidth}
-\begin{block}{3. Forecast governance}
-  Publish scenario decompositions, not only one budget number. The range is economically large.
+\begin{block}{3. Publish ranges}
+  Report scenario decompositions beside the budget number. The 32-scenario range is economically material.
 \end{block}
 \end{column}
 \begin{column}{0.48\textwidth}
-\begin{alertblock}{4. Ex-post validation}
-  Compare forecasts with observed collections once implementation data become available.
+\begin{alertblock}{4. Validate ex post}
+  Reconcile forecasts with observed GloBE, QDMTT, SBIE and incentive-claim data once implementation data exist.
 \end{alertblock}
 \end{column}
 \end{columns}
 
 \vspace{0.45em}
 \begin{block}{Policy implication}
-  Highest-return improvement: better distributional measurement, followed by transparent collection-right modelling.
+  Priority order follows the decomposition: distributional measurement first, legal collection-right modelling second, then behavioural and substance validation.
 \end{block}
 \note{This is the practical policy answer. It should sound like advice to policymakers.}
 \end{frame}
@@ -446,7 +446,7 @@ $}
     point/.style={draw=Navy, rounded corners=3pt, fill=WarmGrey,
       minimum width=10.15cm, text width=9.55cm, minimum height=0.70cm, align=center}
   }
-  \node[point] (p1) {\textbf{1.} The EU revenue object is economically material: \USD304 bn over 2017 to 2022.};
+  \node[point] (p1) {\textbf{1.} The EU revenue object is economically material: about \USD304 bn over 2017 to 2022.};
   \node[point, below=0.25cm of p1] (p2) {\textbf{2.} Forecast disagreement is mainly about the measured low-taxed base.};
   \node[point, below=0.25cm of p2] (p3) {\textbf{3.} Behaviour matters, but measurement and allocation move the forecast more.};
   \node[point, below=0.25cm of p3] (p4) {\textbf{4.} Collection-right rules change fiscal incidence and make domestic collection strategically important.};
@@ -483,7 +483,6 @@ $}
   \centering
   {\color{Ivory}\LARGE\bfseries Backup slides}\\[0.6em]
   {\color{DkOrange}\rule{4cm}{2pt}}\\[0.8em]
-  {\color{WarmGrey}\small Use only when asked for the technical detail.}
   \vfill
 \end{frame}
 }
@@ -778,27 +777,6 @@ $}
 \end{column}
 \end{columns}
 \sourceline{generated Table stage2\_h5\_regression}
-\end{frame}
-
-\begin{frame}{Backup: literature anchors}
-\small
-\begin{center}
-\scriptsize
-\begin{tabular}{@{}L{3.2cm}L{7.6cm}@{}}
-  \toprule
-  Literature & Role in the thesis \\
-  \midrule
-  Hines and Rice (1994) & reported profit responds to tax incentives after controlling for real activity \\
-  Heckemeyer and Overesch (2017) & meta-regression benchmark for profit-shifting semi-elasticities \\
-  Dowd et al. (2017) & nonlinear low-rate response benchmark \\
-  Garcia-Bernardo et al. (2024) & logarithmic behavioural specification and formulary reallocation logic \\
-  Blouin and Robinson (2023) & double-counting risk in profit-shifting estimates \\
-  Hugger et al. (2026) & low-taxed mass can sit inside above-average-ETR jurisdictions \\
-  Devereux et al. (2023); Schjelderup (2024) & substance carve-outs lower the effective floor and can resemble production subsidies \\
-  \bottomrule
-\end{tabular}
-\end{center}
-\sourceline{thesisv4 Literature review and bibliography}
 \end{frame}
 
 \end{document}
