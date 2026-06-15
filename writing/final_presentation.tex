@@ -166,7 +166,7 @@
 
 \vspace{0.3em}
 \begin{block}{Scope}
-  \footnotesize Public panel: 15,758 parent-affiliate-year cells, 58 parent and 228 affiliate jurisdictions, 2017--2022.
+  \footnotesize Data type: public aggregate country-by-country panel, not firm microdata. Scope: 15,758 parent-affiliate-year cells, 58 parent and 228 affiliate jurisdictions, 2017 to 2022.
 \end{block}
 \end{frame}
 
@@ -189,7 +189,7 @@
 \end{column}
 \begin{column}{0.30\textwidth}
 \begin{alertblock}{3. Compute the gap}
-  All profits taxed below 15\% lead to additional taxation under Global Minimum Tax (GMT). 
+  The gap to 15\% defines pre-allocation top-up exposure before substance, behaviour and collection rules.
 \end{alertblock}
 \end{column}
 \end{columns}
@@ -212,111 +212,78 @@
 
 \vspace{0.2em}
 \begin{block}{Why this matters}
-  The average rule mainly asks whether a jurisdiction is low-taxed. The distributional rule asks how much profit inside that jurisdiction is low-taxed.
+  The average rule asks whether a jurisdiction is low-taxed. \\ The distributional rule asks how much profit is low-taxed inside it. 
 \end{block}
-\note{Concrete phrasing: first correct profit, then identify the low-taxed slice, then compute the top-up gap. The table replaces the old density graph.}
-\end{frame}
-
-\begin{frame}{Measurement result}
-\small
-\begin{center}
-\scriptsize
-\begin{tabular}{@{}L{4.1cm}rL{5.0cm}@{}}
-  \toprule
-  Result & Estimate & Economic reading \\
-  \midrule
-  Measurement main effect & +\USD197.0 bn & cumulative EU collector revenue, 2017 to 2022 \\
-  Scenario-variance main share & 69.1\% & largest source of forecast spread \\
-  Shapley-style allocated share & 72.0\% & ranking survives interaction effects \\
-  Public-data range & \USD127.7 to \USD517.4 bn & same rules, different credible measurement and policy choices \\
-  \bottomrule
-\end{tabular}
-\end{center}
-
-\vspace{0.55em}
-\begin{center}
-\begin{tikzpicture}[font=\small]
-  \node[draw=Navy, rounded corners=3pt, fill=WarmGrey,
-    minimum width=10.25cm, text width=9.65cm, minimum height=0.82cm, align=center] {
-      The dominant uncertainty is not the 15\% rate itself. It is whether public data reveal the low-taxed tail inside each country.
-    };
-\end{tikzpicture}
-\end{center}
-\note{This slide can stand almost alone. The result is measurement, not a complicated tax-law claim.}
 \end{frame}
 
 \section{Behaviour}
 
-\begin{frame}{Behavioural response: specification choice}
-\small
+\begin{frame}{Behavioural response: what is estimated}
+\footnotesize
 \begin{columns}[T]
-\begin{column}{0.39\textwidth}
-\begin{block}{Reduced-form object}
-  Reported profit is related to the effective tax rate within the same parent-affiliate relationship over time.
+\begin{column}{0.48\textwidth}
+\begin{center}
+\resizebox{\linewidth}{!}{$
+\begin{aligned}
+  \log \pi^{*}_{pjt}={}& \alpha_{pj}+\gamma_t+\beta_{\tau}\tau_{pjt}\\
+  &+\beta_A\log A_{pjt}+\beta_W\log \widehat{W}_{pjt}
+  +X_{jt}'\delta+\varepsilon_{pjt}.
+\end{aligned}
+$}
+\end{center}
+
+\begin{block}{Semi-elasticities}
+  Within the same parent-affiliate relationship over time, how much reported profit moves when the effective tax rate changes?
 \end{block}
-\begin{exampleblock}{Controls}
-  Parent-affiliate fixed effects, year fixed effects, real activity controls and two-way clustered inference.
-\end{exampleblock}
+\begin{alertblock}{Use in the forecast}
+  The coefficient is used as a scenario input for profit reallocation.
+\end{alertblock}
 \end{column}
-\begin{column}{0.57\textwidth}
+\begin{column}{0.49\textwidth}
 \begin{center}
 \scriptsize
-\begin{tabular}{@{}L{2.55cm}rrr@{}}
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}L{2.55cm}L{3.05cm}@{}}
   \toprule
-  Specification & BIC rank & \(\Delta\)BIC & Tax Wald \(p\) \\
+  Quantity & Interpretation \\
   \midrule
-  Linear & 1 & 0.00 & \(1.5 \times 10^{-6}\) \\
-  Logarithmic & 2 & 5.40 & \(1.2 \times 10^{-6}\) \\
-  Quadratic & 3 & 7.54 & \(1.5 \times 10^{-6}\) \\
+  Semi-elasticity 1.50 & one pp higher ETR, 1.50\% lower reported profit \\
+  5\% to 15\% ETR & 13.9\% of profit reallocated \\
+  10\% to 15\% ETR & 7.2\% of profit reallocated \\
+  Revenue main effect & -\USD46.7 bn, 2017 to 2022 \\
+  Variance share & 5.1\%, meaningful but not dominant \\
   \bottomrule
 \end{tabular}
 \end{center}
 
-\vspace{0.25em}
-\begin{center}
-\scriptsize
-\begin{tabular}{@{}L{2.55cm}rr@{}}
-  \toprule
-  ETR case & Semi-elasticity & Reallocation share \\
-  \midrule
-  Linear at 5\% & 1.50 & 13.9\% \\
-  Linear at 10\% & 1.50 & 7.2\% \\
-  Quadratic at 5\% & 1.72 & 15.4\% \\
-  Logarithmic at 5\% & 2.00 & 16.5\% \\
-  \bottomrule
-\end{tabular}
-\end{center}
 \end{column}
 \end{columns}
-
-\vspace{0.15em}
-\footnotesize
-\emphbx{Reading:} the public CbCR panel supports a negative tax-profit relationship, but not sharp low-rate nonlinearity as the centre of the revenue answer.
-\note{This is the statistics-facing slide. The important phrase is: the linear model is selected, not assumed.}
+\note{Say this simply. The model asks whether higher ETRs are associated with less reported profit in the same parent-affiliate relation. The detailed linear, quadratic and logarithmic comparison is in backup.}
 \end{frame}
 
-\begin{frame}{Behavioural result in the revenue model}
+\begin{frame}{Behavioural regression output}
 \small
 \begin{center}
 \scriptsize
-\begin{tabular}{@{}L{4.5cm}rL{4.0cm}@{}}
+\begin{tabular}{@{}lccc@{}}
   \toprule
-  Object & Estimate & Unit or reading \\
+  & Linear & Quadratic & Logarithmic \\
   \midrule
-  Semi-elasticity & 1.50 & profit \% per pp ETR increase \\
-  Reallocation at 5\% ETR & 13.9 & \% of reported profit \\
-  Reallocation at 10\% ETR & 7.2 & \% of reported profit \\
-  Revenue main effect & -46.7 & US\$ bn, 2017 to 2022 \\
-  Scenario-variance main share & 5.1 & \% \\
+  ETR & -1.500*** (0.272) & -1.761* (0.909) & -0.943 (0.973) \\
+  ETR squared & & 0.438 (1.262) & \\
+  Log shifted ETR & & & -0.214 (0.415) \\
+  Log tangible assets & -0.017 (0.015) & -0.017 (0.015) & -0.017 (0.015) \\
+  Log payroll proxy & 0.023 (0.034) & 0.023 (0.034) & 0.023 (0.034) \\
+  \midrule
+  $N$ & 8,971 & 8,971 & 8,971 \\
+  Parent-affiliate pairs & 1,936 & 1,936 & 1,936 \\
+  BIC rank & 1 & 3 & 2 \\
+  $\Delta$BIC & 0.00 & 7.54 & 5.40 \\
   \bottomrule
 \end{tabular}
 \end{center}
-
-\vspace{0.65em}
-\begin{block}{Economic interpretation}
-  The behavioural response is visible and meaningful, but it is not the main reason the revenue forecast moves across scenarios.
-\end{block}
-\note{Connect the regression directly to the decomposition. This is where the econometric result becomes policy-relevant.}
+\tiny All models include parent-affiliate and year fixed effects. Standard errors are two-way clustered by parent and affiliate.
+\sourceline{generated Table stage3\_regression\_table}
 \end{frame}
 
 \section{Substance and Allocation}
@@ -347,37 +314,40 @@
 \note{This is the requested close-to-15-percent slide. Make clear that these are effective-floor results from the sectoral bridge, not observed safe-harbour claims.}
 \end{frame}
 
-\begin{frame}{Side-by-Side result: collection rights move}
+\begin{frame}{Side-by-Side: 2022 collection example}
 \small
 \begin{center}
 \scriptsize
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}L{2.7cm}C{2.25cm}C{2.45cm}L{3.45cm}@{}}
+\begin{tabular}{@{}L{3.05cm}C{2.15cm}C{2.25cm}L{3.45cm}@{}}
   \toprule
-  Object & Universal (US\$ bn) & Side-by-Side (US\$ bn) & Effect \\
+  Channel & Universal (US\$ bn) & Side-by-Side (US\$ bn) & Interpretation \\
   \midrule
-  Source-country collection & 282.5 & 282.5 & protected source revenue \\
-  Residual backstop collection & 213.3 & 74.7 & -138.6 \\
+  Protected collection & 35.4 & 35.4 & source and EU parent rules remain available \\
+  Residual enforcement backstop & 27.8 & 9.6 & exposed collection right is restricted \\
   \midrule
-  Total collector revenue & 495.8 & 357.2 & -138.6 \\
+  Total EU collector revenue & 63.2 & 45.0 & \(\Delta = -18.3\) \\
   \bottomrule
 \end{tabular}
 \end{center}
 
-\vspace{0.45em}
-\begin{columns}[T]
-\begin{column}{0.48\textwidth}
-\begin{alertblock}{Economic reading}
-  Side-by-Side does not remove the low-taxed profit base. It removes residual collection rights for qualifying US-parented groups.
-\end{alertblock}
-\end{column}
-\begin{column}{0.48\textwidth}
-\begin{exampleblock}{Decomposition}
-  The allocation regime explains \highlight{15.0\%} of pooled scenario variance and is the second-largest driver.
-\end{exampleblock}
-\end{column}
-\end{columns}
-\note{Do not show zero-change rows. Explain it as protected source-country revenue versus exposed residual backstop collection.}
+\vspace{0.22em}
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}lrrrr@{}}
+  \toprule
+  Country example & Universal & Side-by-Side & Loss & Source-rule protected \\
+  \midrule
+  Germany & 11.0 & 7.8 & 3.2 & 58.8\% \\
+  Netherlands & 11.2 & 9.1 & 2.0 & 83.1\% \\
+  France & 6.1 & 3.4 & 2.7 & 40.9\% \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.08em}
+\scriptsize
+\note{Use the annual example because it is easier to explain than a six-year total. The country table shows that this is fiscal incidence, not a new estimate of the profit base.}
 \end{frame}
 
 \section{Combined Results}
@@ -390,8 +360,8 @@
   \toprule
   Channel & Main share (\%) & Effect (US\$ bn) & Economic interpretation \\
   \midrule
-  ETR measurement & 69.1 & +197.0 & the public data must identify the low-taxed mass inside jurisdictions \\
-  Allocation rules & 15.0 & -87.5 & legal rules change where the tax accrues \\
+  Low-taxed base measurement & 69.1 & +197.0 & the public data must identify the low-taxed mass inside jurisdictions \\
+  Collection-right rules & 15.0 & -87.5 & legal rules change where the revenue accrues \\
   Behaviour & 5.1 & -46.7 & firms respond, but this is not the main forecast driver \\
   Substance shield & 4.6 & -43.6 & payroll and tangible assets reduce the effective floor \\
   Rate endpoint & 0.1 & +8.6 & transition rates matter little in the full design \\
@@ -399,34 +369,11 @@
 \end{tabular}
 \end{center}
 
-\vspace{0.45em}
+\vspace{0.1em}
 \begin{block}{Reading}
   Interactions explain 6.0\% of pooled scenario variance. The ranking still survives: measurement first, collection rights second, behaviour and substance smaller but economically visible.
 \end{block}
 \note{This is an important table-only slide. It is the synthesis of the thesis.}
-\end{frame}
-
-\begin{frame}{Stronger measurement windows}
-\small
-\begin{center}
-\scriptsize
-\setlength{\tabcolsep}{3.5pt}
-\begin{tabular}{@{}L{3.35cm}rrrrL{2.6cm}@{}}
-  \toprule
-  Sample window & ETR (\%) & Allocation (\%) & Substance (\%) & Behaviour (\%) & Revenue range (US\$ bn) \\
-  \midrule
-  2017 to 2022 public panel & 72.0 & 16.6 & 5.7 & 5.5 & 127.7 to 517.4 \\
-  2019 to 2022 stronger measurement & 80.3 & 11.4 & 4.5 & 3.7 & 73.0 to 332.4 \\
-  2021 to 2022 strict overlap & 84.5 & 9.2 & 3.9 & 2.2 & 32.1 to 175.3 \\
-  \bottomrule
-\end{tabular}
-\end{center}
-
-\vspace{0.55em}
-\begin{block}{Reading}
-  When the window relies more directly on ETR-bracket evidence, measurement becomes an even larger share of the forecast spread. Preferred revenues are US\$303.7 bn, US\$193.0 bn and US\$102.3 bn respectively.
-\end{block}
-\note{This slide clarifies the difference between ANOVA main share and Shapley allocated shares.}
 \end{frame}
 
 \begin{frame}{Country policy readings}
@@ -502,7 +449,7 @@
   \node[point] (p1) {\textbf{1.} The EU revenue object is economically material: \USD304 bn over 2017 to 2022.};
   \node[point, below=0.25cm of p1] (p2) {\textbf{2.} Forecast disagreement is mainly about the measured low-taxed base.};
   \node[point, below=0.25cm of p2] (p3) {\textbf{3.} Behaviour matters, but measurement and allocation move the forecast more.};
-  \node[point, below=0.25cm of p3] (p4) {\textbf{4.} Allocation rules change fiscal incidence and make domestic collection strategically important.};
+  \node[point, below=0.25cm of p3] (p4) {\textbf{4.} Collection-right rules change fiscal incidence and make domestic collection strategically important.};
 \end{tikzpicture}
 \end{center}
 
@@ -540,6 +487,29 @@
   \vfill
 \end{frame}
 }
+
+\begin{frame}{Backup: stronger measurement windows}
+\small
+\begin{center}
+\scriptsize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}L{3.35cm}rrrrL{2.6cm}@{}}
+  \toprule
+  Sample window & ETR (\%) & Allocation (\%) & Substance (\%) & Behaviour (\%) & Revenue range (US\$ bn) \\
+  \midrule
+  2017 to 2022 public panel & 72.0 & 16.6 & 5.7 & 5.5 & 127.7 to 517.4 \\
+  2019 to 2022 stronger measurement & 80.3 & 11.4 & 4.5 & 3.7 & 73.0 to 332.4 \\
+  2021 to 2022 strict overlap & 84.5 & 9.2 & 3.9 & 2.2 & 32.1 to 175.3 \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.55em}
+\begin{block}{Reading}
+  When the window relies more directly on ETR-bracket evidence, measurement becomes an even larger share of the forecast spread. Preferred revenues are US\$303.7 bn, US\$193.0 bn and US\$102.3 bn respectively.
+\end{block}
+\note{This is a robustness slide, not a main-story slide. It clarifies the difference between ANOVA main shares and Shapley allocated shares.}
+\end{frame}
 
 \begin{frame}{Backup: acronyms and collection rule}
 \small
@@ -712,8 +682,8 @@
   \toprule
   Factor & Mechanism & Main & Interaction & Allocated \\
   \midrule
-  ETR measurement & low-taxed profit base & 69.1 & 2.9 & 72.0 \\
-  Side-by-Side regime & legal allocation & 15.0 & 1.6 & 16.6 \\
+  Low-taxed base measurement & low-taxed profit base & 69.1 & 2.9 & 72.0 \\
+  Side-by-Side regime & collection-right rule & 15.0 & 1.6 & 16.6 \\
   Substance specification & substance shield & 4.6 & 1.1 & 5.7 \\
   Behavioural response & response coefficient & 5.1 & 0.4 & 5.5 \\
   SBIE rate endpoint & policy parameter & 0.1 & 0.0 & 0.2 \\
