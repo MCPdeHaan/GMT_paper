@@ -1,0 +1,919 @@
+%% Compile: pdflatex > pdflatex
+%% Final thesis presentation, built from thesisv4.tex and generated results tables.
+
+\documentclass[aspectratio=169, 11pt]{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage{lmodern}
+\usepackage[british]{babel}
+
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows, calc, shapes.geometric,
+  fit, backgrounds, decorations.pathreplacing, decorations.pathmorphing}
+\usepackage{pgfpages}
+
+\definecolor{Navy}{HTML}{0D1B2A}
+\definecolor{MidNavy}{HTML}{1B2E4A}
+\definecolor{DkOrange}{HTML}{D97706}
+\definecolor{LtOrange}{HTML}{F5DEB3}
+\definecolor{Bordeaux}{HTML}{7A1C2E}
+\definecolor{BordeauxLt}{HTML}{A63D50}
+\definecolor{Ivory}{HTML}{FAF8F5}
+\definecolor{WarmGrey}{HTML}{E8E4DF}
+\definecolor{MidGrey}{HTML}{9CA3AF}
+\definecolor{DkGrey}{HTML}{4B5563}
+\definecolor{Teal}{HTML}{2A7F8C}
+\definecolor{TealLt}{HTML}{D0ECF0}
+\definecolor{ForestGreen}{HTML}{4A7C59}
+\definecolor{DeepRed}{HTML}{C44536}
+
+\usefonttheme{professionalfonts}
+\setbeamercolor{normal text}{fg=Navy, bg=Ivory}
+\setbeamercolor{alerted text}{fg=Bordeaux}
+\setbeamercolor{example text}{fg=DkOrange}
+
+% Frame title
+\setbeamercolor{frametitle}{fg=Ivory, bg=Navy}
+\setbeamerfont{frametitle}{size=\large, series=\bfseries}
+\setbeamertemplate{frametitle}{%
+  \nointerlineskip
+  \begin{beamercolorbox}[wd=\paperwidth, ht=2.6em, dp=0.8em, leftskip=1.2em]{frametitle}%
+    \usebeamerfont{frametitle}\insertframetitle%
+  \end{beamercolorbox}%
+  {\color{DkOrange}\hrule height 2.2pt}%
+}
+
+% Title page
+\setbeamercolor{title}{fg=Ivory}
+\setbeamercolor{subtitle}{fg=LtOrange}
+\setbeamercolor{author}{fg=Ivory}
+\setbeamercolor{date}{fg=WarmGrey}
+\setbeamercolor{institute}{fg=WarmGrey}
+\setbeamerfont{title}{size=\Large, series=\bfseries}
+\setbeamerfont{subtitle}{size=\normalsize, shape=\itshape}
+
+% Itemize
+\setbeamertemplate{itemize item}{\color{DkOrange}\scriptsize$\blacksquare$}
+\setbeamertemplate{itemize subitem}{\color{Bordeaux}\scriptsize$\blacktriangleright$}
+\setbeamercolor{itemize item}{fg=DkOrange}
+\setbeamercolor{itemize subitem}{fg=Bordeaux}
+
+% Footer
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{%
+  \hfill
+  \raisebox{3pt}{\color{MidGrey}\scriptsize\insertframenumber\,/\,\inserttotalframenumber}%
+  \hspace{8pt}\vspace{3pt}%
+}
+
+% Blocks
+\setbeamercolor{block title}{fg=Ivory, bg=MidNavy}
+\setbeamercolor{block body}{fg=Navy, bg=WarmGrey}
+\setbeamercolor{block title alerted}{fg=Ivory, bg=Bordeaux}
+\setbeamercolor{block body alerted}{fg=Navy, bg=WarmGrey}
+\setbeamercolor{block title example}{fg=Ivory, bg=DkOrange}
+\setbeamercolor{block body example}{fg=Navy, bg=WarmGrey}
+\setbeamerfont{block title}{series=\bfseries}
+
+\AtBeginSection[]{}
+
+\newcommand{\highlight}[1]{\textcolor{DkOrange}{\textbf{#1}}}
+\newcommand{\emphbx}[1]{\textcolor{Bordeaux}{\textbf{#1}}}
+\newcommand{\EUR}{\texteuro}
+\newcommand{\USD}{US\$}
+\newcommand{\pp}{\text{pp}}
+\newcommand{\sourceline}[1]{}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+\title{Decomposition of Global Minimum Tax Revenue\\Using CbCR Data}
+\subtitle{An economic policy decomposition of measurement, behaviour and legal allocation}
+\author{Maurits de Haan}
+\institute{MSc Economic Policy, Utrecht University School of Economics}
+\date{16 June 2026}
+
+\begin{document}
+
+{
+\setbeamercolor{background canvas}{bg=Navy}
+\begin{frame}[plain]
+  \vspace{1.25em}
+  \begin{center}
+    {\color{Ivory}\Large\bfseries Decomposition of Global Minimum Tax Revenue}\\[0.25em]
+    {\color{Ivory}\Large\bfseries using CbCR Data}\\[0.8em]
+    {\color{DkOrange}\rule{6.4cm}{2pt}}\\[0.8em]
+    {\color{LtOrange}\normalsize\itshape An economic policy decomposition of measurement, behaviour\\[0.15em]
+     and legal allocation}\\[1.55em]
+    {\color{Ivory}\normalsize Maurits de Haan}\\[0.3em]
+    {\color{WarmGrey}\small MSc Economic Policy, Utrecht University}\\[0.25em]
+    {\color{MidGrey}\small Final thesis presentation, 16 June 2026}
+  \end{center}
+\end{frame}
+}
+
+\section{Core argument}
+
+\begin{frame}{Policy signal from the estimates}
+\small
+\begin{columns}[T]
+\begin{column}{0.31\textwidth}
+\begin{block}{Fiscal scale}
+  \centering
+  {\Large\highlight{\USD304 bn}}\\[0.2em]
+  \scriptsize preferred EU collector revenue, cumulative 2017 to 2022.
+\end{block}
+\end{column}
+\begin{column}{0.31\textwidth}
+\begin{exampleblock}{Forecast spread}
+  \centering
+  {\Large\highlight{\USD127.7 to \USD517.4 bn}}\\[0.2em]
+  \scriptsize range across 32 public-data scenarios.
+\end{exampleblock}
+\end{column}
+\begin{column}{0.31\textwidth}
+\begin{alertblock}{Largest driver}
+  \centering
+  {\Large\highlight{69.1\%}}\\[0.2em]
+  \scriptsize ANOVA main-effect share from ETR measurement.
+\end{alertblock}
+\end{column}
+\end{columns}
+
+\vspace{0.7em}
+\begin{center}
+\begin{tikzpicture}[font=\small]
+  \node[draw=Navy, rounded corners=3pt, fill=WarmGrey,
+    minimum width=10.35cm, text width=9.75cm, minimum height=1.0cm, align=center] {
+      For economic policy, the result is a ranking of forecast uncertainty: better measurement of the low-taxed base matters more than refining the behavioural elasticity.
+    };
+\end{tikzpicture}
+\end{center}
+\note{Present this as the policy-facing result, not as a meta introduction. Units: US dollars in billions, cumulative years, and percent of scenario variance.}
+\end{frame}
+
+\begin{frame}{From reported profit to collector revenue}
+\small
+\begin{center}
+\resizebox{0.98\linewidth}{!}{%
+\begin{tikzpicture}[font=\scriptsize, node distance=0.24cm]
+  \tikzset{
+    stepbox/.style={draw=Navy, rounded corners=3pt, fill=WarmGrey,
+      minimum width=2.18cm, minimum height=0.92cm, align=center},
+    choice/.style={draw=DkOrange, rounded corners=3pt, fill=DkOrange!10,
+      minimum width=2.18cm, minimum height=0.78cm, align=center},
+    arr/.style={-latex, draw=Navy, line width=0.6pt}
+  }
+  \node[stepbox] (p) {Corrected\\profit};
+  \node[stepbox, right=0.35cm of p] (m) {Low-taxed\\profit mass};
+  \node[stepbox, right=0.35cm of m] (g) {Gap to\\15\%};
+  \node[stepbox, right=0.35cm of g] (s) {Substance\\shield};
+  \node[stepbox, right=0.35cm of s] (b) {Behavioural\\retention};
+  \node[stepbox, right=0.35cm of b] (c) {Collection\\right};
+  \foreach \a/\bb in {p/m,m/g,g/s,s/b,b/c}
+    \draw[arr] (\a) -- (\bb);
+  \node[choice, below=0.5cm of m] (mc) {measurement\\scenario};
+  \node[choice, below=0.5cm of s] (sc) {substance\\scenario};
+  \node[choice, below=0.5cm of b] (bc) {behaviour\\scenario};
+  \node[choice, below=0.5cm of c] (cc) {allocation\\scenario};
+  \draw[arr] (mc) -- (m);
+  \draw[arr] (sc) -- (s);
+  \draw[arr] (bc) -- (b);
+  \draw[arr] (cc) -- (c);
+\end{tikzpicture}%
+}
+\end{center}
+
+\vspace{0.45em}
+\begin{center}
+{\footnotesize
+\textbf{Collector revenue}
+= measured low-taxed base \(\times\) behavioural retention \(\times\) collection right.
+}
+\end{center}
+
+\vspace{0.25em}
+\begin{block}{Empirical design}
+  The model switches the main choices on and off, then decomposes which choices move the forecast.
+\end{block}
+\note{Use this as the map for the rest of the presentation. Do not over-explain the legal rules here.}
+\end{frame}
+
+\begin{frame}{Data used}
+\small
+\begin{columns}[T]
+\begin{column}{0.32\textwidth}
+\begin{block}{OECD Table I}
+  \centering
+  {\Large 15,758}\\[0.15em]
+  \scriptsize analytical parent-affiliate-year cells, 2017 to 2022.
+\end{block}
+\end{column}
+\begin{column}{0.32\textwidth}
+\begin{exampleblock}{Tax sample}
+  \centering
+  {\Large 11,872}\\[0.15em]
+  \scriptsize cells used to construct ETRs and top-up gaps.
+\end{exampleblock}
+\end{column}
+\begin{column}{0.32\textwidth}
+\begin{alertblock}{Behaviour sample}
+  \centering
+  {\Large 8,971}\\[0.15em]
+  \scriptsize cells in the fixed-effect semi-elasticity estimate.
+\end{alertblock}
+\end{column}
+\end{columns}
+
+\vspace{0.55em}
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}L{3.0cm}L{4.35cm}L{3.25cm}@{}}
+  \toprule
+  Data object & Information used & Role in the model \\
+  \midrule
+  Public CbCR Table I & profit, tax, employees, tangible assets & bilateral profit base \\
+  Public ETR brackets & distribution of ETRs within jurisdictions & low-taxed mass and gap \\
+  Fiscal denominators & CIT revenue, GDP, population & country salience \\
+  \bottomrule
+\end{tabular}
+\end{center}
+{\tiny Revenue: US\$ bn. Profit base: US\$ tn. Rates and shares: \%. Changes in rates: pp.}
+\note{Keep this short. The point is to show what data are actually observed and how each object is used.}
+\end{frame}
+
+\section{Measurement}
+
+\begin{frame}{Measurement framework}
+\small
+\begin{columns}[T]
+\begin{column}{0.32\textwidth}
+\begin{block}{1. Correct the base}
+  Reported positive profit is adjusted for double-counting risk.
+
+  \vspace{0.25em}
+  \centering \highlight{\USD46.7 tn} \(\rightarrow\) \highlight{\USD34.8 tn}
+\end{block}
+\end{column}
+\begin{column}{0.32\textwidth}
+\begin{exampleblock}{2. Locate the low-taxed mass}
+  Jurisdiction averages are replaced by observed or imputed ETR distributions.
+\end{exampleblock}
+\end{column}
+\begin{column}{0.32\textwidth}
+\begin{alertblock}{3. Compute the gap}
+  Liability depends on the distance between the low-taxed slice and the 15\% floor.
+\end{alertblock}
+\end{column}
+\end{columns}
+
+\vspace{0.35em}
+\begin{center}
+\begin{tikzpicture}[font=\scriptsize, xscale=0.92, yscale=0.68]
+  \draw[->, Navy] (0,0) -- (6.8,0) node[right] {ETR};
+  \draw[->, Navy] (0,0) -- (0,2.7) node[above] {profit mass};
+  \draw[DkOrange, line width=1pt] (0.35,0.15) .. controls (0.9,2.1) and (1.8,2.0) .. (2.65,0.55)
+    .. controls (3.4,0.18) and (4.9,0.2) .. (5.9,0.3);
+  \fill[DkOrange!32, opacity=0.8] (0.35,0) -- (0.35,0.15)
+    .. controls (0.9,2.1) and (1.8,2.0) .. (2.65,0.55)
+    .. controls (3.4,0.18) and (4.3,0.16) .. (4.3,0) -- cycle;
+  \draw[Bordeaux, line width=1pt] (4.3,0) -- (4.3,2.45);
+  \node[Bordeaux, rotate=90] at (4.55,1.35) {15\% floor};
+  \node[align=center] at (1.95,2.45) {measured low-taxed\\profit mass};
+  \node[align=center] at (5.35,1.45) {average can\\miss the tail};
+\end{tikzpicture}
+\end{center}
+\note{Concrete phrasing: first correct profit, then identify how much is below the floor, then calculate the gap.}
+\end{frame}
+
+\begin{frame}{Measurement result}
+\small
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}L{5.15cm}rr@{}}
+  \toprule
+  EU27 object, 2017 to 2022 & Average ETR rule & Distributional ETR rule \\
+  \midrule
+  Before substance (\%) & 3.18 & 5.17 \\
+  After substance, initial rates (\%) & 3.00 & 4.73 \\
+  After substance, long-run rates (\%) & 3.07 & 4.90 \\
+  \midrule
+  Revenue main effect in full model & \multicolumn{2}{c}{+\USD197.0 bn} \\
+  Scenario-variance main share & \multicolumn{2}{c}{69.1\%} \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.55em}
+\begin{center}
+\begin{tikzpicture}[font=\small]
+  \node[draw=Navy, rounded corners=3pt, fill=WarmGrey,
+    minimum width=10.25cm, text width=9.65cm, minimum height=0.82cm, align=center] {
+      The distributional branch raises the measured base and the average top-up gap inside that base.
+    };
+\end{tikzpicture}
+\end{center}
+{\tiny Liability rates are percentages of corrected positive profit. Revenue effect is cumulative EU collector revenue, US\$ bn.}
+\note{This slide can stand almost alone. The table is the key measurement result.}
+\end{frame}
+
+\section{Behaviour}
+
+\begin{frame}{Behavioural response estimated from the panel}
+\small
+\begin{columns}[T]
+\begin{column}{0.43\textwidth}
+\begin{block}{Reduced-form object}
+  Reported profit is related to the effective tax rate within the same parent-affiliate relationship over time.
+\end{block}
+\begin{exampleblock}{Controls}
+  Parent-affiliate fixed effects, year fixed effects, tangible assets and payroll proxy.
+\end{exampleblock}
+\end{column}
+\begin{column}{0.53\textwidth}
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}lr@{}}
+  \toprule
+  Dependent variable & log reported profit \\
+  \midrule
+  ETR coefficient & -1.500*** \\
+  Standard error & (0.272) \\
+  Log tangible assets & -0.017 \\
+  Log payroll proxy & 0.023 \\
+  Observations & 8,971 \\
+  Parent-affiliate pairs & 1,936 \\
+  Within \(R^2\) & 0.0339 \\
+  \bottomrule
+\end{tabular}
+\end{center}
+{\tiny Standard errors are two-way clustered by parent and affiliate.}
+\end{column}
+\end{columns}
+
+\vspace{0.35em}
+\begin{alertblock}{Reading}
+  A one pp higher ETR is associated with about 1.50\% lower reported profit in the public CbCR panel.
+\end{alertblock}
+\note{This brings the regression output into the main deck without making BIC the headline.}
+\end{frame}
+
+\begin{frame}{Behavioural result in the revenue model}
+\small
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}L{4.5cm}rL{4.0cm}@{}}
+  \toprule
+  Object & Value & Unit \\
+  \midrule
+  Semi-elasticity & 1.50 & profit \% per pp ETR increase \\
+  Reallocation at 5\% ETR & 13.9 & \% of reported profit \\
+  Reallocation at 10\% ETR & 7.2 & \% of reported profit \\
+  Revenue main effect & -46.7 & US\$ bn, 2017 to 2022 \\
+  Scenario-variance main share & 5.1 & \% \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.65em}
+\begin{block}{Economic interpretation}
+  The behavioural response is visible and meaningful, but it is not the main reason the revenue forecast moves across scenarios.
+\end{block}
+\note{Connect the regression directly to the decomposition. This is where the econometric result becomes policy-relevant.}
+\end{frame}
+
+\section{Substance and Allocation}
+
+\begin{frame}{Substance and collection rules}
+\small
+\begin{columns}[T]
+\begin{column}{0.31\textwidth}
+\begin{block}{Substance shield}
+  A share of profit linked to payroll and tangible assets is excluded from the top-up base.
+\end{block}
+\end{column}
+\begin{column}{0.31\textwidth}
+\begin{exampleblock}{Domestic collection}
+  The source country collects first when a domestic top-up tax applies.
+\end{exampleblock}
+\end{column}
+\begin{column}{0.31\textwidth}
+\begin{alertblock}{Residual collection}
+  Parent-country and backstop rules matter mainly when domestic collection is absent.
+\end{alertblock}
+\end{column}
+\end{columns}
+
+\vspace{0.7em}
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}L{3.6cm}rr@{}}
+  \toprule
+  EU27 liability rate & Before substance & After substance \\
+  \midrule
+  Average ETR, initial & 3.18\% & 3.00\% \\
+  Distributional ETR, initial & 5.17\% & 4.73\% \\
+  Distributional ETR, long-run & 5.17\% & 4.90\% \\
+  \bottomrule
+\end{tabular}
+\end{center}
+{\tiny Liability rates are percentages of corrected positive profit.}
+\note{This slide combines substance and allocation architecture. It keeps the mechanism visible without going into acronyms.}
+\end{frame}
+
+\begin{frame}{Allocation result}
+\small
+\begin{columns}[T]
+\begin{column}{0.55\textwidth}
+\begin{center}
+\scriptsize
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}L{2.9cm}rrr@{}}
+  \toprule
+  Collection channel & Universal & Side-by-Side & Change \\
+  \midrule
+  Domestic top-up & 282.5 & 282.5 & 0.0 \\
+  Parent-country rule & 35.8 & 35.8 & 0.0 \\
+  Backstop rule & 177.5 & 38.9 & -138.6 \\
+  \midrule
+  Total & 495.8 & 357.2 & -138.6 \\
+  \bottomrule
+\end{tabular}
+}
+\end{center}
+{\tiny Preferred mechanical core, US\$ bn, cumulative 2017 to 2022.}
+\end{column}
+\begin{column}{0.41\textwidth}
+\begin{alertblock}{Economic reading}
+  The legal regime does not remove the low-taxed profit base. It changes which treasury can collect the residual tax.
+\end{alertblock}
+\begin{exampleblock}{Decomposition}
+  Allocation rules explain \highlight{15.0\%} of pooled scenario variance.
+\end{exampleblock}
+\end{column}
+\end{columns}
+\note{The table is enough. Avoid naming every legal instrument unless asked.}
+\end{frame}
+
+\section{Combined Results}
+
+\begin{frame}{Revenue decomposition}
+\small
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}L{3.0cm}rrL{4.55cm}@{}}
+  \toprule
+  Channel & ANOVA main share & Revenue effect & Economic interpretation \\
+  & (\%) & (US\$ bn) & \\
+  \midrule
+  ETR measurement & 69.1 & +197.0 & the public data must identify the low-taxed mass inside jurisdictions \\
+  Allocation rules & 15.0 & -87.5 & legal rules change where the tax accrues \\
+  Behaviour & 5.1 & -46.7 & firms respond, but this is not the main forecast driver \\
+  Substance shield & 4.6 & -43.6 & payroll and tangible assets reduce the effective floor \\
+  Rate endpoint & 0.1 & +8.6 & transition rates matter little in the full design \\
+  Interactions & 6.0 &  & the ranking survives interaction effects \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.25em}
+{\tiny Revenue effects are main-effect differences in cumulative EU collector revenue, US\$ bn, 2017 to 2022.}
+\note{This is an important table-only slide. It is the synthesis of the thesis.}
+\end{frame}
+
+\begin{frame}{Stronger measurement windows}
+\small
+\begin{center}
+\scriptsize
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}L{4.1cm}rrrrrL{2.4cm}@{}}
+  \toprule
+  Sample window & ETR & Allocation & Substance & Behaviour & Preferred & Scenario range \\
+  & \% & \% & \% & \% & US\$ bn & US\$ bn \\
+  \midrule
+  2017 to 2022 public panel & 72.0 & 16.6 & 5.7 & 5.5 & 303.7 & 127.7 to 517.4 \\
+  2019 to 2022 stronger measurement & 80.3 & 11.4 & 4.5 & 3.7 & 193.0 & 73.0 to 332.4 \\
+  2021 to 2022 strict overlap & 84.5 & 9.2 & 3.9 & 2.2 & 102.3 & 32.1 to 175.3 \\
+  \bottomrule
+\end{tabular}
+}
+\end{center}
+
+\vspace{0.55em}
+\begin{block}{Reading}
+  When the window relies more directly on ETR-bracket evidence, measurement becomes an even larger share of the forecast spread.
+\end{block}
+{\tiny Shares are Shapley-style allocated shares of scenario variance. Preferred and range columns are cumulative EU collector revenue.}
+\note{This slide clarifies the difference between ANOVA main share and Shapley allocated shares.}
+\end{frame}
+
+\begin{frame}{Country policy readings}
+\small
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}lrrrrL{2.6cm}@{}}
+  \toprule
+  Country & Revenue & Revenue/CIT & Spread/CIT & Domestic share & Dominant channel \\
+  & US\$ bn & \% & \% & \% & \\
+  \midrule
+  Germany & 44.5 & 9.0 & 16.2 & 55.4 & measurement \\
+  Netherlands & 87.1 & 41.4 & 38.5 & 92.2 & measurement \\
+  France & 20.2 & 5.4 & 12.6 & 58.5 & measurement \\
+  Luxembourg & 51.7 & 225.1 & 181.7 & 92.6 & legal allocation \\
+  Ireland & 27.1 & 30.3 & 29.7 & 86.0 & substance \\
+  Hungary & 3.9 & 26.8 & 40.2 & 88.0 & measurement \\
+  \bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.45em}
+\begin{alertblock}{Policy reading}
+  A finance ministry should not rank cases by revenue alone. Fiscal salience, uncertainty and domestic collection exposure point to different priorities.
+\end{alertblock}
+{\tiny Revenue is preferred behavioural Side-by-Side collector-country revenue, cumulative 2017 to 2022. CIT refers to corporate-income-tax revenue.}
+\note{This replaces the abstract country typology with numbers.}
+\end{frame}
+
+\begin{frame}{Policy next steps}
+\footnotesize
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{1. Distributional ETR data}
+  Report profit and tax by ETR bands below 15\%. This is the largest forecast driver.
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{exampleblock}{2. Domestic collection capacity}
+  Monitor domestic coverage and residual exposure. Allocation changes fiscal incidence.
+\end{exampleblock}
+\end{column}
+\end{columns}
+
+\vspace{0.35em}
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{block}{3. Forecast governance}
+  Publish scenario decompositions, not only one budget number. The range is economically large.
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{alertblock}{4. Ex-post validation}
+  Compare forecasts with observed collections once implementation data become available.
+\end{alertblock}
+\end{column}
+\end{columns}
+
+\vspace{0.45em}
+\begin{block}{Policy implication}
+  Highest-return improvement: better distributional measurement, followed by transparent collection-right modelling.
+\end{block}
+\note{This is the practical policy answer. It should sound like advice to policymakers.}
+\end{frame}
+
+\begin{frame}{Conclusion}
+\small
+\begin{center}
+\begin{tikzpicture}[font=\small, node distance=0.38cm]
+  \tikzset{
+    point/.style={draw=Navy, rounded corners=3pt, fill=WarmGrey,
+      minimum width=10.15cm, text width=9.55cm, minimum height=0.70cm, align=center}
+  }
+  \node[point] (p1) {\textbf{1.} The EU revenue object is economically material: \USD304 bn over 2017 to 2022.};
+  \node[point, below=0.25cm of p1] (p2) {\textbf{2.} Forecast disagreement is mainly about the measured low-taxed base.};
+  \node[point, below=0.25cm of p2] (p3) {\textbf{3.} Behaviour matters, but measurement and allocation move the forecast more.};
+  \node[point, below=0.25cm of p3] (p4) {\textbf{4.} Allocation rules change fiscal incidence and make domestic collection strategically important.};
+\end{tikzpicture}
+\end{center}
+
+\vspace{0.45em}
+\centering
+\highlight{The thesis contributes an economic policy decomposition of a contested fiscal forecast.}
+\note{End with the contribution, not with limitations.}
+\end{frame}
+
+{
+\setbeamercolor{background canvas}{bg=Navy}
+\begin{frame}[plain]
+  \vspace{1.45em}
+  \begin{center}
+    {\color{Ivory}\Large\bfseries Thank you}\\[1.15em]
+    {\color{DkOrange}\rule{4.2cm}{2pt}}\\[1.15em]
+    {\color{WarmGrey}\normalsize Measurement defines the base.}\\[0.38em]
+    {\color{LtOrange}\normalsize Behaviour calibrates the response.}\\[0.38em]
+    {\color{WarmGrey}\normalsize Collection rights determine fiscal incidence.}\\[1.25em]
+    {\color{MidGrey}\small Maurits de Haan $\cdot$ m.c.p.dehaan@students.uu.nl}
+  \end{center}
+\end{frame}
+}
+
+\appendix
+
+{
+\setbeamercolor{background canvas}{bg=MidNavy}
+\begin{frame}[plain]
+  \vfill
+  \centering
+  {\color{Ivory}\LARGE\bfseries Backup slides}\\[0.6em]
+  {\color{DkOrange}\rule{4cm}{2pt}}\\[0.8em]
+  {\color{WarmGrey}\small Use only when asked for the technical detail.}
+  \vfill
+\end{frame}
+}
+
+\begin{frame}{Backup: acronyms and collection rule}
+\small
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}L{2.25cm}L{4.25cm}L{4.8cm}@{}}
+  \toprule
+  \textbf{Term} & \textbf{Plain meaning} & \textbf{Revenue role} \\
+  \midrule
+  QDMTT & qualified domestic minimum top-up tax & source country collects first \\
+  IIR & income inclusion rule & parent country collects if source country does not \\
+  UTPR & undertaxed profits rule & implementing countries collect residual backstop revenue \\
+  Side-by-Side & safe harbour for qualifying parent regimes in the thesis model & residual IIR and UTPR set to zero for qualifying US-parented groups \\
+  SBIE & substance-based income exclusion & payroll and tangible assets shield part of the base \\
+  SBTI & substance-based tax incentive safe harbour & capacity for substance-linked incentives to be protected \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\sourceline{thesisv4 Sections 3 and 4}
+\end{frame}
+
+\begin{frame}{Backup: source hierarchy for Stage 1}
+\small
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}lrrrrrrr@{}}
+  \toprule
+  Source & 2017 & 2018 & 2019 & 2020 & 2021 & 2022 & Total \\
+  \midrule
+  Direct Table IV & 0 & 0 & 2,275 & 2,306 & 2,470 & 2,344 & 9,395 \\
+  Beta percentile fit & 0 & 0 & 0 & 0 & 421 & 399 & 820 \\
+  BSPI shape transport & 1,720 & 2,179 & 0 & 0 & 0 & 0 & 3,899 \\
+  Jurisdiction-average fallback & 303 & 348 & 393 & 408 & 5 & 2 & 1,459 \\
+  Missing source & 22 & 27 & 43 & 36 & 25 & 32 & 185 \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\begin{block}{Interpretation}
+  Direct Table IV carries the main distributional branch after 2019. The early years require shape transport, which is why the robustness slides restrict the window.
+\end{block}
+\sourceline{generated Table stage1\_source\_coverage}
+\end{frame}
+
+\begin{frame}{Backup: profit-base correction}
+\small
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}lrr@{}}
+  \toprule
+  Profit branch & Reported & Corrected \\
+  \midrule
+  OECD adjusted & 851.0 & 609.2 \\
+  External-anchor domestic & 5,308.8 & 2,491.1 \\
+  Domestic model & 24,642.7 & 15,831.7 \\
+  Foreign affiliates & 15,908.8 & 15,908.8 \\
+  \midrule
+  Total & 46,711.2 & 34,840.8 \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\tiny Current US\$ bn.
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{Why it matters}
+  The correction addresses double-counting exposure in domestic parent cells. It reduces positive-profit CbCR profit by 25.4\% before any GMT revenue stage is estimated.
+\end{block}
+\begin{alertblock}{Interpretive boundary}
+  This is a denominator correction, not a claim about new tax payments.
+\end{alertblock}
+\end{column}
+\end{columns}
+\sourceline{generated Table profit\_correction\_effects}
+\end{frame}
+
+\begin{frame}{Backup: annual Stage 1 rates}
+\small
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}lrrrrrr@{}}
+  \toprule
+  EU27 & 2017 & 2018 & 2019 & 2020 & 2021 & 2022 \\
+  \midrule
+  Average rule, low-taxed share & 53.9 & 63.3 & 62.5 & 55.0 & 55.3 & 41.8 \\
+  Average rule, liability rate & 3.5 & 4.6 & 3.8 & 2.9 & 2.9 & 1.4 \\
+  Distributional rule, low-taxed share & 52.3 & 55.6 & 53.4 & 50.9 & 51.5 & 43.8 \\
+  Distributional rule, liability rate & 5.8 & 6.1 & 5.7 & 4.8 & 4.9 & 3.7 \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\begin{block}{Reading}
+  The distributional branch usually does not raise the low-taxed share dramatically. It raises the liability rate because the identified low-taxed slice has a larger average top-up gap.
+\end{block}
+\sourceline{generated Table stage1\_rates}
+\end{frame}
+
+\begin{frame}{Backup: behavioural regression output}
+\small
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}lccc@{}}
+  \toprule
+  & Linear & Quadratic & Logarithmic \\
+  \midrule
+  ETR & -1.500*** (0.272) & -1.761* (0.909) & -0.943 (0.973) \\
+  ETR squared & & 0.438 (1.262) & \\
+  Log shifted ETR & & & -0.214 (0.415) \\
+  Log tangible assets & -0.017 (0.015) & -0.017 (0.015) & -0.017 (0.015) \\
+  Log payroll proxy & 0.023 (0.034) & 0.023 (0.034) & 0.023 (0.034) \\
+  \midrule
+  $N$ & 8,971 & 8,971 & 8,971 \\
+  Parent-affiliate pairs & 1,936 & 1,936 & 1,936 \\
+  BIC rank & 1 & 3 & 2 \\
+  $\Delta$BIC & 0.00 & 7.54 & 5.40 \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\tiny All models include parent-affiliate and year fixed effects. Standard errors are two-way clustered by parent and affiliate.
+\sourceline{generated Table stage3\_regression\_table}
+\end{frame}
+
+\begin{frame}{Backup: behavioural reliability scorecard}
+\small
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}L{3.3cm}L{4.2cm}L{4.2cm}@{}}
+  \toprule
+  Diagnostic & Result & Weight for interpretation \\
+  \midrule
+  Preferred FE estimate & semi-elasticity 1.50; $N=8,971$; pairs $=1,936$ & usable scenario coefficient \\
+  Model selection & BIC selects linear; tax Wald $p=1.5\times10^{-6}$ & supports parsimonious response \\
+  Two-way inference & SE $=0.272$; $p=1.5\times10^{-6}$ & statistically strong association \\
+  IV diagnostics & first stages relevant; 2SLS imprecise & weak for causal replacement \\
+  Low-ETR tail & below 5\% ETR: 17.4\% of rows & tail exists but does not prove curvature \\
+  Final decision & use as scenario coefficient & do not make it causal centrepiece \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\sourceline{generated Table stage3\_reliability\_scorecard}
+\end{frame}
+
+\begin{frame}{Backup: Stage 1 measurement-error interval}
+\small
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}llrrrrr@{}}
+  \toprule
+  Behaviour & Regime & Baseline & Median & 5th pct. & 95th pct. & 90\% width \\
+  \midrule
+  Mechanical & Universal & 495.8 & 468.6 & 399.3 & 542.6 & 143.3 \\
+  Mechanical & SbS & 357.2 & 342.0 & 297.8 & 391.5 & 93.7 \\
+  Behavioural & Universal & 421.8 & 394.6 & 336.5 & 456.5 & 120.1 \\
+  Behavioural & SbS & 303.7 & 287.5 & 250.8 & 329.3 & 78.6 \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\tiny US\$ bn. Intervals use centred empirical residuals from the Table I percentile-fit versus Table IV overlap.
+\begin{block}{Reading}
+  Even inside the preferred scenario, measurement error in Stage 1 remains a material forecast object.
+\end{block}
+\sourceline{generated Table stage1\_measurement\_error\_interval}
+\end{frame}
+
+\begin{frame}{Backup: Shapley allocation after interactions}
+\small
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}L{2.8cm}L{4.0cm}rrr@{}}
+  \toprule
+  Factor & Mechanism & Main & Interaction & Allocated \\
+  \midrule
+  ETR measurement & low-taxed profit base & 69.1 & 2.9 & 72.0 \\
+  Side-by-Side regime & legal allocation & 15.0 & 1.6 & 16.6 \\
+  Substance specification & substance shield & 4.6 & 1.1 & 5.7 \\
+  Behavioural response & response coefficient & 5.1 & 0.4 & 5.5 \\
+  SBIE rate endpoint & policy parameter & 0.1 & 0.0 & 0.2 \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\begin{block}{Reading}
+  The same ranking survives when interactions are split across the factors that generate them.
+\end{block}
+\sourceline{generated Table stage4\_6\_shapley\_factor\_attribution}
+\end{frame}
+
+\begin{frame}{Backup: selected country spreads}
+\small
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}lrrr@{}}
+  \toprule
+  Country & Minimum & Maximum & Spread \\
+  \midrule
+  Germany & 3.3 & 83.2 & 79.9 \\
+  Netherlands & 42.7 & 123.7 & 81.0 \\
+  France & 0.9 & 48.3 & 47.4 \\
+  Luxembourg & 45.9 & 87.6 & 41.7 \\
+  Ireland & 18.6 & 45.2 & 26.6 \\
+  Hungary & 0.3 & 6.1 & 5.8 \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\tiny US\$ bn, 2017 to 2022.
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{Reading}
+  Germany and the Netherlands have similar absolute spreads, but different policy readings. Germany is mainly a measurement case; the Netherlands is largely protected through QDMTT collection.
+\end{block}
+\begin{alertblock}{Luxembourg}
+  The estimate is best read as a fiscal stress statistic, not as ordinary budgetable cash.
+\end{alertblock}
+\end{column}
+\end{columns}
+\sourceline{generated Tables country\_spread and country\_fiscal\_salience}
+\end{frame}
+
+\begin{frame}{Backup: fiscal salience of selected countries}
+\small
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}lrrrrr@{}}
+  \toprule
+  Country & Revenue & Revenue/CIT & Spread/CIT & SbS loss/CIT & QDMTT/revenue \\
+  \midrule
+  Germany & 44.5 & 9.0\% & 16.2\% & 4.7\% & 55.4\% \\
+  Netherlands & 87.1 & 41.4\% & 38.5\% & 6.0\% & 92.2\% \\
+  France & 20.2 & 5.4\% & 12.6\% & 5.0\% & 58.5\% \\
+  Luxembourg & 51.7 & 225.1\% & 181.7\% & 77.4\% & 92.6\% \\
+  Ireland & 27.1 & 30.3\% & 29.7\% & 13.7\% & 86.0\% \\
+  Hungary & 3.9 & 26.8\% & 40.2\% & 7.3\% & 88.0\% \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\tiny Revenue is preferred behavioural Side-by-Side collector-country revenue, US\$ bn.
+\sourceline{generated Table country\_fiscal\_salience}
+\end{frame}
+
+\begin{frame}{Backup: SBTI capital-intensity regression}
+\small
+\begin{columns}[T]
+\begin{column}{0.48\textwidth}
+\begin{center}
+\scriptsize
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lrrrr@{}}
+  \toprule
+  Specification & Coefficient & SE & $p$ & $R^2$ \\
+  \midrule
+  Unweighted & -0.00008 & 0.00003 & 0.026 & 0.386 \\
+  Profit-weighted & -0.00162 & 0.00045 & 0.001 & 0.484 \\
+  \bottomrule
+\end{tabular}
+}
+\end{center}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{Interpretation}
+  Higher tangible-asset intensity is associated with a larger SBTI-induced reduction in the effective floor.
+\end{block}
+\begin{alertblock}{Caveat}
+  The dependent variable is exposure capacity in public data, not observed safe-harbour elections.
+\end{alertblock}
+\end{column}
+\end{columns}
+\sourceline{generated Table stage2\_h5\_regression}
+\end{frame}
+
+\begin{frame}{Backup: literature anchors}
+\small
+\begin{center}
+\scriptsize
+\begin{tabular}{@{}L{3.2cm}L{7.6cm}@{}}
+  \toprule
+  Literature & Role in the thesis \\
+  \midrule
+  Hines and Rice (1994) & reported profit responds to tax incentives after controlling for real activity \\
+  Heckemeyer and Overesch (2017) & meta-regression benchmark for profit-shifting semi-elasticities \\
+  Dowd et al. (2017) & nonlinear low-rate response benchmark \\
+  Garcia-Bernardo et al. (2024) & logarithmic behavioural specification and formulary reallocation logic \\
+  Blouin and Robinson (2023) & double-counting risk in profit-shifting estimates \\
+  Hugger et al. (2026) & low-taxed mass can sit inside above-average-ETR jurisdictions \\
+  Devereux et al. (2023); Schjelderup (2024) & substance carve-outs lower the effective floor and can resemble production subsidies \\
+  \bottomrule
+\end{tabular}
+\end{center}
+\sourceline{thesisv4 Literature review and bibliography}
+\end{frame}
+
+\end{document}
