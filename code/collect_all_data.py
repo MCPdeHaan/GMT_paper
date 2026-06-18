@@ -459,7 +459,7 @@ def collect_pillar2_qdmtt():
         "OECD Central Record of Qualified Pillar Two Legislation"
     )
 
-def execute_collection(key: str, name: str, func) -> str:
+def execute_collection(name: str, func) -> str:
     log.info("\n" + "=" * 70)
     log.info(f"Collecting: {name}")
     log.info("=" * 70)
@@ -473,7 +473,7 @@ def execute_collection(key: str, name: str, func) -> str:
 def collect_all():
     results = {}
     for key, (name, func) in COLLECTORS.items():
-        results[key] = execute_collection(key, name, func)
+        results[key] = execute_collection(name, func)
 
     log.info("\n" + "=" * 60)
     log.info("SUMMARY")
@@ -502,7 +502,7 @@ def main():
     if args.source:
         for s in args.source:
             name, func = COLLECTORS[s]
-            execute_collection(s, name, func)
+            execute_collection(name, func)
     else:
         collect_all()
 

@@ -2,7 +2,7 @@
 # Step 8 of the methodology pipeline.
 #
 # Converts the processed outputs from Steps 1 to 7 into LaTeX tables that can be
-# included directly in writing/thesisv2.tex. This keeps the Results section tied
+# included directly in the thesis manuscript. This keeps the Results section tied
 # to the current data pipeline instead of hardcoding numerical tables in the
 # manuscript.
 library(dplyr)
@@ -13,19 +13,15 @@ library(tibble)
 
 source("code/00_helpers.R")
 
-IN <- "data/processed"
-DIAG <- file.path(IN, "diagnostics")
-GEN <- "writing/generated"
-GEN_TABLES <- file.path(GEN, "results_tables")
 
 read_diag <- function(file) {
-  path <- file.path(DIAG, file)
+  path <- file.path(DIAGNOSTICS_DIR, file)
   if (!file.exists(path)) stop("Missing diagnostics file: ", path)
   read_csv(path, show_col_types = FALSE)
 }
 
 read_processed <- function(file) {
-  path <- file.path(IN, file)
+  path <- file.path(PROCESSED_DIR, file)
   if (!file.exists(path)) stop("Missing processed file: ", path)
   readRDS(path)
 }
@@ -95,11 +91,6 @@ coef_cell <- function(estimate, std_error, p_value, digits = 3) {
       " (", fmt_num(std_error, digits), ")"
     )
   )
-}
-
-source_note <- function(files) {
-  # Source paths belong in pipeline diagnostics, not manuscript table notes.
-  ""
 }
 
 normalise_factor_label <- function(x) {
@@ -405,7 +396,7 @@ write_data_descriptive_tables <- function() {
   )
 
   write_custom_table(
-    file.path(GEN_TABLES, "data_sample_construction.tex"),
+    file.path(GENERATED_TABLES_DIR, "data_sample_construction.tex"),
     c(
       "\\begin{table}[H]",
       "\\centering",
@@ -481,7 +472,7 @@ write_data_descriptive_tables <- function() {
     )
 
   write_latex_table(
-    file.path(GEN_TABLES, "data_panel_coverage.tex"),
+    file.path(GENERATED_TABLES_DIR, "data_panel_coverage.tex"),
     caption = "Analytical panel coverage by fiscal year",
     short_caption = "Analytical panel coverage by fiscal year",
     label = "tab:data_panel_coverage",
@@ -496,7 +487,7 @@ write_data_descriptive_tables <- function() {
       "The sample is the 2017 to 2022 analytical Stage 1 parent-affiliate-year panel.",
       "Profit and low-taxed profit are corrected positive Panel A-I profit under the preferred distributional measurement branch, expressed in US dollars, billions.",
       "Median ETR is the bounded Panel A-I ETR among positive-profit observations.",
-      source_note("data/processed/stage1_bilateral_panel.rds")
+      ""
     ),
     size = "\\scriptsize",
     resize = TRUE
@@ -594,7 +585,7 @@ write_data_descriptive_tables <- function() {
   }, names(summary_blocks), summary_blocks), use.names = FALSE)
 
   write_custom_table(
-    file.path(GEN_TABLES, "data_summary_statistics.tex"),
+    file.path(GENERATED_TABLES_DIR, "data_summary_statistics.tex"),
     c(
       "\\begin{table}[H]",
       "\\centering",
@@ -626,7 +617,7 @@ write_data_descriptive_tables <- function() {
       "\\input{generated/results_tables/data_panel_coverage.tex}",
       "\\input{generated/results_tables/data_summary_statistics.tex}"
     ),
-    file.path(GEN, "data_descriptive_tables.tex")
+    file.path(GENERATED_DIR, "data_descriptive_tables.tex")
   )
 }
 
@@ -740,7 +731,7 @@ write_profit_correction_table <- function() {
     "\\end{table}"
   )
 
-  write_custom_table(file.path(GEN_TABLES, "profit_correction_effects.tex"), lines)
+  write_custom_table(file.path(GENERATED_TABLES_DIR, "profit_correction_effects.tex"), lines)
 }
 
 write_stage1_source_table <- function() {
@@ -803,7 +794,7 @@ write_stage1_source_table <- function() {
   rows[, 1] <- latex_escape(rows[[1]])
 
   write_latex_table(
-    file.path(GEN_TABLES, "stage1_source_coverage.tex"),
+    file.path(GENERATED_TABLES_DIR, "stage1_source_coverage.tex"),
     caption = "Stage 1 source coverage, 2017 to 2022",
     short_caption = "Stage 1 source coverage",
     label = "tab:stage1_source_updated",
@@ -813,10 +804,7 @@ write_stage1_source_table <- function() {
     notes = paste(
       "Counts are parent-affiliate-year cells in the Stage 1 bilateral panel.",
       "Positive-profit cells are shown separately because only those cells can generate top-up tax.",
-      source_note(c(
-        "data/processed/diagnostics/step3_stage1_pair_year_branch_by_year.csv",
-        "data/processed/stage1_bilateral_panel.rds"
-      ))
+      ""
     )
   )
 }
@@ -830,7 +818,7 @@ write_stage1_rates_table <- function() {
   make_scope_rows <- function(scope_id, scope_label) {
     dat <- scenario |> filter(scope == scope_id)
     bind_rows(
-      tibble(row = "\\multicolumn{7}{l}{\\textit{" %+% scope_label %+% "}}"),
+      tibble(row = paste0("\\multicolumn{7}{l}{\\textit{", scope_label, "}}")),
       tibble(
         row = c(
           "Average rule, low-taxed share",
@@ -899,33 +887,28 @@ write_stage1_rates_table <- function() {
     "",
     "\\vspace{0.5em}",
     "\\begin{minipage}{0.96\\textwidth}",
-    paste0(
-      "\\footnotesize\\raggedright \\textit{Notes:} Ratios are aggregate ratios from the bilateral Stage 1 panel, not unweighted country averages. ",
-      source_note("data/processed/diagnostics/step3_stage1_scenario_by_year.csv")
-    ),
+    "\\footnotesize\\raggedright \\textit{Notes:} Ratios are aggregate ratios from the bilateral Stage 1 panel, not unweighted country averages.",
     "\\end{minipage}",
     "\\end{table}"
   )
 
-  write_custom_table(file.path(GEN_TABLES, "stage1_rates.tex"), lines)
+  write_custom_table(file.path(GENERATED_TABLES_DIR, "stage1_rates.tex"), lines)
 }
-
-`%+%` <- function(a, b) paste0(a, b)
 
 write_stage1_bspi_table <- function() {
   bspi <- read_diag("step3_stage1_bspi_validation.csv")
-  names <- read_processed("base_panel.rds") |>
+  jurisdiction_names <- read_processed("base_panel.rds") |>
     distinct(affiliate, affiliate_jurisdiction_name)
 
   selected <- bspi |>
     filter(affiliate %in% EU27_ISO3) |>
-    left_join(names, by = "affiliate") |>
+    left_join(jurisdiction_names, by = "affiliate") |>
     arrange(desc(bspi_tv_anchor_validation)) |>
     slice_head(n = 6) |>
     bind_rows(
       bspi |>
         filter(affiliate %in% c("NLD", "LUX", "IRL")) |>
-        left_join(names, by = "affiliate")
+        left_join(jurisdiction_names, by = "affiliate")
     ) |>
     distinct(affiliate, .keep_all = TRUE) |>
     arrange(desc(bspi_tv_anchor_validation)) |>
@@ -938,7 +921,7 @@ write_stage1_bspi_table <- function() {
     )
 
   write_latex_table(
-    file.path(GEN_TABLES, "stage1_bspi_validation.tex"),
+    file.path(GENERATED_TABLES_DIR, "stage1_bspi_validation.tex"),
     caption = "EU27 BSPI validation, 2019 to 2020 anchor versus 2021 to 2022 validation",
     short_caption = "EU27 BSPI validation",
     label = "tab:stage1_bspi_updated",
@@ -947,14 +930,13 @@ write_stage1_bspi_table <- function() {
       "Affiliate", "Anchor low share", "Validation low share",
       "TV distance", "Flag"
     ),
-    rows = selected,
-    notes = source_note("data/processed/diagnostics/step3_stage1_bspi_validation.csv")
+    rows = selected
   )
 }
 
 write_stage1_crossval_table <- function() {
   x <- read_diag("step3_stage1_crossval_summary.csv")
-  get <- function(metric) as.numeric(metric_value(x, metric))
+  crossval_metric <- function(metric) as.numeric(metric_value(x, metric))
 
   rows <- tibble(
     Statistic = latex_escape(c(
@@ -974,25 +956,25 @@ write_stage1_crossval_table <- function() {
       "Low-share Wilcoxon p-value"
     )),
     Value = c(
-      fmt_int(get("overlap_affiliate_years")),
-      fmt_int(get("overlap_zero_low_share_cases")),
-      fmt_num(get("low_share_median_diff"), 3),
-      fmt_num(get("low_share_mae"), 3),
-      fmt_num(get("low_share_p90_abs_error"), 3),
-      fmt_num(get("low_share_spearman"), 3),
-      fmt_num(get("low_share_calibration_slope"), 2),
-      fmt_num(get("low_share_calibration_r_squared"), 3),
-      fmt_num(get("liability_rate_median_diff"), 3),
-      fmt_num(get("liability_rate_mae"), 3),
-      fmt_num(get("liability_rate_p90_abs_error"), 3),
-      fmt_num(get("positive_partition_tv_median"), 3),
-      fmt_num(get("positive_partition_tv_p90"), 3),
-      fmt_p(get("crossval_low_share_wilcox_pvalue"))
+      fmt_int(crossval_metric("overlap_affiliate_years")),
+      fmt_int(crossval_metric("overlap_zero_low_share_cases")),
+      fmt_num(crossval_metric("low_share_median_diff"), 3),
+      fmt_num(crossval_metric("low_share_mae"), 3),
+      fmt_num(crossval_metric("low_share_p90_abs_error"), 3),
+      fmt_num(crossval_metric("low_share_spearman"), 3),
+      fmt_num(crossval_metric("low_share_calibration_slope"), 2),
+      fmt_num(crossval_metric("low_share_calibration_r_squared"), 3),
+      fmt_num(crossval_metric("liability_rate_median_diff"), 3),
+      fmt_num(crossval_metric("liability_rate_mae"), 3),
+      fmt_num(crossval_metric("liability_rate_p90_abs_error"), 3),
+      fmt_num(crossval_metric("positive_partition_tv_median"), 3),
+      fmt_num(crossval_metric("positive_partition_tv_p90"), 3),
+      fmt_p(crossval_metric("crossval_low_share_wilcox_pvalue"))
     )
   )
 
   write_latex_table(
-    file.path(GEN_TABLES, "stage1_crossval.tex"),
+    file.path(GENERATED_TABLES_DIR, "stage1_crossval.tex"),
     caption = "Beta percentile fit versus Table IV cross-validation",
     short_caption = "Beta percentile fit versus Table IV cross-validation",
     label = "tab:app_stage1_crossval",
@@ -1002,7 +984,7 @@ write_stage1_crossval_table <- function() {
     notes = paste(
       "Differences are Table I constrained-Beta percentile fit minus Table IV direct observation.",
       "Calibration regresses the direct Table IV low-taxed share on the fitted Table I low-taxed share and year fixed effects.",
-      source_note("data/processed/diagnostics/step3_stage1_crossval_summary.csv")
+      ""
     )
   )
 }
@@ -1059,7 +1041,7 @@ write_stage2_aggregate_table <- function() {
     )
 
   write_latex_table(
-    file.path(GEN_TABLES, "stage2_aggregate.tex"),
+    file.path(GENERATED_TABLES_DIR, "stage2_aggregate.tex"),
     caption = "Aggregate Stage 2 effect of the SBIE",
     short_caption = "Aggregate Stage 2 effect of the SBIE",
     label = "tab:stage2_aggregate_updated",
@@ -1072,7 +1054,7 @@ write_stage2_aggregate_table <- function() {
     notes = paste(
       "Initial rates use a 10 per cent payroll carve-out and an 8 per cent tangible-asset carve-out.",
       "Long-run rates use 5 per cent for both components.",
-      source_note("data/processed/diagnostics/step4_stage2_scenario_by_year.csv")
+      ""
     )
   )
 }
@@ -1117,7 +1099,7 @@ write_stage2_sectoral_table <- function() {
     )
 
   write_latex_table(
-    file.path(GEN_TABLES, "stage2_sectoral_sbti.tex"),
+    file.path(GENERATED_TABLES_DIR, "stage2_sectoral_sbti.tex"),
     caption = "Sectoral SBTI effect in selected EU countries",
     short_caption = "Sectoral SBTI effect in selected EU countries",
     label = "tab:stage2_sectoral_sbti",
@@ -1130,7 +1112,7 @@ write_stage2_sectoral_table <- function() {
     notes = paste(
       "The table uses the 2022 EU sectoral reference matrix and initial 2024 rates.",
       "All rates are percentages.",
-      source_note("data/processed/diagnostics/step4_stage2_sectoral_country_summary.csv")
+      ""
     )
   )
 }
@@ -1153,7 +1135,7 @@ write_stage2_h5_table <- function() {
     )
 
   write_latex_table(
-    file.path(GEN_TABLES, "stage2_h5_regression.tex"),
+    file.path(GENERATED_TABLES_DIR, "stage2_h5_regression.tex"),
     caption = "Sectoral capital-intensity regression",
     short_caption = "Sectoral capital-intensity regression",
     label = "tab:stage2_h5_regression",
@@ -1165,7 +1147,7 @@ write_stage2_h5_table <- function() {
     rows = x,
     notes = paste(
       "Dependent variable: SBTI-induced change in the average effective floor in the 2022 EU sectoral reference matrix.",
-      source_note("data/processed/diagnostics/step4_stage2_sectoral_h5_regression_clustered.csv")
+      ""
     )
   )
 }
@@ -1184,7 +1166,7 @@ write_stage3_model_table <- function() {
     )
 
   write_latex_table(
-    file.path(GEN_TABLES, "stage3_model_comparison.tex"),
+    file.path(GENERATED_TABLES_DIR, "stage3_model_comparison.tex"),
     caption = "Stage 3 model comparison",
     short_caption = "Stage 3 model comparison",
     label = "tab:stage3_model_comparison",
@@ -1197,7 +1179,7 @@ write_stage3_model_table <- function() {
     notes = paste(
       "Two-way fixed-effect Hines-Rice models.",
       "The BIC ranking is the model-selection rule used in the current pipeline.",
-      source_note("data/processed/diagnostics/step5_stage3_model_comparison.csv")
+      ""
     )
   )
 }
@@ -1300,17 +1282,13 @@ write_stage3_regression_table <- function() {
     "\\begin{minipage}{0.96\\textwidth}",
     paste0(
       "\\footnotesize\\raggedright \\textit{Notes:} All models include parent-affiliate pair fixed effects and year fixed effects. ",
-      "$^{*}p<0.10$, $^{**}p<0.05$, $^{***}p<0.01$. ",
-      source_note(c(
-        "data/processed/diagnostics/step5_stage3_coefficients.csv",
-        "data/processed/diagnostics/step5_stage3_model_comparison.csv"
-      ))
+      "$^{*}p<0.10$, $^{**}p<0.05$, $^{***}p<0.01$."
     ),
     "\\end{minipage}",
     "\\end{table}"
   )
 
-  write_custom_table(file.path(GEN_TABLES, "stage3_regression_table.tex"), lines)
+  write_custom_table(file.path(GENERATED_TABLES_DIR, "stage3_regression_table.tex"), lines)
 }
 
 write_stage3_iv_table <- function() {
@@ -1376,7 +1354,7 @@ write_stage3_iv_table <- function() {
     )
 
   write_latex_table(
-    file.path(GEN_TABLES, "stage3_iv_diagnostics.tex"),
+    file.path(GENERATED_TABLES_DIR, "stage3_iv_diagnostics.tex"),
     caption = "Tax-code instrument diagnostics",
     short_caption = "Tax-code instrument diagnostics",
     label = "tab:stage3_iv_diagnostics",
@@ -1392,7 +1370,7 @@ write_stage3_iv_table <- function() {
       "The statutory benchmark uses the one-year lagged statutory CIT rate of the affiliate jurisdiction.",
       "The weak-instrument statistic is the parent-and-affiliate clustered first-stage F-statistic for each excluded instrument.",
       "The 2SLS row is not used for the nonlinear counterfactual because one excluded instrument identifies only the linear ETR coefficient.",
-      source_note("data/processed/diagnostics/step5_stage3_tax_endogeneity_diagnostics.csv")
+      ""
     ),
     size = "\\scriptsize",
     resize = TRUE
@@ -1454,7 +1432,7 @@ write_stage3_econometric_scorecard_table <- function() {
     pull(n)
   total_stable <- nrow(stable_samples)
 
-  influence_path <- file.path(DIAG, "step10_jurisdiction_influence_case_summary.csv")
+  influence_path <- file.path(DIAGNOSTICS_DIR, "step10_jurisdiction_influence_case_summary.csv")
   if (file.exists(influence_path)) {
     influence <- read_csv(influence_path, show_col_types = FALSE)
     influence_result <- paste0(
@@ -1553,7 +1531,7 @@ write_stage3_econometric_scorecard_table <- function() {
   )
 
   write_latex_table(
-    file.path(GEN_TABLES, "stage3_econometric_scorecard.tex"),
+    file.path(GENERATED_TABLES_DIR, "stage3_econometric_scorecard.tex"),
     caption = "Econometric diagnostics for the behavioural stage",
     short_caption = "Econometric diagnostics for the behavioural stage",
     label = "tab:stage3_econometric_scorecard",
@@ -1563,15 +1541,7 @@ write_stage3_econometric_scorecard_table <- function() {
     notes = paste(
       "The table compacts the formal diagnostics that support the Stage 3 behavioural counterfactual.",
       "It is generated from the same fixed-effect, IV, model-selection, tail-support and influence outputs used in the appendix.",
-      source_note(c(
-        "data/processed/diagnostics/step5_stage3_model_comparison.csv",
-        "data/processed/diagnostics/step5_stage3_model_wald_tests.csv",
-        "data/processed/diagnostics/step5_stage3_tax_endogeneity_diagnostics.csv",
-        "data/processed/diagnostics/step5_stage3_specification_tests.csv",
-        "data/processed/diagnostics/step5_stage3_etr_tail_support.csv",
-        "data/processed/diagnostics/step5_stage3_model_robustness.csv",
-        "data/processed/diagnostics/step10_jurisdiction_influence_case_summary.csv"
-      ))
+      ""
     ),
     size = "\\scriptsize",
     resize = TRUE
@@ -1631,7 +1601,7 @@ write_stage3_reliability_scorecard_table <- function() {
     filter(tail_band == "five_to_15pct") |>
     slice(1)
 
-  influence_path <- file.path(DIAG, "step10_jurisdiction_influence_case_summary.csv")
+  influence_path <- file.path(DIAGNOSTICS_DIR, "step10_jurisdiction_influence_case_summary.csv")
   if (file.exists(influence_path)) {
     influence <- read_csv(influence_path, show_col_types = FALSE)
 
@@ -1766,7 +1736,7 @@ write_stage3_reliability_scorecard_table <- function() {
   )
 
   write_latex_table(
-    file.path(GEN_TABLES, "stage3_reliability_scorecard.tex"),
+    file.path(GENERATED_TABLES_DIR, "stage3_reliability_scorecard.tex"),
     caption = "Reliability scorecard for the behavioural module",
     short_caption = "Reliability scorecard for the behavioural module",
     label = "tab:stage3_reliability_scorecard",
@@ -1777,13 +1747,7 @@ write_stage3_reliability_scorecard_table <- function() {
       "The scorecard reports whether the behavioural module is usable for the revenue counterfactual.",
       "The preferred estimate is the linear two-way fixed-effect Hines-Rice coefficient with parent-and-affiliate clustered inference.",
       "The final row states the evidentiary decision used in the thesis.",
-      source_note(c(
-        "data/processed/diagnostics/step5_stage3_coefficients.csv",
-        "data/processed/diagnostics/step5_stage3_model_comparison.csv",
-        "data/processed/diagnostics/step5_stage3_tax_endogeneity_diagnostics.csv",
-        "data/processed/diagnostics/step5_stage3_etr_tail_support.csv",
-        "data/processed/diagnostics/step10_jurisdiction_influence_case_summary.csv"
-      ))
+      ""
     ),
     size = "\\scriptsize",
     resize = TRUE
@@ -1804,7 +1768,7 @@ write_stage3_semielasticity_table <- function() {
     )
 
   write_latex_table(
-    file.path(GEN_TABLES, "stage3_semielasticity.tex"),
+    file.path(GENERATED_TABLES_DIR, "stage3_semielasticity.tex"),
     caption = "Stage 3 semi-elasticity schedule",
     short_caption = "Stage 3 semi-elasticity schedule",
     label = "tab:stage3_semielasticity",
@@ -1817,7 +1781,7 @@ write_stage3_semielasticity_table <- function() {
     notes = paste(
       "Standard errors are two-way clustered by parent and affiliate.",
       "Reallocation share is the implied reduction when the effective rate is raised to 15 per cent.",
-      source_note("data/processed/diagnostics/step5_stage3_semielasticity_schedule.csv")
+      ""
     )
   )
 }
@@ -1838,7 +1802,7 @@ write_stage46_anova_table <- function() {
     )
 
   write_latex_table(
-    file.path(GEN_TABLES, "stage4_6_anova.tex"),
+    file.path(GENERATED_TABLES_DIR, "stage4_6_anova.tex"),
     caption = "Pooled factorial decomposition of EU GMT revenue",
     short_caption = "Pooled factorial decomposition of EU GMT revenue",
     label = "tab:stage4_6_anova_updated",
@@ -1847,7 +1811,7 @@ write_stage46_anova_table <- function() {
     rows = x,
     notes = paste(
       "Pooled orthogonal structural variance decomposition across the 32 legally allocated revenue scenarios, EU27 country-years, 2017 to 2022.",
-      source_note("data/processed/diagnostics/step7_stage4_6_anova_pooled.csv")
+      ""
     )
   )
 }
@@ -1864,7 +1828,7 @@ write_stage46_shapley_table <- function() {
     )
 
   write_latex_table(
-    file.path(GEN_TABLES, "stage4_6_shapley_factor_attribution.tex"),
+    file.path(GENERATED_TABLES_DIR, "stage4_6_shapley_factor_attribution.tex"),
     caption = "Shapley-style allocation of factorial revenue variance by economic mechanism",
     short_caption = "Shapley-style allocation of factorial revenue variance",
     label = "tab:stage4_6_shapley_attribution",
@@ -1878,7 +1842,7 @@ write_stage46_shapley_table <- function() {
     notes = paste(
       "Interaction contrasts are allocated equally across the factors that enter them, giving a Shapley-style factor attribution that sums to the full scenario variance.",
       "The aleatoric label is reserved for bootstrap uncertainty in the estimated behavioural coefficients; the factorial behavioural contrast itself is a scenario contrast.",
-      source_note("data/processed/diagnostics/step7_stage4_6_shapley_factor_attribution.csv")
+      ""
     ),
     size = "\\scriptsize",
     resize = TRUE
@@ -1895,7 +1859,7 @@ write_stage46_main_effects_table <- function() {
     )
 
   write_latex_table(
-    file.path(GEN_TABLES, "stage4_6_main_effects.tex"),
+    file.path(GENERATED_TABLES_DIR, "stage4_6_main_effects.tex"),
     caption = "Main effects on cumulative EU revenue",
     short_caption = "Main effects on cumulative EU revenue",
     label = "tab:stage4_6_main_effects",
@@ -1904,7 +1868,7 @@ write_stage46_main_effects_table <- function() {
     rows = x,
     notes = paste(
       "Amounts are cumulative over 2017 to 2022 and expressed in US dollars, billions.",
-      source_note("data/processed/diagnostics/step7_stage4_6_main_effects_pooled.csv")
+      ""
     )
   )
 }
@@ -1924,7 +1888,7 @@ write_stage46_channel_table <- function() {
     )
 
   write_latex_table(
-    file.path(GEN_TABLES, "preferred_channel.tex"),
+    file.path(GENERATED_TABLES_DIR, "preferred_channel.tex"),
     caption = "Preferred-core revenue by collection channel",
     short_caption = "Preferred-core revenue by collection channel",
     label = "tab:preferred_channel_updated",
@@ -1934,13 +1898,13 @@ write_stage46_channel_table <- function() {
     notes = paste(
       "Preferred-core scenario: distributional ETR measurement, aggregate SBIE, initial carve-out rates and no behavioural response.",
       "Amounts are cumulative over 2017 to 2022.",
-      source_note("data/processed/diagnostics/step7_stage4_6_preferred_channel_summary.csv")
+      ""
     )
   )
 }
 
 write_stage1_measurement_error_table <- function() {
-  input_file <- file.path(DIAG, "step9_stage1_measurement_error_preferred_interval.csv")
+  input_file <- file.path(DIAGNOSTICS_DIR, "step9_stage1_measurement_error_preferred_interval.csv")
   if (!file.exists(input_file)) {
     return(invisible(FALSE))
   }
@@ -1972,7 +1936,7 @@ write_stage1_measurement_error_table <- function() {
   }
 
   write_latex_table(
-    file.path(GEN_TABLES, "stage1_measurement_error_interval.tex"),
+    file.path(GENERATED_TABLES_DIR, "stage1_measurement_error_interval.tex"),
     caption = "Revenue interval from Stage 1 ETR measurement error",
     short_caption = "Stage 1 ETR measurement-error interval",
     label = "tab:stage1_measurement_error_interval",
@@ -1985,7 +1949,7 @@ write_stage1_measurement_error_table <- function() {
     notes = paste(
       "Intervals use centred empirical validation residuals from the Table I percentile-fit versus Table IV direct-bracket overlap.",
       "The reported rows hold the preferred ETR, aggregate SBIE and initial-rate scenario fixed, then vary behaviour and implementation regime.",
-      source_note("data/processed/diagnostics/step9_stage1_measurement_error_preferred_interval.csv")
+      ""
     )
   )
 
@@ -2004,7 +1968,7 @@ write_stage46_country_spread_table <- function() {
     )
 
   write_latex_table(
-    file.path(GEN_TABLES, "country_spread.tex"),
+    file.path(GENERATED_TABLES_DIR, "country_spread.tex"),
     caption = "Scenario spread for selected EU Member States",
     short_caption = "Scenario spread for selected EU Member States",
     label = "tab:country_spread_updated",
@@ -2014,7 +1978,7 @@ write_stage46_country_spread_table <- function() {
     notes = paste(
       "Amounts are cumulative collector-country revenue over 2017 to 2022, expressed in US dollars, billions.",
       "Country totals combine QDMTT source-country revenue, IIR parent-country revenue and UTPR revenue allocated by the substance key.",
-      source_note("data/processed/diagnostics/step7_stage4_6_scenario_spread_country.csv")
+      ""
     )
   )
 }
@@ -2069,7 +2033,7 @@ write_stage46_fiscal_salience_tables <- function() {
     )
 
   write_latex_table(
-    file.path(GEN_TABLES, "country_fiscal_salience.tex"),
+    file.path(GENERATED_TABLES_DIR, "country_fiscal_salience.tex"),
     caption = "Fiscal salience of preferred behavioural SbS revenue, selected countries",
     short_caption = "Fiscal salience of preferred behavioural SbS revenue",
     label = "tab:country_fiscal_salience",
@@ -2089,10 +2053,7 @@ write_stage46_fiscal_salience_tables <- function() {
       "GDP is World Bank GDP per capita multiplied by population; per-resident revenue divides cumulative revenue by average population over 2017 to 2022.",
       "Spread/CIT uses the spread of cumulative country revenue across the 32 scenarios.",
       "Hungary is included as the smaller high-salience country because it has the highest preferred revenue-to-CIT ratio among smaller EU Member States with populated T\\_1200 data.",
-      source_note(c(
-        "data/processed/diagnostics/step7_stage4_6_fiscal_salience_country.csv",
-        "data/processed/diagnostics/step7_stage4_6_scenario_spread_country.csv"
-      ))
+      ""
     ),
     size = "\\scriptsize",
     resize = "max"
@@ -2115,7 +2076,7 @@ write_stage46_fiscal_salience_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_country_fiscal_salience_full.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_country_fiscal_salience_full.tex"),
     "Fiscal salience of preferred behavioural SbS revenue, full EU sample",
     "tab:app_country_fiscal_salience_full",
     "lrrrrrrrrrr",
@@ -2129,10 +2090,7 @@ write_stage46_fiscal_salience_tables <- function() {
       "Rows are sorted by preferred revenue as a share of OECD T\\_1200 corporate tax revenue.",
       "Blank T\\_1210 ratios indicate that the narrower OECD category does not have full 2017 to 2022 coverage in the processed object.",
       "Spread/CIT uses the spread of cumulative country revenue across the 32 scenarios.",
-      source_note(c(
-        "data/processed/diagnostics/step7_stage4_6_fiscal_salience_country.csv",
-        "data/processed/diagnostics/step7_stage4_6_scenario_spread_country.csv"
-      ))
+      ""
     )
   )
 }
@@ -2196,7 +2154,7 @@ write_stage46_country_policy_matrix <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_country_policy_matrix.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_country_policy_matrix.tex"),
     "Country policy matrix, full EU sample",
     "tab:app_country_policy_matrix",
     "lrrrrlrrl",
@@ -2214,12 +2172,7 @@ write_stage46_country_policy_matrix <- function() {
       "QDMTT protected is the preferred revenue share collected through Qualified Domestic Minimum Top-up Taxes.",
       "SbS extinguished is the preferred universal revenue share lost under the Side-by-Side regime.",
       "Imputed measurement reports the share of Stage 1 distributional low-taxed profit that comes from high-risk imputation branches or a high-TV BSPI flag.",
-      source_note(c(
-        "data/processed/diagnostics/step7_stage4_6_country_typology_feature_matrix.csv",
-        "data/processed/diagnostics/step7_stage4_6_anova_by_country.csv",
-        "data/processed/diagnostics/step7_stage4_6_fiscal_salience_country.csv",
-        "data/processed/diagnostics/step7_stage4_6_scenario_spread_country.csv"
-      ))
+      ""
     )
   )
 }
@@ -2244,7 +2197,7 @@ write_stage46_measurement_sample_table <- function() {
     )
 
   write_latex_table(
-    file.path(GEN_TABLES, "stage46_measurement_sample_decomposition.tex"),
+    file.path(GENERATED_TABLES_DIR, "stage46_measurement_sample_decomposition.tex"),
     caption = "Decomposition stability across higher-measurement windows",
     short_caption = "Decomposition stability across higher-measurement windows",
     label = "tab:stage46_measurement_sample_decomposition",
@@ -2259,7 +2212,7 @@ write_stage46_measurement_sample_table <- function() {
       "Interaction reports the unallocated ANOVA interaction share before Shapley redistribution.",
       "Preferred revenue is cumulative behavioural preferred-core SbS EU revenue in US dollars, billions.",
       "Scenario range reports the minimum and maximum cumulative EU revenue across the 32 scenarios in US dollars, billions.",
-      source_note("data/processed/diagnostics/step7_stage4_6_measurement_sample_summary.csv")
+      ""
     ),
     size = "\\scriptsize",
     resize = "max"
@@ -2279,7 +2232,7 @@ write_stage46_measurement_sample_table <- function() {
     )
 
   write_latex_table(
-    file.path(GEN_TABLES, "appendix_stage46_measurement_sample_decomposition.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_stage46_measurement_sample_decomposition.tex"),
     caption = "Decomposition-window robustness diagnostics",
     short_caption = "Decomposition-window robustness diagnostics",
     label = "tab:app_stage46_measurement_sample_decomposition",
@@ -2295,7 +2248,7 @@ write_stage46_measurement_sample_table <- function() {
       "Interaction is the aggregate share of all non-main effects.",
       "Direct Table IV and high-risk branch columns report EU affiliate low-taxed profit shares in the Stage 1 distributional branch.",
       "Overlap cells are affiliate-year validation cells with both percentile and direct Table IV support.",
-      source_note("data/processed/diagnostics/step7_stage4_6_measurement_sample_summary.csv")
+      ""
     ),
     size = "\\scriptsize",
     resize = "max"
@@ -2315,7 +2268,7 @@ write_country_typology_tables <- function() {
     )
 
   write_latex_table(
-    file.path(GEN_TABLES, "country_typology_pca.tex"),
+    file.path(GENERATED_TABLES_DIR, "country_typology_pca.tex"),
     caption = "PCA of the country typology feature matrix",
     short_caption = "PCA of the country typology feature matrix",
     label = "tab:country_typology_pca",
@@ -2329,7 +2282,7 @@ write_country_typology_tables <- function() {
       "The PCA is run on standardised country-level features.",
       "Revenue amounts, scenario spread and per-resident revenue enter in logs; signed main-effect amounts enter as signed log magnitudes.",
       "Cyprus' missing OECD T\\_1200 corporate-tax denominator and undefined channel shares for the four zero-revenue countries are median-imputed only for PCA scaling.",
-      source_note("data/processed/diagnostics/step7_stage4_6_country_typology_pca_summary.csv")
+      ""
     ),
     size = "\\scriptsize",
     resize = "max"
@@ -2355,7 +2308,7 @@ write_country_typology_tables <- function() {
     )
 
   write_latex_table(
-    file.path(GEN_TABLES, "country_typology_clusters.tex"),
+    file.path(GENERATED_TABLES_DIR, "country_typology_clusters.tex"),
     caption = "Policy-facing country typology from PCA-informed clustering",
     short_caption = "Policy-facing country typology",
     label = "tab:country_typology_clusters",
@@ -2374,10 +2327,7 @@ write_country_typology_tables <- function() {
       "countries, and the four-cluster solution separates conduit hubs, QDMTT-protected smaller states, residual IIR/UTPR exposure states and zero-current-exposure states.",
       "Revenue is preferred behavioural SbS revenue in US dollars, billions.",
       "Revenue/CIT uses OECD T\\_1200 where available; cluster means ignore missing denominators.",
-      source_note(c(
-        "data/processed/diagnostics/step7_stage4_6_country_typology_cluster_profiles.csv",
-        "data/processed/diagnostics/step7_stage4_6_country_typology_cluster_stability.csv"
-      ))
+      ""
     ),
     size = "\\scriptsize",
     resize = "max"
@@ -2406,7 +2356,7 @@ write_country_typology_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_country_typology_features.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_country_typology_features.tex"),
     "Country typology feature matrix, full EU sample",
     "tab:app_country_typology_features",
     "llrrrrrrrr",
@@ -2419,7 +2369,7 @@ write_country_typology_tables <- function() {
     paste(
       "Revenue, spread and main-effect columns are cumulative over 2017 to 2022 and expressed in US dollars, billions.",
       "Main effects are signed into policy-exposure magnitudes: distributional minus average ETR measurement, universal minus SbS revenue loss, aggregate minus sectoral substance exposure and mechanical minus behavioural revenue.",
-      source_note("data/processed/diagnostics/step7_stage4_6_country_typology_feature_matrix.csv")
+      ""
     )
   )
 
@@ -2434,7 +2384,7 @@ write_country_typology_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_country_typology_cluster_stability.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_country_typology_cluster_stability.tex"),
     "Cluster stability diagnostics for the country typology",
     "tab:app_country_typology_cluster_stability",
     "rrrrlr",
@@ -2446,7 +2396,7 @@ write_country_typology_tables <- function() {
     paste(
       "Stability is the mean country-pair co-assignment agreement after 200 small jitter perturbations of the standardised feature matrix.",
       "The selected four-cluster solution is chosen by stability and interpretability, not by a mechanical elbow rule.",
-      source_note("data/processed/diagnostics/step7_stage4_6_country_typology_cluster_stability.csv")
+      ""
     )
   )
 }
@@ -2516,7 +2466,7 @@ write_hypothesis_summary_table <- function() {
   )
 
   write_latex_table(
-    file.path(GEN_TABLES, "hypothesis_summary.tex"),
+    file.path(GENERATED_TABLES_DIR, "hypothesis_summary.tex"),
     caption = "Hypothesis summary",
     short_caption = "Hypothesis summary",
     label = "tab:hypothesis_result_summary",
@@ -2525,33 +2475,13 @@ write_hypothesis_summary_table <- function() {
     rows = rows,
     notes = paste(
       "The table summarises the evidence reported in the Stage 1 to Stage 4.6 diagnostics and the country fiscal-exposure calculations in Section \\ref{sec:results_sbs}.",
-      source_note(c(
-        "data/processed/stage4_6_hypothesis_summary.rds",
-        "data/processed/diagnostics/step5_stage3_model_comparison.csv",
-        "data/processed/diagnostics/step7_stage4_6_country_typology_pca_summary.csv",
-        "data/processed/diagnostics/step7_stage4_6_country_typology_cluster_stability.csv"
-      ))
+      ""
     )
-  )
-}
-
-write_simple_metric_table <- function(file, caption, label, data, metric_col,
-                                      value_col, col_spec = "lr",
-                                      notes = NULL) {
-  rows <- data |>
-    transmute(
-      Metric = latex_escape(.data[[metric_col]]),
-      Value = latex_escape(.data[[value_col]])
-    )
-
-  write_latex_table(file, caption, label, col_spec,
-    c("Metric", "Value"), rows,
-    notes = notes
   )
 }
 
 write_appendix_tables <- function() {
-  dir.create(GEN, showWarnings = FALSE, recursive = TRUE)
+  dir.create(GENERATED_DIR, showWarnings = FALSE, recursive = TRUE)
 
   evidence_summary <- read_diag("step02a_profit_correction_evidence_summary.csv") |>
     mutate(
@@ -2580,7 +2510,7 @@ write_appendix_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "profit_correction_evidence_table.tex"),
+    file.path(GENERATED_TABLES_DIR, "profit_correction_evidence_table.tex"),
     "Evidence hierarchy for the profit-reconciliation model",
     "tab:profit_correction_evidence_table",
     "L{2.8cm}L{1.8cm}L{3.4cm}rrrrrr",
@@ -2592,7 +2522,7 @@ write_appendix_tables <- function() {
     paste(
       "Each row summarises one type of signal entering the parent-year correction model.",
       "The fallback prior is the Hugger et al. median UPE correction; the public ETR-parity signal is capped at 55.5\\% and enters with low precision.",
-      source_note("data/processed/diagnostics/step02a_profit_correction_evidence_summary.csv")
+      ""
     )
   )
 
@@ -2609,7 +2539,7 @@ write_appendix_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "profit_correction_parent_year_top20.tex"),
+    file.path(GENERATED_TABLES_DIR, "profit_correction_parent_year_top20.tex"),
     "Largest parent-level profit corrections under the hybrid model",
     "tab:profit_correction_parent_year_top20",
     "lrrrrrL{3.0cm}L{2.7cm}",
@@ -2621,7 +2551,7 @@ write_appendix_tables <- function() {
     paste(
       "Rows are the twenty parent jurisdictions with the largest positive domestic profit over 2017 to 2022.",
       "Rates are domestic-profit-weighted averages of parent-year predictions.",
-      source_note("data/processed/diagnostics/step02a_profit_correction_parent_year_top20.csv")
+      ""
     )
   )
 
@@ -2657,7 +2587,7 @@ write_appendix_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "profit_correction_validation_holdout.tex"),
+    file.path(GENERATED_TABLES_DIR, "profit_correction_validation_holdout.tex"),
     "Holdout validation for high-credibility profit-correction signals",
     "tab:profit_correction_validation_holdout",
     "lrrrrrr",
@@ -2669,7 +2599,7 @@ write_appendix_tables <- function() {
     paste(
       "Each high-credibility signal is held out from the prior fit one source-parent-year at a time and compared with the model prediction.",
       "Errors are reported in percentage points of the correction share.",
-      source_note("data/processed/diagnostics/step02a_profit_correction_validation_holdout.csv")
+      ""
     )
   )
 
@@ -2692,7 +2622,7 @@ write_appendix_tables <- function() {
     )
 
   final_point_path <- file.path(
-    DIAG,
+    DIAGNOSTICS_DIR,
     "step07a_profit_correction_final_revenue_points.csv"
   )
   final_point <- if (file.exists(final_point_path)) {
@@ -2743,7 +2673,7 @@ write_appendix_tables <- function() {
     )
 
   final_draw_path <- file.path(
-    DIAG,
+    DIAGNOSTICS_DIR,
     "step07a_profit_correction_final_revenue_interval.csv"
   )
   revenue_draw <- if (file.exists(final_draw_path)) {
@@ -2767,7 +2697,7 @@ write_appendix_tables <- function() {
   }
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "profit_correction_revenue_sensitivity.tex"),
+    file.path(GENERATED_TABLES_DIR, "profit_correction_revenue_sensitivity.tex"),
     "Profit-correction uncertainty and preferred-scenario revenue",
     "tab:profit_correction_revenue_sensitivity",
     "lrrrr",
@@ -2780,17 +2710,12 @@ write_appendix_tables <- function() {
       "The top-up proxy is pre-SBIE and pre-allocation: $\\max\\{0,0.15-\\tau\\}\\pi$ using the drawn corrected denominator.",
       "The final SbS column propagates the same parent-year draws through the preferred behavioural Stage 4.6 panel while holding distributional low-tax shares, behavioural filters and legal allocation weights fixed.",
       "It is therefore a conditional profit-correction interval, reported separately from the main factorial revenue decomposition.",
-      source_note(c(
-        "data/processed/diagnostics/step02a_profit_correction_revenue_sensitivity.csv",
-        "data/processed/diagnostics/step02a_profit_correction_revenue_draw_interval.csv",
-        "data/processed/diagnostics/step07a_profit_correction_final_revenue_points.csv",
-        "data/processed/diagnostics/step07a_profit_correction_final_revenue_interval.csv"
-      ))
+      ""
     )
   )
 
   holding_chain_path <- file.path(
-    DIAG,
+    DIAGNOSTICS_DIR,
     "step07a_profit_correction_foreign_holding_chain.csv"
   )
   if (file.exists(holding_chain_path) && file.exists(final_point_path)) {
@@ -2852,7 +2777,7 @@ write_appendix_tables <- function() {
 
     write_appendix_latex_table(
       file.path(
-        GEN_TABLES,
+        GENERATED_TABLES_DIR,
         "profit_correction_foreign_holding_chain_sensitivity.tex"
       ),
       "Targeted foreign holding-chain profit-correction sensitivity",
@@ -2866,10 +2791,7 @@ write_appendix_tables <- function() {
       paste(
         "The sensitivity applies a 10\\% residual profit haircut only to foreign affiliate cells in the Netherlands, Luxembourg, Ireland, Switzerland, Singapore, Hong Kong, Bermuda or the Cayman Islands with positive preferred profit, high holding activity, high related-party revenue and low substance relative to profit.",
         "It is not part of the preferred correction because public aggregate CbCR cannot identify ownership-chain dividends in foreign affiliate cells.",
-        source_note(c(
-          "data/processed/diagnostics/step07a_profit_correction_foreign_holding_chain.csv",
-          "data/processed/diagnostics/step07a_profit_correction_final_revenue_points.csv"
-        ))
+        ""
       )
     )
   }
@@ -2887,13 +2809,13 @@ write_appendix_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_stage1_bspi_summary.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_stage1_bspi_summary.tex"),
     "BSPI total-variation summary",
     "tab:app_stage1_bspi_tv",
     "lrrrrrr",
     c("Scope", "Affiliates", "High-TV flagged", "Median", "P75", "P90", "Maximum"),
     bspi_summary,
-    source_note("data/processed/diagnostics/step3_stage1_bspi_tv_summary.csv")
+    ""
   )
 
   conditioning <- read_diag("step3_stage1_conditioning_by_year.csv") |>
@@ -2908,7 +2830,7 @@ write_appendix_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_stage1_conditioning.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_stage1_conditioning.tex"),
     "Stage 1 percentile and Beta-fit diagnostics",
     "tab:app_stage1_conditioning",
     "lrrrrrr",
@@ -2917,7 +2839,7 @@ write_appendix_tables <- function() {
       "Conditioned", "Mean beta fit MAE", "Max beta fit error"
     ),
     conditioning,
-    source_note("data/processed/diagnostics/step3_stage1_conditioning_by_year.csv")
+    ""
   )
 
   payroll <- read_diag("step4_stage2_payroll_fallback_by_year.csv") |>
@@ -2933,7 +2855,7 @@ write_appendix_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_stage2_payroll_fallback.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_stage2_payroll_fallback.tex"),
     "Stage 2 payroll fallback diagnostics",
     "tab:app_stage2_payroll_fallback",
     "lrrrr",
@@ -2943,7 +2865,7 @@ write_appendix_tables <- function() {
       "Fallback share of Stage 1 top-up (\\%)"
     ),
     payroll,
-    source_note("data/processed/diagnostics/step4_stage2_payroll_fallback_by_year.csv")
+    ""
   )
 
   asset_sensitivity <- read_diag("step4_stage2_sectoral_asset_sensitivity.csv") |>
@@ -2957,7 +2879,7 @@ write_appendix_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_stage2_asset_sensitivity.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_stage2_asset_sensitivity.tex"),
     "Stage 2 sectoral asset sensitivity",
     "tab:app_stage2_asset_sensitivity",
     "llrrrr",
@@ -2966,7 +2888,7 @@ write_appendix_tables <- function() {
       "Weighted phi (\\%)", "Average floor (\\%)", "Distributional floor (\\%)"
     ),
     asset_sensitivity,
-    source_note("data/processed/diagnostics/step4_stage2_sectoral_asset_sensitivity.csv")
+    ""
   )
 
   sample_summary <- read_diag("step5_stage3_estimation_sample_summary.csv") |>
@@ -2983,7 +2905,7 @@ write_appendix_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_stage3_sample_summary.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_stage3_sample_summary.tex"),
     "Stage 3 estimation-sample diagnostics",
     "tab:app_stage3_sample_summary",
     "lrrrrrrr",
@@ -2992,7 +2914,7 @@ write_appendix_tables <- function() {
       "Median pair-years", "Median ETR (\\%)", "Stale-wage rows"
     ),
     sample_summary,
-    source_note("data/processed/diagnostics/step5_stage3_estimation_sample_summary.csv")
+    ""
   )
 
   coefficients <- read_diag("step5_stage3_coefficients.csv") |>
@@ -3016,7 +2938,7 @@ write_appendix_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_stage3_tax_coefficients.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_stage3_tax_coefficients.tex"),
     "Stage 3 tax coefficients",
     "tab:app_stage3_tax_coefficients",
     "llrrrr",
@@ -3024,7 +2946,7 @@ write_appendix_tables <- function() {
     coefficients,
     paste(
       "Inference is two-way clustered by parent and affiliate.",
-      source_note("data/processed/diagnostics/step5_stage3_coefficients.csv")
+      ""
     )
   )
 
@@ -3039,13 +2961,13 @@ write_appendix_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_stage3_specification_tests.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_stage3_specification_tests.tex"),
     "Stage 3 non-nested specification tests",
     "tab:app_stage3_specification_tests",
     "lllrrL{4.2cm}",
     c("Test", "Model A", "Model B", "Statistic", "$p$-value", "Interpretation"),
     spec_tests,
-    source_note("data/processed/diagnostics/step5_stage3_specification_tests.csv")
+    ""
   )
 
   wald_tests <- read_diag("step5_stage3_model_wald_tests.csv") |>
@@ -3061,7 +2983,7 @@ write_appendix_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_stage3_wald_tests.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_stage3_wald_tests.tex"),
     "Stage 3 joint tax-term Wald tests",
     "tab:app_stage3_wald_tests",
     "llrrrrr",
@@ -3072,7 +2994,7 @@ write_appendix_tables <- function() {
     wald_tests,
     paste(
       "Inference is two-way clustered by parent and affiliate.",
-      source_note("data/processed/diagnostics/step5_stage3_model_wald_tests.csv")
+      ""
     )
   )
 
@@ -3089,7 +3011,7 @@ write_appendix_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_stage3_robustness.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_stage3_robustness.tex"),
     "Stage 3 model-selection robustness",
     "tab:app_stage3_robustness",
     "llrrrrr",
@@ -3098,7 +3020,7 @@ write_appendix_tables <- function() {
       "$\\Delta$BIC", "Tax Wald $p$"
     ),
     robustness,
-    source_note("data/processed/diagnostics/step5_stage3_model_robustness.csv")
+    ""
   )
 
   tail_support <- read_diag("step5_stage3_etr_tail_support.csv") |>
@@ -3128,7 +3050,7 @@ write_appendix_tables <- function() {
   }
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_stage3_etr_tail_support.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_stage3_etr_tail_support.tex"),
     "Stage 3 lower-tail ETR support",
     "tab:app_stage3_etr_tail_support",
     "lrrrrrrr",
@@ -3150,10 +3072,7 @@ write_appendix_tables <- function() {
         fmt_num(tail_value("tail_balance_design_effect"), 2), "."
       ),
       "This is a support diagnostic, not an inverse-probability-weighted estimator.",
-      source_note(c(
-        "data/processed/diagnostics/step5_stage3_etr_tail_support.csv",
-        "data/processed/diagnostics/step5_stage3_tail_reweighting_feasibility.csv"
-      ))
+      ""
     )
   )
 
@@ -3170,7 +3089,7 @@ write_appendix_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_stage3_behaviour_by_year.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_stage3_behaviour_by_year.tex"),
     "Stage 3 applied behavioural response by year",
     "tab:app_stage3_behaviour_by_year",
     "lrrrrrr",
@@ -3180,7 +3099,7 @@ write_appendix_tables <- function() {
       "Reallocation affiliate-years"
     ),
     behaviour,
-    source_note("data/processed/diagnostics/step5_stage3_behaviour_by_year.csv")
+    ""
   )
 
   behavioural_design <- read_diag("step5_stage3_behavioural_identification_design.csv") |>
@@ -3193,7 +3112,7 @@ write_appendix_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_stage3_behavioural_design.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_stage3_behavioural_design.tex"),
     "Stage 3 behavioural identification design",
     "tab:app_stage3_behavioural_design",
     "L{2.7cm}L{4.1cm}L{3.7cm}L{5.1cm}",
@@ -3202,7 +3121,7 @@ write_appendix_tables <- function() {
       "Data for structural extension"
     ),
     behavioural_design,
-    source_note("data/processed/diagnostics/step5_stage3_behavioural_identification_design.csv")
+    ""
   )
 
   stage45_summary <- read_diag("step6_stage4_5_summary.csv") |>
@@ -3220,13 +3139,13 @@ write_appendix_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_stage45_summary.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_stage45_summary.tex"),
     "Stage 4.5 allocation summary",
     "tab:app_stage45_summary",
     "lr",
     c("Metric", "Value"),
     stage45_summary,
-    source_note("data/processed/diagnostics/step6_stage4_5_summary.csv")
+    ""
   )
 
   source_exposure <- read_diag("step6_stage4_5_sbs_source_exposure.csv") |>
@@ -3258,7 +3177,7 @@ write_appendix_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_stage45_sbs_source_exposure.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_stage45_sbs_source_exposure.tex"),
     "Selected source-country SbS exposure",
     "tab:app_stage45_sbs_source_exposure",
     "lrrrr",
@@ -3269,7 +3188,7 @@ write_appendix_tables <- function() {
     source_exposure,
     paste(
       "Preferred-core source exposure before final collector-country allocation.",
-      source_note("data/processed/diagnostics/step6_stage4_5_sbs_source_exposure.csv")
+      ""
     )
   )
 
@@ -3285,13 +3204,13 @@ write_appendix_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_stage45_h4_regression.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_stage45_h4_regression.tex"),
     "Country-level Side-by-Side allocation regression",
     "tab:app_stage45_h4_regression",
     "lrrrrr",
     c("Term", "Estimate", "SE", "Statistic", "$p$-value", "$R^2$"),
     h4_reg,
-    source_note("data/processed/diagnostics/step6_stage4_5_h4_regression.csv")
+    ""
   )
 
   scenario_summary <- read_diag("step7_stage4_6_scenario_summary.csv") |>
@@ -3308,7 +3227,7 @@ write_appendix_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_stage46_top_scenarios.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_stage46_top_scenarios.tex"),
     "Highest EU revenue scenarios",
     "tab:app_stage46_top_scenarios",
     "llllllr",
@@ -3317,7 +3236,7 @@ write_appendix_tables <- function() {
       "EU revenue (US\\$ bn)"
     ),
     scenario_summary,
-    source_note("data/processed/diagnostics/step7_stage4_6_scenario_summary.csv")
+    ""
   )
 
   anova_country <- read_diag("step7_stage4_6_anova_by_country.csv") |>
@@ -3333,18 +3252,18 @@ write_appendix_tables <- function() {
     )
 
   write_appendix_latex_table(
-    file.path(GEN_TABLES, "appendix_stage46_country_anova.tex"),
+    file.path(GENERATED_TABLES_DIR, "appendix_stage46_country_anova.tex"),
     "Largest country-level main effects",
     "tab:app_stage46_country_anova",
     "llr",
     c("Country", "Effect", "Share (\\%)"),
     anova_country,
-    source_note("data/processed/diagnostics/step7_stage4_6_anova_by_country.csv")
+    ""
   )
 
   influence_appendix_inputs <- character()
   influence_summary_path <- file.path(
-    DIAG,
+    DIAGNOSTICS_DIR,
     "step10_jurisdiction_influence_case_summary.csv"
   )
   if (file.exists(influence_summary_path)) {
@@ -3381,7 +3300,7 @@ write_appendix_tables <- function() {
       )
 
     write_appendix_latex_table(
-      file.path(GEN_TABLES, "appendix_jurisdiction_influence_summary.tex"),
+      file.path(GENERATED_TABLES_DIR, "appendix_jurisdiction_influence_summary.tex"),
       "Leave-one-jurisdiction influence robustness",
       "tab:app_jurisdiction_influence_summary",
       "lllrrrrl",
@@ -3394,7 +3313,7 @@ write_appendix_tables <- function() {
       paste(
         "Rows are sorted by the absolute change in preferred-core behavioural SbS EU revenue.",
         "The preferred core uses distributional ETR measurement, aggregate SBIE and initial carve-out rates.",
-        source_note("data/processed/diagnostics/step10_jurisdiction_influence_case_summary.csv")
+        ""
       )
     )
 
@@ -3436,7 +3355,7 @@ write_appendix_tables <- function() {
       )
 
     write_appendix_latex_table(
-      file.path(GEN_TABLES, "appendix_jurisdiction_influence_decomposition.tex"),
+      file.path(GENERATED_TABLES_DIR, "appendix_jurisdiction_influence_decomposition.tex"),
       "Influence range for core decomposition effects",
       "tab:app_jurisdiction_influence_decomposition",
       "lrrrrrr",
@@ -3449,10 +3368,7 @@ write_appendix_tables <- function() {
       paste(
         "Variance-decomposition shares and main effects are recomputed after each leave-one-parent and leave-one-affiliate omission.",
         "Main effects are cumulative over 2017 to 2022 and expressed in US dollars, billions.",
-        source_note(c(
-          "data/processed/diagnostics/step10_jurisdiction_influence_anova_pooled.csv",
-          "data/processed/diagnostics/step10_jurisdiction_influence_main_effects.csv"
-        ))
+        ""
       )
     )
 
@@ -3469,7 +3385,7 @@ write_appendix_tables <- function() {
     "\\input{generated/results_tables/profit_correction_revenue_sensitivity.tex}"
   )
   if (file.exists(file.path(
-    GEN_TABLES,
+    GENERATED_TABLES_DIR,
     "profit_correction_foreign_holding_chain_sensitivity.tex"
   ))) {
     profit_reconciliation_inputs <- c(
@@ -3527,7 +3443,7 @@ write_appendix_tables <- function() {
       "% Generated by code/08_generate_results_tables.R",
       appendix_lines
     ),
-    file.path(GEN, "results_appendix_tables.tex")
+    file.path(GENERATED_DIR, "results_appendix_tables.tex")
   )
 }
 
@@ -3552,7 +3468,7 @@ write_manifest <- function() {
     "\\input{generated/results_tables/stage4_6_main_effects.tex}",
     "\\input{generated/results_tables/preferred_channel.tex}",
     if (file.exists(file.path(
-      GEN_TABLES,
+      GENERATED_TABLES_DIR,
       "stage1_measurement_error_interval.tex"
     ))) {
       "\\input{generated/results_tables/stage1_measurement_error_interval.tex}"
@@ -3565,11 +3481,11 @@ write_manifest <- function() {
     "\\input{generated/results_tables/hypothesis_summary.tex}"
   )
   lines <- lines[!is.na(lines)]
-  writeLines(lines, file.path(GEN, "results_main_tables_manifest.tex"))
+  writeLines(lines, file.path(GENERATED_DIR, "results_main_tables_manifest.tex"))
 }
 
 write_results_tables <- function() {
-  dir.create(GEN_TABLES, showWarnings = FALSE, recursive = TRUE)
+  dir.create(GENERATED_TABLES_DIR, showWarnings = FALSE, recursive = TRUE)
 
   write_data_descriptive_tables()
 

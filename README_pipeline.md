@@ -118,6 +118,13 @@ This repository estimates Global Minimum Tax revenue using public OECD CbCR data
 <td><code>writing/generated/*.tex</code> and <code>writing/generated/results_tables/*.tex</code>.</td>
 <td>Main tables and appendices.</td>
 </tr>
+<tr>
+<td><code>code/13_generate_results_figures.R</code></td>
+<td>Generates vector PDF figures for the main thesis text using the thesis colour palette.</td>
+<td><code>data/processed/**</code> and selected diagnostics in <code>data/processed/diagnostics/**</code>.</td>
+<td><code>writing/generated/figures/*.pdf</code>.</td>
+<td>Main data diagnostics, behavioural results, decomposition, allocation-channel and country heterogeneity figures.</td>
+</tr>
 </tbody>
 </table>
 

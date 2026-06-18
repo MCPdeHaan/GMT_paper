@@ -20,10 +20,11 @@ library(tibble)
 source("code/00_helpers.R")
 
 run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
-  IN <- in_dir
-  OUT <- out_dir
-  DIAG <- file.path(OUT, "diagnostics")
-  dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
+  input_dir <- in_dir
+  output_dir <- out_dir
+  diagnostics_dir <- file.path(output_dir, "diagnostics")
+  dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
+  dir.create(diagnostics_dir, showWarnings = FALSE, recursive = TRUE)
 
   ESTIMATION_YEARS <- MAIN_YEARS
   EMPLOYEES_PER_ENTITY_CAP <- 100000
@@ -47,16 +48,6 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
     "BMU", "CYM", "IRL", "LUX", "NLD",
     "CHE", "SGP", "HKG", "PRI", "GBR"
   )
-
-  yes_no_to_flag <- function(x) {
-    x_low <- str_to_lower(x)
-    case_when(
-      is.na(x_low) ~ NA,
-      x_low == "yes" ~ TRUE,
-      x_low == "no" ~ FALSE,
-      TRUE ~ NA
-    )
-  }
 
   build_year_nearest_lookup <- function(target_keys, candidates, value_col, source_col) {
     target_keys |>
@@ -83,37 +74,37 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
 
   # 1. Load cleaned inputs
 
-  t1 <- readRDS(file.path(IN, "cbcr_table1.rds"))
-  t2 <- readRDS(file.path(IN, "cbcr_table2.rds"))
-  t3 <- readRDS(file.path(IN, "cbcr_table3.rds"))
-  t4 <- readRDS(file.path(IN, "cbcr_table4.rds"))
-  t5 <- readRDS(file.path(IN, "cbcr_table5.rds"))
-  t6 <- readRDS(file.path(IN, "cbcr_table6.rds"))
+  t1 <- readRDS(file.path(input_dir, "cbcr_table1.rds"))
+  t2 <- readRDS(file.path(input_dir, "cbcr_table2.rds"))
+  t3 <- readRDS(file.path(input_dir, "cbcr_table3.rds"))
+  t4 <- readRDS(file.path(input_dir, "cbcr_table4.rds"))
+  t5 <- readRDS(file.path(input_dir, "cbcr_table5.rds"))
+  t6 <- readRDS(file.path(input_dir, "cbcr_table6.rds"))
 
-  cit_statutory <- readRDS(file.path(IN, "cit_statutory.rds")) |>
+  cit_statutory <- readRDS(file.path(input_dir, "cit_statutory.rds")) |>
     mutate(jurisdiction = normalize_code(jurisdiction))
-  wb_classifications <- readRDS(file.path(IN, "wb_classifications.rds")) |>
+  wb_classifications <- readRDS(file.path(input_dir, "wb_classifications.rds")) |>
     mutate(jurisdiction = normalize_code(jurisdiction))
-  wb_gdp <- readRDS(file.path(IN, "wb_gdp.rds")) |>
+  wb_gdp <- readRDS(file.path(input_dir, "wb_gdp.rds")) |>
     mutate(jurisdiction = normalize_code(jurisdiction))
-  wb_population <- readRDS(file.path(IN, "wb_population.rds")) |>
+  wb_population <- readRDS(file.path(input_dir, "wb_population.rds")) |>
     mutate(jurisdiction = normalize_code(jurisdiction))
-  wages_oecd <- readRDS(file.path(IN, "wages_oecd.rds")) |>
+  wages_oecd <- readRDS(file.path(input_dir, "wages_oecd.rds")) |>
     mutate(jurisdiction = normalize_code(jurisdiction))
-  wages_ilo_monthly <- readRDS(file.path(IN, "wages_ilo_monthly.rds")) |>
+  wages_ilo_monthly <- readRDS(file.path(input_dir, "wages_ilo_monthly.rds")) |>
     mutate(jurisdiction = normalize_code(jurisdiction))
-  fats_post2021 <- readRDS(file.path(IN, "fats_post2021.rds"))
-  euklems_sector_capital <- readRDS(file.path(IN, "euklems_sector_capital.rds")) |>
+  fats_post2021 <- readRDS(file.path(input_dir, "fats_post2021.rds"))
+  euklems_sector_capital <- readRDS(file.path(input_dir, "euklems_sector_capital.rds")) |>
     mutate(jurisdiction = normalize_code(jurisdiction))
-  global_intan_annual <- readRDS(file.path(IN, "global_intan_invest_annual.rds")) |>
+  global_intan_annual <- readRDS(file.path(input_dir, "global_intan_invest_annual.rds")) |>
     mutate(jurisdiction = normalize_code(jurisdiction))
-  bea_us_mne_country_industry <- readRDS(file.path(IN, "bea_us_mne_country_industry.rds")) |>
+  bea_us_mne_country_industry <- readRDS(file.path(input_dir, "bea_us_mne_country_industry.rds")) |>
     mutate(jurisdiction = normalize_code(jurisdiction))
-  beps_rules <- readRDS(file.path(IN, "beps_rules.rds")) |>
+  beps_rules <- readRDS(file.path(input_dir, "beps_rules.rds")) |>
     mutate(jurisdiction = normalize_code(jurisdiction))
-  cbcr_requirements <- readRDS(file.path(IN, "cbcr_requirements.rds")) |>
+  cbcr_requirements <- readRDS(file.path(input_dir, "cbcr_requirements.rds")) |>
     mutate(jurisdiction = normalize_code(jurisdiction))
-  oecd_central_record <- readRDS(file.path(IN, "oecd_pillar2_central_record.rds")) |>
+  oecd_central_record <- readRDS(file.path(input_dir, "oecd_pillar2_central_record.rds")) |>
     mutate(jurisdiction = normalize_code(jurisdiction))
 
 
@@ -543,7 +534,7 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
   # Profit reconciliation model. This is produced by
   # code/02a_profit_reconciliation_model.R and consumed here so that the
   # denominator correction is explicit upstream of Stage 1.
-  profit_reconciliation_path <- file.path(IN, "profit_correction_parent_year.rds")
+  profit_reconciliation_path <- file.path(input_dir, "profit_correction_parent_year.rds")
   if (!file.exists(profit_reconciliation_path)) {
     stop(
       "Missing profit reconciliation model output: ",
@@ -1981,70 +1972,70 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
     filter(anchor_years_observed > 0, validation_years_observed > 0) |>
     arrange(desc(tv_anchor_vs_validation))
 
-  write_csv(panel_summary, file.path(DIAG, "step2_panel_summary.csv"))
-  write_csv(payroll_diag, file.path(DIAG, "step2_payroll_imputation_by_year.csv"))
-  write_csv(payroll_plausibility_diag, file.path(DIAG, "step2_payroll_plausibility_by_year.csv"))
+  write_csv(panel_summary, file.path(diagnostics_dir, "step2_panel_summary.csv"))
+  write_csv(payroll_diag, file.path(diagnostics_dir, "step2_payroll_imputation_by_year.csv"))
+  write_csv(payroll_plausibility_diag, file.path(diagnostics_dir, "step2_payroll_plausibility_by_year.csv"))
   write_csv(
     accumulated_earnings_diag,
-    file.path(DIAG, "step2_accumulated_earnings_by_year.csv")
+    file.path(diagnostics_dir, "step2_accumulated_earnings_by_year.csv")
   )
-  write_csv(employee_plausibility_diag, file.path(DIAG, "step2_employee_plausibility_by_year.csv"))
-  write_csv(wage_match_quality_diag, file.path(DIAG, "step2_wage_match_quality_by_year.csv"))
-  write_csv(profit_correction_diag, file.path(DIAG, "step2_profit_correction_by_year.csv"))
-  write_csv(missingness_diag, file.path(DIAG, "step2_missingness_by_year.csv"))
-  write_csv(stage_readiness_diag, file.path(DIAG, "step2_stage_readiness_by_year.csv"))
+  write_csv(employee_plausibility_diag, file.path(diagnostics_dir, "step2_employee_plausibility_by_year.csv"))
+  write_csv(wage_match_quality_diag, file.path(diagnostics_dir, "step2_wage_match_quality_by_year.csv"))
+  write_csv(profit_correction_diag, file.path(diagnostics_dir, "step2_profit_correction_by_year.csv"))
+  write_csv(missingness_diag, file.path(diagnostics_dir, "step2_missingness_by_year.csv"))
+  write_csv(stage_readiness_diag, file.path(diagnostics_dir, "step2_stage_readiness_by_year.csv"))
   write_csv(
     affiliate_year_stage1_diag,
-    file.path(DIAG, "step2_stage1_affiliate_year_coverage.csv")
+    file.path(diagnostics_dir, "step2_stage1_affiliate_year_coverage.csv")
   )
-  write_csv(fats_diag, file.path(DIAG, "step2_fats_sector_coverage.csv"))
+  write_csv(fats_diag, file.path(diagnostics_dir, "step2_fats_sector_coverage.csv"))
   write_csv(
     sectoral_source_hierarchy,
-    file.path(DIAG, "step2_sectoral_source_hierarchy.csv")
+    file.path(diagnostics_dir, "step2_sectoral_source_hierarchy.csv")
   )
   write_csv(
     sectoral_nace_crosswalk_rules,
-    file.path(DIAG, "step2_sectoral_nace_crosswalk_rules.csv")
+    file.path(diagnostics_dir, "step2_sectoral_nace_crosswalk_rules.csv")
   )
   write_csv(
     sectoral_measurement_bridge,
-    file.path(DIAG, "step2_sectoral_measurement_bridge.csv")
+    file.path(diagnostics_dir, "step2_sectoral_measurement_bridge.csv")
   )
   write_csv(
     sectoral_measurement_bridge_summary,
-    file.path(DIAG, "step2_sectoral_measurement_bridge_summary.csv")
+    file.path(diagnostics_dir, "step2_sectoral_measurement_bridge_summary.csv")
   )
   write_csv(
     sectoral_bridge_country_year_diag,
-    file.path(DIAG, "step2_sectoral_bridge_country_year.csv")
+    file.path(diagnostics_dir, "step2_sectoral_bridge_country_year.csv")
   )
-  write_csv(bea_benchmark_diag, file.path(DIAG, "step2_bea_us_parent_sector_benchmark.csv"))
-  write_csv(global_intan_diag, file.path(DIAG, "step2_global_intan_eu27_macro.csv"))
-  write_csv(etr_bounding_diag, file.path(DIAG, "step2_etr_tail_bounding_by_year.csv"))
-  write_csv(bspi_tier_diag, file.path(DIAG, "step2_bspi_tier_by_year.csv"))
-  write_csv(shape_stability_diag, file.path(DIAG, "step2_bspi_shape_stability.csv"))
+  write_csv(bea_benchmark_diag, file.path(diagnostics_dir, "step2_bea_us_parent_sector_benchmark.csv"))
+  write_csv(global_intan_diag, file.path(diagnostics_dir, "step2_global_intan_eu27_macro.csv"))
+  write_csv(etr_bounding_diag, file.path(diagnostics_dir, "step2_etr_tail_bounding_by_year.csv"))
+  write_csv(bspi_tier_diag, file.path(diagnostics_dir, "step2_bspi_tier_by_year.csv"))
+  write_csv(shape_stability_diag, file.path(diagnostics_dir, "step2_bspi_shape_stability.csv"))
 
-  saveRDS(panel, file.path(OUT, "base_panel.rds"))
-  saveRDS(fats_sector_shares, file.path(OUT, "base_panel_fats_sector_shares.rds"))
+  saveRDS(panel, file.path(output_dir, "base_panel.rds"))
+  saveRDS(fats_sector_shares, file.path(output_dir, "base_panel_fats_sector_shares.rds"))
   saveRDS(
     sectoral_measurement_bridge,
-    file.path(OUT, "base_panel_sectoral_measurement_bridge.rds")
+    file.path(output_dir, "base_panel_sectoral_measurement_bridge.rds")
   )
   saveRDS(
     sectoral_nace_crosswalk_rules,
-    file.path(OUT, "base_panel_sectoral_nace_crosswalk_rules.rds")
+    file.path(output_dir, "base_panel_sectoral_nace_crosswalk_rules.rds")
   )
   saveRDS(
     bea_us_parent_sector_benchmark,
-    file.path(OUT, "base_panel_bea_us_parent_sector_benchmark.rds")
+    file.path(output_dir, "base_panel_bea_us_parent_sector_benchmark.rds")
   )
   saveRDS(
     global_intan_eu27_macro,
-    file.path(OUT, "base_panel_global_intan_eu27_macro.rds")
+    file.path(output_dir, "base_panel_global_intan_eu27_macro.rds")
   )
   saveRDS(
     t4_brackets_by_affiliate_year,
-    file.path(OUT, "base_panel_t4_bracket_shares.rds")
+    file.path(output_dir, "base_panel_t4_bracket_shares.rds")
   )
 
   message("\nStep 2 outputs written:")

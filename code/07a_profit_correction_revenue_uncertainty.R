@@ -8,15 +8,11 @@
 # weights fixed, and recomputes the preferred scenario's profit denominator and
 # SBIE filter under each draw.
 library(dplyr)
-library(tidyr)
 library(readr)
 library(tibble)
 
 source("code/00_helpers.R")
 
-IN <- "data/processed"
-OUT <- IN
-DIAG <- file.path(OUT, "diagnostics")
 
 FOREIGN_HOLDING_CHAIN_AFFILIATES <- c(
   "NLD", "LUX", "IRL", "CHE", "SGP", "HKG", "BMU", "CYM"
@@ -27,7 +23,7 @@ compute_draw_phi <- function(sbie, profit) {
   clamp_interval(safe_divide(sbie, profit), 0, 1)
 }
 
-build_utpr_eu_shares <- function(in_dir = IN) {
+build_utpr_eu_shares <- function(in_dir = PROCESSED_DIR) {
   parent_year_weights <- readRDS(
     file.path(in_dir, "stage4_5_utpr_parent_year_weights.rds")
   )
@@ -54,7 +50,7 @@ build_utpr_eu_shares <- function(in_dir = IN) {
   list(parent_year = parent_year, fallback = fallback)
 }
 
-build_preferred_source_panel <- function(in_dir = IN) {
+build_preferred_source_panel <- function(in_dir = PROCESSED_DIR) {
   utpr_shares <- build_utpr_eu_shares(in_dir)
 
   readRDS(file.path(in_dir, "stage4_5_allocation_source_panel.rds")) |>
@@ -314,8 +310,8 @@ summarise_draw_revenue <- function(draws) {
     )
 }
 
-run_profit_correction_revenue_uncertainty <- function(in_dir = IN,
-                                                      out_dir = OUT,
+run_profit_correction_revenue_uncertainty <- function(in_dir = PROCESSED_DIR,
+                                                      out_dir = PROCESSED_DIR,
                                                       n_draws = 500,
                                                       seed = 20260613) {
   diag_dir <- file.path(out_dir, "diagnostics")

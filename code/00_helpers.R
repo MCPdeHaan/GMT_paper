@@ -2,10 +2,6 @@
 
 source("code/00_config.R")
 
-source_pipeline_script <- function(path) {
-  source(path)
-}
-
 is_direct_script_run <- function(script_path) {
   file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
   if (length(file_arg) == 0) {
@@ -161,6 +157,14 @@ sum_or_na <- function(x) {
   sum(x, na.rm = TRUE)
 }
 
+max_or_na <- function(x) {
+  finite_x <- x[!is.na(x)]
+  if (length(finite_x) == 0) {
+    return(NA_real_)
+  }
+  max(finite_x)
+}
+
 pick_first_non_missing <- function(x) {
   idx <- which(!is.na(x) & x != "")
   if (length(idx) == 0) {
@@ -185,14 +189,6 @@ row_min_or_na <- function(...) {
 
 safe_log1p_scale <- function(x, scale) {
   dplyr::if_else(!is.na(x) & x > 0, log1p(x / scale), 0)
-}
-
-first_non_missing_num <- function(x) {
-  idx <- which(!is.na(x))
-  if (length(idx) == 0) {
-    return(NA_real_)
-  }
-  x[idx[1]]
 }
 
 normalise_tax_rate_unit <- function(x) {

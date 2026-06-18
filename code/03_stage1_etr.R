@@ -13,10 +13,7 @@ library(tibble)
 
 source("code/00_helpers.R")
 
-IN <- "data/processed"
-OUT <- IN
-DIAG <- file.path(OUT, "diagnostics")
-dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
+dir.create(DIAGNOSTICS_DIR, showWarnings = FALSE, recursive = TRUE)
 
 DIRECT_YEARS <- 2019:2022
 PERCENTILE_YEARS <- 2021:2022
@@ -55,7 +52,7 @@ beta_quantiles <- function(probs, alpha, beta) {
   if (precision > 1e5) {
     return(rep(mean, length(probs)))
   }
-  suppressWarnings(stats::qbeta(probs, alpha, beta))
+  stats::qbeta(probs, alpha, beta)
 }
 
 fit_constrained_beta_percentiles <- function(q, target_mean,
@@ -243,9 +240,9 @@ choose_percentile_affiliate_year_source <- function(affiliate_is_eu27,
 }
 
 run_stage1_pipeline <- function() {
-  panel <- readRDS(file.path(IN, "base_panel.rds")) |>
+  panel <- readRDS(file.path(PROCESSED_DIR, "base_panel.rds")) |>
     filter(year %in% MAIN_YEARS)
-  t4_brackets <- readRDS(file.path(IN, "base_panel_t4_bracket_shares.rds"))
+  t4_brackets <- readRDS(file.path(PROCESSED_DIR, "base_panel_t4_bracket_shares.rds"))
 
   affiliate_year_base <- panel |>
     group_by(affiliate, year) |>
@@ -1246,44 +1243,44 @@ run_stage1_pipeline <- function() {
     )
   )
 
-  write_csv(stage1_summary, file.path(DIAG, "step3_stage1_summary.csv"))
-  write_csv(stage1_branch_by_year, file.path(DIAG, "step3_stage1_branch_by_year.csv"))
+  write_csv(stage1_summary, file.path(DIAGNOSTICS_DIR, "step3_stage1_summary.csv"))
+  write_csv(stage1_branch_by_year, file.path(DIAGNOSTICS_DIR, "step3_stage1_branch_by_year.csv"))
   write_csv(
     stage1_pair_year_branch_by_year,
-    file.path(DIAG, "step3_stage1_pair_year_branch_by_year.csv")
+    file.path(DIAGNOSTICS_DIR, "step3_stage1_pair_year_branch_by_year.csv")
   )
   write_csv(
     stage1_bspi_tv_summary,
-    file.path(DIAG, "step3_stage1_bspi_tv_summary.csv")
+    file.path(DIAGNOSTICS_DIR, "step3_stage1_bspi_tv_summary.csv")
   )
-  write_csv(stage1_scenario_by_year, file.path(DIAG, "step3_stage1_scenario_by_year.csv"))
+  write_csv(stage1_scenario_by_year, file.path(DIAGNOSTICS_DIR, "step3_stage1_scenario_by_year.csv"))
   write_csv(
     stage1_conditioning_by_year,
-    file.path(DIAG, "step3_stage1_conditioning_by_year.csv")
+    file.path(DIAGNOSTICS_DIR, "step3_stage1_conditioning_by_year.csv")
   )
   write_csv(
     stage1_crossval_summary,
-    file.path(DIAG, "step3_stage1_crossval_summary.csv")
+    file.path(DIAGNOSTICS_DIR, "step3_stage1_crossval_summary.csv")
   )
   write_csv(
     crossval_regression,
-    file.path(DIAG, "step3_stage1_crossval_regression.csv")
+    file.path(DIAGNOSTICS_DIR, "step3_stage1_crossval_regression.csv")
   )
   write_csv(
     crossval_calibration,
-    file.path(DIAG, "step3_stage1_crossval_calibration.csv")
+    file.path(DIAGNOSTICS_DIR, "step3_stage1_crossval_calibration.csv")
   )
   write_csv(
     crossval_affiliate_year,
-    file.path(DIAG, "step3_stage1_crossval_affiliate_year.csv")
+    file.path(DIAGNOSTICS_DIR, "step3_stage1_crossval_affiliate_year.csv")
   )
   write_csv(
     bspi_validation,
-    file.path(DIAG, "step3_stage1_bspi_validation.csv")
+    file.path(DIAGNOSTICS_DIR, "step3_stage1_bspi_validation.csv")
   )
 
-  saveRDS(affiliate_year_stage1, file.path(OUT, "stage1_affiliate_year.rds"))
-  saveRDS(bilateral_stage1, file.path(OUT, "stage1_bilateral_panel.rds"))
+  saveRDS(affiliate_year_stage1, file.path(PROCESSED_DIR, "stage1_affiliate_year.rds"))
+  saveRDS(bilateral_stage1, file.path(PROCESSED_DIR, "stage1_bilateral_panel.rds"))
 
   message("\nStep 3 outputs written:")
   message(" - data/processed/stage1_affiliate_year.rds")

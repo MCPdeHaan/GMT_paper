@@ -5,19 +5,15 @@
 # therefore estimates exposure around the 15 per cent threshold and a placebo
 # bunching diagnostic. It does not identify realised post-SESH bunching.
 library(dplyr)
-library(tidyr)
 library(readr)
 library(purrr)
 library(tibble)
 
 source("code/00_helpers.R")
 
-source_pipeline_script("code/05_stage3_behavioral.R")
+source("code/05_stage3_behavioral_functions.R")
 
-IN <- "data/processed"
-OUT <- IN
-DIAG <- file.path(OUT, "diagnostics")
-dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
+dir.create(DIAGNOSTICS_DIR, showWarnings = FALSE, recursive = TRUE)
 
 NOTCH_BIN_WIDTH <- 0.005
 NOTCH_POLYNOMIAL_ORDER <- 4L
@@ -253,7 +249,7 @@ estimate_notch_sample <- function(notch_sample,
 }
 
 run_sesh_notch_bunching_diagnostic <- function() {
-  stage1_affiliate_year <- readRDS(file.path(IN, "stage1_affiliate_year.rds"))
+  stage1_affiliate_year <- readRDS(file.path(PROCESSED_DIR, "stage1_affiliate_year.rds"))
 
   samples <- bind_rows(
     prepare_notch_sample(stage1_affiliate_year, "global"),
@@ -275,20 +271,20 @@ run_sesh_notch_bunching_diagnostic <- function() {
 
   write_csv(
     density,
-    file.path(DIAG, "step11_sesh_notch_density_bins.csv")
+    file.path(DIAGNOSTICS_DIR, "step11_sesh_notch_density_bins.csv")
   )
   write_csv(
     summary,
-    file.path(DIAG, "step11_sesh_notch_summary.csv")
+    file.path(DIAGNOSTICS_DIR, "step11_sesh_notch_summary.csv")
   )
   write_csv(
     assignments,
-    file.path(DIAG, "step11_sesh_notch_assignment.csv")
+    file.path(DIAGNOSTICS_DIR, "step11_sesh_notch_assignment.csv")
   )
 
-  saveRDS(density, file.path(OUT, "sesh_notch_density_bins.rds"))
-  saveRDS(summary, file.path(OUT, "sesh_notch_summary.rds"))
-  saveRDS(assignments, file.path(OUT, "sesh_notch_assignment.rds"))
+  saveRDS(density, file.path(PROCESSED_DIR, "sesh_notch_density_bins.rds"))
+  saveRDS(summary, file.path(PROCESSED_DIR, "sesh_notch_summary.rds"))
+  saveRDS(assignments, file.path(PROCESSED_DIR, "sesh_notch_assignment.rds"))
 
   message("\nStep 11 outputs written:")
   message(" - data/processed/sesh_notch_*.rds")

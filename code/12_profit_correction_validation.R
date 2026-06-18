@@ -3,7 +3,6 @@
 # reproduced from the public CbCR panel.
 library(dplyr)
 library(readr)
-library(tibble)
 
 source("code/00_helpers.R")
 

@@ -13,27 +13,24 @@ library(stringr)
 
 source("code/00_helpers.R")
 
-source_pipeline_script("code/05_stage3_behavioral.R")
+source("code/05_stage3_behavioral_functions.R")
 stage3_estimate_models <- estimate_stage3_models
 stage3_semielasticity_schedule_fn <- stage3_semielasticity_schedule
 stage3_build_model_diagnostics <- build_model_diagnostics
 
-source_pipeline_script("code/06_stage4_5_revenue_allocation_sbs.R")
+source("code/06_stage4_5_revenue_allocation_sbs_functions.R")
 stage45_build_source_panel <- build_source_panel
 stage45_build_collector_activity <- build_collector_activity
 stage45_build_parent_year_utpr_weights <- build_parent_year_utpr_weights
 stage45_allocate_stage4_revenue <- allocate_stage4_revenue
 stage45_build_conservation_diagnostics <- build_conservation_diagnostics
 
-source_pipeline_script("code/07_stage4_6_revenue_pipeline_decomposition.R")
+source("code/07_stage4_6_revenue_pipeline_decomposition_functions.R")
 stage46_build_scenario_summary <- build_scenario_summary
 stage46_compute_factorial_anova <- compute_factorial_anova
 stage46_compute_main_effects <- compute_main_effects
 
-IN <- "data/processed"
-OUT <- IN
-DIAG <- file.path(OUT, "diagnostics")
-dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
+dir.create(DIAGNOSTICS_DIR, showWarnings = FALSE, recursive = TRUE)
 
 DEFAULT_TOP_N <- 8L
 NAMED_INFLUENCE_JURISDICTIONS <- c(
@@ -71,14 +68,6 @@ first_available <- function(x) {
     return(NA_character_)
   }
   as.character(x[1])
-}
-
-max_or_na <- function(x) {
-  x <- x[!is.na(x)]
-  if (length(x) == 0) {
-    return(NA_real_)
-  }
-  max(x)
 }
 
 build_jurisdiction_lookup <- function(stage1_bilateral, stage3_panel) {
@@ -549,9 +538,9 @@ add_baseline_model_case_id <- function(model_comparison) {
 }
 
 run_jurisdiction_influence_suite <- function(top_n = DEFAULT_TOP_N) {
-  stage1_bilateral <- readRDS(file.path(IN, "stage1_bilateral_panel.rds"))
-  stage3_panel <- readRDS(file.path(IN, "stage3_factorial_pair_year.rds"))
-  estimation_sample <- readRDS(file.path(IN, "stage3_estimation_sample.rds"))
+  stage1_bilateral <- readRDS(file.path(PROCESSED_DIR, "stage1_bilateral_panel.rds"))
+  stage3_panel <- readRDS(file.path(PROCESSED_DIR, "stage3_factorial_pair_year.rds"))
+  estimation_sample <- readRDS(file.path(PROCESSED_DIR, "stage3_estimation_sample.rds"))
   country_lookup <- build_country_lookup(stage3_panel)
   jurisdiction_lookup <- build_jurisdiction_lookup(
     stage1_bilateral,
@@ -560,16 +549,16 @@ run_jurisdiction_influence_suite <- function(top_n = DEFAULT_TOP_N) {
 
   baseline_stage1 <- summarise_stage1_liability(stage1_bilateral, "baseline")
   baseline_semielasticity <- read_csv(
-    file.path(DIAG, "step5_stage3_semielasticity_schedule.csv"),
+    file.path(DIAGNOSTICS_DIR, "step5_stage3_semielasticity_schedule.csv"),
     show_col_types = FALSE
   ) |>
     mutate(case_id = "baseline", .before = 1)
   baseline_model_comparison <- read_csv(
-    file.path(DIAG, "step5_stage3_model_comparison.csv"),
+    file.path(DIAGNOSTICS_DIR, "step5_stage3_model_comparison.csv"),
     show_col_types = FALSE
   ) |>
     add_baseline_model_case_id()
-  baseline_revenue <- readRDS(file.path(IN, "stage4_5_revenue_country_year.rds"))
+  baseline_revenue <- readRDS(file.path(PROCESSED_DIR, "stage4_5_revenue_country_year.rds"))
   baseline_revenue_decomposition <- summarise_revenue_decomposition(
     baseline_revenue,
     "baseline"
@@ -681,72 +670,72 @@ run_jurisdiction_influence_suite <- function(top_n = DEFAULT_TOP_N) {
 
   write_csv(
     targets,
-    file.path(DIAG, "step10_jurisdiction_influence_cases.csv")
+    file.path(DIAGNOSTICS_DIR, "step10_jurisdiction_influence_cases.csv")
   )
   write_csv(
     case_summary,
-    file.path(DIAG, "step10_jurisdiction_influence_case_summary.csv")
+    file.path(DIAGNOSTICS_DIR, "step10_jurisdiction_influence_case_summary.csv")
   )
   write_csv(
     stage1_rates,
-    file.path(DIAG, "step10_jurisdiction_influence_stage1_rates.csv")
+    file.path(DIAGNOSTICS_DIR, "step10_jurisdiction_influence_stage1_rates.csv")
   )
   write_csv(
     semielasticity,
-    file.path(DIAG, "step10_jurisdiction_influence_semielasticity.csv")
+    file.path(DIAGNOSTICS_DIR, "step10_jurisdiction_influence_semielasticity.csv")
   )
   write_csv(
     model_comparison,
-    file.path(DIAG, "step10_jurisdiction_influence_model_comparison.csv")
+    file.path(DIAGNOSTICS_DIR, "step10_jurisdiction_influence_model_comparison.csv")
   )
   write_csv(
     revenue_summary,
-    file.path(DIAG, "step10_jurisdiction_influence_revenue_summary.csv")
+    file.path(DIAGNOSTICS_DIR, "step10_jurisdiction_influence_revenue_summary.csv")
   )
   write_csv(
     anova_pooled,
-    file.path(DIAG, "step10_jurisdiction_influence_anova_pooled.csv")
+    file.path(DIAGNOSTICS_DIR, "step10_jurisdiction_influence_anova_pooled.csv")
   )
   write_csv(
     main_effects,
-    file.path(DIAG, "step10_jurisdiction_influence_main_effects.csv")
+    file.path(DIAGNOSTICS_DIR, "step10_jurisdiction_influence_main_effects.csv")
   )
   write_csv(
     revenue_metrics,
-    file.path(DIAG, "step10_jurisdiction_influence_revenue_metrics.csv")
+    file.path(DIAGNOSTICS_DIR, "step10_jurisdiction_influence_revenue_metrics.csv")
   )
   write_csv(
     conservation,
-    file.path(DIAG, "step10_jurisdiction_influence_conservation.csv")
+    file.path(DIAGNOSTICS_DIR, "step10_jurisdiction_influence_conservation.csv")
   )
 
   saveRDS(
     case_summary,
-    file.path(OUT, "jurisdiction_influence_case_summary.rds")
+    file.path(PROCESSED_DIR, "jurisdiction_influence_case_summary.rds")
   )
   saveRDS(
     stage1_rates,
-    file.path(OUT, "jurisdiction_influence_stage1_rates.rds")
+    file.path(PROCESSED_DIR, "jurisdiction_influence_stage1_rates.rds")
   )
   saveRDS(
     semielasticity,
-    file.path(OUT, "jurisdiction_influence_semielasticity.rds")
+    file.path(PROCESSED_DIR, "jurisdiction_influence_semielasticity.rds")
   )
   saveRDS(
     model_comparison,
-    file.path(OUT, "jurisdiction_influence_model_comparison.rds")
+    file.path(PROCESSED_DIR, "jurisdiction_influence_model_comparison.rds")
   )
   saveRDS(
     revenue_summary,
-    file.path(OUT, "jurisdiction_influence_revenue_summary.rds")
+    file.path(PROCESSED_DIR, "jurisdiction_influence_revenue_summary.rds")
   )
   saveRDS(
     anova_pooled,
-    file.path(OUT, "jurisdiction_influence_anova_pooled.rds")
+    file.path(PROCESSED_DIR, "jurisdiction_influence_anova_pooled.rds")
   )
   saveRDS(
     main_effects,
-    file.path(OUT, "jurisdiction_influence_main_effects.rds")
+    file.path(PROCESSED_DIR, "jurisdiction_influence_main_effects.rds")
   )
 
   message("\nStep 10 outputs written:")

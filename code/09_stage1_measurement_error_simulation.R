@@ -13,15 +13,12 @@ library(tibble)
 
 source("code/00_helpers.R")
 
-source_pipeline_script("code/04_stage2_sbie.R")
-source_pipeline_script("code/05_stage3_behavioral.R")
-source_pipeline_script("code/06_stage4_5_revenue_allocation_sbs.R")
-source_pipeline_script("code/07_stage4_6_revenue_pipeline_decomposition.R")
+source("code/04_stage2_sbie_functions.R")
+source("code/05_stage3_behavioral_functions.R")
+source("code/06_stage4_5_revenue_allocation_sbs_functions.R")
+source("code/07_stage4_6_revenue_pipeline_decomposition_functions.R")
 
-IN <- "data/processed"
-OUT <- IN
-DIAG <- file.path(OUT, "diagnostics")
-dir.create(DIAG, showWarnings = FALSE, recursive = TRUE)
+dir.create(DIAGNOSTICS_DIR, showWarnings = FALSE, recursive = TRUE)
 
 MEASUREMENT_ERROR_DRAWS <- 500L
 MEASUREMENT_ERROR_SEED <- 20260503L
@@ -510,16 +507,16 @@ run_stage1_measurement_error_simulation <- function(
   n_draws = MEASUREMENT_ERROR_DRAWS,
   seed = MEASUREMENT_ERROR_SEED
 ) {
-  stage1_affiliate_year <- readRDS(file.path(IN, "stage1_affiliate_year.rds"))
-  stage2_bilateral <- readRDS(file.path(IN, "stage2_bilateral_panel.rds"))
-  stage2_sectoral_matrix <- readRDS(file.path(IN, "stage2_sectoral_matrix.rds"))
+  stage1_affiliate_year <- readRDS(file.path(PROCESSED_DIR, "stage1_affiliate_year.rds"))
+  stage2_bilateral <- readRDS(file.path(PROCESSED_DIR, "stage2_bilateral_panel.rds"))
+  stage2_sectoral_matrix <- readRDS(file.path(PROCESSED_DIR, "stage2_sectoral_matrix.rds"))
   behavioural_affiliate_year <- readRDS(
-    file.path(IN, "stage3_behavioral_affiliate_year.rds")
+    file.path(PROCESSED_DIR, "stage3_behavioral_affiliate_year.rds")
   )
-  model_comparison <- readRDS(file.path(IN, "stage3_model_comparison.rds"))
-  oecd_central_record <- readRDS(file.path(IN, "oecd_pillar2_central_record.rds"))
+  model_comparison <- readRDS(file.path(PROCESSED_DIR, "stage3_model_comparison.rds"))
+  oecd_central_record <- readRDS(file.path(PROCESSED_DIR, "oecd_pillar2_central_record.rds"))
   crossval_affiliate_year <- read_csv(
-    file.path(DIAG, "step3_stage1_crossval_affiliate_year.csv"),
+    file.path(DIAGNOSTICS_DIR, "step3_stage1_crossval_affiliate_year.csv"),
     show_col_types = FALSE
   )
 
@@ -564,12 +561,12 @@ run_stage1_measurement_error_simulation <- function(
   draw_diagnostics <- map_dfr(results, "diagnostics")
 
   baseline_scenario_summary <- readRDS(
-    file.path(IN, "stage4_6_scenario_summary.rds")
+    file.path(PROCESSED_DIR, "stage4_6_scenario_summary.rds")
   ) |>
     select(all_of(SCENARIO_VARS), baseline_eu_revenue = eu_revenue)
 
   baseline_preferred_country_year <- readRDS(
-    file.path(IN, "stage4_5_revenue_country_year.rds")
+    file.path(PROCESSED_DIR, "stage4_5_revenue_country_year.rds")
   ) |>
     filter(
       factor1_etr == "distributional",
@@ -664,60 +661,60 @@ run_stage1_measurement_error_simulation <- function(
 
   write_csv(
     calibration$summary,
-    file.path(DIAG, "step9_stage1_measurement_error_calibration.csv")
+    file.path(DIAGNOSTICS_DIR, "step9_stage1_measurement_error_calibration.csv")
   )
   write_csv(
     summary,
-    file.path(DIAG, "step9_stage1_measurement_error_summary.csv")
+    file.path(DIAGNOSTICS_DIR, "step9_stage1_measurement_error_summary.csv")
   )
   write_csv(
     draw_diagnostics,
-    file.path(DIAG, "step9_stage1_measurement_error_draw_diagnostics.csv")
+    file.path(DIAGNOSTICS_DIR, "step9_stage1_measurement_error_draw_diagnostics.csv")
   )
   write_csv(
     scenario_draws,
-    file.path(DIAG, "step9_stage1_measurement_error_scenario_draws.csv")
+    file.path(DIAGNOSTICS_DIR, "step9_stage1_measurement_error_scenario_draws.csv")
   )
   write_csv(
     scenario_interval,
-    file.path(DIAG, "step9_stage1_measurement_error_scenario_interval.csv")
+    file.path(DIAGNOSTICS_DIR, "step9_stage1_measurement_error_scenario_interval.csv")
   )
   write_csv(
     preferred_interval,
-    file.path(DIAG, "step9_stage1_measurement_error_preferred_interval.csv")
+    file.path(DIAGNOSTICS_DIR, "step9_stage1_measurement_error_preferred_interval.csv")
   )
   write_csv(
     preferred_country_year_interval,
     file.path(
-      DIAG,
+      DIAGNOSTICS_DIR,
       "step9_stage1_measurement_error_preferred_country_year_interval.csv"
     )
   )
 
   saveRDS(
     calibration,
-    file.path(OUT, "stage1_measurement_error_calibration.rds")
+    file.path(PROCESSED_DIR, "stage1_measurement_error_calibration.rds")
   )
   saveRDS(
     stage1_draws,
-    file.path(OUT, "stage1_measurement_error_stage1_draws.rds")
+    file.path(PROCESSED_DIR, "stage1_measurement_error_stage1_draws.rds")
   )
   saveRDS(
     scenario_draws,
-    file.path(OUT, "stage1_measurement_error_scenario_draws.rds")
+    file.path(PROCESSED_DIR, "stage1_measurement_error_scenario_draws.rds")
   )
   saveRDS(
     scenario_interval,
-    file.path(OUT, "stage1_measurement_error_scenario_interval.rds")
+    file.path(PROCESSED_DIR, "stage1_measurement_error_scenario_interval.rds")
   )
   saveRDS(
     preferred_interval,
-    file.path(OUT, "stage1_measurement_error_preferred_interval.rds")
+    file.path(PROCESSED_DIR, "stage1_measurement_error_preferred_interval.rds")
   )
   saveRDS(
     preferred_country_year_interval,
     file.path(
-      OUT,
+      PROCESSED_DIR,
       "stage1_measurement_error_preferred_country_year_interval.rds"
     )
   )

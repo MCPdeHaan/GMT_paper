@@ -228,7 +228,7 @@ test_that("behavioural response conserves channel shares and bounds beta", {
   out <- add_behavioural_response(toy)
 
   expect_equal(out$beta_applied, 0.4)
-  expect_lte(out$beta_applied, STRATEGIC_MAX_REALLOCATION_SHARE)
+  expect_lte(out$beta_applied, BEHAVIOURAL_MAX_REALLOCATION_SHARE)
   expect_gte(out$beta_applied, 0)
   expect_equal(
     out$channel_transfer_pricing_ip_share + out$channel_debt_share +

@@ -137,10 +137,12 @@ column_difference <- function(current, baseline, file, column, tolerance) {
     mismatch <- missing_mismatch |
       (!both_missing & is.finite(abs_diff) & abs_diff > tolerance) |
       (!both_missing & xor(is.finite(current), is.finite(baseline)))
-    max_abs_diff <- suppressWarnings(max(abs_diff[is.finite(abs_diff)],
-      na.rm = TRUE
-    ))
-    if (!is.finite(max_abs_diff)) max_abs_diff <- NA_real_
+    finite_abs_diff <- abs_diff[is.finite(abs_diff)]
+    max_abs_diff <- if (length(finite_abs_diff) > 0L) {
+      max(finite_abs_diff)
+    } else {
+      NA_real_
+    }
   } else {
     mismatch <- missing_mismatch |
       (!both_missing & as.character(current) != as.character(baseline))
