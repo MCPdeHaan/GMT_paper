@@ -1008,29 +1008,27 @@ Factor & Choice & Low level ($x_i = 0$) & High level ($x_i = 1$) \\
 
 Factor 1 changes the measured low-taxed share $s_j^{<T}$. Factor 2 changes the substance shield $\bar{\phi}_{p,j,t}$ by imposing an EU host-country sectoral bridge and the SBTI-capacity index from equation \eqref{eq:sbti_capacity}. Factor 3 changes the policy parameters in the SBIE. Factor 4 changes the allocation weight $a_{s,p,j,t}^{(r)}$ by switching residual IIR and UTPR collection off for qualified US-parented groups while leaving QDMTTs operative. Factor 5 replaces the mechanical filter with $m_{j,t}^{\text{beh}}$.
 
-Let $\mathbf{x} = (x_1,\ldots,x_5) \in \{0,1\}^5$ denote a scenario configuration. The revenue of EU collector country $s$ in year $t$ is $R_{s,t}(\mathbf{x})$. The design is balanced, so the scenario spread can be decomposed exactly with orthogonal contrasts. The algebra is the same contrast machinery used in an ANOVA table, while the interpretation is economic: each contrast is attached to a named measurement, policy or behavioural mechanism in equation \eqref{eq:pipeline}. For $K=5$ factors:
+Let $\mathbf{x} = (x_1,\ldots,x_5) \in \{0,1\}^5$ denote a scenario configuration. The revenue of EU collector country $s$ in year $t$ is $R_{s,t}(\mathbf{x})$. The design is balanced, so the scenario spread can be decomposed exactly with orthogonal contrasts. The algebra follows an ANOVA table. For $K=5$ factors, $\text{SS}_i$ is the main effect of factor $i$, $\text{SS}_{ik}$ is the two-way interaction between factors $i$ and $k$, and higher-order terms are defined analogously. With five binary factors, the decomposition yields 31 orthogonal contrasts that exhaust the total variation:
 \begin{equation}\label{eq:anova}
 \text{SS}_{\text{total}} = \sum_{i=1}^{5} \text{SS}_i + \sum_{i<k} \text{SS}_{ik} + \sum_{i<k<l} \text{SS}_{ikl} + \cdots + \text{SS}_{12345}
-\end{equation}
-where $\text{SS}_i$ is the main effect of factor $i$, $\text{SS}_{ik}$ is the two-way interaction between factors $i$ and $k$, and higher-order terms are defined analogously. With five binary factors, the decomposition yields 31 orthogonal contrasts that exhaust the total variation.
+\end{equation} 
 
-Each effect is computed from the orthogonal contrast in the balanced design. For a main effect of factor $i$:
+Each effect is computed from the orthogonal contrast in the balanced design. For a main effect of factor $i$ where $\bar{R}_{x_i = 1}$ and $\bar{R}_{x_i = 0}$ are the mean revenues across all configurations where factor $i$ is at its high and low levels respectively, and $n = 32$ are the total configurations:
 \begin{equation}\label{eq:main_effect}
 \text{SS}_i = \frac{n}{4} \left(\bar{R}_{x_i = 1} - \bar{R}_{x_i = 0}\right)^2
 \end{equation}
-where $\bar{R}_{x_i = 1}$ and $\bar{R}_{x_i = 0}$ are the mean revenues across all configurations where factor $i$ is at its high and low levels respectively, and $n = 32$ is the total number of configurations. For a two-way interaction:
 \begin{equation}\label{eq:interaction_effect}
 \text{SS}_{ik} = \frac{n}{16} \left(\bar{R}_{x_i = 1, x_k = 1} - \bar{R}_{x_i = 1, x_k = 0} - \bar{R}_{x_i = 0, x_k = 1} + \bar{R}_{x_i = 0, x_k = 0}\right)^2
 \end{equation}
-A non-zero interaction means that the revenue effect of one choice depends on another choice. An ETR-measurement by SbS interaction, for example, says that the low-taxed profit newly revealed by distributional measurement is concentrated in ownership structures where the SbS regime changes collection rights. The share of explained variance attributable to each effect is $\eta_i^2=\text{SS}_i/\text{SS}_{\text{total}}$. The results report both the raw orthogonal contrasts and a Shapley-style allocation that divides interaction shares equally across the factors. The decomposition is run for the pooled EU27 country-year matrix, for each Member State, and for selected country cases.
+The above equation represents a two-way interaction. A non-zero interaction means that the revenue effect of one choice depends on another choice. An ETR-measurement by SbS interaction, for example, says that the low-taxed profit newly revealed by distributional measurement is concentrated in ownership structures where the SbS regime changes collection rights. The share of explained variance attributable to each effect is $\eta_i^2=\text{SS}_i/\text{SS}_{\text{total}}$. The results report both the raw orthogonal contrasts and a Shapley-style allocation that divides interaction shares equally across the factors. The decomposition is run for the pooled EU27 country-year matrix, for each Member State, and for selected country cases.
 
 \subsection{Country typology as compression}\label{sec:country_typology_method}
 
-The country typology compresses the revenue matrix into policy-facing groups. Each EU Member State is characterised by features that span fiscal scale, legal allocation exposure and measurement risk. Features are transformed where needed, median-imputed for Principal Component Analysis (PCA) scaling, standardised, and compressed. PCA reveals whether cross-country variation is predominantly one-dimensional or whether fiscal scale and legal allocation risk are empirically separable. $k$-means clustering applied to the standardised feature matrix yields the selected four-cluster solution, chosen by jitter stability and interpretability. The feature matrix and stability diagnostics are in Appendix \ref{app:country_policy}, Tables \ref{tab:app_country_typology_features} and \ref{tab:app_country_typology_cluster_stability}.
+The country typology compresses the revenue matrix into policy-facing groups. Each EU Member State is characterised by features that span fiscal scale, legal allocation exposure and measurement risk. Features are transformed where needed, median-imputed for Principal Component Analysis (PCA) scaling, standardised, and compressed. PCA reveals whether cross-country variation is predominantly one-dimensional or whether fiscal scale and legal allocation risk are empirically separable. $k$-means clustering applied to the standardised feature matrix yields the selected four-cluster solution, chosen by jitter stability and interpretability. 
 
 \subsection{Scenario, measurement and coefficient uncertainty}\label{sec:two_uncertainties}
 
-Three uncertainty objects are kept distinct. Object A is scenario uncertainty: the spread generated by the 32 modelling and policy configurations. For each EU collector country $s$ and year $t$ holding the Hines--Rice coefficient at its point estimate. The associated width is $\Delta^{A}_{s,t}=\max_{\mathbf{x}}R_{s,t}(\mathbf{x})-\min_{\mathbf{x}}R_{s,t}(\mathbf{x})$. Object A is a structural scenario spread.
+Three uncertainty objects answer different questions. Object A is scenario uncertainty. It asks how much revenue changes across the 32 modelling and policy configurations, holding the Hines--Rice coefficient at its point estimate. For each EU collector country $s$ and year $t$, the scenario interval is:
 \begin{equation}\label{eq:object_a}
 \mathcal{U}^{A}_{s,t}
 =
@@ -1039,10 +1037,11 @@ Three uncertainty objects are kept distinct. Object A is scenario uncertainty: t
 \max_{\mathbf{x}\in\{0,1\}^5} R_{s,t}(\mathbf{x})
 \right],
 \end{equation}
+with width $\Delta^{A}_{s,t}=\max_{\mathbf{x}}R_{s,t}(\mathbf{x})-\min_{\mathbf{x}}R_{s,t}(\mathbf{x})$. This is a structural scenario spread.
 
-Object B is Stage 1 measurement uncertainty. It keeps the scenario fixed and propagates empirical residuals from the Table I percentile-fit versus Table IV validation through the preferred ETR branch. 
+Object B is Stage 1 measurement uncertainty. It keeps the modelling and policy scenario fixed and asks how much the preferred ETR branch can move when the Table I percentile fit is disciplined by the Table IV validation residuals. This isolates uncertainty in the measured low-taxed base from uncertainty about the legal regime, substance specification or behavioural response.
 
-Object C is Hines--Rice coefficient uncertainty within one scenario. Two-way clustered standard error of the preferred linear ETR coefficient is channeled through equation \eqref{eq:cf_linear} at the mean observed below-threshold ETR used for the behavioural evaluation. For a 90\% bound,
+Object C is Hines--Rice coefficient uncertainty within one scenario. It asks how much revenue changes when the estimated behavioural coefficient varies within its sampling uncertainty, while all other scenario choices remain fixed. The preferred linear ETR coefficient is used because the model-selection step selects the linear specification. Its two-way clustered standard error is propagated through equation \eqref{eq:cf_linear}. The propagation is evaluated at the observed mean below-threshold ETR, $\bar{\tau}$, because the behavioural filter only applies to profit below the 15\% floor. For a 90\% bound:
 \begin{equation}\label{eq:object_c_approx}
 G_{\text{lin}}^{\pm}(\bar{\tau})
 =
