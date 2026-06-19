@@ -2008,91 +2008,156 @@ write_stage46_anova_table <- function() {
   )
 }
 
-write_stage46_shapley_table <- function() {
-  x <- read_diag("step7_stage4_6_shapley_factor_attribution.csv") |>
-    transmute(
-      Factor = latex_escape(factor_label),
-      Mechanism = latex_escape(effect_label),
-      `Main share (\\%)` = fmt_pct(main_eta_squared, 1),
-      `Interaction share (\\%)` = fmt_pct(interaction_eta_squared, 1),
-      `Allocated share (\\%)` = fmt_pct(shapley_eta_squared, 1),
-      `Uncertainty class` = latex_escape(uncertainty_class)
-    )
-
-  write_latex_table(
-    file.path(GENERATED_TABLES_DIR, "stage4_6_shapley_factor_attribution.tex"),
-    caption = "Shapley-style allocation of factorial revenue variance by economic mechanism",
-    short_caption = "Shapley-style allocation of factorial revenue variance",
-    label = "tab:stage4_6_shapley_attribution",
-    col_spec = "L{2.2cm}L{3.2cm}rrrL{4.2cm}",
-    header = c(
-      "Factor", "Mechanism", "Main share (\\%)",
-      "Interaction share (\\%)", "Allocated share (\\%)",
-      "Uncertainty class"
-    ),
-    rows = x,
-    notes = paste(
-      "Interaction contrasts are allocated equally across the factors that enter them, giving a Shapley-style factor attribution that sums to the full scenario variance.",
-      "The aleatoric label is reserved for bootstrap uncertainty in the estimated behavioural coefficients; the factorial behavioural contrast itself is a scenario contrast.",
-      ""
-    ),
-    size = "\\scriptsize",
-    resize = TRUE
+fmt_signed_pct <- function(x, digits = 1) {
+  ifelse(
+    is.na(x),
+    "",
+    sprintf("%+.*f", digits, 100 * x)
   )
 }
 
-write_stage46_main_effects_table <- function() {
-  x <- read_diag("step7_stage4_6_main_effects_pooled.csv") |>
-    transmute(
-      Factor = latex_escape(effect_label),
-      `Low level` = fmt_bn(level_0, 1),
-      `High level` = fmt_bn(level_1, 1),
-      `High minus low` = fmt_bn(high_minus_low, 1)
+write_stage46_factor_decomposition_table <- function() {
+  shapley <- read_diag("step7_stage4_6_shapley_factor_attribution.csv") |>
+    arrange(desc(shapley_eta_squared))
+
+  effects <- read_diag("step7_stage4_6_main_effects_pooled.csv") |>
+    mutate(effect = factor(effect, levels = shapley$effect)) |>
+    arrange(effect)
+
+  rows <- shapley |>
+    mutate(
+      level_0 = effects$level_0[match(effect, effects$effect)],
+      level_1 = effects$level_1[match(effect, effects$effect)],
+      high_minus_low = effects$high_minus_low[match(effect, effects$effect)],
+      pct_high_minus_low = effects$pct_high_minus_low[match(effect, effects$effect)]
     )
 
-  write_latex_table(
-    file.path(GENERATED_TABLES_DIR, "stage4_6_main_effects.tex"),
-    caption = "Main effects on cumulative EU revenue",
-    short_caption = "Main effects on cumulative EU revenue",
-    label = "tab:stage4_6_main_effects",
-    col_spec = "lrrr",
-    header = c("Factor", "Low level", "High level", "High minus low"),
-    rows = x,
-    notes = paste(
-      "Amounts are cumulative over 2017 to 2022 and expressed in US dollars, billions.",
-      ""
+  body_lines <- vapply(seq_len(nrow(rows)), function(i) {
+    r <- rows[i, ]
+    paste0(
+      latex_escape(r$factor_label), " & ",
+      fmt_pct(r$main_eta_squared, 1), " & ",
+      sprintf("\\textbf{%s}", fmt_pct(r$shapley_eta_squared, 1)), " & ",
+      fmt_bn(r$level_0, 1), " & ",
+      fmt_bn(r$level_1, 1), " & ",
+      fmt_bn(r$high_minus_low, 1), " & ",
+      fmt_signed_pct(r$pct_high_minus_low, 1),
+      " \\\\"
+    )
+  }, character(1))
+
+  total_line <- paste0(
+    "Total & ",
+    fmt_pct(sum(shapley$main_eta_squared), 1), " & ",
+    sprintf("\\textbf{%s}", fmt_pct(sum(shapley$shapley_eta_squared), 1)),
+    " &  &  &  &  \\\\"
+  )
+
+  notes <- paste(
+    "Pooled orthogonal decomposition across 32 factorial scenarios, EU27 country-years, 2017--2022.",
+    "Variance shares are partial $\\eta^{2}$; allocated shares split interactions equally (Shapley).",
+    "Main effects are cumulative revenue in current US dollars, billions; change is relative to the low factor level."
+  )
+
+  write_custom_table(
+    file.path(GENERATED_TABLES_DIR, "stage4_6_factor_decomposition.tex"),
+    c(
+      "\\begin{table}[H]",
+      "\\centering",
+      "\\small",
+      "\\caption[Factorial decomposition of EU GMT revenue]{Factorial decomposition of EU GMT revenue}",
+      "\\label{tab:stage4_6_factor_decomposition}",
+      "\\label{tab:stage4_6_shapley_attribution}",
+      "\\label{tab:stage4_6_main_effects}",
+      "\\begin{adjustbox}{max width=\\textwidth,center}",
+      "\\begin{tabular}{@{}l rr @{\\hspace{1.4em}} rrr r@{}}",
+      "\\toprule",
+      " & \\multicolumn{2}{c}{Variance shares (\\%)} & \\multicolumn{4}{c}{Main effects (US\\$ bn)} \\\\",
+      "\\cmidrule(lr){2-3} \\cmidrule(lr){4-7}",
+      "Factor & Main & Allocated & Low & High & Effect & Chg (\\%) \\\\",
+      "\\midrule",
+      body_lines,
+      "\\midrule",
+      total_line,
+      "\\bottomrule",
+      "\\end{tabular}",
+      "\\end{adjustbox}",
+      "",
+      "\\vspace{0.5em}",
+      "\\begin{minipage}{0.96\\textwidth}",
+      sprintf("\\footnotesize\\raggedright \\textit{Notes:} %s", notes),
+      "\\end{minipage}",
+      "\\end{table}"
     )
   )
 }
 
 write_stage46_channel_table <- function() {
-  x <- read_diag("step7_stage4_6_preferred_channel_summary.csv") |>
-    mutate(
-      Regime = recode(factor4_sbs, "universal" = "Universal", "sbs" = "SbS"),
-      Regime = factor(Regime, levels = c("Universal", "SbS")),
-      channel = factor(channel, levels = c("IIR", "QDMTT", "UTPR"))
-    ) |>
-    arrange(Regime, channel) |>
-    transmute(
-      Regime = latex_escape(as.character(Regime)),
-      Channel = latex_escape(as.character(channel)),
-      `Revenue (US\\$ bn)` = fmt_num(revenue_bn, 1)
+  wide <- read_diag("step7_stage4_6_preferred_channel_summary.csv") |>
+    mutate(channel = factor(channel, levels = c("IIR", "QDMTT", "UTPR"))) |>
+    select(factor4_sbs, channel, revenue_bn) |>
+    pivot_wider(names_from = factor4_sbs, values_from = revenue_bn) |>
+    arrange(channel) |>
+    mutate(share = universal / sum(universal))
+
+  total <- wide |>
+    summarise(
+      channel = "Total",
+      universal = sum(universal),
+      sbs = sum(sbs),
+      share = sum(share)
     )
 
-  write_latex_table(
-    file.path(GENERATED_TABLES_DIR, "preferred_channel.tex"),
-    caption = "Preferred-core revenue by collection channel",
-    short_caption = "Preferred-core revenue by collection channel",
-    label = "tab:preferred_channel_updated",
-    col_spec = "llr",
-    header = c("Regime", "Channel", "Revenue (US\\$ bn)"),
-    rows = x,
-    notes = paste(
-      "Preferred-core scenario: distributional ETR measurement, aggregate SBIE, initial carve-out rates and no behavioural response.",
-      "Amounts are cumulative over 2017 to 2022.",
-      ""
+  build_row <- function(r) {
+    paste0(
+      paste(
+        c(
+          latex_escape(as.character(r$channel)),
+          fmt_num(r$universal, 1),
+          fmt_num(r$sbs, 1),
+          fmt_num(100 * r$share, 1)
+        ),
+        collapse = " & "
+      ),
+      " \\\\"
     )
+  }
+
+  body_lines <- vapply(seq_len(nrow(wide)), function(i) build_row(wide[i, ]), character(1))
+  total_line <- build_row(total)
+
+  notes <- paste(
+    "Preferred-core scenario (distributional ETR, aggregate SBIE, no behavioural response).",
+    "Cumulative 2017--2022, US\\$ bn."
   )
+
+  lines <- c(
+    "% Generated by code/08_generate_results_tables.R",
+    "\\begin{table}[H]",
+    "\\centering",
+    "\\small",
+    "\\caption[Preferred-core revenue by collection channel]{Preferred-core revenue by collection channel}",
+    "\\label{tab:preferred_channel_updated}",
+    "\\begin{tabular}{@{}lrrr@{}}",
+    "\\toprule",
+    " & \\multicolumn{2}{c}{Revenue (US\\$ bn)} & Share of \\\\",
+    "\\cmidrule(lr){2-3}",
+    "Channel & Universal & SbS & EU total (\\%) \\\\",
+    "\\midrule",
+    body_lines,
+    "\\midrule",
+    total_line,
+    "\\bottomrule",
+    "\\end{tabular}",
+    "",
+    "\\vspace{0.5em}",
+    "\\begin{minipage}{0.96\\textwidth}",
+    sprintf("\\footnotesize\\raggedright \\textit{Notes:} %s", notes),
+    "\\end{minipage}",
+    "\\end{table}"
+  )
+
+  writeLines(lines, file.path(GENERATED_TABLES_DIR, "preferred_channel.tex"))
 }
 
 write_stage1_measurement_error_table <- function() {
@@ -2148,29 +2213,83 @@ write_stage1_measurement_error_table <- function() {
   invisible(TRUE)
 }
 
-write_stage46_country_spread_table <- function() {
-  x <- read_diag("step7_stage4_6_scenario_spread_country.csv") |>
+write_stage46_country_diagnostic_table <- function() {
+  spread <- read_diag("step7_stage4_6_scenario_spread_country.csv") |>
+    filter(country %in% COUNTRY_CASE_COUNTRIES) |>
+    arrange(match(country, COUNTRY_CASE_COUNTRIES))
+
+  fiscal <- read_diag("step7_stage4_6_fiscal_salience_country.csv") |>
     filter(country %in% COUNTRY_CASE_COUNTRIES) |>
     arrange(match(country, COUNTRY_CASE_COUNTRIES)) |>
-    transmute(
-      Country = latex_escape(country_name),
-      Minimum = fmt_bn(min_revenue, 1),
-      Maximum = fmt_bn(max_revenue, 1),
-      Spread = fmt_bn(scenario_spread, 1)
+    mutate(
+      scenario_spread_to_cit_1200 = safe_divide(
+        spread$scenario_spread[match(country, spread$country)],
+        cit_revenue_T_1200
+      )
     )
 
-  write_latex_table(
-    file.path(GENERATED_TABLES_DIR, "country_spread.tex"),
-    caption = "Scenario spread for selected EU Member States",
-    short_caption = "Scenario spread for selected EU Member States",
-    label = "tab:country_spread_updated",
-    col_spec = "lrrr",
-    header = c("Country", "Minimum", "Maximum", "Spread"),
-    rows = x,
-    notes = paste(
-      "Amounts are cumulative collector-country revenue over 2017 to 2022, expressed in US dollars, billions.",
-      "Country totals combine QDMTT source-country revenue, IIR parent-country revenue and UTPR revenue allocated by the substance key.",
-      ""
+  rows <- spread |>
+    mutate(
+      preferred_revenue = fiscal$preferred_revenue[match(country, fiscal$country)],
+      revenue_to_cit_1200 = fiscal$revenue_to_cit_1200[match(country, fiscal$country)],
+      scenario_spread_to_cit_1200 =
+        fiscal$scenario_spread_to_cit_1200[match(country, fiscal$country)],
+      sbs_loss_to_cit_1200 = fiscal$sbs_loss_to_cit_1200[match(country, fiscal$country)],
+      qdmtt_preserved_share = fiscal$qdmtt_preserved_share[match(country, fiscal$country)]
+    )
+
+  body_lines <- vapply(seq_len(nrow(rows)), function(i) {
+    r <- rows[i, ]
+    paste0(
+      latex_escape(r$country_name), " & ",
+      fmt_bn(r$min_revenue, 1), " & ",
+      fmt_bn(r$max_revenue, 1), " & ",
+      fmt_bn(r$scenario_spread, 1), " & ",
+      fmt_bn(r$preferred_revenue, 1), " & ",
+      format_available_pct(r$revenue_to_cit_1200, 1), " & ",
+      format_available_pct(r$scenario_spread_to_cit_1200, 1), " & ",
+      format_available_pct(r$sbs_loss_to_cit_1200, 1), " & ",
+      format_available_pct(r$qdmtt_preserved_share, 1),
+      " \\\\"
+    )
+  }, character(1))
+
+  notes <- paste(
+    "Cumulative 2017--2022.",
+    "Spread columns report min--max collector revenue across 32 scenarios (US\\$ bn).",
+    "Salience columns use preferred behavioural SbS revenue; ratios divide by OECD CIT revenue (T\\_1200)."
+  )
+
+  write_custom_table(
+    file.path(GENERATED_TABLES_DIR, "country_revenue_diagnostic.tex"),
+    c(
+      "\\begin{table}[H]",
+      "\\centering",
+      "\\small",
+      paste0(
+        "\\caption[Country revenue uncertainty and fiscal salience]",
+        "{Country revenue uncertainty and fiscal salience, selected EU Member States}"
+      ),
+      "\\label{tab:country_revenue_diagnostic}",
+      "\\label{tab:country_spread_updated}",
+      "\\label{tab:country_fiscal_salience}",
+      "\\begin{adjustbox}{max width=\\textwidth,center}",
+      "\\begin{tabular}{@{}l rrr @{\\hspace{1.4em}} r rrrr@{}}",
+      "\\toprule",
+      " & \\multicolumn{3}{c}{Scenario spread} & \\multicolumn{5}{c}{Fiscal salience} \\\\",
+      "\\cmidrule(lr){2-4} \\cmidrule(lr){5-9}",
+      "Country & Min & Max & Spread & Revenue & Rev./CIT & Spread/CIT & SbS/CIT & QDMTT \\\\",
+      "\\midrule",
+      body_lines,
+      "\\bottomrule",
+      "\\end{tabular}",
+      "\\end{adjustbox}",
+      "",
+      "\\vspace{0.5em}",
+      "\\begin{minipage}{0.96\\textwidth}",
+      sprintf("\\footnotesize\\raggedright \\textit{Notes:} %s", notes),
+      "\\end{minipage}",
+      "\\end{table}"
     )
   )
 }
@@ -2208,48 +2327,6 @@ write_stage46_fiscal_salience_tables <- function() {
       scenario_spread_to_cit_1200 =
         safe_divide(cumulative_scenario_spread, cit_revenue_T_1200)
     )
-
-  table_rows <- fiscal |>
-    filter(country %in% SELECTED_FISCAL_COUNTRIES) |>
-    arrange(match(country, SELECTED_FISCAL_COUNTRIES)) |>
-    transmute(
-      Country = latex_escape(country_name),
-      `Revenue` = fmt_bn(preferred_revenue, 1),
-      `Revenue/CIT 1200` = format_available_pct(revenue_to_cit_1200, 1),
-      `Revenue/CIT 1210` = format_available_pct(revenue_to_cit_1210, 1),
-      `Revenue/GDP` = format_available_pct(revenue_to_gdp, 2),
-      `Revenue per resident` = fmt_int(revenue_per_capita),
-      `Spread/CIT` = format_available_pct(scenario_spread_to_cit_1200, 1),
-      `SbS loss/CIT` = format_available_pct(sbs_loss_to_cit_1200, 1),
-      `QDMTT/revenue` = format_available_pct(qdmtt_preserved_share, 1)
-    )
-
-  write_latex_table(
-    file.path(GENERATED_TABLES_DIR, "country_fiscal_salience.tex"),
-    caption = "Fiscal salience of preferred behavioural SbS revenue, selected countries",
-    short_caption = "Fiscal salience of preferred behavioural SbS revenue",
-    label = "tab:country_fiscal_salience",
-    col_spec = "lrrrrrrrr",
-    header = c(
-      "Country", "Revenue", "Revenue/CIT 1200",
-      "Revenue/CIT 1210", "Revenue/GDP",
-      "Revenue per resident", "Spread/CIT", "SbS loss/CIT",
-      "QDMTT/revenue"
-    ),
-    rows = table_rows,
-    notes = paste(
-      "Amounts are cumulative over 2017 to 2022.",
-      "Revenue is preferred behavioural SbS collector-country revenue, expressed in US dollars, billions.",
-      "The main corporate-income-tax denominator is OECD revenue category T\\_1200, corporate taxes on income, profits and capital gains of corporations.",
-      "T\\_1210 is reported as a narrower sensitivity where the processed OECD object has full coverage.",
-      "GDP is World Bank GDP per capita multiplied by population; per-resident revenue divides cumulative revenue by average population over 2017 to 2022.",
-      "Spread/CIT uses the spread of cumulative country revenue across the 32 scenarios.",
-      "Hungary is included as the smaller high-salience country because it has the highest preferred revenue-to-CIT ratio among smaller EU Member States with populated T\\_1200 data.",
-      ""
-    ),
-    size = "\\scriptsize",
-    resize = "max"
-  )
 
   appendix_rows <- fiscal |>
     arrange(desc(revenue_to_cit_1200), country_name) |>
@@ -3656,8 +3733,7 @@ write_manifest <- function() {
     "\\input{generated/results_tables/stage3_econometric_scorecard.tex}",
     "\\input{generated/results_tables/stage3_semielasticity.tex}",
     "\\input{generated/results_tables/stage4_6_anova.tex}",
-    "\\input{generated/results_tables/stage4_6_shapley_factor_attribution.tex}",
-    "\\input{generated/results_tables/stage4_6_main_effects.tex}",
+    "\\input{generated/results_tables/stage4_6_factor_decomposition.tex}",
     "\\input{generated/results_tables/preferred_channel.tex}",
     if (file.exists(file.path(
       GENERATED_TABLES_DIR,
@@ -3666,8 +3742,7 @@ write_manifest <- function() {
       "\\input{generated/results_tables/stage1_measurement_error_interval.tex}"
     },
     "\\input{generated/results_tables/stage46_measurement_sample_decomposition.tex}",
-    "\\input{generated/results_tables/country_spread.tex}",
-    "\\input{generated/results_tables/country_fiscal_salience.tex}",
+    "\\input{generated/results_tables/country_revenue_diagnostic.tex}",
     "\\input{generated/results_tables/country_typology_pca.tex}",
     "\\input{generated/results_tables/country_typology_clusters.tex}",
     "\\input{generated/results_tables/hypothesis_summary.tex}"
@@ -3699,12 +3774,11 @@ write_results_tables <- function() {
   write_stage3_semielasticity_table()
 
   write_stage46_anova_table()
-  write_stage46_shapley_table()
-  write_stage46_main_effects_table()
+  write_stage46_factor_decomposition_table()
   write_stage46_channel_table()
   write_stage1_measurement_error_table()
   write_stage46_measurement_sample_table()
-  write_stage46_country_spread_table()
+  write_stage46_country_diagnostic_table()
   write_stage46_fiscal_salience_tables()
   write_stage46_country_policy_matrix()
   write_country_typology_tables()
