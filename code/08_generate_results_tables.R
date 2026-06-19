@@ -884,11 +884,6 @@ write_stage1_rates_table <- function() {
     lines,
     "\\bottomrule",
     "\\end{tabular}",
-    "",
-    "\\vspace{0.5em}",
-    "\\begin{minipage}{0.96\\textwidth}",
-    "\\footnotesize\\raggedright \\textit{Notes:} Ratios are aggregate ratios from the bilateral Stage 1 panel, not unweighted country averages.",
-    "\\end{minipage}",
     "\\end{table}"
   )
 
