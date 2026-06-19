@@ -1113,36 +1113,69 @@ write_stage2_sectoral_table <- function() {
 }
 
 write_stage2_h5_table <- function() {
-  x <- read_diag("step4_stage2_sectoral_h5_regression_clustered.csv") |>
-    filter(term == "sectoral_capital_intensity") |>
-    mutate(model_variant = recode(model_variant,
-      "unweighted" = "Unweighted",
-      "profit_weighted" = "Profit-weighted"
-    )) |>
-    arrange(match(model_variant, c("Unweighted", "Profit-weighted"))) |>
-    transmute(
-      Specification = latex_escape(model_variant),
-      Coefficient = fmt_num(estimate, 5),
-      `Cluster SE` = fmt_num(std_error, 5),
-      `$p$-value` = fmt_p(p_value),
-      Observations = fmt_int(n_obs),
-      `$R^2$` = fmt_num(r_squared, 3)
-    )
+  x <- read_diag("step4_stage2_sectoral_h5_regression_clustered.csv")
+
+  pick <- function(variant, trm, col) {
+    out <- x[[col]][x$model_variant == variant & x$term == trm]
+    if (length(out) == 0) NA_real_ else out[1]
+  }
+
+  coef_cell_star <- function(variant, trm, digits = 5) {
+    est <- pick(variant, trm, "estimate")
+    if (is.na(est)) return("---")
+    paste0(fmt_num(est, digits), significance_stars(pick(variant, trm, "p_value")))
+  }
+
+  se_cell <- function(variant, trm, digits = 5) {
+    if (is.na(pick(variant, trm, "estimate"))) return("")
+    paste0("(", fmt_num(pick(variant, trm, "std_error"), digits), ")")
+  }
+
+  n_obs <- fmt_int(pick("unweighted", "sectoral_capital_intensity", "n_obs"))
+  n_clusters <- fmt_int(pick("unweighted", "sectoral_capital_intensity", "n_clusters"))
+  r2_uw <- fmt_num(pick("unweighted", "sectoral_capital_intensity", "r_squared"), 3)
+  r2_pw <- fmt_num(pick("profit_weighted", "sectoral_capital_intensity", "r_squared"), 3)
+
+  rows <- tibble::tribble(
+    ~term, ~uw, ~pw,
+    "Constant ($\\alpha$)",
+    coef_cell_star("unweighted", "(Intercept)"),
+    coef_cell_star("profit_weighted", "(Intercept)"),
+    "",
+    se_cell("unweighted", "(Intercept)"),
+    se_cell("profit_weighted", "(Intercept)"),
+    "Tangible-asset intensity ($\\beta$)",
+    coef_cell_star("unweighted", "sectoral_capital_intensity"),
+    coef_cell_star("profit_weighted", "sectoral_capital_intensity"),
+    "",
+    se_cell("unweighted", "sectoral_capital_intensity"),
+    se_cell("profit_weighted", "sectoral_capital_intensity"),
+    "Country fixed effects", "Yes", "Yes",
+    "Observations", n_obs, n_obs,
+    "Clusters (countries)", n_clusters, n_clusters,
+    "$R^2$", r2_uw, r2_pw
+  )
 
   write_latex_table(
     file.path(GENERATED_TABLES_DIR, "stage2_h5_regression.tex"),
     caption = "Sectoral capital-intensity regression",
     short_caption = "Sectoral capital-intensity regression",
     label = "tab:stage2_h5_regression",
-    col_spec = "lrrrrr",
+    col_spec = "lcc",
     header = c(
-      "Specification", "Coefficient", "Cluster SE", "$p$-value",
-      "Observations", "$R^2$"
+      "", "(1) Unweighted", "(2) Profit-weighted"
     ),
-    rows = x,
+    rows = rows,
     notes = paste(
-      "Dependent variable: SBTI-induced change in the average effective floor in the 2022 EU sectoral reference matrix.",
-      ""
+      "Estimating equation:",
+      "$\\Delta\\mathrm{floor}_{cs} = \\alpha + \\gamma_c + \\beta\\,\\mathrm{capint}_{cs} + \\varepsilon_{cs}$,",
+      "where $c$ indexes EU27 countries and $s$ broad NACE sectors,",
+      "$\\Delta\\mathrm{floor}_{cs}$ is the SBTI-induced change in the average effective floor",
+      "in the 2022 EU sectoral reference matrix (the dependent variable),",
+      "$\\mathrm{capint}_{cs}$ is sectoral tangible-asset intensity,",
+      "$\\alpha$ is the constant and $\\gamma_c$ are country fixed effects.",
+      "Standard errors clustered by country in parentheses.",
+      "$^{*}\\,p<0.10$, $^{**}\\,p<0.05$, $^{***}\\,p<0.01$."
     )
   )
 }
@@ -1284,6 +1317,170 @@ write_stage3_regression_table <- function() {
   )
 
   write_custom_table(file.path(GENERATED_TABLES_DIR, "stage3_regression_table.tex"), lines)
+}
+
+write_stage3_main_regression_table <- function() {
+  coef <- read_diag("step5_stage3_coefficients.csv") |>
+    filter(inference == "parent_affiliate_clustered")
+  models <- read_diag("step5_stage3_model_comparison.csv")
+  iv <- read_diag("step5_stage3_tax_endogeneity_diagnostics.csv") |>
+    filter(inference == "parent_affiliate_clustered")
+
+  cell_est <- function(estimate, p_value) {
+    if (length(estimate) == 0 || is.na(estimate)) {
+      return("")
+    }
+    paste0(fmt_num(estimate, 3), significance_stars(p_value))
+  }
+  cell_se <- function(std_error) {
+    if (length(std_error) == 0 || is.na(std_error)) {
+      return("")
+    }
+    paste0("(", fmt_num(std_error, 3), ")")
+  }
+  coef_get <- function(spec, trm) {
+    row <- coef |> filter(model_spec == spec, term == trm)
+    list(est = cell_est(row$estimate[1], row$p_value[1]),
+      se = cell_se(row$std_error[1]))
+  }
+  iv_get <- function(diag_name) {
+    row <- iv |> filter(diagnostic == diag_name)
+    list(est = cell_est(row$estimate[1], row$p_value[1]),
+      se = cell_se(row$std_error[1]))
+  }
+  empty <- list(est = "", se = "")
+
+  stacked_rows <- function(label, cells) {
+    est <- vapply(cells, function(x) x$est, character(1))
+    se <- vapply(cells, function(x) x$se, character(1))
+    c(
+      paste0(label, " & ", paste(est, collapse = " & "), " \\\\"),
+      paste0(" & ", paste(se, collapse = " & "), " \\\\[2pt]")
+    )
+  }
+  simple_row <- function(label, vals) {
+    paste0(label, " & ", paste(vals, collapse = " & "), " \\\\")
+  }
+
+  etr_row <- stacked_rows("ETR $(\\tau)$", list(
+    coef_get("linear", "tau"),
+    coef_get("quadratic", "tau"),
+    coef_get("logarithmic", "tau"),
+    iv_get("simulated_tax_code_eatr_2sls_for_profit"),
+    iv_get("lagged_statutory_cit_2sls_for_profit")
+  ))
+  etr_sq_row <- stacked_rows("ETR squared $(\\tau^{2})$", list(
+    coef_get("linear", "tau_sq"),
+    coef_get("quadratic", "tau_sq"),
+    coef_get("logarithmic", "tau_sq"),
+    empty, empty
+  ))
+  log_tau_row <- stacked_rows("Log shifted ETR $(\\ln(\\tau+t_{0}))$", list(
+    coef_get("linear", "log_tau"),
+    coef_get("quadratic", "log_tau"),
+    coef_get("logarithmic", "log_tau"),
+    empty, empty
+  ))
+
+  model_stat <- function(spec, col) {
+    val <- models[[col]][models$model_spec == spec]
+    if (length(val) == 0) NA else val[1]
+  }
+  iv_stat <- function(diag_name, col) {
+    val <- iv[[col]][iv$diagnostic == diag_name]
+    if (length(val) == 0) NA else val[1]
+  }
+
+  eatr_2sls <- "simulated_tax_code_eatr_2sls_for_profit"
+  cit_2sls <- "lagged_statutory_cit_2sls_for_profit"
+
+  n_row <- simple_row("Observations", c(
+    fmt_int(model_stat("linear", "n")),
+    fmt_int(model_stat("quadratic", "n")),
+    fmt_int(model_stat("logarithmic", "n")),
+    fmt_int(iv_stat(eatr_2sls, "n")),
+    fmt_int(iv_stat(cit_2sls, "n"))
+  ))
+  pairs_row <- simple_row("Parent-affiliate pairs", c(
+    fmt_int(model_stat("linear", "n_pairs")),
+    fmt_int(model_stat("quadratic", "n_pairs")),
+    fmt_int(model_stat("logarithmic", "n_pairs")),
+    fmt_int(iv_stat(eatr_2sls, "n_pairs")),
+    fmt_int(iv_stat(cit_2sls, "n_pairs"))
+  ))
+  r2_row <- simple_row("Within $R^2$", c(
+    fmt_num(model_stat("linear", "within_r_squared"), 3),
+    fmt_num(model_stat("quadratic", "within_r_squared"), 3),
+    fmt_num(model_stat("logarithmic", "within_r_squared"), 3),
+    fmt_num(iv_stat(eatr_2sls, "within_r_squared"), 3),
+    fmt_num(iv_stat(cit_2sls, "within_r_squared"), 3)
+  ))
+  bic_row <- simple_row("$\\Delta$BIC (vs.\\ linear)", c(
+    fmt_num(model_stat("linear", "delta_bic"), 2),
+    fmt_num(model_stat("quadratic", "delta_bic"), 2),
+    fmt_num(model_stat("logarithmic", "delta_bic"), 2),
+    "--", "--"
+  ))
+  joint_row <- simple_row("Joint tax-term $p$", c(
+    fmt_p(model_stat("linear", "tax_terms_joint_p_value_two_way")),
+    fmt_p(model_stat("quadratic", "tax_terms_joint_p_value_two_way")),
+    fmt_p(model_stat("logarithmic", "tax_terms_joint_p_value_two_way")),
+    "--", "--"
+  ))
+
+  lines <- c(
+    "\\begin{table}[H]",
+    "\\centering",
+    "\\small",
+    paste0(
+      "\\caption[Behavioural response of reported profit to the affiliate ",
+      "effective tax rate]{Behavioural response of reported profit to the ",
+      "affiliate effective tax rate}"
+    ),
+    "\\label{tab:stage3_main_regression}",
+    "\\begin{adjustbox}{max width=\\textwidth,center}",
+    "\\begin{tabular}{@{}lccccc@{}}",
+    "\\toprule",
+    paste0(
+      " & \\multicolumn{3}{c}{Fixed-effect OLS} & ",
+      "\\multicolumn{2}{c}{Fixed-effect 2SLS} \\\\"
+    ),
+    "\\cmidrule(lr){2-4}\\cmidrule(lr){5-6}",
+    paste0(
+      " & Linear$^{\\dagger}$ & Quadratic & Logarithmic & ",
+      "Simulated EATR & Lagged CIT \\\\"
+    ),
+    "\\midrule",
+    "\\multicolumn{6}{@{}l}{\\textit{Panel A: Effective tax rate terms}} \\\\[2pt]",
+    etr_row,
+    etr_sq_row,
+    log_tau_row,
+    "\\midrule",
+    "\\multicolumn{6}{@{}l}{\\textit{Panel B: Fit and model selection}} \\\\[2pt]",
+    n_row,
+    pairs_row,
+    r2_row,
+    bic_row,
+    joint_row,
+    "\\bottomrule",
+    "\\end{tabular}",
+    "\\end{adjustbox}",
+    "",
+    "\\vspace{0.5em}",
+    "\\begin{minipage}{0.96\\textwidth}",
+    paste0(
+      "\\footnotesize\\raggedright \\textit{Notes:} Standard errors in ",
+      "parentheses are clustered two-way by parent and affiliate. ",
+      "$\\Delta$BIC is relative to column 1. $^{\\dagger}$ preferred ",
+      "specification. $^{*}p<0.10$, $^{**}p<0.05$, $^{***}p<0.01$."
+    ),
+    "\\end{minipage}",
+    "\\end{table}"
+  )
+
+  write_custom_table(
+    file.path(GENERATED_TABLES_DIR, "stage3_main_regression.tex"), lines
+  )
 }
 
 write_stage3_iv_table <- function() {
@@ -3452,10 +3649,10 @@ write_manifest <- function() {
     "\\input{generated/results_tables/stage2_aggregate.tex}",
     "\\input{generated/results_tables/stage2_sectoral_sbti.tex}",
     "\\input{generated/results_tables/stage2_h5_regression.tex}",
+    "\\input{generated/results_tables/stage3_main_regression.tex}",
     "\\input{generated/results_tables/stage3_model_comparison.tex}",
     "\\input{generated/results_tables/stage3_regression_table.tex}",
     "\\input{generated/results_tables/stage3_iv_diagnostics.tex}",
-    "\\input{generated/results_tables/stage3_reliability_scorecard.tex}",
     "\\input{generated/results_tables/stage3_econometric_scorecard.tex}",
     "\\input{generated/results_tables/stage3_semielasticity.tex}",
     "\\input{generated/results_tables/stage4_6_anova.tex}",
@@ -3496,8 +3693,8 @@ write_results_tables <- function() {
 
   write_stage3_model_table()
   write_stage3_regression_table()
+  write_stage3_main_regression_table()
   write_stage3_iv_table()
-  write_stage3_reliability_scorecard_table()
   write_stage3_econometric_scorecard_table()
   write_stage3_semielasticity_table()
 
