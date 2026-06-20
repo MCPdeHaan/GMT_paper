@@ -200,6 +200,49 @@ longtable_lastfoot <- function(n_cols, notes = NULL) {
   "\\endlastfoot"
 }
 
+assemble_inline_table <- function(
+  col_spec,
+  caption_lines,
+  header_lines,
+  body_lines,
+  notes = NULL,
+  size = "\\small",
+  tabcolsep = "4pt",
+  table_position = "H"
+) {
+  caption_lines <- as.character(caption_lines)
+  header_lines <- as.character(header_lines)
+  body_lines <- as.character(body_lines)
+
+  block <- c(
+    sprintf("\\begin{table}[%s]", table_position),
+    "\\centering",
+    size,
+    sprintf("\\setlength{\\tabcolsep}{%s}", tabcolsep),
+    caption_lines,
+    sprintf("\\begin{tabularx}{\\textwidth}{@{}%s@{}}", normalize_col_spec(col_spec)),
+    "\\toprule",
+    header_lines,
+    "\\midrule",
+    body_lines,
+    "\\bottomrule",
+    "\\end{tabularx}"
+  )
+
+  if (!is.null(notes) && nzchar(trimws(notes))) {
+    block <- c(
+      block,
+      "",
+      "\\vspace{0.35em}",
+      "\\noindent\\begin{minipage}{\\textwidth}",
+      sprintf("\\footnotesize\\raggedright\\textit{Notes:} %s", trimws(notes)),
+      "\\end{minipage}"
+    )
+  }
+
+  c(block, "\\end{table}")
+}
+
 assemble_splittable_table <- function(
   col_spec,
   caption_lines,
@@ -476,16 +519,14 @@ write_data_descriptive_tables <- function() {
 
   write_custom_table(
     file.path(GENERATED_TABLES_DIR, "data_sample_construction.tex"),
-    assemble_splittable_table(
+    assemble_inline_table(
       col_spec = "L{3.6cm}rrrr>{\\raggedright\\arraybackslash}p{5.8cm}",
       caption_lines = c(
         "\\caption[Sample construction]{Sample construction and empirical objects}",
-        "\\label{tab:data_sample_construction}\\\\"
+        "\\label{tab:data_sample_construction}"
       ),
-      n_cols = 6,
       header_lines = "Sample & Obs. & Parents & Affiliates & Share (\\%) & Main use \\\\",
       body_lines = sample_lines,
-      label = "tab:data_sample_construction",
       notes = "Share is relative to the 2017--2022 analytical panel.",
       size = "\\footnotesize",
       tabcolsep = "3pt"
@@ -763,16 +804,14 @@ write_profit_correction_table <- function() {
     ))
   }
 
-  lines <- assemble_splittable_table(
+  lines <- assemble_inline_table(
     col_spec = ">{\\raggedright\\arraybackslash}p{4.2cm}rrrrrr",
     caption_lines = c(
       "\\caption[Profit-base correction]{Correction from public CbCR profit to the reconciliation profit branch, 2017 to 2022}",
-      "\\label{tab:profit_correction_effects}\\\\"
+      "\\label{tab:profit_correction_effects}"
     ),
-    n_cols = 7,
     header_lines = "Category & Cells & Reported & Corrected & Reduction & Rate (\\%) & Share (\\%) \\\\",
     body_lines = row_lines,
-    label = "tab:profit_correction_effects",
     notes = "Positive-profit cells, USD bn; share is share of total profit reduction.",
     size = "\\footnotesize",
     tabcolsep = "3pt"
