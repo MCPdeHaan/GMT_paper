@@ -113,9 +113,9 @@ make_profit_employee_etr_bubble <- function() {
     mutate(
       profit_per_employee = corrected_profit / employees,
       threshold_group = case_when(
-        average_etr < GMT_RATE ~ "ETR below 15%",
-        distributional_low_share >= 0.25 ~ "ETR at least 15%, large low-taxed tail",
-        TRUE ~ "ETR at least 15%, smaller low-taxed tail"
+        average_etr < GMT_RATE ~ "Below 15% avg. ETR",
+        distributional_low_share >= 0.25 ~ "Above 15% avg. ETR, tail at least 25%",
+        TRUE ~ "Above 15% avg. ETR, smaller tail"
       ),
       label_country = affiliate %in% label_selected_countries
     ) %>%
@@ -167,16 +167,13 @@ make_profit_employee_etr_bubble <- function() {
       alpha = 0.55,
       show.legend = FALSE
     ) +
-    geom_label(
+    geom_text(
       data = label_data,
       aes(x = label_x, y = label_y, label = affiliate),
       inherit.aes = FALSE,
-      size = 2.45,
-      linewidth = 0.18,
-      label.padding = grid::unit(0.08, "lines"),
-      label.r = grid::unit(0.04, "lines"),
-      fill = "white",
+      size = 2.15,
       colour = thesis_cols[["navy"]],
+      fontface = "bold",
       show.legend = FALSE
     ) +
     scale_x_log10(
@@ -198,21 +195,32 @@ make_profit_employee_etr_bubble <- function() {
     ) +
     scale_colour_manual(
       values = c(
-        "ETR below 15%" = thesis_cols[["red"]],
-        "ETR at least 15%, large low-taxed tail" = thesis_cols[["orange"]],
-        "ETR at least 15%, smaller low-taxed tail" = thesis_cols[["navy"]]
+        "Below 15% avg. ETR" = thesis_cols[["red"]],
+        "Above 15% avg. ETR, tail at least 25%" = thesis_cols[["orange"]],
+        "Above 15% avg. ETR, smaller tail" = thesis_cols[["navy"]]
       ),
       name = NULL
     ) +
     guides(
-      colour = guide_legend(override.aes = list(size = 4), nrow = 2, byrow = TRUE, order = 1),
-      size = guide_legend(order = 2, nrow = 1)
+      colour = guide_legend(
+        override.aes = list(size = 3.5),
+        nrow = 2,
+        byrow = TRUE,
+        order = 1,
+        keywidth = unit(0.55, "lines")
+      ),
+      size = guide_legend(order = 2, nrow = 1, keywidth = unit(0.55, "lines"))
     ) +
     labs(
-      x = "Corrected profit per employee, current US dollars, log scale",
+      x = "Corrected profit per employee (USD, log scale)",
       y = "Profit-weighted bounded ETR"
     ) +
-    theme_thesis()
+    theme_thesis() +
+    theme(
+      legend.text = element_text(size = 7),
+      legend.key.height = unit(0.45, "lines"),
+      legend.spacing.y = unit(0.1, "lines")
+    )
 }
 
 make_semielasticity_plot <- function() {

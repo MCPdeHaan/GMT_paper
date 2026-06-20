@@ -589,11 +589,11 @@ Estimating GMT revenue requires knowing how much profit in each jurisdiction is 
 
 \subsection{Substance and sectoral data}\label{sec:sectoral_data}\label{sec:substance_data}
 
-The Global Minimum Tax first identifies low-taxed profit, but it does not apply the top-up tax to that full amount. The Substance-Based Income Exclusion (SBIE) removes a fixed return on local payroll and tangible assets from the low-taxed base. Sectors differ in how much labour and capital they use. A sector with many employees or tangible assets receives a larger substance shield.
+The Global Minimum Tax first identifies low-taxed profit, but it does not apply the top-up tax to that full amount. The Substance-Based Income Exclusion (SBIE) removes a fixed return on local payroll and tangible assets from the low-taxed base. Sectors differ in how much labour and capital used. A sector with many employees or tangible assets receives a larger substance shield.
 
 CbCR reports tangible assets and employees by host country, but it does not report payroll. Payroll is therefore reconstructed by multiplying the number of employees in each affiliate-year cell by a country-year wage benchmark. The wage hierarchy uses additional \emph{OECD average annual wage} data where available, \emph{ILO earnings} data where OECD coverage is missing, and the nearest available year for the same jurisdiction when no contemporaneous wage observation exists (only 3.9\% of the cases).
 
-The sectoral bridge addresses a separate data problem. CbCR observes profit, tax, employees and tangible assets by host country, but not by sector. Eurostat \emph{inward FATS} and \emph{EUKLEMS \& INTANProd} observe activity by NACE sector for foreign-controlled enterprises in EU Member States, but they do not report corporate tax liabilities. No dataset therefore observes both the tax base and the sectoral structure of the activities that generate it. The sectoral bridge is used only to allocate country-level CbCR aggregates across sectors. This reconciliation follows the logic of macro profit-shifting work that combines FATS information with national accounts data \citep{torslov2023}.
+The sectoral bridge addresses the problem that CbCR does not observe sectoral data. Eurostat \emph{inward FATS} and \emph{EUKLEMS \& INTANProd} observe activity by NACE sector for foreign-controlled enterprises in EU Member States, but they do not report corporate tax liabilities. No dataset therefore observes both the tax base and the sectoral structure of the activities that generate it. The sectoral bridge is used only to allocate country-level CbCR aggregates across sectors. This reconciliation follows the logic of macro profit-shifting work that combines FATS information with national accounts data \citep{torslov2023}.
 
 The allocation uses the most direct sectoral variable available for each component of the model. Payroll is allocated with FATS personnel costs where possible, with employment-scaled and turnover-scaled shares as fallbacks when personnel costs are suppressed. Tangible assets are allocated with EUKLEMS tangible capital stock. Where capital-stock coverage is incomplete, FATS investment is used as a fallback. The profit denominator is allocated with FATS gross operating surplus, with value added and turnover as fallbacks. These shares distribute the CbCR country aggregates across EU host-country sectors for the SBIE and SBTI exposure analysis.
 
@@ -601,21 +601,43 @@ The bridge is restricted to the EU27 and uses the post-2021 FATS structure. This
 
 \subsection{Supplementary data}\label{sec:supplementary}
 
-Several supplementary sources complete the panel. \emph{OECD statutory corporate income tax rates} benchmark CbCR ETRs and supply a lagged statutory-rate instrument in robustness checks. \emph{OECD forward-looking effective tax rates} supply the simulated fixed-project EATR instrument used in the behavioural diagnostics. \emph{World Bank GDP per capita} and population enter as affiliate-market controls. \emph{OECD BEPS implementation indicators} record CFC rules, interest limitation rules, hybrid mismatch rules, IP regimes, mandatory disclosure rules and CbCR requirements. Pillar Two legal status is taken from the \emph{OECD Central Record version for purposes of the GMT}. The data record source-country first collection through QDMTTs, parent-country collection through IIRs, residual enforcement through UTPRs and Side-by-Side safe-harbour status. The legal ordering of those rules is specified in Section \ref{sec:methodology}.
-
-Appendix \ref{app:source_provenance} records the scripted source endpoints. Appendix \ref{app:data}, Table \ref{tab:data_sources_units}, records the original unit of each source and its role in the panel, and Appendix Section \ref{sec:base_panel_appendix} reports the merged-panel diagnostics used to separate data construction from the later revenue stages.
+Several supplementary sources complete the panel. \emph{OECD statutory corporate income tax rates} benchmark CbCR ETRs and supply a lagged statutory-rate instrument in robustness checks. \emph{OECD forward-looking effective tax rates} supply the simulated fixed-project EATR instrument used in the behavioural diagnostics. \emph{World Bank GDP per capita} and population enter as affiliate-market controls. \emph{OECD BEPS implementation indicators} record CFC rules, interest limitation rules, hybrid mismatch rules, IP regimes, mandatory disclosure rules and CbCR requirements. Pillar Two legal status is taken from the \emph{OECD Central Record version for purposes of the GMT}. The data record source-country first collection through QDMTTs, parent-country collection through IIRs, residual enforcement through UTPRs and Side-by-Side safe-harbour status. The legal ordering of those rules is specified in Section \ref{sec:methodology}.Appendix \ref{app:data} gives additional information about these data sources. 
 
 \subsection{Descriptive statistics and sample diagnostics}\label{sec:data_diagnostics}
 
 Table \ref{tab:data_panel_coverage} gives the first descriptive overview. Coverage improves over time, with both the number of analytical pair-years and the number of reporting parent jurisdictions rising across the sample, and the profit base moves with the macro cycle, dipping in the 2020 pandemic year before recovering. The table includes the preferred low-taxed-profit diagnostic because it is the measured base to which later filters are applied: in the pooled panel, preferred low-taxed profit is just under half of corrected positive profit.
 
-\input{generated/results_tables/data_panel_coverage.tex}
+\begin{table}[H]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\caption[Analytical panel coverage by fiscal year]{Analytical panel coverage by fiscal year}
+\label{tab:data_panel_coverage}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lrrrrrrrr@{}}
+\toprule
+Year & Pair-years & Parents & Affiliates & Positive pairs & EU27 pairs & Profit (US\$ bn) & Low-taxed profit (US\$ bn) & Median ETR \\
+\midrule
+2017 & 2,045 & 38 & 217 & 1,554 & 444 & 4,564.4 & 2,118.7 & 14.7 \\
+2018 & 2,554 & 46 & 214 & 1,932 & 572 & 5,369.3 & 2,427.8 & 15.0 \\
+2019 & 2,711 & 50 & 211 & 2,026 & 626 & 5,914.6 & 2,653.1 & 14.8 \\
+2020 & 2,750 & 52 & 213 & 2,011 & 645 & 4,896.7 & 2,111.1 & 14.9 \\
+2021 & 2,921 & 52 & 212 & 2,259 & 677 & 7,091.9 & 3,522.1 & 15.0 \\
+2022 & 2,777 & 54 & 209 & 2,090 & 646 & 7,003.9 & 2,765.3 & 15.0 \\
+Pooled & 15,758 & 58 & 228 & 11,872 & 3,610 & 34,840.8 & 15,598.1 & 15.0 \\
+\bottomrule
+\end{tabular}%
+}
+
+\vspace{0.35em}
+\noindent\begin{minipage}{\textwidth}
+\footnotesize\raggedright\textit{Notes:} 2017--2022 Stage 1 panel; profit in USD bn; median ETR among positive-profit cells.
+\end{minipage}
+\end{table}
 
 Table \ref{tab:data_summary_statistics} presents the summary statistics. The panel is highly skewed: the mean corrected-profit cell is roughly forty times the median, so a small number of large cells carries much of the revenue weight, and influence diagnostics are necessary later in the paper. The median bounded ETR sits almost exactly at the 15\% GMT threshold. Measurement around the threshold is therefore economically decisive: it determines which profit enters the GMT base.
 
 \input{generated/results_tables/data_summary_statistics.tex}
-
-These diagnostics motivate the separation between the data audit and the measurement framework. The data section establishes where the public sources are incomplete and why threshold-sensitive measurement matters. The formal comparison between the jurisdiction-average and distributional branches is reserved for the Stage 1 measurement framework and results, where both branches are defined as competing measurements of the same policy object.
 
 The EU27 slice shows the fiscal relevance of the measurement problem. EU affiliates carry a low-taxed share of just over half of corrected positive profit, above the global figure. The four largest EU low-taxed-profit affiliate jurisdictions are the Netherlands, Ireland, Luxembourg and Germany, which together account for about seventy per cent of EU low-taxed profit. The first three are consistent with the profit-shifting literature, which repeatedly identifies the Netherlands, Ireland and Luxembourg as important low-tax or tax-haven locations for multinational profits \citep{clausing2016,garcia-bernardo2021,garcia-bernardo2024}. Germany is different. It appears because a large real economy can contain substantial low-taxed mass inside a high average-tax environment. This is precisely the case where jurisdiction averages lose information.
 
@@ -624,7 +646,7 @@ Figure \ref{fig:profit_employee_etr_bubble} visualises the same point at country
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.96\textwidth]{generated/figures/fig_profit_employee_etr_bubble.pdf}
-\caption[Profit per employee and ETRs in EU affiliate jurisdictions.]{Profit per employee and effective tax rates in EU affiliate jurisdictions, 2017--2022. Corrected profit per employee is computed as cumulative corrected positive CbCR profit divided by the corresponding employee count used in the SBIE payroll proxy. The ETR is the profit-weighted bounded Stage 1 ETR. Bubble size is cumulative corrected positive profit. Orange countries have average ETRs above 15\% but distributional low-taxed profit shares of at least 25\%, showing why the distributional branch can identify GMT exposure inside high-average-ETR jurisdictions.}
+\caption[Profit per employee and ETRs in EU affiliate jurisdictions.]{Profit per employee and bounded ETR in EU affiliate jurisdictions, 2017--2022.}
 \label{fig:profit_employee_etr_bubble}
 \end{figure}
 
@@ -642,25 +664,17 @@ The cleaned CbCR panel from Section \ref{sec:data} provides the accounting input
 
 The empirical objects are indexed at parent-affiliate-year level. Subscripts $p$, $j$, $s$, $q$ and $t$ denote parent jurisdiction, affiliate or source jurisdiction, collector jurisdiction, sector and fiscal year, with $t \in \{2017,\ldots,2022\}$. Monetary values are in current USD unless stated otherwise. PPP adjustments are not applied to revenue calculations because the GMT applies to nominal profit and tax liabilities. PPP-adjusted wages enter only through the payroll proxy $\hat{W}_{p,j,t}$. Table \ref{tab:notation} collects the recurrent symbols used.
 
-{\footnotesize
+\begin{table}[H]
+\centering
+\footnotesize
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.00}
-\begin{longtable}{@{}L{3.15cm}>{\raggedright\arraybackslash}p{10.8cm}@{}}
-\caption{Core Notation for the Revenue Pipeline}\label{tab:notation}\\
+\caption{Core Notation for the Revenue Pipeline}
+\label{tab:notation}
+\begin{tabular}{@{}L{3.15cm}>{\raggedright\arraybackslash}p{10.8cm}@{}}
 \toprule
 Symbol & Meaning in the empirical pipeline \\
 \midrule
-\endfirsthead
-\multicolumn{2}{c}{\textit{Table~\ref{tab:notation}---continued}}\\
-\toprule
-Symbol & Meaning in the empirical pipeline \\
-\midrule
-\endhead
-\midrule
-\multicolumn{2}{r}{\textit{Continued on next page}}\\
-\endfoot
-\bottomrule
-\endlastfoot
 \multicolumn{2}{@{}l}{\textit{Indices and Scenarios}} \\
 $p,j,s,q,t$ & Parent, affiliate/source, collector, sector and fiscal year. \\
 $e,a,m,r$ & ETR measurement, substance, behavioural and legal-allocation branches. \\
@@ -689,8 +703,9 @@ $\omega_{s,p,t}^{\text{U}}$, $a_{s,p,j,t}^{(r)}$ & UTPR collector weight and reg
 $R_{s,t}(\mathbf{x})$ & Collector-country revenue in scenario $\mathbf{x}$. \\
 $\eta_i^2$ & Share of factorial scenario variance attributable to factor $i$. \\
 $\mathcal{U}^{A}$, $\mathcal{U}^{B}$, $\mathcal{U}^{C}$ & Scenario, Stage 1 measurement and coefficient-propagation uncertainty. \\
-\end{longtable}
-}
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{From corrected profit to measurable top-up liability}
 
@@ -1312,24 +1327,16 @@ All data sources are public. The OECD CbCR tables, OECD statutory CIT rates, OEC
 
 Table \ref{tab:data_sources_units} gives an overview of the data used. 
 
-{\footnotesize
+\begin{table}[H]
+\centering
+\footnotesize
 \setlength{\tabcolsep}{3pt}
-\begin{longtable}{@{}L{2.5cm}L{2.8cm}L{2.8cm}>{\raggedright\arraybackslash}p{5.8cm}@{}}
-\caption{Data sources, original units, and measurement role}\label{tab:data_sources_units}\\
+\caption{Data sources, original units, and measurement role}
+\label{tab:data_sources_units}
+\begin{tabular}{@{}L{2.5cm}L{2.8cm}L{2.8cm}>{\raggedright\arraybackslash}p{5.8cm}@{}}
 \toprule
 Source & Unit & Variables & Role \\
 \midrule
-\endfirsthead
-\multicolumn{4}{c}{\textit{Table~\ref{tab:data_sources_units}---continued}}\\
-\toprule
-Source & Unit & Variables & Role \\
-\midrule
-\endhead
-\midrule
-\multicolumn{4}{r}{\textit{Continued on next page}}\\
-\endfoot
-\bottomrule
-\endlastfoot
 OECD CbCR Table I & Parent jurisdiction $\times$ affiliate jurisdiction $\times$ fiscal year $\times$ profit panel & \code{PROFIT}, \code{PROFIT\_ADJ}, \code{TAX\_ACCRUED}, \code{ASSETS}, \code{EMPLOYEES}, ETR percentiles, business-activity counts & Base bilateral panel, corrected profit, jurisdiction-average ETR, Table I constrained-Beta fit, aggregate SBIE inputs \\
 OECD CbCR Table IV & Parent jurisdiction $\times$ affiliate jurisdiction $\times$ fiscal year $\times$ subsidiary-level ETR bracket & Profit, tax, assets, employees and activity counts by ETR bracket, especially \code{RATE\_0-15} & Direct observation of the low-taxed profit bracket and cross-validation of the Table I constrained-Beta fit \\
 Eurostat inward FATS & Reporting country $\times$ NACE sector $\times$ controlling country $\times$ year & Employment, turnover, personnel costs, investment and value added & EU host-country sectoral exposure shares for foreign-controlled enterprises, used as a sectoral bridge, not as a Pillar Two population or ETR source \\
@@ -1340,8 +1347,9 @@ OECD statutory CIT rates & Jurisdiction $\times$ year & Combined central and sub
 OECD forward-looking ETRs & Jurisdiction $\times$ year $\times$ tax measure $\times$ investment scenario & EATR, EMTR and capital-allowance measures by fixed/composite project scenario & Simulated tax-code EATR instrument for the behavioural IV diagnostic \\
 World Bank macro controls & Jurisdiction $\times$ year & GDP per capita and population & Affiliate-market controls in the Hines--Rice panel regressions \\
 BEPS and Pillar Two implementation data & Jurisdiction $\times$ policy instrument $\times$ year & CbCR, CFC, interest-limitation, hybrid-mismatch, OECD-qualified QDMTT, IIR and SbS indicators & Institutional controls and legal allocation variables \\
-\end{longtable}
-}
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{CbCR panel}\label{app:CbCR}
 
@@ -1476,23 +1484,15 @@ The appendix also reports a targeted foreign holding-chain sensitivity. This bra
 
 Table \ref{tab:cleaned_panel_support} records the main coverage and support diagnostics. These figures are descriptive statistics of the constructed analytical panel after country-like affiliate filtering, profit correction flags, wage matching, ETR bounding, and Stage 1 source assignment. The revenue estimates use this cleaned object rather than the full long-form CbCR extract.
 
-{\footnotesize
-\begin{longtable}{@{}L{4.5cm}r>{\raggedright\arraybackslash}p{7.8cm}@{}}
-\caption{Cleaned base panel and implemented measurement support}\label{tab:cleaned_panel_support}\\
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Cleaned base panel and implemented measurement support}
+\label{tab:cleaned_panel_support}
+\begin{tabular}{@{}L{4.5cm}r>{\raggedright\arraybackslash}p{7.8cm}@{}}
 \toprule
 Diagnostic object & Count & Interpretation \\
 \midrule
-\endfirsthead
-\multicolumn{3}{c}{\textit{Table~\ref{tab:cleaned_panel_support}---continued}}\\
-\toprule
-Diagnostic object & Count & Interpretation \\
-\midrule
-\endhead
-\midrule
-\multicolumn{3}{r}{\textit{Continued on next page}}\\
-\endfoot
-\bottomrule
-\endlastfoot
 Parent--affiliate--year rows, 2016--2022 & 16{,}915 & Country-like cleaned CbCR panel before restricting to the 2017--2022 main sample \\
 Parent jurisdictions & 58 & Reporting ultimate-parent jurisdictions represented in the cleaned panel \\
 Affiliate jurisdictions & 228 & Country-like affiliate jurisdictions after excluding regional and world aggregates from ordinary affiliate cells \\
@@ -1510,8 +1510,9 @@ Constrained-Beta Stage 1 branch & 820 & Pair-year cells whose distributional low
 BSPI Stage 1 branch & 3{,}899 & Pair-year cells whose distributional low-taxed share is transported from the 2019--2020 Table IV anchor \\
 Average-fallback Stage 1 branch & 1{,}459 & Pair-year cells reduced to the jurisdiction-average fallback after higher-information sources are unavailable \\
 No usable Stage 1 source & 185 & Pair-year cells left without a valid source for the distributional branch \\
-\end{longtable}
-}
+\bottomrule
+\end{tabular}
+\end{table}
 
 \input{generated/base_panel_appendix_tables.tex}
 
