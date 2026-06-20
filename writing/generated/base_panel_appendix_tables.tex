@@ -2,16 +2,24 @@
 
 This subsection documents the merged bilateral parent--affiliate--year panel produced in Step 2 of the data pipeline. Table \ref{tab:base_panel_coverage_working} reports the coverage of the merged panel by fiscal year and distinguishes the broader behavioural estimation sample from the narrower Stage 1 hybrid sample. Table \ref{tab:base_panel_summary_working} reports unweighted cell-level summary statistics for the behavioural estimation sample. Table \ref{tab:base_panel_flags_working} records the main construction and readiness flags created during the merge. The distributions of the monetary variables are strongly right-skewed, so the median and interquartile range are more informative than the mean alone. Importantly, the CbCR \code{EARNINGS} measure is accumulated earnings rather than payroll, so Step 2 now constructs the SBIE payroll input from employee counts and external wage data instead of treating \code{EARNINGS} as labour cost.
 
-\begin{table}[H]
-\centering
-\caption{Coverage of the merged bilateral base panel by fiscal year}
-\label{tab:base_panel_coverage_working}
-\small
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}crrrrrrr@{}}
+{\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{@{}crrrrrrr@{}}
+\caption{Coverage of the merged bilateral base panel by fiscal year}\label{tab:base_panel_coverage_working}\\
 \toprule
-Year & Cells & Parents & Affiliates & Any percentile set (\%) & Table IV below-15 observed (\%) & Stage 1 hybrid-ready & Behavioural-ready \\
+Year & Cells & Par. & Aff. & Pctile (\%) & T-IV $<$15 (\%) & S1 ready & Beh. ready \\
 \midrule
+\endfirsthead
+\multicolumn{8}{c}{\textit{Table~\ref{tab:base_panel_coverage_working}---continued}}\\
+\toprule
+Year & Cells & Par. & Aff. & Pctile (\%) & T-IV $<$15 (\%) & S1 ready & Beh. ready \\
+\midrule
+\endhead
+\midrule
+\multicolumn{8}{r}{\textit{Continued on next page}}\\
+\endfoot
+\bottomrule
+\endlastfoot
 2016 & 1,157 & 26 & 184 & 0.0 & 0.0 & 0 & 0 \\
 2017 & 2,045 & 38 & 217 & 0.0 & 0.0 & 0 & 1,217 \\
 2018 & 2,554 & 46 & 214 & 0.0 & 0.0 & 0 & 1,569 \\
@@ -21,25 +29,30 @@ Year & Cells & Parents & Affiliates & Any percentile set (\%) & Table IV below-1
 2022 & 2,777 & 54 & 209 & 55.0 & 7.2 & 1,081 & 1,707 \\
 \midrule
 Total & 16,915 & 58 & 228 & 17.9 & 4.5 & 2,438 & 9,572 \\
-\bottomrule
-\end{tabular}
+\end{longtable}
 }
-
-\vspace{0.5em}
-\begin{minipage}{0.93\textwidth}
-\footnotesize \textit{Notes:} The merged panel keeps country-like affiliate jurisdictions only; regional aggregates, \code{W}, \code{W\_O}, \code{WXD}, and \code{STLS} are excluded. ``Any percentile set'' equals one when either the full Panel A-I percentile set or the panel-agnostic \code{\_T} fall-back is available in Table I. ``Table IV below-15 observed'' equals one when the bilateral cell has a direct \code{RATE\_0-15} observation in Table IV. ``Stage 1 hybrid-ready'' requires positive corrected profit, non-missing SBIE inputs, a non-missing Panel A-I ETR, and at least one Stage 1 low-tax source, either a percentile set or Table IV. ``Behavioural-ready'' is the broader Hines--Rice sample with positive corrected profit, non-missing Panel A-I ETR, and non-missing SBIE inputs. Fiscal year 2016 is retained for coverage diagnostics only and does not enter either estimation sample.
+\vspace{0.35em}
+\noindent\begin{minipage}{\textwidth}
+\footnotesize\raggedright\textit{Notes:} Country-like affiliates only; 2016 retained for diagnostics only.
 \end{minipage}
-\end{table}
 
-\begin{table}[H]
-\centering
-\caption{Summary statistics for the behavioural estimation sample}
-\label{tab:base_panel_summary_working}
-\small
-\begin{tabular}{@{}L{5.8cm}rrrrrr@{}}
+{\footnotesize
+\begin{longtable}{@{}L{5.0cm}rrrrrr@{}}
+\caption{Summary statistics for the behavioural estimation sample}\label{tab:base_panel_summary_working}\\
 \toprule
 Variable & N & Mean & SD & P25 & Median & P75 \\
 \midrule
+\endfirsthead
+\multicolumn{7}{c}{\textit{Table~\ref{tab:base_panel_summary_working}---continued}}\\
+\toprule
+Variable & N & Mean & SD & P25 & Median & P75 \\
+\midrule
+\endhead
+\midrule
+\multicolumn{7}{r}{\textit{Continued on next page}}\\
+\endfoot
+\bottomrule
+\endlastfoot
 Corrected profit base (USD bn) & 9,572 & 3.386 & 28.515 & 0.017 & 0.105 & 0.685 \\
 Income tax accrued (USD bn) & 9,572 & 0.742 & 8.532 & 0.002 & 0.014 & 0.097 \\
 SBIE payroll proxy (USD bn) & 9,572 & 0.771 & 9.546 & 0.004 & 0.025 & 0.137 \\
@@ -50,24 +63,30 @@ Affiliate statutory CIT, headline (per cent) & 8,532 & 20.298 & 8.024 & 15.000 &
 Affiliate GDP per capita (USD thousands) & 9,568 & 26.812 & 26.442 & 6.148 & 15.875 & 44.332 \\
 Affiliate population (millions) & 9,572 & 88.308 & 245.249 & 5.857 & 18.933 & 62.378 \\
 Holding share, Panel A-I (per cent) & 7,798 & 9.372 & 21.315 & 0.000 & 4.370 & 12.500 \\
-\bottomrule
-\end{tabular}
-
-\vspace{0.5em}
-\begin{minipage}{0.93\textwidth}
-\footnotesize \textit{Notes:} The behavioural estimation sample consists of the 2017--2022 pair-year cells with positive baseline-corrected profit, a non-missing Panel A-I ETR, a non-missing wage-based payroll proxy, and non-missing SBIE tangible assets. The reported payroll variable is not an observed CbCR item. It is constructed as screened employee counts times the affiliate-jurisdiction annual wage benchmark. The statutory CIT variable uses the combined top-all rate where available and falls back to the standard statutory rate otherwise. All statistics are unweighted across pair-year cells. Monetary variables are expressed in USD billions, GDP per capita in USD thousands, population in millions, and employment in thousands of persons.
+\end{longtable}
+}
+\vspace{0.35em}
+\noindent\begin{minipage}{\textwidth}
+\footnotesize\raggedright\textit{Notes:} Behavioural sample, 2017--2022; unweighted pair-year cells; monetary variables in USD bn.
 \end{minipage}
-\end{table}
 
-\begin{table}[H]
-\centering
-\caption{Construction and readiness flags in the merged bilateral panel}
-\label{tab:base_panel_flags_working}
-\small
-\begin{tabular}{@{}L{7.6cm}rr@{}}
+{\footnotesize
+\begin{longtable}{@{}L{5.5cm}rr@{}}
+\caption{Construction and readiness flags in the merged bilateral panel}\label{tab:base_panel_flags_working}\\
 \toprule
-Flag & Cells & Share of panel (\%) \\
+Flag & Cells & Share (\%) \\
 \midrule
+\endfirsthead
+\multicolumn{3}{c}{\textit{Table~\ref{tab:base_panel_flags_working}---continued}}\\
+\toprule
+Flag & Cells & Share (\%) \\
+\midrule
+\endhead
+\midrule
+\multicolumn{3}{r}{\textit{Continued on next page}}\\
+\endfoot
+\bottomrule
+\endlastfoot
 Total pair-year cells & 16,915 & 100.0 \\
 Domestic cells & 318 & 1.9 \\
 EU-27 affiliate cells & 3,903 & 23.1 \\
@@ -86,11 +105,9 @@ Raw Panel A-I ETR above 100\% & 117 & 0.7 \\
 Stage 1 hybrid-ready pair-year cells & 2,438 & 14.4 \\
 Stage 1 cross-validation pair-year cells & 49 & 0.3 \\
 Behavioural estimation sample & 9,572 & 56.6 \\
-\bottomrule
-\end{tabular}
-
-\vspace{0.5em}
-\begin{minipage}{0.93\textwidth}
-\footnotesize \textit{Notes:} Shares are calculated relative to the full merged panel. ``Modelled domestic UPE correction'' identifies domestic cells where the preferred profit correction uses the parent-year reconciliation model rather than observed \code{PROFIT\_ADJ}. Rows left unchanged are foreign affiliate cells, plus cells where no preferred reconciliation adjustment is applied. The employee-cap row identifies cells where reported CbCR employee counts exceeded a conservative plausibility cap based on the number of constituent entities and the host-jurisdiction population. ``Wage benchmark more than 5 years away'' flags cells where the nearest available jurisdiction wage observation is temporally distant and should therefore be treated as a sensitivity issue rather than as a cleaning failure. The payroll rows refer to the wage-based proxy used in Step 2, not to observed CbCR \code{EARNINGS}. The Stage 1 rows count pair-year cells in the bilateral base panel; the affiliate-year coverage used in the actual Stage 1 aggregation is reported separately in the Step 2 diagnostics.
+\end{longtable}
+}
+\vspace{0.35em}
+\noindent\begin{minipage}{\textwidth}
+\footnotesize\raggedright\textit{Notes:} Shares relative to the full merged panel.
 \end{minipage}
-\end{table}
