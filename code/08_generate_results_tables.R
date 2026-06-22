@@ -260,7 +260,7 @@ assemble_splittable_table <- function(
 
   table_inner <- c(
     splittable_begin(col_spec),
-    caption_lines,
+    c(caption_lines, "\\\\"),
     longtable_heads(n_cols, header_lines, label = label),
     longtable_lastfoot(n_cols),
     body_lines,
@@ -268,10 +268,10 @@ assemble_splittable_table <- function(
   )
 
   block <- c(
-    sprintf("{%s", size),
+    size,
     sprintf("\\setlength{\\tabcolsep}{%s}", tabcolsep),
     table_inner,
-    "}"
+    "\\normalsize"
   )
 
   if (!is.null(notes) && nzchar(trimws(notes))) {
