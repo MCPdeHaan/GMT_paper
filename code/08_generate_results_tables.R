@@ -365,7 +365,7 @@ write_custom_table <- function(file, lines) {
 
 write_appendix_latex_table <- function(file, caption, label, col_spec, header,
                                        rows, notes = NULL,
-                                       short_caption = NULL) {
+                                       short_caption = NULL, ...) {
   write_latex_table(
     file = file,
     caption = caption,
@@ -375,7 +375,8 @@ write_appendix_latex_table <- function(file, caption, label, col_spec, header,
     rows = rows,
     notes = notes,
     short_caption = short_caption,
-    size = "\\footnotesize"
+    size = "\\footnotesize",
+    ...
   )
 }
 
@@ -1626,7 +1627,10 @@ write_stage3_iv_table <- function() {
     ),
     rows = iv,
     notes = "FE first stages, reduced forms and 2SLS; weak-IV $F$ is parent--affiliate clustered.",
-    size = "\\footnotesize"  )
+    size = "\\scriptsize",
+    tabcolsep = "2pt",
+    fit_width = TRUE
+  )
 }
 
 write_stage3_econometric_scorecard_table <- function() {
@@ -2436,14 +2440,17 @@ write_stage46_country_policy_matrix <- function() {
     file.path(GENERATED_TABLES_DIR, "appendix_country_policy_matrix.tex"),
     "Country policy matrix, full EU sample",
     "tab:app_country_policy_matrix",
-    "lrrrrlrrl",
+    "lrrrrL{2.3cm}rrL{1.6cm}",
     c(
-      "Country", "Preferred revenue", "Revenue/CIT", "Spread",
-      "Spread/CIT", "Dominant channel", "QDMTT protected",
-      "SbS extinguished", "Imputed measurement"
+      "Country", "Pref. rev.", "Rev./CIT", "Spread",
+      "Spread/CIT", "Dom. channel", "QDMTT prot.",
+      "SbS ex.", "Imputed meas."
     ),
     matrix_rows,
-    "Preferred behavioural SbS revenue, cumulative 2017--2022 (US\\$ bn); ratios use OECD T\\_1200 CIT where available."
+    "Preferred behavioural SbS revenue, cumulative 2017--2022 (US\\$ bn); ratios use OECD T\\_1200 CIT where available.",
+    size = "\\scriptsize",
+    tabcolsep = "2pt",
+    fit_width = TRUE
   )
 }
 
@@ -2507,9 +2514,9 @@ write_stage46_measurement_sample_table <- function() {
     label = "tab:app_stage46_measurement_sample_decomposition",
     col_spec = "L{3.7cm}rrrrrrrr",
     header = c(
-      "Sample", "ETR main", "SbS main", "Substance main",
-      "Behaviour main", "Interaction", "Direct Table IV",
-      "High-risk branch", "Overlap cells"
+      "Sample", "ETR main", "SbS main", "Subst. main",
+      "Behav. main", "Interaction", "Direct T. IV",
+      "Hi-risk branch", "Overlap"
     ),
     rows = appendix_samples,
     notes = paste(
@@ -2519,7 +2526,9 @@ write_stage46_measurement_sample_table <- function() {
       "Overlap cells are affiliate-year validation cells with both percentile and direct Table IV support.",
       ""
     ),
-    size = "\\footnotesize"
+    size = "\\scriptsize",
+    tabcolsep = "2pt",
+    fit_width = TRUE
   )
 }
 
@@ -3360,12 +3369,14 @@ write_appendix_tables <- function() {
     "tab:app_stage3_behaviour_by_year",
     "lrrrrrr",
     c(
-      "Year", "Affiliate-years", "EU27 affiliate-years", "Mean beta (\\%)",
-      "Profit-weighted beta (\\%)", "Bunching affiliate-years",
-      "Reallocation affiliate-years"
+      "Year", "Aff.-years", "EU27 aff.-years", "Mean $\\beta$ (\\%)",
+      "Profit-wtd $\\beta$ (\\%)", "Bunching aff.-years",
+      "Realloc. aff.-years"
     ),
     behaviour,
-    ""
+    "",
+    tabcolsep = "2pt",
+    fit_width = TRUE
   )
 
   behavioural_design <- read_diag("step5_stage3_behavioural_identification_design.csv") |>
@@ -3569,18 +3580,21 @@ write_appendix_tables <- function() {
       file.path(GENERATED_TABLES_DIR, "appendix_jurisdiction_influence_summary.tex"),
       "Leave-one-jurisdiction influence robustness",
       "tab:app_jurisdiction_influence_summary",
-      "lllrrrrl",
+      "lL{2.5cm}lrrrrl",
       c(
         "Drop", "Jurisdiction", "Reason", "Profit share (\\%)",
-        "Semi-elasticity", "Stage 1 change (pp)",
-        "Preferred revenue change (\\%)", "Largest effect"
+        "Semi-elast.", "Stage 1 chg (pp)",
+        "Pref. rev. chg (\\%)", "Largest eff."
       ),
       influence,
       paste(
         "Rows are sorted by the absolute change in preferred-core behavioural SbS EU revenue.",
         "The preferred core uses distributional ETR measurement, aggregate SBIE and initial carve-out rates.",
         ""
-      )
+      ),
+      size = "\\scriptsize",
+      tabcolsep = "2pt",
+      fit_width = TRUE
     )
 
     influence_anova <- read_diag("step10_jurisdiction_influence_anova_pooled.csv")
@@ -3626,16 +3640,18 @@ write_appendix_tables <- function() {
       "tab:app_jurisdiction_influence_decomposition",
       "lrrrrrr",
       c(
-        "Effect", "Baseline share (\\%)", "Min share (\\%)",
-        "Max share (\\%)", "Baseline main effect", "Min main effect",
-        "Max main effect"
+        "Effect", "Baseline (\\%)", "Min (\\%)",
+        "Max (\\%)", "Baseline effect", "Min effect",
+        "Max effect"
       ),
       influence_range,
       paste(
         "Variance-decomposition shares and main effects are recomputed after each leave-one-parent and leave-one-affiliate omission.",
         "Main effects are cumulative over 2017 to 2022 and expressed in US dollars, billions.",
         ""
-      )
+      ),
+      tabcolsep = "2pt",
+      fit_width = TRUE
     )
 
     influence_appendix_inputs <- c(

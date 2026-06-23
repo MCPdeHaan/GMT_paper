@@ -31,7 +31,7 @@
 \setlength{\belowdisplayshortskip}{2pt plus 1pt minus 1pt}
 
 \usepackage{csquotes}
-\usepackage[s
+\usepackage[
   backend = biber,
   style   = apa,
   sorting = nyt,
@@ -1563,7 +1563,6 @@ A small TV distance is the empirical warrant that the bracket shape is approxima
 
 The design choice is a deliberate departure from a naive pooled-panel imputation. A standard panel-regression imputation (for example, affiliate and year fixed effects with a linear trend) would assume a smoothly time-varying low-taxed share and extrapolate the 2019--2022 trend backward. That approach is dominated here on two grounds. First, the policy-relevant variation in Factor 1 is within-affiliate level, not trend: the semi-elasticity estimation in Section \ref{sec:hines_rice} identifies the response to local ETR changes, and the measured low-taxed share enters multiplicatively with the SBIE shield and the behavioural response. A trend-extrapolation backcast would push low-tax affiliates further away from 15\% in 2017 than in the anchor window, which is the opposite of the economically conservative default. Second, BSPI's validation test is genuinely out-of-sample: the 2021--2022 hold-out is never used to set the backcast, only to gate the assumption. A trend-extrapolation model using the full 2019--2022 sample for fitting would have no analogous hold-out and the ATAD/TCJA structural break would enter the fitted trend rather than being diagnosed by it. BSPI therefore trades some potential efficiency for a transparent falsifiability criterion on the very assumption that keeps the 2017--2018 slice of the factorial meaningful.
 
-\paragraph{Cross-validation tests.}\label{sec:crossval_tests}
 Three tests are run on the overlapping sample where Table I percentiles and Table IV brackets are both observed (2021--2022). First, for each $(j, t)$ cell observed in both tables, the low-taxed share from Table I (equation \ref{eq:lowtax_share}) is compared against the Table IV direct share. A Wilcoxon signed-rank test assesses $H_0\colon \text{median}(s^{<T,\text{I}} - s^{<T,\text{IV}}) = 0$. It is preferred over a paired $t$-test because the differences are bounded on $[-1, 1]$ and will not be normally distributed. A systematic positive difference indicates that the constrained-Beta fit overstates the low-taxed share relative to the direct bracket observation. A negative difference indicates that the smooth parametric fit compresses low-taxed mass.
 
 Second, Table IV reports profit volumes in discrete ETR brackets (\code{RATE\_0-15}, \code{RATE\_15}, \code{RATE\_20-30}, \code{RATE\_30}, and the negative-profit categories). Evaluating the Beta CDF \eqref{eq:beta_cdf} at the bracket boundaries produces a predicted profit share for each bracket. For each $(j, t)$ cell the fit is measured by the total variation distance:
@@ -1726,11 +1725,10 @@ The fourth group concerns identification. Table \ref{tab:stage3_econometric_scor
 \input{generated/results_tables/stage3_econometric_scorecard.tex}
 \input{generated/results_tables/stage3_iv_diagnostics.tex}
 
-The final group translates the coefficients into the inputs used downstream. Table \ref{tab:stage3_semielasticity} reports the implied semi-elasticity schedule, Table \ref{tab:app_stage3_behaviour_by_year} the applied behavioural response by year, and Table \ref{tab:app_stage3_behavioural_design} the identification design behind that applied response.
+The final group translates the coefficients into the inputs used downstream. Table \ref{tab:stage3_semielasticity} reports the implied semi-elasticity schedule and Table \ref{tab:app_stage3_behaviour_by_year} the applied behavioural response by year.
 
 \input{generated/results_tables/stage3_semielasticity.tex}
 \input{generated/results_tables/appendix_stage3_behaviour_by_year.tex}
-\input{generated/results_tables/appendix_stage3_behavioural_design.tex}
 
 \subsection{Uncertainty quantification}\label{sec:beta_uncertainty}
 
@@ -1782,5 +1780,16 @@ Table \ref{tab:app_country_typology_features} reports the standardised feature m
 \input{generated/results_tables/appendix_country_typology_features.tex}
 \input{generated/results_tables/appendix_country_typology_cluster_stability.tex}
 
+\newpage
+
+\section{Generative AI disclosure}\label{app:ai_disclosure}
+
+In this thesis, generative AI was used on a limited basis. It was not used for writing any content in this thesis. Nor was it used for creating structures or generating ideas. All substantive writing in this document is my own work. The literature review was conducted entirely by hand. Every paper cited in the thesis was read by me, and most were summarised on paper before being integrated into the argument. I did not use generative AI to search, summarise or synthesise the academic or policy literature. This is namely one of the most enjoyable and human-needed phrases of a thesis in my view, since it guides me - as the author - to new fields and new ideas. 
+
+AI was, however, used in three \emph{technical} areas, rather than in intellectual areas. First, I used AI-assisted coding tools while building the R pipeline that implements the measurement framework. This project chains a large number of specialised steps and keeping the code consistent across stages is genuinely difficult. I used generative models as a helper when writing or debugging R scripts. I understand all the code myself and did not 'vibecode' as many do nowadays. Second, because the topic is layered and the pipeline has many interdependent choices, I occasionally asked generative models to read back my methodological plan and flag inconsistencies or obvious mistakes. This was a critical second pair of eyes, not a source of ideas: I would describe the step I intended to take and ask whether it contradicted something stated earlier or overlooked a known limitation in the data. When the model spotted a problem, I fixed the plan myself. Third, I used generative AI to resolve LaTeX compilation errors and to correct broken cross-references, especially where section labels and table references had drifted apart after repeated restructuring.
+
+The tools involved were ChatGPT Plus and Claude Pro. I did not run them in parallel. I switched between them at different points in the project depending on which subscription I wanted to pay fore. I used paid subscriptions in the hope that this limits the amount that these companies learn from my input and in the hope that it would increase the accuracy. I have kept a record of the prompts used, although these are spreads over seven months of work. 
+
+I am proud to say that this thesis is my own work. 
 
 \end{document}
