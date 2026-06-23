@@ -208,18 +208,14 @@ assemble_inline_table <- function(
   notes = NULL,
   size = "\\small",
   tabcolsep = "4pt",
-  table_position = "H"
+  table_position = "H",
+  fit_width = FALSE
 ) {
   caption_lines <- as.character(caption_lines)
   header_lines <- as.character(header_lines)
   body_lines <- as.character(body_lines)
 
-  block <- c(
-    sprintf("\\begin{table}[%s]", table_position),
-    "\\centering",
-    size,
-    sprintf("\\setlength{\\tabcolsep}{%s}", tabcolsep),
-    caption_lines,
+  tabular_block <- c(
     sprintf("\\begin{tabular}{@{}%s@{}}", col_spec),
     "\\toprule",
     header_lines,
@@ -227,6 +223,23 @@ assemble_inline_table <- function(
     body_lines,
     "\\bottomrule",
     "\\end{tabular}"
+  )
+
+  if (isTRUE(fit_width)) {
+    tabular_block <- c(
+      "\\begin{adjustbox}{max width=\\textwidth,center}",
+      tabular_block,
+      "\\end{adjustbox}"
+    )
+  }
+
+  block <- c(
+    sprintf("\\begin{table}[%s]", table_position),
+    "\\centering",
+    size,
+    sprintf("\\setlength{\\tabcolsep}{%s}", tabcolsep),
+    caption_lines,
+    tabular_block
   )
 
   if (!is.null(notes) && nzchar(trimws(notes))) {
@@ -304,7 +317,8 @@ splittable_end <- function(col_spec) {
 
 write_latex_table <- function(file, caption, label, col_spec, header, rows,
                               notes = NULL, short_caption = NULL,
-                              size = "\\small") {
+                              size = "\\small", tabcolsep = NULL,
+                              fit_width = FALSE) {
   dir.create(dirname(file), showWarnings = FALSE, recursive = TRUE)
 
   caption_line <- if (is.null(short_caption)) {
@@ -319,10 +333,12 @@ write_latex_table <- function(file, caption, label, col_spec, header, rows,
 
   n_cols <- length(header)
   header_line <- paste0(paste(header, collapse = " & "), " \\\\")
-  tabcolsep <- if (identical(size, "\\footnotesize") || identical(size, "\\scriptsize")) {
-    "3pt"
-  } else {
-    "4pt"
+  if (is.null(tabcolsep)) {
+    tabcolsep <- if (identical(size, "\\footnotesize") || identical(size, "\\scriptsize")) {
+      "3pt"
+    } else {
+      "4pt"
+    }
   }
 
   lines <- c(
@@ -334,7 +350,8 @@ write_latex_table <- function(file, caption, label, col_spec, header, rows,
       body_lines = row_lines,
       notes = notes,
       size = size,
-      tabcolsep = tabcolsep
+      tabcolsep = tabcolsep,
+      fit_width = fit_width
     )
   )
 
@@ -2546,15 +2563,15 @@ write_country_typology_tables <- function() {
 
   profile_rows <- profiles |>
     transmute(
-      Type = latex_escape(paste0(typology_id, ": ", policy_type)),
+      Type = latex_escape(typology_id),
       Countries = latex_escape(countries),
       `n` = fmt_int(n_countries),
-      `Revenue` = fmt_bn(preferred_revenue, 1),
-      `Revenue/CIT` = format_available_pct(mean_revenue_to_cit_1200, 1),
+      `Rev.` = fmt_bn(preferred_revenue, 1),
+      `Rev./CIT` = format_available_pct(mean_revenue_to_cit_1200, 1),
       `QDMTT` = format_available_pct(mean_qdmtt_share, 1),
-      `Residual` = format_available_pct(mean_residual_iir_utpr_exposure, 1),
-      `SbS extinguished` = format_available_pct(mean_sbs_extinguished_share, 1),
-      `Imputation risk` = format_available_pct(mean_high_risk_imputation_share, 1)
+      `Res.` = format_available_pct(mean_residual_iir_utpr_exposure, 1),
+      `SbS ext.` = format_available_pct(mean_sbs_extinguished_share, 1),
+      `Imp.` = format_available_pct(mean_high_risk_imputation_share, 1)
     )
 
   write_latex_table(
@@ -2562,24 +2579,24 @@ write_country_typology_tables <- function() {
     caption = "Policy-facing country typology from PCA-informed clustering",
     short_caption = "Policy-facing country typology",
     label = "tab:country_typology_clusters",
-    col_spec = "L{3.2cm}L{4.8cm}rrrrrrr",
+    col_spec = "L{0.85cm}L{3.35cm}rrrrrrr",
     header = c(
-      "Type", "Countries", "n", "Revenue", "Revenue/CIT",
-      "QDMTT", "Residual", "SbS extinguished",
-      "Imputation risk"
+      "Type", "Countries", "$n$", "Rev.", "Rev./CIT",
+      "QDMTT", "Res.", "SbS ext.", "Imp."
     ),
     rows = profile_rows,
     notes = paste(
       "Four clusters are selected because the jitter stability score is",
       paste0(fmt_pct(selected_stability$stability_score, 1), "\\%,"),
-      "the smallest cluster contains",
-      fmt_int(selected_stability$min_cluster_size),
-      "countries, and the four-cluster solution separates conduit hubs, QDMTT-protected smaller states, residual IIR/UTPR exposure states and zero-current-exposure states.",
-      "Revenue is preferred behavioural SbS revenue in US dollars, billions.",
-      "Revenue/CIT uses OECD T\\_1200 where available; cluster means ignore missing denominators.",
+      "the smallest cluster contains one country, and the four-cluster solution separates conduit hubs (T1), QDMTT-protected smaller states (T2), residual IIR/UTPR exposure states (T3) and zero-current-exposure states (T4).",
+      "Rev.\\ is preferred behavioural SbS revenue in US dollars, billions.",
+      "Rev./CIT uses OECD T\\_1200 where available; cluster means ignore missing denominators.",
+      "Res.\\ is residual IIR/UTPR exposure; SbS ext.\\ is the share of CIT revenue extinguished under the SbS regime; Imp.\\ is the high-risk imputation share.",
       ""
     ),
-    size = "\\footnotesize"
+    size = "\\scriptsize",
+    tabcolsep = "2pt",
+    fit_width = TRUE
   )
 
   feature_rows <- read_diag(

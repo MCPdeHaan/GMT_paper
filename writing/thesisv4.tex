@@ -31,7 +31,7 @@
 \setlength{\belowdisplayshortskip}{2pt plus 1pt minus 1pt}
 
 \usepackage{csquotes}
-\usepackage[
+\usepackage[s
   backend = biber,
   style   = apa,
   sorting = nyt,
@@ -151,8 +151,8 @@
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\small\itshape\leftmark}
-\fancyhead[R]{\small\itshape de Haan (\the\year)}
+\fancyhead[L]{\small\itshape\raisebox{-3pt}{\leftmark}}
+\fancyhead[R]{\small\itshape\raisebox{-3pt}{de Haan (\the\year)}}
 \fancyfoot[C]{\small\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\footrulewidth}{0pt}
