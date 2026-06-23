@@ -343,7 +343,7 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
     length(intersect(EU27_ISO3, unique(cbcr_t1$affiliate)))
   )
 
-  # Year-by-year expansion of reporting parents (26 in 2016 → 58 in 2022).
+  # Year-by-year expansion of reporting parents (26 in 2016 -> 58 in 2022).
   write_csv(
     cbcr_t1 |> distinct(parent, year) |> count(year, name = "n_parents"),
     file.path(diagnostics_dir, "cbcr_t1_parent_coverage_by_year.csv")
