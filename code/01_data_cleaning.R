@@ -1107,12 +1107,12 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
   write_csv(diagnostics_df, file.path(diagnostics_dir, "summary.csv"))
 
   message(sprintf(
-    "\nDiagnostics summary written to %s (%d rows)",
+    "\nDiagnostics summary",
     file.path(diagnostics_dir, "summary.csv"),
     nrow(diagnostics_df)
   ))
   message(sprintf(
-    "Done. %d intermediate files written to %s/",
+    "%d intermediate files written to %s/",
     length(list.files(processed_dir, pattern = "\\.rds$")), processed_dir
   ))
 }

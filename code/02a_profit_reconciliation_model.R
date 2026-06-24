@@ -1,7 +1,6 @@
 # 02a_profit_reconciliation_model.R
-# Step 2a of the methodology pipeline.
 #
-# Builds an explicit parent-year profit reconciliation model before Stage 1.
+# Builds an parent-year profit reconciliation model before Stage 1.
 # The object is a denominator measurement correction: public CbCR adjusted
 # profit is used where observed, external anchors enter as higher-precision
 # evidence, and the public domestic-versus-foreign ETR comparison is retained

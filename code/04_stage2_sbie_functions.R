@@ -3,10 +3,10 @@
 #
 # Implements Stage 2 of the GMT revenue pipeline on top of the Stage 1 outputs.
 # The script produces two linked objects:
-# 1. an aggregate bilateral SBIE filter for the 2017-2022 panel; and
-# 2. a 2022 EU27 sectoral effective-floor matrix using CbCR levels, FATS
-#    foreign-control sector shares and EUKLEMS tangible-capital stock shares,
-#    with an SBTI-capacity overlay and a mechanical 2024-2033 transition path.
+# an aggregate bilateral SBIE filter for the 2017-2022 panel; and
+# a 2022 EU27 sectoral effective-floor matrix using CbCR levels, FATS
+#  foreign-control sector shares and EUKLEMS tangible-capital stock shares,
+#  with an SBTI-capacity overlay and a mechanical 2024-2033 transition path.
 library(dplyr)
 library(tidyr)
 library(readr)

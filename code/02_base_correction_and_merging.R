@@ -2,14 +2,10 @@
 # Step 2 of the methodology pipeline.
 #
 # Builds the bilateral Parent x Affiliate x Year base panel from the cleaned
-# inputs in data/processed/. This step does four things:
-# 1. merges the CbCR tables onto a country-like bilateral spine;
-# 2. adds the low-dimensional supplementary controls needed later;
-# 3. constructs a wage-based payroll proxy from employee counts;
-# 4. constructs deterministic corrected profit bases before Stage 1 / Stage 3.
-#
-# This script does not fit ETR distributions, integrate top-up rates, or model
-# behavioural reallocations.
+# inputs in data/processed/. the CbCR tables onto a country-like bilateral spine;
+# adds the low-dimensional supplementary controls needed later;
+# constructs a wage-based payroll proxy from employee counts;
+# constructs deterministic corrected profit bases before Stage 1 / Stage 3.
 library(dplyr)
 library(tidyr)
 library(purrr)
@@ -73,7 +69,6 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
   }
 
   # 1. Load cleaned inputs
-
   t1 <- readRDS(file.path(input_dir, "cbcr_table1.rds"))
   t2 <- readRDS(file.path(input_dir, "cbcr_table2.rds"))
   t3 <- readRDS(file.path(input_dir, "cbcr_table3.rds"))
@@ -109,7 +104,6 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
 
 
   # 2. Core bilateral spine and CbCR merges
-
   panel <- t1 |>
     filter(
       year %in% CORE_YEARS,
@@ -804,15 +798,6 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
       has_stage1_crossval_inputs = has_behavioral_estimation_inputs &
         has_any_percentile_set & has_t4_low_bracket,
       has_estimation_inputs = has_behavioral_estimation_inputs,
-      # BSPI information tier (Section sec:crossval). Each cell is assigned to
-      # the highest-information branch it qualifies for. Tiers are ranked from
-      # most to least informative:
-      #   1. direct_t4         -> bilateral Table IV bracket observed
-      #   2. percentile_fit    -> Table I percentiles usable for the Beta fit
-      #   3. shape_transport   -> pre-2019 cell, affiliate has a BSPI anchor
-      #   4. avg_only          -> fallback: jurisdiction-average binary rule
-      # The shape-transport eligibility is patched in after the merge once the
-      # per-affiliate anchor availability can be evaluated (see below).
       bspi_tier_raw = case_when(
         has_t4_low_bracket ~ "direct_t4",
         has_any_percentile_set ~ "percentile_fit",
@@ -823,15 +808,6 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
 
   assert_unique_keys(panel, c("parent", "affiliate", "year"), "final base panel")
 
-  # BSPI anchor eligibility. An affiliate qualifies as a shape-transport
-  # anchor jurisdiction if the Table IV bilateral bracket profile is observed
-  # in at least one of the 2019-2020 anchor years. Pre-2019 affiliate-years
-  # only upgrade to the shape_transport tier if this anchor exists. The
-  # complementary 2021-2022 observation (if present) is held out for the
-  # shape-stability validation test and does not in itself qualify an
-  # affiliate as an anchor, because backcasting from 2021 to 2017 spans a
-  # three-to-four year window over which the ATAD I entry into force and the
-  # TCJA transitional provisions can shift the within-affiliate shape.
   bspi_anchor_affiliates <- t4_brackets_by_affiliate_year |>
     filter(year %in% BSPI_ANCHOR_YEARS, !is.na(profit), profit > 0) |>
     distinct(affiliate) |>
@@ -853,7 +829,6 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
 
 
   # 5. Sectoral FATS, EUKLEMS and BEA sidecars for later SBIE work
-
   fats_geo_map <- tribble(
     ~geo, ~affiliate,
     "AT", "AUT", "BE", "BEL", "BG", "BGR", "CY", "CYP", "CZ", "CZE",
@@ -1906,13 +1881,7 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
     ) |>
     arrange(year, bspi_tier)
 
-  # Shape-stability validation for the BSPI. The backcast from 2019-2020
-  # bracket shares into 2017-2018 is only credible if the within-affiliate
-  # bracket profile is short-run stable. For each affiliate observed in both
-  # the anchor window (2019-2020) and the validation window (2021-2022), we
-  # compute the total variation distance between the two average profiles.
-  # Reported per affiliate; a small TV distance is the empirical warrant for
-  # using the 2019-2020 shape to impute 2017-2018.
+  # Shape-stability validation for the BSPI
   shape_stability_diag <- t4_brackets_by_affiliate_year |>
     mutate(window = case_when(
       year %in% BSPI_ANCHOR_YEARS ~ "anchor",

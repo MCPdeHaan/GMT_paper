@@ -2,26 +2,21 @@
 
 source("code/00_config.R")
 
-# Check whether this script was run directly from the command line
-# (so that scripts can be both sourced and run standalone).
-is_direct_script_run <- function(script_path) {
-  file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
-  if (length(file_arg) == 0) return(FALSE)
-  invoked_path <- sub("^--file=", "", file_arg[1])
-  normalizePath(invoked_path, winslash = "/", mustWork = FALSE) ==
-    normalizePath(script_path, winslash = "/", mustWork = FALSE)
-}
-
-# Check that a data frame has no duplicate rows on the given key columns.
-assert_unique_keys <- function(df, keys, label) {
-  key_df <- df[, keys, drop = FALSE]
-  n_dup <- sum(duplicated(key_df))
-  if (n_dup > 0) {
-    stop(sprintf("%s: %d duplicate key combinations", label, n_dup),
-      call. = FALSE
-    )
-  }
-  invisible(TRUE)
+latex_escape <- function(x) {
+  x <- as.character(x)
+  placeholder <- "\001BACKSLASH\001"
+  x <- gsub("\\", placeholder, x, fixed = TRUE)
+  x <- gsub("&", "\\&", x, fixed = TRUE)
+  x <- gsub("%", "\\%", x, fixed = TRUE)
+  x <- gsub("$", "\\$", x, fixed = TRUE)
+  x <- gsub("#", "\\#", x, fixed = TRUE)
+  x <- gsub("_", "\\_", x, fixed = TRUE)
+  x <- gsub("{", "\\{", x, fixed = TRUE)
+  x <- gsub("}", "\\}", x, fixed = TRUE)
+  x <- gsub("~", "\\textasciitilde{}", x, fixed = TRUE)
+  x <- gsub("^", "\\textasciicircum{}", x, fixed = TRUE)
+  x <- gsub(placeholder, "\\textbackslash{}", x, fixed = TRUE)
+  x
 }
 
 safe_divide <- function(num, den) {
@@ -102,6 +97,27 @@ max_or_na <- function(x) {
   max(finite_x)
 }
 
+# Check whether this script was run directly from the command line, to fix many errors
+is_direct_script_run <- function(script_path) {
+  file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
+  if (length(file_arg) == 0) return(FALSE)
+  invoked_path <- sub("^--file=", "", file_arg[1])
+  normalizePath(invoked_path, winslash = "/", mustWork = FALSE) ==
+    normalizePath(script_path, winslash = "/", mustWork = FALSE)
+}
+
+# Check that a data frame has no duplicate rows on the given key columns.
+assert_unique_keys <- function(df, keys, label) {
+  key_df <- df[, keys, drop = FALSE]
+  n_dup <- sum(duplicated(key_df))
+  if (n_dup > 0) {
+    stop(sprintf("%s: %d duplicate key combinations", label, n_dup),
+      call. = FALSE
+    )
+  }
+  invisible(TRUE)
+}
+
 pick_first_non_missing <- function(x) {
   idx <- which(!is.na(x) & x != "")
   if (length(idx) == 0) return(NA_character_)
@@ -126,23 +142,6 @@ safe_log1p_scale <- function(x, scale) {
 
 normalise_tax_rate_unit <- function(x) {
   dplyr::if_else(!is.na(x) & abs(x) > 1, x / 100, x)
-}
-
-latex_escape <- function(x) {
-  x <- as.character(x)
-  placeholder <- "\001BACKSLASH\001"
-  x <- gsub("\\", placeholder, x, fixed = TRUE)
-  x <- gsub("&", "\\&", x, fixed = TRUE)
-  x <- gsub("%", "\\%", x, fixed = TRUE)
-  x <- gsub("$", "\\$", x, fixed = TRUE)
-  x <- gsub("#", "\\#", x, fixed = TRUE)
-  x <- gsub("_", "\\_", x, fixed = TRUE)
-  x <- gsub("{", "\\{", x, fixed = TRUE)
-  x <- gsub("}", "\\}", x, fixed = TRUE)
-  x <- gsub("~", "\\textasciitilde{}", x, fixed = TRUE)
-  x <- gsub("^", "\\textasciicircum{}", x, fixed = TRUE)
-  x <- gsub(placeholder, "\\textbackslash{}", x, fixed = TRUE)
-  x
 }
 
 safe_cor <- function(x, y, method = "pearson", min_pairs = 3L) {
