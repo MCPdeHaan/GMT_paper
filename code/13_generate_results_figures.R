@@ -112,10 +112,17 @@ make_profit_employee_etr_bubble <- function() {
     ) %>%
     mutate(
       profit_per_employee = corrected_profit / employees,
-      threshold_group = case_when(
-        average_etr < GMT_RATE ~ "Below 15% avg. ETR",
-        distributional_low_share >= 0.25 ~ "Above 15% avg. ETR, tail at least 25%",
-        TRUE ~ "Above 15% avg. ETR, smaller tail"
+      threshold_group = factor(
+        case_when(
+          average_etr < GMT_RATE ~ "Below 15% avg. ETR",
+          distributional_low_share >= 0.25 ~ "Above 15% avg. ETR, tail at least 25%",
+          TRUE ~ "Above 15% avg. ETR, smaller tail"
+        ),
+        levels = c(
+          "Above 15% avg. ETR, smaller tail",
+          "Above 15% avg. ETR, tail at least 25%",
+          "Below 15% avg. ETR"
+        )
       ),
       label_country = affiliate %in% label_selected_countries
     ) %>%
@@ -183,15 +190,21 @@ make_profit_employee_etr_bubble <- function() {
     ) +
     scale_y_continuous(
       labels = label_percent(accuracy = 1),
-      limits = c(0, 0.305),
-      breaks = seq(0, 0.30, by = 0.05),
-      expand = expansion(mult = c(0.02, 0.05))
+      limits = c(0, 0.25),
+      breaks = seq(0, 0.25, by = 0.05),
+      expand = expansion(mult = c(0.02, 0.02))
     ) +
     scale_size_area(
       max_size = 10,
       breaks = c(1e11, 5e11, 1e12),
       labels = format_usd_short,
-      name = "Corrected profit"
+      name = "Corrected profit",
+      guide = guide_legend(
+        order = 2,
+        nrow = 1,
+        override.aes = list(size = c(2.8, 4.5, 6.2), alpha = 0.76),
+        keywidth = unit(0.55, "lines")
+      )
     ) +
     scale_colour_manual(
       values = c(
@@ -199,17 +212,15 @@ make_profit_employee_etr_bubble <- function() {
         "Above 15% avg. ETR, tail at least 25%" = thesis_cols[["orange"]],
         "Above 15% avg. ETR, smaller tail" = thesis_cols[["navy"]]
       ),
-      name = NULL
-    ) +
-    guides(
-      colour = guide_legend(
-        override.aes = list(size = 3.5),
+      name = NULL,
+      guide = guide_legend(
+        override.aes = list(size = 3.2, alpha = 0.76),
         nrow = 2,
+        ncol = 2,
         byrow = TRUE,
         order = 1,
         keywidth = unit(0.55, "lines")
-      ),
-      size = guide_legend(order = 2, nrow = 1, keywidth = unit(0.55, "lines"))
+      )
     ) +
     labs(
       x = "Corrected profit per employee (USD, log scale)",
@@ -217,9 +228,15 @@ make_profit_employee_etr_bubble <- function() {
     ) +
     theme_thesis() +
     theme(
-      legend.text = element_text(size = 7),
-      legend.key.height = unit(0.45, "lines"),
-      legend.spacing.y = unit(0.1, "lines")
+      legend.box = "vertical",
+      legend.box.spacing = unit(0.25, "lines"),
+      legend.spacing.y = unit(0.2, "lines"),
+      legend.spacing.x = unit(0.35, "lines"),
+      legend.key.height = unit(0.5, "lines"),
+      legend.margin = margin(t = 2, r = 0, b = 2, l = 0),
+      axis.title.x = element_text(margin = margin(t = 4, b = 2)),
+      plot.margin = margin(2, 4, 6, 2),
+      legend.text = element_text(size = 7)
     )
 }
 
@@ -431,22 +448,25 @@ make_country_salience_plot <- function() {
       label_country = country %in% c("NLD", "IRL", "LUX", "DEU", "FRA", "HUN", "BEL", "DNK", "AUT")
     )
 
-  label_positions <- tibble::tribble(
-    ~country, ~label_x, ~label_y,
-    "NLD", 0.390, 0.425,
-    "IRL", 0.325, 0.285,
-    "HUN", 0.230, 0.415,
-    "DEU", 0.122, 0.180,
-    "FRA", 0.055, 0.155,
-    "BEL", 0.135, 0.125,
-    "DNK", 0.125, 0.082,
-    "ESP", 0.118, 0.112,
-    "AUT", 0.042, 0.070
+  label_offsets <- tibble::tribble(
+    ~country, ~dx, ~dy,
+    "NLD", -0.025, 0.022,
+    "IRL", 0.010, 0.020,
+    "HUN", -0.030, 0.010,
+    "DEU", 0.024, 0.012,
+    "FRA", 0.000, 0.018,
+    "BEL", 0.026, -0.014,
+    "DNK", 0.010, -0.020,
+    "AUT", -0.016, -0.014
   )
 
   label_data <- plot_data %>%
     filter(label_country, country != "LUX") %>%
-    inner_join(label_positions, by = "country")
+    inner_join(label_offsets, by = "country") %>%
+    mutate(
+      label_x = revenue_to_cit_1200 + dx,
+      label_y = scenario_spread_to_cit_1200 + dy
+    )
 
   ggplot(
     filter(plot_data, country != "LUX"),
@@ -467,7 +487,13 @@ make_country_salience_plot <- function() {
     geom_point(alpha = 0.78) +
     geom_segment(
       data = label_data,
-      aes(xend = label_x, yend = label_y),
+      aes(
+        x = revenue_to_cit_1200,
+        y = scenario_spread_to_cit_1200,
+        xend = label_x,
+        yend = label_y
+      ),
+      inherit.aes = FALSE,
       linewidth = 0.25,
       colour = thesis_cols[["grey"]],
       alpha = 0.55,
@@ -479,8 +505,8 @@ make_country_salience_plot <- function() {
       inherit.aes = FALSE,
       size = 2.35,
       linewidth = 0.18,
-      label.padding = grid::unit(0.08, "lines"),
-      label.r = grid::unit(0.04, "lines"),
+      label.padding = grid::unit(0.04, "lines"),
+      label.r = grid::unit(0.02, "lines"),
       fill = "white",
       colour = thesis_cols[["navy"]],
       show.legend = FALSE
@@ -524,7 +550,13 @@ make_country_salience_plot <- function() {
       max_size = 8,
       breaks = c(5e9, 25e9, 75e9),
       labels = format_usd_short,
-      name = "Preferred revenue"
+      name = "Preferred revenue",
+      guide = guide_legend(
+        order = 2,
+        nrow = 1,
+        override.aes = list(size = c(2.4, 4.2, 6.0), alpha = 0.78),
+        keywidth = unit(0.55, "lines")
+      )
     ) +
     scale_colour_manual(
       values = c(
@@ -533,7 +565,15 @@ make_country_salience_plot <- function() {
         "Substance" = thesis_cols[["orange"]],
         "Behavioural response" = thesis_cols[["grey"]]
       ),
-      name = "Dominant channel"
+      name = "Dominant channel",
+      guide = guide_legend(
+        order = 1,
+        nrow = 2,
+        ncol = 2,
+        byrow = TRUE,
+        override.aes = list(size = 3.2, alpha = 0.78),
+        keywidth = unit(0.55, "lines")
+      )
     ) +
     labs(
       x = "Preferred revenue as share of CIT",
@@ -542,7 +582,13 @@ make_country_salience_plot <- function() {
     theme_thesis(base_size = 8.2) +
     theme(
       legend.box = "vertical",
-      plot.margin = margin(2, 4, 2, 2)
+      legend.box.spacing = unit(0.25, "lines"),
+      legend.spacing.y = unit(0.2, "lines"),
+      legend.spacing.x = unit(0.35, "lines"),
+      legend.key.height = unit(0.5, "lines"),
+      legend.margin = margin(t = 2, r = 0, b = 2, l = 0),
+      axis.title.x = element_text(margin = margin(t = 4, b = 2)),
+      plot.margin = margin(2, 4, 6, 2)
     )
 }
 
@@ -637,7 +683,7 @@ run_generate_results_figures <- function() {
   )
 
   save_thesis_plot(figures$fig_profit_employee_etr_bubble,
-    figure_files[["fig_profit_employee_etr_bubble"]], 6.7, 5.0
+    figure_files[["fig_profit_employee_etr_bubble"]], 6.7, 5.35
   )
   save_thesis_plot(figures$fig_stage3_semielasticity_estimated,
     figure_files[["fig_stage3_semielasticity_estimated"]], 5.8, 2.85
@@ -646,7 +692,7 @@ run_generate_results_figures <- function() {
     figure_files[["fig_stage46_shapley_variance"]], 6.7, 3.45
   )
   save_thesis_plot(figures$fig_country_salience_uncertainty,
-    figure_files[["fig_country_salience_uncertainty"]], 6.7, 4.45
+    figure_files[["fig_country_salience_uncertainty"]], 6.0, 4.25
   )
   save_thesis_plot(figures$fig_preferred_channel_composition,
     figure_files[["fig_preferred_channel_composition"]], 6.7, 2.8

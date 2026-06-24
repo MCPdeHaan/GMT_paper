@@ -226,41 +226,36 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
     )
 
   panel <- panel |>
-    left_join_checked(t2_wide,
+    dplyr::left_join(t2_wide,
       by = c(
         "parent" = "parent",
         "affiliate" = "affiliate",
         "year" = "year"
-      ),
-      label = "join T2"
+      )
     ) |>
-    left_join_checked(t3_low,
+    dplyr::left_join(t3_low,
       by = c(
         "parent" = "parent",
         "affiliate" = "affiliate",
         "year" = "year"
-      ),
-      label = "join T3 rate_0_15"
+      )
     ) |>
-    left_join_checked(t4_low,
+    dplyr::left_join(t4_low,
       by = c(
         "parent" = "parent",
         "affiliate" = "affiliate",
         "year" = "year"
-      ),
-      label = "join T4 rate_0_15"
+      )
     ) |>
-    left_join_checked(t5_wide,
-      by = c("parent" = "parent", "year" = "year"),
-      label = "join T5"
+    dplyr::left_join(t5_wide,
+      by = c("parent" = "parent", "year" = "year")
     ) |>
-    left_join_checked(t6_wide,
+    dplyr::left_join(t6_wide,
       by = c(
         "parent" = "parent",
         "affiliate" = "affiliate",
         "year" = "year"
-      ),
-      label = "join T6"
+      )
     )
 
 
@@ -460,74 +455,62 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
     rename(parent = jurisdiction)
 
   panel <- panel |>
-    left_join_checked(parent_lookup,
-      by = c("parent" = "parent"),
-      label = "join parent lookup"
+    dplyr::left_join(parent_lookup,
+      by = c("parent" = "parent")
     ) |>
-    left_join_checked(affiliate_lookup,
-      by = c("affiliate" = "affiliate"),
-      label = "join affiliate lookup"
+    dplyr::left_join(affiliate_lookup,
+      by = c("affiliate" = "affiliate")
     ) |>
-    left_join_checked(cit_affiliate,
+    dplyr::left_join(cit_affiliate,
       by = c(
         "affiliate" = "affiliate",
         "year" = "year"
-      ),
-      label = "join affiliate CIT"
+      )
     ) |>
-    left_join_checked(cit_parent,
+    dplyr::left_join(cit_parent,
       by = c(
         "parent" = "parent",
         "year" = "year"
-      ),
-      label = "join parent CIT"
+      )
     ) |>
-    left_join_checked(wb_gdp_affiliate,
+    dplyr::left_join(wb_gdp_affiliate,
       by = c(
         "affiliate" = "affiliate",
         "year" = "year"
-      ),
-      label = "join affiliate GDP"
+      )
     ) |>
-    left_join_checked(wb_population_affiliate,
+    dplyr::left_join(wb_population_affiliate,
       by = c(
         "affiliate" = "affiliate",
         "year" = "year"
-      ),
-      label = "join affiliate population"
+      )
     ) |>
-    left_join_checked(wage_lookup,
+    dplyr::left_join(wage_lookup,
       by = c(
         "affiliate" = "affiliate",
         "year" = "year"
-      ),
-      label = "join affiliate wage"
+      )
     ) |>
-    left_join_checked(beps_affiliate,
+    dplyr::left_join(beps_affiliate,
       by = c(
         "affiliate" = "affiliate",
         "year" = "year"
-      ),
-      label = "join affiliate BEPS"
+      )
     ) |>
-    left_join_checked(beps_parent,
+    dplyr::left_join(beps_parent,
       by = c(
         "parent" = "parent",
         "year" = "year"
-      ),
-      label = "join parent BEPS"
+      )
     ) |>
-    left_join_checked(cbcr_req_parent,
-      by = c("parent" = "parent"),
-      label = "join parent CbCR requirements"
+    dplyr::left_join(cbcr_req_parent,
+      by = c("parent" = "parent")
     ) |>
-    left_join_checked(oecd_affiliate,
-      by = c("affiliate" = "affiliate"),
-      label = "join affiliate OECD Central Record policy"
+    dplyr::left_join(oecd_affiliate,
+      by = c("affiliate" = "affiliate")
     ) |>
-    left_join_checked(oecd_parent,
-      by = c("parent" = "parent"),
-      label = "join parent OECD Central Record policy"
+    dplyr::left_join(oecd_parent,
+      by = c("parent" = "parent")
     )
 
 
@@ -565,10 +548,9 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
   )
 
   panel <- panel |>
-    left_join_checked(
+    dplyr::left_join(
       profit_reconciliation,
-      by = c("parent" = "parent", "year" = "year"),
-      label = "join profit reconciliation model"
+      by = c("parent" = "parent", "year" = "year")
     )
 
 

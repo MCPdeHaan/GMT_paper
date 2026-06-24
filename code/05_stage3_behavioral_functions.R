@@ -239,7 +239,7 @@ demean_two_way <- function(mat, fe1, fe2, tol = 1e-10, max_iter = 100L) {
 cluster_vcov <- function(x, residuals, cluster, df_resid_full) {
   x <- as.matrix(x)
   cluster <- factor(cluster)
-  bread <- solve_crossprod_checked(x, "Stage 3 manual fixed-effect OLS")
+  bread <- solve(crossprod(x))
   scores <- x * as.numeric(residuals)
   meat <- matrix(0, ncol(x), ncol(x))
 

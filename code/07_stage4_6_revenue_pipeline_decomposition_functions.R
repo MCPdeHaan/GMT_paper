@@ -617,30 +617,25 @@ build_fiscal_salience_country_year <- function(preferred_country_year,
     )
 
   preferred_sbs |>
-    left_join_checked(
+    dplyr::left_join(
       preferred_universal,
-      by = c("country", "year"),
-      label = "preferred universal revenue denominator"
+      by = c("country", "year")
     ) |>
-    left_join_checked(
+    dplyr::left_join(
       qdmtt,
-      by = c("country", "year"),
-      label = "preferred QDMTT country-year revenue"
+      by = c("country", "year")
     ) |>
-    left_join_checked(
+    dplyr::left_join(
       scenario_spread_country_year |> select(country, year, scenario_spread),
-      by = c("country", "year"),
-      label = "country-year scenario spread denominator"
+      by = c("country", "year")
     ) |>
-    left_join_checked(
+    dplyr::left_join(
       build_cit_revenue_denominators(cit_revenue),
-      by = c("country", "year"),
-      label = "OECD CIT revenue denominator"
+      by = c("country", "year")
     ) |>
-    left_join_checked(
+    dplyr::left_join(
       build_macro_denominators(wb_gdp, wb_population),
-      by = c("country", "year"),
-      label = "World Bank macro denominator"
+      by = c("country", "year")
     ) |>
     mutate(
       sbs_revenue_loss = universal_revenue - preferred_revenue,
@@ -761,25 +756,22 @@ build_country_typology_feature_matrix <- function(fiscal_salience_country,
   imputation_exposure <- build_stage1_imputation_exposure(stage1_bilateral)
 
   fiscal_salience_country |>
-    left_join_checked(
+    dplyr::left_join(
       effect_features,
       by = "country",
-      label = "country typology main effects"
     ) |>
-    left_join_checked(
+    dplyr::left_join(
       channel_exposure |>
         select(country, residual_iir_utpr_exposure),
       by = "country",
-      label = "country typology channel exposure"
     ) |>
-    left_join_checked(
+    dplyr::left_join(
       imputation_exposure |>
         select(
           country, high_risk_imputation_share,
           direct_t4_lowtax_share
         ),
       by = "country",
-      label = "country typology Stage 1 exposure"
     ) |>
     transmute(
       country,
@@ -963,7 +955,7 @@ build_cluster_stability <- function(scaled_matrix,
       selected = k == 4L,
       selection_reason = if_else(
         k == 4L,
-        "Selected: stable, no single-country clusters, and separates conduit hubs, QDMTT-protected smaller states, residual-exposure states and zero-current-exposure states.",
+        "Selected: stable, no single-country clusters, and separates conduit hubs, QDMTT-protected smaller states, residual-exposure states and states with latent exposure masked by sparse CbCR data.",
         ""
       )
     )
@@ -973,7 +965,7 @@ build_cluster_stability <- function(scaled_matrix,
 label_cluster_profile <- function(total_revenue, mean_revenue_to_cit,
                                   mean_qdmtt_share) {
   case_when(
-    total_revenue <= 0 ~ "No preferred current exposure",
+    total_revenue <= 0 ~ "Exposure masked by sparse CbCR data",
     !is.na(mean_revenue_to_cit) & mean_revenue_to_cit >= 0.30 ~
       "High-salience conduit hubs",
     !is.na(mean_qdmtt_share) & mean_qdmtt_share >= 0.80 ~

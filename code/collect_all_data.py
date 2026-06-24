@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Optional
 import requests
 
+# run script in terminal with: `cd code`` and then `python collect_all_data.py``
 BASE_DIR = Path(__file__).parent  
 PROJECT_DIR = BASE_DIR.parent
 RAW_DIR = PROJECT_DIR / "data" / "raw"

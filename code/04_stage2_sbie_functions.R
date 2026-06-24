@@ -76,10 +76,7 @@ cluster_vcov_lm <- function(fit, cluster) {
   } else {
     factor(cluster[used_rows])
   }
-  bread <- solve_crossprod_checked(
-    sqrt(weights) * x,
-    "Stage 2 clustered weighted regression"
-  )
+  bread <- solve(crossprod(sqrt(weights) * x))
   scores <- x * as.numeric(residuals * weights)
   meat <- matrix(0, ncol(x), ncol(x))
 
