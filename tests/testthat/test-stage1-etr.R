@@ -22,6 +22,15 @@ test_that("constrained beta fit recovers a known beta distribution", {
   expect_lt(fit$mae, 1e-5)
 })
 
+test_that("beta quantiles invert the CDF for very small shape parameters", {
+  alpha <- 5e-6
+  beta <- 9.5e-5
+  x <- c(0.12, 0.50, 0.87)
+  probs <- stats::pbeta(x, alpha, beta)
+
+  expect_equal(beta_quantiles(probs, alpha, beta), x, tolerance = 1e-8)
+})
+
 test_that("beta integrals recover the hand-worked uniform example", {
   shares <- beta_bracket_shares(alpha = 1, beta = 1)
 
@@ -62,6 +71,63 @@ test_that("direct rule handles zero-low-share partitions", {
   expect_equal(unname(metrics["low_share"]), 0)
   expect_equal(unname(metrics["low_mean_etr"]), 0)
   expect_equal(unname(metrics["topup_rate"]), 0)
+})
+
+test_that("bilateral Table IV requires numeric support above and below 15 per cent", {
+  brackets <- tibble::tibble(
+    parent = rep(c("USA", "JPN", "ESP", "GRC"), each = 2),
+    affiliate = "IRL",
+    year = 2023L,
+    etr_bracket = rep(c("rate_0_15", "rate_15"), 4),
+    profit = c(60, 40, 60, NA, 60, 40, 0, 40),
+    tax_accrued = c(3, 8, 3, NA, NA, 8, NA, 8)
+  )
+  results <- summarise_observed_t4(brackets, c("parent", "affiliate", "year"))
+
+  expect_setequal(results$parent[results$t4_available], c("USA", "GRC"))
+  expect_equal(results$direct_low_share[results$parent == "USA"], 0.6)
+  expect_equal(results$direct_topup_rate[results$parent == "USA"], 0.10)
+  expect_equal(results$direct_low_share[results$parent == "GRC"], 0)
+  expect_equal(results$direct_topup_rate[results$parent == "GRC"], 0)
+})
+
+test_that("parent-restricted cross-validation uses the intersection in both tables", {
+  brackets <- tibble::tibble(
+    parent = rep(c("USA", "JPN"), each = 2),
+    affiliate = "IRL",
+    year = 2023L,
+    etr_bracket = rep(c("rate_0_15", "rate_15"), 2),
+    profit = c(60, 40, 10, 90),
+    tax_accrued = c(3, 8, 1, 27)
+  )
+  panel <- tibble::tibble(
+    parent = c("USA", "ESP"),
+    affiliate = "IRL",
+    year = 2023L,
+    affiliate_is_eu27 = TRUE,
+    has_panelai_percentiles = TRUE,
+    analysis_profit_base = 100,
+    t4_low_profit = NA_real_,
+    etr_panelai_reg = c(0.2, 0.5),
+    tax_accrued_panelai = c(20, 50),
+    affiliate_cit_rate_unit = 0.25,
+    subgroups_count_panelai = c(1, 99),
+    entities_count_panelai = NA_real_,
+    subgroups_count = NA_real_,
+    entities_count = NA_real_,
+    etr_p5_panelai = c(0.02, 0.22),
+    etr_p25_panelai = c(0.08, 0.28),
+    etr_p50_panelai = c(0.16, 0.36),
+    etr_p75_panelai = c(0.27, 0.47),
+    etr_p95_panelai = c(0.46, 0.66)
+  )
+  direct <- summarise_observed_t4(brackets, c("parent", "affiliate", "year"))
+  crossval <- build_matched_stage1_crossval(panel, brackets, direct)
+
+  expect_identical(crossval$exact$parent, "USA")
+  expect_identical(crossval$restricted$parents, "USA")
+  expect_equal(crossval$restricted$direct_low_share, 0.6)
+  expect_equal(crossval$restricted$percentile_low_share, crossval$exact$percentile_low_share)
 })
 
 test_that("percentile source selection respects the EU and fallback rules", {

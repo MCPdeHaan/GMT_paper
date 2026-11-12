@@ -8,9 +8,12 @@ year,bspi_tier,rows,eu27_rows
 2019,direct_t4,194,55
 2020,avg_only,2571,592
 2020,direct_t4,179,53
-2021,avg_only,1258,278
+2021,avg_only,1247,274
 2021,direct_t4,186,55
-2021,percentile_fit,1477,344
+2021,percentile_fit,1489,348
 2022,avg_only,1077,235
 2022,direct_t4,201,62
-2022,percentile_fit,1499,349
+2022,percentile_fit,1508,356
+2023,avg_only,1350,270
+2023,direct_t4,193,60
+2023,percentile_fit,1643,383

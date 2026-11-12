@@ -536,6 +536,8 @@ combine_parent_year_evidence <- function(prior, evidence) {
           "observed_adjusted_profit",
           "observed_adjusted_profit_parent"
         )),
+      direct_adjusted_signal_flag = any(signal_type == "observed_adjusted_profit"),
+      historical_adjusted_signal_flag = any(signal_type == "observed_adjusted_profit_parent"),
       public_signal_flag = any(signal_type == "public_etr_parity"),
       exact_signal_count = n(),
       .groups = "drop"
@@ -548,6 +550,8 @@ combine_parent_year_evidence <- function(prior, evidence) {
       external_anchor_flag = coalesce(external_anchor_flag, FALSE),
       observed_adjusted_signal_flag =
         coalesce(observed_adjusted_signal_flag, FALSE),
+      direct_adjusted_signal_flag = coalesce(direct_adjusted_signal_flag, FALSE),
+      historical_adjusted_signal_flag = coalesce(historical_adjusted_signal_flag, FALSE),
       public_signal_flag = coalesce(public_signal_flag, FALSE),
       exact_signal_count = coalesce(exact_signal_count, 0L),
       support_class = case_when(
@@ -782,7 +786,7 @@ run_profit_reconciliation_model <- function(in_dir = PROCESSED_DIR,
   dir.create(diag_dir, showWarnings = FALSE, recursive = TRUE)
 
   panel <- readRDS(file.path(in_dir, "cbcr_table1.rds")) |>
-    filter(!affiliate %in% AGGREGATE_AFFILIATES_RECON) |>
+    filter(year %in% CORE_YEARS, !affiliate %in% AGGREGATE_AFFILIATES_RECON) |>
     mutate(
       parent = normalize_code(parent),
       affiliate = normalize_code(affiliate)
@@ -894,6 +898,14 @@ run_profit_reconciliation_model <- function(in_dir = PROCESSED_DIR,
       )
     ) |>
     arrange(year, desc(domestic_profit_mass), parent)
+
+  assert_unique_keys(predictions, c("parent", "year"), "profit reconciliation predictions")
+  stopifnot(
+    nrow(predictions) == nrow(targets),
+    all(is.finite(predictions$rho_hat_pt)),
+    all(predictions$rho_lo_pt <= predictions$rho_hat_pt &
+      predictions$rho_hat_pt <= predictions$rho_hi_pt)
+  )
 
   holdout <- build_holdout_validation(evidence, targets)
   etr_balance <- build_etr_balance_diagnostic(

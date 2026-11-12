@@ -43,6 +43,16 @@ empty_beta_fit <- function() {
   )
 }
 
+beta_lower_tail <- function(log_x, alpha, beta) {
+  tiny <- log_x < log(1e-16)
+  result <- numeric(length(log_x))
+  # For x this small, the leading incomplete-beta term avoids underflow
+  # inside pbeta and has relative error of order (alpha + beta) * x.
+  result[tiny] <- exp(alpha * log_x[tiny] - log(alpha) - lbeta(alpha, beta))
+  result[!tiny] <- stats::pbeta(exp(log_x[!tiny]), alpha, beta)
+  result
+}
+
 beta_quantiles <- function(probs, alpha, beta) {
   precision <- alpha + beta
   mean <- alpha / precision
@@ -50,7 +60,47 @@ beta_quantiles <- function(probs, alpha, beta) {
   if (precision > 1e5) {
     return(rep(mean, length(probs)))
   }
-  stats::qbeta(probs, alpha, beta)
+  quantiles <- withCallingHandlers(
+    stats::qbeta(probs, alpha, beta),
+    warning = function(w) {
+      if (grepl("qbeta", conditionMessage(w), fixed = TRUE)) {
+        invokeRestart("muffleWarning")
+      }
+    }
+  )
+  # Invert the CDF on the log-odds scale when qbeta loses precision.
+  # Reflection lets the CDF remain informative even when x rounds to 1.
+  interior <- probs > 0 & probs < 1
+  cdf <- rep(NA_real_, length(probs))
+  lower <- which(is.finite(quantiles) & quantiles <= 0.5)
+  upper <- which(is.finite(quantiles) & quantiles > 0.5)
+  cdf[lower] <- beta_lower_tail(log(quantiles[lower]), alpha, beta)
+  cdf[upper] <- 1 - beta_lower_tail(log1p(-quantiles[upper]), beta, alpha)
+  residual <- abs(cdf - probs)
+  retry <- which(interior & (!is.finite(residual) | residual > 1e-8))
+  for (i in retry) {
+    cdf_gap <- function(log_odds) {
+      log_tail <- -abs(log_odds) - log1p(exp(-abs(log_odds)))
+      if (log_odds <= 0) {
+        beta_lower_tail(log_tail, alpha, beta) - probs[i]
+      } else {
+        1 - beta_lower_tail(log_tail, beta, alpha) - probs[i]
+      }
+    }
+    lower_gap <- cdf_gap(-746)
+    upper_gap <- cdf_gap(746)
+    quantiles[i] <- if (lower_gap >= 0) {
+      0
+    } else if (upper_gap <= 0) {
+      1
+    } else {
+      log_odds <- stats::uniroot(cdf_gap, c(-746, 746),
+        f.lower = lower_gap, f.upper = upper_gap, tol = 1e-10
+      )$root
+      if (log_odds <= 0) exp(log_odds) / (1 + exp(log_odds)) else plogis(log_odds)
+    }
+  }
+  quantiles
 }
 
 fit_constrained_beta_percentiles <- function(q, target_mean,
@@ -237,10 +287,201 @@ choose_percentile_affiliate_year_source <- function(affiliate_is_eu27,
   )
 }
 
+pool_panelai_percentiles <- function(panel) {
+  panel |>
+    filter(has_panelai_percentiles) |>
+    mutate(
+      percentile_source_selected = "panelai",
+      weight_primary = subgroups_count_panelai,
+      weight_used = coalesce(
+        weight_primary,
+        entities_count_panelai,
+        subgroups_count,
+        entities_count,
+        1
+      ),
+      percentile_weight_fallback_row = is.na(weight_primary),
+      p5_raw = etr_p5_panelai,
+      p25_raw = etr_p25_panelai,
+      p50_raw = etr_p50_panelai,
+      p75_raw = etr_p75_panelai,
+      p95_raw = etr_p95_panelai
+    ) |>
+    group_by(affiliate, year) |>
+    summarise(
+      n_pair_years_percentile = n(),
+      percentile_weight_fallback_used = any(percentile_weight_fallback_row),
+      percentile_weight_sum = sum(weight_used[!is.na(weight_used)], na.rm = TRUE),
+      q5_raw = weighted_mean_available(p5_raw, weight_used),
+      q25_raw = weighted_mean_available(p25_raw, weight_used),
+      q50_raw = weighted_mean_available(p50_raw, weight_used),
+      q75_raw = weighted_mean_available(p75_raw, weight_used),
+      q95_raw = weighted_mean_available(p95_raw, weight_used),
+      .groups = "drop"
+    ) |>
+    mutate(percentile_source_selected = "panelai")
+}
+
+# Require observations on both sides of the threshold. A published zero
+# carries information; a suppressed or absent profit or tax value does not.
+summarise_observed_t4 <- function(brackets, keys) {
+  brackets |>
+    filter(year %in% DIRECT_YEARS, etr_bracket %in% T4_POSITIVE_BRACKETS) |>
+    group_by(across(all_of(keys))) |>
+    summarise(
+      t4_positive_profit = sum(pmax(profit, 0), na.rm = TRUE),
+      t4_low_profit = sum(pmax(profit[etr_bracket == "rate_0_15"], 0), na.rm = TRUE),
+      t4_low_tax = sum_or_na(tax_accrued[etr_bracket == "rate_0_15"]),
+      t4_has_low = any(etr_bracket == "rate_0_15" & is.finite(profit) & profit >= 0),
+      t4_has_upper = any(etr_bracket != "rate_0_15" & is.finite(profit) & profit >= 0),
+      .groups = "drop"
+    ) |>
+    mutate(
+      t4_available = t4_has_low & t4_has_upper &
+        is.finite(t4_positive_profit) & t4_positive_profit > 0 &
+        (t4_low_profit == 0 | is.finite(t4_low_tax)),
+      direct_metrics = pmap(
+        list(t4_low_profit, t4_low_tax, t4_positive_profit),
+        direct_rule_metrics
+      ),
+      direct_low_share = if_else(
+        t4_available, map_dbl(direct_metrics, "low_share"), NA_real_
+      ),
+      direct_topup_rate = if_else(
+        t4_available, map_dbl(direct_metrics, "topup_rate"), NA_real_
+      ),
+      direct_liability_rate = direct_low_share * direct_topup_rate
+    ) |>
+    select(-direct_metrics)
+}
+
+fit_matched_beta_metrics <- function(data) {
+  data |>
+    rowwise() |>
+    mutate(
+      fit = list(fit_constrained_beta_percentiles(
+        c(q5_raw, q25_raw, q50_raw, q75_raw, q95_raw), mean_etr
+      )),
+      boundary_mean = if_else(fit$boundary_flag, fit$mean, NA_real_),
+      percentile_low_share = beta_mass_below(fit$alpha, fit$beta,
+        boundary_mean = boundary_mean
+      ),
+      percentile_topup_rate = beta_avg_topup_rate(fit$alpha, fit$beta,
+        boundary_mean = boundary_mean
+      ),
+      percentile_liability_rate = percentile_low_share * percentile_topup_rate,
+      low_share_diff = percentile_low_share - direct_low_share,
+      liability_rate_diff = percentile_liability_rate - direct_liability_rate
+    ) |>
+    ungroup() |>
+    select(-fit, -boundary_mean)
+}
+
+build_matched_stage1_crossval <- function(panel, bilateral_brackets, direct_bilateral) {
+  keys <- c("parent", "affiliate", "year")
+  matched <- panel |>
+    filter(
+      year %in% PERCENTILE_YEARS, has_panelai_percentiles,
+      analysis_profit_base > 0, is.finite(etr_panelai_reg)
+    ) |>
+    select(
+      all_of(keys), affiliate_is_eu27, has_panelai_percentiles,
+      analysis_profit_base, etr_panelai_reg, tax_accrued_panelai, affiliate_cit_rate_unit,
+      subgroups_count_panelai, entities_count_panelai, subgroups_count, entities_count,
+      etr_p5_panelai, etr_p25_panelai, etr_p50_panelai, etr_p75_panelai, etr_p95_panelai
+    ) |>
+    inner_join(filter(direct_bilateral, t4_available), by = keys)
+
+  exact <- matched |>
+    transmute(
+      parent, affiliate, year, affiliate_is_eu27, analysis_profit_base,
+      mean_etr = etr_panelai_reg,
+      q5_raw = etr_p5_panelai, q25_raw = etr_p25_panelai, q50_raw = etr_p50_panelai,
+      q75_raw = etr_p75_panelai, q95_raw = etr_p95_panelai,
+      t4_positive_profit, t4_low_profit, t4_low_tax,
+      direct_low_share, direct_topup_rate, direct_liability_rate
+    ) |>
+    fit_matched_beta_metrics()
+
+  # Both tables use the same set of parents for each affiliate-year.
+  affiliate_year_keys <- c("affiliate", "year")
+  restricted_t4 <- bilateral_brackets |>
+    semi_join(matched, by = keys) |>
+    summarise_observed_t4(affiliate_year_keys)
+
+  restricted_means <- matched |>
+    group_by(affiliate, year) |>
+    summarise(
+      affiliate_is_eu27 = first(affiliate_is_eu27),
+      parents = paste(sort(unique(parent)), collapse = "+"),
+      analysis_profit_base = sum(analysis_profit_base),
+      tax_accrued = sum(tax_accrued_panelai),
+      cit_rate = first_non_missing(affiliate_cit_rate_unit),
+      .groups = "drop"
+    ) |>
+    mutate(
+      cap = pmin(1, coalesce(cit_rate + ZETA_LOSS_OFFSET, 1)),
+      mean_etr = pmin(pmax(tax_accrued / analysis_profit_base, 0), cap)
+    ) |>
+    select(-cap, -cit_rate)
+
+  restricted <- pool_panelai_percentiles(matched) |>
+    inner_join(restricted_means, by = affiliate_year_keys) |>
+    inner_join(restricted_t4, by = affiliate_year_keys) |>
+    fit_matched_beta_metrics()
+
+  list(exact = exact, restricted = restricted)
+}
+
+summarise_stage1_crossval <- function(data, sample) {
+  outcomes <- c("low_share", "liability_rate")
+  map_dfr(outcomes, function(outcome) {
+    observations <- tibble(
+      year = data$year,
+      benchmark = data[[paste0("direct_", outcome)]],
+      prediction = data[[paste0("percentile_", outcome)]]
+    ) |>
+      filter(is.finite(benchmark), is.finite(prediction))
+    gap <- observations$prediction - observations$benchmark
+    calibration <- if (nrow(observations) >= 3 &&
+      n_distinct(observations$prediction) > 1 &&
+      n_distinct(observations$benchmark) > 1) {
+      formula <- if (n_distinct(observations$year) > 1) {
+        benchmark ~ prediction + factor(year)
+      } else {
+        benchmark ~ prediction
+      }
+      fit <- stats::lm(formula, data = observations)
+      c(slope = unname(stats::coef(fit)["prediction"]), r_squared = summary(fit)$r.squared)
+    } else {
+      c(slope = NA_real_, r_squared = NA_real_)
+    }
+    values <- c(
+      n = nrow(observations),
+      median_gap = median(gap),
+      mae = mean(abs(gap)),
+      rmse = sqrt(mean(gap^2)),
+      spearman = safe_cor(observations$prediction, observations$benchmark, method = "spearman"),
+      calibration_slope = calibration[["slope"]],
+      calibration_r_squared = calibration[["r_squared"]]
+    )
+    tibble(
+      sample = sample, outcome = outcome, statistic = names(values),
+      metric = paste(sample, outcome, statistic, sep = "_"),
+      value = if_else(is.nan(values), NA_real_, unname(values))
+    )
+  })
+}
+
 run_stage1_pipeline <- function() {
   panel <- readRDS(file.path(PROCESSED_DIR, "base_panel.rds")) |>
     filter(year %in% MAIN_YEARS)
   t4_brackets <- readRDS(file.path(PROCESSED_DIR, "base_panel_t4_bracket_shares.rds"))
+  t4_bilateral_brackets <- readRDS(
+    file.path(PROCESSED_DIR, "base_panel_t4_bilateral_bracket_shares.rds")
+  )
+  bilateral_keys <- c("parent", "affiliate", "year")
+  direct_bilateral <- summarise_observed_t4(t4_bilateral_brackets, bilateral_keys)
 
   affiliate_year_base <- panel |>
     group_by(affiliate, year) |>
@@ -320,38 +561,7 @@ run_stage1_pipeline <- function() {
   percentile_rows <- panel |>
     filter(year %in% PERCENTILE_YEARS, has_any_percentile_set)
 
-  percentile_panelai <- percentile_rows |>
-    filter(has_panelai_percentiles) |>
-    mutate(
-      percentile_source_selected = "panelai",
-      weight_primary = subgroups_count_panelai,
-      weight_used = coalesce(
-        weight_primary,
-        entities_count_panelai,
-        subgroups_count,
-        entities_count,
-        1
-      ),
-      percentile_weight_fallback_row = is.na(weight_primary),
-      p5_raw = etr_p5_panelai,
-      p25_raw = etr_p25_panelai,
-      p50_raw = etr_p50_panelai,
-      p75_raw = etr_p75_panelai,
-      p95_raw = etr_p95_panelai
-    ) |>
-    group_by(affiliate, year) |>
-    summarise(
-      n_pair_years_percentile = n(),
-      percentile_weight_fallback_used = any(percentile_weight_fallback_row),
-      percentile_weight_sum = sum(weight_used[!is.na(weight_used)], na.rm = TRUE),
-      q5_raw = weighted_mean_available(p5_raw, weight_used),
-      q25_raw = weighted_mean_available(p25_raw, weight_used),
-      q50_raw = weighted_mean_available(p50_raw, weight_used),
-      q75_raw = weighted_mean_available(p75_raw, weight_used),
-      q95_raw = weighted_mean_available(p95_raw, weight_used),
-      .groups = "drop"
-    ) |>
-    mutate(percentile_source_selected = "panelai")
+  percentile_panelai <- pool_panelai_percentiles(percentile_rows)
 
   percentile_t_fallback <- percentile_rows |>
     filter(has_t_fallback_percentiles) |>
@@ -739,7 +949,7 @@ run_stage1_pipeline <- function() {
     left_join(bspi_anchor, by = "affiliate") |>
     left_join(bspi_validation, by = "affiliate") |>
     mutate(
-      direct_available = coalesce(direct_has_partition, FALSE),
+      direct_available = is.finite(direct_low_share) & is.finite(direct_topup_rate),
       percentile_available = !is.na(percentile_low_share),
       bspi_available = year %in% BSPI_IMPUTE_YEARS & coalesce(bspi_has_anchor, FALSE),
       average_available = !is.na(average_low_share),
@@ -812,6 +1022,10 @@ run_stage1_pipeline <- function() {
       )
     )
 
+  matched_crossval <- build_matched_stage1_crossval(
+    panel, t4_bilateral_brackets, direct_bilateral
+  )
+
   crossval_calibration_sample <- crossval_affiliate_year |>
     filter(
       is.finite(direct_low_share),
@@ -875,7 +1089,27 @@ run_stage1_pipeline <- function() {
         ),
       by = c("affiliate", "year")
     ) |>
+    left_join(
+      direct_bilateral |>
+        transmute(
+          parent, affiliate, year, t4_available,
+          direct_low_share_bilat = direct_low_share,
+          direct_topup_rate_bilat = direct_topup_rate
+        ),
+      by = bilateral_keys
+    ) |>
     mutate(
+      stage1_distributional_source_bilat = case_when(
+        coalesce(t4_available, FALSE) ~ "direct_t4_bilateral",
+        stage1_distributional_source == "direct_t4" ~ "direct_t4_pooled",
+        TRUE ~ stage1_distributional_source
+      ),
+      stage1_distributional_low_share_bilat =
+        coalesce(direct_low_share_bilat, stage1_distributional_low_share),
+      stage1_distributional_topup_rate_bilat =
+        coalesce(direct_topup_rate_bilat, stage1_distributional_topup_rate),
+      stage1_distributional_liability_rate_bilat =
+        stage1_distributional_low_share_bilat * stage1_distributional_topup_rate_bilat,
       analysis_profit_positive = pmax(coalesce(analysis_profit_base, 0), 0),
       stage1_lowtax_profit_average = average_low_share * analysis_profit_positive,
       stage1_topup_tax_average = stage1_lowtax_profit_average * average_topup_rate,
@@ -883,12 +1117,17 @@ run_stage1_pipeline <- function() {
         stage1_distributional_low_share * analysis_profit_positive,
       stage1_topup_tax_distributional =
         stage1_lowtax_profit_distributional * stage1_distributional_topup_rate,
+      stage1_lowtax_profit_distributional_bilat =
+        stage1_distributional_low_share_bilat * analysis_profit_positive,
+      stage1_topup_tax_distributional_bilat =
+        stage1_lowtax_profit_distributional_bilat * stage1_distributional_topup_rate_bilat,
       stage1_lowtax_profit_distributional_strict =
         stage1_distributional_low_share_strict * analysis_profit_positive,
       stage1_topup_tax_distributional_strict =
         stage1_lowtax_profit_distributional_strict *
           stage1_distributional_topup_rate_strict
-    )
+    ) |>
+    select(-t4_available, -direct_low_share_bilat, -direct_topup_rate_bilat)
 
   assert_unique_keys(affiliate_year_stage1, c("affiliate", "year"), "stage1 affiliate-year")
   assert_unique_keys(bilateral_stage1, c("parent", "affiliate", "year"), "stage1 bilateral")
@@ -1094,6 +1333,24 @@ run_stage1_pipeline <- function() {
     ) |>
     arrange(scope, year)
 
+  positive_direct_years <- bilateral_stage1 |>
+    filter(year %in% DIRECT_YEARS, analysis_profit_positive > 0)
+  bilateral_comparison_by_year <- bind_rows(
+    mutate(positive_direct_years, scope = "global"),
+    mutate(filter(positive_direct_years, affiliate_is_eu27), scope = "eu27")
+  ) |>
+    group_by(scope, year) |>
+    summarise(
+      positive_profit_cells = n(),
+      direct_bilateral_cells = sum(stage1_distributional_source_bilat == "direct_t4_bilateral"),
+      positive_profit = sum(analysis_profit_positive),
+      pooled_topup = sum(stage1_topup_tax_distributional, na.rm = TRUE),
+      bilateral_first_topup = sum(stage1_topup_tax_distributional_bilat, na.rm = TRUE),
+      pooled_liability_rate = pooled_topup / positive_profit,
+      bilateral_first_liability_rate = bilateral_first_topup / positive_profit,
+      .groups = "drop"
+    )
+
   stage1_conditioning_by_year <- affiliate_year_stage1 |>
     filter(percentile_available) |>
     group_by(year) |>
@@ -1241,6 +1498,22 @@ run_stage1_pipeline <- function() {
     )
   )
 
+  stage1_crossval_summary <- bind_rows(
+    stage1_crossval_summary,
+    summarise_stage1_crossval(crossval_affiliate_year, "unmatched_affiliate_year"),
+    summarise_stage1_crossval(matched_crossval$restricted, "parent_restricted_affiliate_year"),
+    summarise_stage1_crossval(matched_crossval$exact, "exact_bilateral")
+  )
+
+  write_csv(
+    matched_crossval$exact,
+    file.path(DIAGNOSTICS_DIR, "step3_stage1_crossval_bilateral_matched.csv")
+  )
+  write_csv(
+    matched_crossval$restricted,
+    file.path(DIAGNOSTICS_DIR, "step3_stage1_crossval_affiliate_year_parent_restricted.csv")
+  )
+
   write_csv(stage1_summary, file.path(DIAGNOSTICS_DIR, "step3_stage1_summary.csv"))
   write_csv(stage1_branch_by_year, file.path(DIAGNOSTICS_DIR, "step3_stage1_branch_by_year.csv"))
   write_csv(
@@ -1252,6 +1525,10 @@ run_stage1_pipeline <- function() {
     file.path(DIAGNOSTICS_DIR, "step3_stage1_bspi_tv_summary.csv")
   )
   write_csv(stage1_scenario_by_year, file.path(DIAGNOSTICS_DIR, "step3_stage1_scenario_by_year.csv"))
+  write_csv(
+    bilateral_comparison_by_year,
+    file.path(DIAGNOSTICS_DIR, "step3_stage1_bilateral_comparison_by_year.csv")
+  )
   write_csv(
     stage1_conditioning_by_year,
     file.path(DIAGNOSTICS_DIR, "step3_stage1_conditioning_by_year.csv")

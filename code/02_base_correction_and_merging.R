@@ -140,17 +140,10 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
     select(-etr_bracket) |>
     rename_with(~ paste0("t4_low_", .x), -c(parent, affiliate, year))
 
-  # Full Table IV bracket profile kept as a side panel for the Bracket-Share
-  # Panel Imputation (Section sec:distributional / sec:crossval). Parents are
-  # pooled within affiliate-year to produce a single within-jurisdiction
-  # bracket-share vector per cell. Shares are computed only across the
-  # positive-profit brackets (the non-overlapping partition {rate_0_15,
-  # rate_15, rate_20_30, rate_30} for 2019-2022 bilateral data, and the
-  # finer 2016-2018 WXD partition {rate_0_10, rate_10, rate_10_20, rate_20,
-  # rate_20_30, rate_30} for the legacy vintages). The negative-profit
-  # brackets are retained as companion volumes for diagnostics but do not
-  # enter the share denominator, which keeps bracket_profit_share bounded in
-  # [0, 1] even when an affiliate-year reports substantial loss mass.
+  # Keep both the pooled profile used for BSPI and the parent-specific
+  # profile used for direct bilateral measurement. Only the positive-profit
+  # ETR brackets enter the share denominator. Retain the other brackets
+  # for diagnostics.
   T4_POSITIVE_BRACKETS <- c(
     T4_DIRECT_POSITIVE_BRACKETS,
     "rate_0_10", "rate_10", "rate_10_20", "rate_20",

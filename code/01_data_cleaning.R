@@ -195,7 +195,7 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
   clean_bea_numeric <- function(x) {
     parse_number(
       x,
-      na = c("", "D", "(D)", "NA", "(NA)", "n.a.", "--", "...")
+      na = c("", "D", "(D)", "(*)", "NA", "(NA)", "n.a.", "--", "...")
     )
   }
 
@@ -342,7 +342,7 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
     length(intersect(EU27_ISO3, unique(cbcr_t1$affiliate)))
   )
 
-  # Year-by-year expansion of reporting parents (26 in 2016 -> 58 in 2022).
+  # Year-by-year coverage of reporting parents.
   write_csv(
     cbcr_t1 |> distinct(parent, year) |> count(year, name = "n_parents"),
     file.path(diagnostics_dir, "cbcr_t1_parent_coverage_by_year.csv")
@@ -468,10 +468,8 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
     n_distinct(cbcr_t4$parent)
   )
 
-  # Switzerland anomaly, per-parent. Table IV CHE exists 2019-2022 only and is
-  # dominated by USA reporting 80-91% of its CHE profit in the rate_0_15 bracket.
-  # Flag, do not drop. Table IV reports a single profit panel (PROFIT_GROUPING
-  # = _Z), so the variable is plain `profit`.
+  # Diagnose low-bracket profit for Swiss affiliates by reporting parent.
+  # Table IV uses a single profit panel (PROFIT_GROUPING = _Z).
   che_flag <- cbcr_t4 |>
     filter(affiliate == "CHE", etr_bracket == "rate_0_15") |>
     left_join(
@@ -506,9 +504,7 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
     )
   write_csv(etr_pct_coverage, file.path(diagnostics_dir, "cbcr_t1_etr_percentile_coverage.csv"))
 
-  # Table IV coverage by year. Only 2019-2022 carry observations, and only a
-  # handful of parents (USA, ESP, SGP, ...) report brackets. The hybrid Stage 1
-  # measurement therefore has much narrower coverage than Table IV's headline.
+  # Table IV coverage by year, including aggregate counterpart records.
   t4_coverage <- cbcr_t4 |>
     group_by(year) |>
     summarise(
@@ -541,7 +537,7 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
   add_diag("cbcr_t5", "rows", nrow(cbcr_t5))
 
 
-  # 6. CbCR Table VI: financial aggregates by MNE size class (2022 only)
+  # 6. CbCR Table VI: financial aggregates by MNE size class
 
   message("[6/15] CbCR Table VI")
   t6_raw <- read_oecd(file.path(raw_data_dir, "oecd_cbcr/cbcr_table6_mne_size_aggregates.csv")) |>
@@ -672,11 +668,22 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
   add_diag("wages_oecd_hourly", "rows", nrow(wages_oecd_hourly))
 
   # ILO wages extend coverage to non-OECD economies for payroll imputation.
-  ilo_monthly <- read_oecd(file.path(raw_data_dir, "ilo_wages/ilo_monthly_earnings.csv")) |>
-    transmute(
-      jurisdiction = REF_AREA, year = TIME_PERIOD, sex = SEX,
-      sector = ECO, currency = CUR, value = OBS_VALUE
+  ilo_monthly_path <- file.path(raw_data_dir, "ilo_wages/ilo_monthly_earnings.csv")
+  ilo_monthly <- if (file.exists(ilo_monthly_path)) {
+    read_oecd(ilo_monthly_path) |>
+      transmute(
+        jurisdiction = REF_AREA, year = TIME_PERIOD, sex = SEX,
+        sector = ECO, currency = CUR, value = OBS_VALUE
+      )
+  } else {
+    # The archived ILO vintage includes FY2023 and is available when the
+    # live SDMX endpoint is unavailable and the raw CSV is absent.
+    archived_ilo <- file.path(
+      dirname(raw_data_dir), "processed_backup_2017_2022", "wages_ilo_monthly.rds"
     )
+    message("Using archived ILO monthly wage series from ", archived_ilo)
+    readRDS(archived_ilo)
+  }
   saveRDS(ilo_monthly, file.path(processed_dir, "wages_ilo_monthly.rds"))
   add_diag("wages_ilo_monthly", "rows", nrow(ilo_monthly))
 
