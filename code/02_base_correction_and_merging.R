@@ -15,6 +15,19 @@ library(tibble)
 
 source("code/00_helpers.R")
 
+cap_table4_employees <- function(brackets, population, employees_per_entity_cap) {
+  brackets |>
+    left_join(population, by = c("affiliate", "year"), relationship = "many-to-one") |>
+    mutate(
+      entity_cap = if_else(entities_count > 0, entities_count * employees_per_entity_cap, NA_real_),
+      employee_cap = row_min_or_na(entity_cap, affiliate_population),
+      employees = if_else(!is.na(employee_cap) & employees > employee_cap,
+        employee_cap, employees, missing = employees
+      )
+    ) |>
+    select(-entity_cap, -employee_cap, -affiliate_population)
+}
+
 run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
   input_dir <- in_dir
   output_dir <- out_dir
@@ -150,11 +163,13 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
     "rate_10_accrued"
   )
 
-  t4_brackets_long <- t4 |>
-    filter(
-      !affiliate %in% AGGREGATE_AFFILIATES,
-      year %in% CORE_YEARS
-    ) |>
+  t4_population <- wb_population |>
+    transmute(affiliate = jurisdiction, year, affiliate_population = population)
+  t4_bracket_inputs <- t4 |>
+    filter(!affiliate %in% AGGREGATE_AFFILIATES, year %in% CORE_YEARS) |>
+    cap_table4_employees(t4_population, EMPLOYEES_PER_ENTITY_CAP)
+
+  t4_brackets_long <- t4_bracket_inputs |>
     group_by(affiliate, year, etr_bracket) |>
     summarise(
       profit = sum_or_na(profit),
@@ -165,14 +180,11 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
       subgroups_count = sum_or_na(subgroups_count),
       cbcr_count = sum_or_na(cbcr_count),
       .groups = "drop"
-    )
-
-  t4_bilateral_brackets <- t4 |>
-    filter(
-      year %in% CORE_YEARS,
-      !parent %in% AGGREGATE_AFFILIATES,
-      !affiliate %in% AGGREGATE_AFFILIATES
     ) |>
+    cap_table4_employees(t4_population, EMPLOYEES_PER_ENTITY_CAP)
+
+  t4_bilateral_brackets <- t4_bracket_inputs |>
+    filter(!parent %in% AGGREGATE_AFFILIATES) |>
     group_by(parent, affiliate, year) |>
     mutate(
       is_positive_bracket = etr_bracket %in% T4_POSITIVE_BRACKETS,

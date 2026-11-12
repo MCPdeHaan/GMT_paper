@@ -99,9 +99,10 @@ TYPOLOGY_FEATURE_GROUPS <- tribble(
 
 DECOMPOSITION_SAMPLES <- tribble(
   ~sample_id, ~sample_label, ~start_year, ~end_year,
-  "baseline_2017_2022", "2017--2022 baseline full public panel", 2017L, 2022L,
-  "high_measurement_2019_2022", "2019--2022 high-measurement panel", 2019L, 2022L,
-  "strict_overlap_2021_2022", "2021--2022 strict Table IV overlap window", 2021L, 2022L
+  "baseline_2017_2023", "2017–2023 baseline full public panel", 2017L, 2023L,
+  "high_measurement_2019_2023", "2019–2023 direct Table IV window", 2019L, 2023L,
+  "strict_overlap_2021_2023", "2021–2023 Table I and Table IV overlap window", 2021L, 2023L,
+  "baseline_2017_2022", "2017–2022 comparison window on the updated pipeline", 2017L, 2022L
 )
 
 label_effect <- function(effect) {
@@ -1391,7 +1392,7 @@ write_generated_latex <- function(anova_pooled, preferred_channel_summary,
   writeLines(lines, file.path(GENERATED_DIR, "stage4_6_results_tables.tex"))
 }
 
-run_stage4_6_pipeline <- function() {
+run_stage4_6_pipeline <- function(write_latex = TRUE) {
   revenue_country_year <- readRDS(file.path(PROCESSED_DIR, "stage4_5_revenue_country_year.rds"))
   revenue_by_channel <- readRDS(file.path(PROCESSED_DIR, "stage4_5_revenue_by_channel.rds"))
   conservation <- readRDS(file.path(PROCESSED_DIR, "stage4_5_allocation_conservation.rds"))
@@ -1824,12 +1825,14 @@ run_stage4_6_pipeline <- function() {
     file.path(PROCESSED_DIR, "stage4_6_hypothesis_summary.rds")
   )
 
-  write_generated_latex(
-    anova_objects$pooled,
-    preferred_outputs$channel_summary,
-    scenario_spread_country,
-    preferred_behavioural_outputs$channel_summary
-  )
+  if (write_latex) {
+    write_generated_latex(
+      anova_objects$pooled,
+      preferred_outputs$channel_summary,
+      scenario_spread_country,
+      preferred_behavioural_outputs$channel_summary
+    )
+  }
 
   message("\nStep 7 outputs written:")
   message(" - data/processed/stage4_6_anova_*.rds")
@@ -1841,6 +1844,6 @@ run_stage4_6_pipeline <- function() {
   message(" - data/processed/stage4_6_country_typology_*.rds")
   message(" - data/processed/stage4_6_measurement_sample_*.rds")
   message(" - diagnostics/step7_stage4_6_*.csv")
-  message(" - writing/generated/stage4_6_results_tables.tex")
+  if (write_latex) message(" - writing/generated/stage4_6_results_tables.tex")
 }
 
