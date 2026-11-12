@@ -1,7 +1,7 @@
 uncertainty_class,eta_squared,main_eta_squared,interaction_eta_squared,effects
-Epistemic measurement uncertainty,0.6909985048535088,0.6909985048535088,0,1
-Epistemic legal-regime uncertainty,0.15015125495785064,0.15015125495785064,0,1
-Mixed interaction,0.06036822215909465,0,0.06036822215909465,26
-Behavioural specification; aleatoric only under coefficient bootstrap,0.0507739926048332,0.0507739926048332,0,1
-Epistemic model uncertainty,0.04631634955736094,0.04631634955736094,0,1
-Policy-design scenario uncertainty,0.0013916758673517863,0.0013916758673517863,0,1
+Epistemic measurement uncertainty,0.7148280277515644,0.7148280277515644,0,1
+Epistemic legal-regime uncertainty,0.1443185834312556,0.1443185834312556,0,1
+Mixed interaction,0.05839340195517609,0,0.05839340195517609,26
+Behavioural specification; aleatoric only under coefficient bootstrap,0.04521007240650959,0.04521007240650959,0,1
+Epistemic model uncertainty,0.03586194845732467,0.03586194845732467,0,1
+Policy-design scenario uncertainty,0.0013879659981693396,0.0013879659981693396,0,1

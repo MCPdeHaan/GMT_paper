@@ -664,8 +664,15 @@ run_audit <- function() {
   t4 <- read_processed("cbcr_table4") |>
     filter(year %in% AUDIT_YEARS, !affiliate %in% aggregate_codes)
   raw_t4 <- filter(t4, !parent %in% aggregate_codes)
+  # Stage 5 caps employment in the production bracket files. Reconstruct
+  # the published pooled employment count for this historical audit.
+  published_employment <- t4 |>
+    group_by(affiliate, year, etr_bracket) |>
+    summarise(employees = sum_or_na(employees), .groups = "drop")
   pooled_t4 <- read_processed("base_panel_t4_bracket_shares") |>
-    filter(year %in% AUDIT_YEARS)
+    filter(year %in% AUDIT_YEARS) |>
+    select(-employees) |>
+    left_join(published_employment, by = c(HOST_KEY, "etr_bracket"), relationship = "one-to-one")
   assert_unique_keys(raw_t4, c(PAIR_KEY, "etr_bracket"), "audit bilateral Table IV")
   assert_unique_keys(pooled_t4, c(HOST_KEY, "etr_bracket"), "audit pooled Table IV")
 

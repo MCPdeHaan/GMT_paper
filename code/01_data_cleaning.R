@@ -13,6 +13,57 @@ library(xml2)
 
 source("code/00_helpers.R")
 
+EUROSTAT_GEO_MAP <- tribble(
+  ~geo, ~jurisdiction,
+  "AT", "AUT", "BE", "BEL", "BG", "BGR", "CY", "CYP", "CZ", "CZE",
+  "DE", "DEU", "DK", "DNK", "EE", "EST", "EL", "GRC", "ES", "ESP",
+  "FI", "FIN", "FR", "FRA", "HR", "HRV", "HU", "HUN", "IE", "IRL",
+  "IT", "ITA", "LT", "LTU", "LU", "LUX", "LV", "LVA", "MT", "MLT",
+  "NL", "NLD", "PL", "POL", "PT", "PRT", "RO", "ROU", "SE", "SWE",
+  "SI", "SVN", "SK", "SVK", "US", "USA", "UK", "GBR", "JP", "JPN"
+)
+
+read_eurostat_corporate_tax <- function(raw_dir = RAW_DIR) {
+  # Archived SDMX inputs from Eurostat gov_10a_taxag and ECB
+  # EXR.A.USD.EUR.SP00.A. Eurostat values are in millions of euros.
+  data_dir <- file.path(raw_dir, "eurostat_gfs")
+  tax <- read_csv(file.path(data_dir, "gov_10a_taxag_eu27_2016_2023.csv"),
+    show_col_types = FALSE
+  ) |>
+    filter(freq == "A", unit == "MIO_EUR", sector == "S13", TIME_PERIOD %in% CORE_YEARS) |>
+    transmute(geo, year = as.integer(TIME_PERIOD), eurostat_tax_code = na_item,
+      eur_millions = OBS_VALUE, eurostat_last_update = `LAST UPDATE`
+    )
+  fx <- read_csv(file.path(data_dir, "ecb_annual_usd_per_eur_2016_2023.csv"),
+    show_col_types = FALSE
+  ) |>
+    filter(FREQ == "A", CURRENCY == "USD", CURRENCY_DENOM == "EUR", EXR_TYPE == "SP00",
+      EXR_SUFFIX == "A", UNIT_MULT == 0, TIME_PERIOD %in% CORE_YEARS
+    ) |>
+    transmute(year = as.integer(TIME_PERIOD), usd_per_eur = OBS_VALUE)
+  assert_unique_keys(tax, c("geo", "year", "eurostat_tax_code"), "Eurostat corporate tax")
+  assert_unique_keys(fx, "year", "annual ECB exchange rate")
+  stopifnot(setequal(fx$year, CORE_YEARS), all(is.finite(fx$usd_per_eur) & fx$usd_per_eur > 0))
+  tax |>
+    inner_join(EUROSTAT_GEO_MAP, by = "geo", relationship = "many-to-one") |>
+    left_join(fx, by = "year", relationship = "many-to-one") |>
+    mutate(usd_billions = eur_millions * usd_per_eur / 1000)
+}
+
+append_cyprus_cit_revenue <- function(cit_revenue, eurostat_cit) {
+  # D51B_C2 includes corporate holding gains, the closer scope match to
+  # T_1200. For Cyprus it equals D51B throughout the archived window.
+  cyprus <- eurostat_cit |>
+    filter(jurisdiction == "CYP", eurostat_tax_code == "D51B_C2") |>
+    transmute(jurisdiction, year, measure = "TAX_REV", sector = "S13",
+      revenue_classification = "T_1200", unit = "USD", value = usd_billions
+    )
+  keys <- setdiff(names(cyprus), "value")
+  assert_unique_keys(cyprus, keys, "Cyprus corporate tax supplement")
+  stopifnot(setequal(cyprus$year, CORE_YEARS), all(is.finite(cyprus$value) & cyprus$value > 0))
+  bind_rows(cit_revenue, anti_join(cyprus, cit_revenue, by = keys))
+}
+
 run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
   raw_data_dir <- raw_dir
   processed_dir <- out_dir
@@ -23,16 +74,6 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
   # Eurostat publishes inward FATS using its own 2-letter codes (UK, EL = Greece).
   # EU27_ISO2 keeps the 27 Member States in Eurostat code system for the FATS coverage check.
   EU27_ISO2 <- EU27_ISO2_EUROSTAT
-
-  EUROSTAT_GEO_MAP <- tribble(
-    ~geo, ~jurisdiction,
-    "AT", "AUT", "BE", "BEL", "BG", "BGR", "CY", "CYP", "CZ", "CZE",
-    "DE", "DEU", "DK", "DNK", "EE", "EST", "EL", "GRC", "ES", "ESP",
-    "FI", "FIN", "FR", "FRA", "HR", "HRV", "HU", "HUN", "IE", "IRL",
-    "IT", "ITA", "LT", "LTU", "LU", "LUX", "LV", "LVA", "MT", "MLT",
-    "NL", "NLD", "PL", "POL", "PT", "PRT", "RO", "ROU", "SE", "SWE",
-    "SI", "SVN", "SK", "SVK", "US", "USA", "UK", "GBR", "JP", "JPN"
-  )
 
   BEA_COUNTRY_MAP <- tribble(
     ~country_or_region, ~jurisdiction,
@@ -1112,7 +1153,8 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
       value = if_else(unit %in% c("USD", "XDC"),
         OBS_VALUE * 10^(UNIT_MULT - 9), OBS_VALUE
       )
-    )
+    ) |>
+    append_cyprus_cit_revenue(read_eurostat_corporate_tax(raw_data_dir))
   saveRDS(cit_revenue, file.path(processed_dir, "cit_revenue.rds"))
   add_diag("cit_revenue", "rows", nrow(cit_revenue))
 

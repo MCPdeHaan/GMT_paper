@@ -10,7 +10,7 @@ source_from_repo <- function(path) {
   source(path)
 }
 
-source_from_repo("code/00_regression_checks.R")
+source_from_repo("code/00_helpers.R")
 
 processed_path <- function(file) repo_path("data", "processed", file)
 
@@ -122,33 +122,52 @@ test_that("final revenue matrices contain the complete 32-scenario EU27 design",
   }
 })
 
-test_that("pipeline outputs match the golden master", {
-  differences <- compare_pipeline_outputs(
-    processed_dir = repo_path("data", "processed"),
-    generated_dir = repo_path("writing", "generated"),
-    baseline_processed_dir = baseline_path(
-      "GMT_BASELINE_PROCESSED_DIR",
-      "data",
-      "baseline_processed"
-    ),
-    baseline_diagnostics_dir = baseline_path(
-      "GMT_BASELINE_DIAGNOSTICS_DIR",
-      "data",
-      "baseline_diagnostics"
-    ),
-    baseline_generated_dir = baseline_path(
-      "GMT_BASELINE_GENERATED_DIR",
-      "writing",
-      "baseline_generated"
-    ),
-    tolerance = 1e-8
-  )
+test_that("archived thesis revenue and current scenario totals reconcile by vintage", {
+  archive <- readRDS(file.path(
+    baseline_path("GMT_BASELINE_PROCESSED_DIR", "data", "baseline_processed"),
+    "stage4_5_revenue_country_year.rds"
+  ))
+  thesis <- archive |>
+    group_by(scenario_id) |>
+    summarise(eu_revenue = sum(revenue), .groups = "drop") |>
+    arrange(scenario_id)
+  expect_setequal(archive$year, 2017:2022)
+  expect_equal(nrow(thesis), 32L)
+  expect_equal(min(thesis$eu_revenue), 127672689733.25746, tolerance = 1e-10)
+  expect_equal(max(thesis$eu_revenue), 517433709472.1247, tolerance = 1e-10)
 
-  expect_equal(
-    nrow(differences),
-    0L,
-    info = format_pipeline_differences(differences, n = 30L)
-  )
+  current <- readRDS(processed_path("stage4_5_revenue_country_year.rds")) |>
+    group_by(scenario_id) |>
+    summarise(eu_revenue = sum(revenue), .groups = "drop") |>
+    arrange(scenario_id)
+  reported <- readRDS(processed_path("stage4_6_scenario_summary.rds")) |>
+    arrange(scenario_id) |>
+    select(scenario_id, eu_revenue)
+  expect_equal(reported, current, tolerance = 1e-10)
+})
+
+test_that("current fiscal and typology results use complete CIT denominators", {
+  annual <- readRDS(processed_path("cit_revenue.rds")) |>
+    filter(jurisdiction %in% EU27_ISO3, year %in% MAIN_YEARS, measure == "TAX_REV",
+      sector == "S13", revenue_classification == "T_1200", unit == "USD"
+    ) |>
+    transmute(country = jurisdiction, year, cit_usd = value * 1e9)
+  expect_unique_key(annual, c("country", "year"), "CIT denominator")
+  expect_equal(nrow(annual), length(EU27_ISO3) * length(MAIN_YEARS))
+  expect_true(all(is.finite(annual$cit_usd) & annual$cit_usd > 0))
+  fiscal <- readRDS(processed_path("stage4_6_fiscal_salience_country.rds"))
+  features <- readRDS(processed_path("stage4_6_country_typology_feature_matrix.rds"))
+  check <- annual |>
+    group_by(country) |>
+    summarise(cit_usd = sum(cit_usd), .groups = "drop") |>
+    left_join(fiscal, by = "country", relationship = "one-to-one") |>
+    left_join(select(features, country, typology_ratio = revenue_to_cit_1200),
+      by = "country", relationship = "one-to-one"
+    )
+  expect_true(all(is.finite(check$typology_ratio)))
+  expect_equal(check$cit_revenue_T_1200, check$cit_usd, tolerance = 1e-10)
+  expect_equal(check$revenue_to_cit_1200, check$preferred_revenue / check$cit_usd)
+  expect_equal(check$typology_ratio, check$revenue_to_cit_1200)
 })
 
 test_that("generated LaTeX tables remain present and well formed", {

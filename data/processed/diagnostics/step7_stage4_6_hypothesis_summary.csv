@@ -1,8 +1,8 @@
 metric,value
 largest_main_effect,ETR measurement
-largest_main_effect_eta_squared,0.690998504853509
+largest_main_effect_eta_squared,0.714828027751564
 h2_supported,TRUE
-interaction_eta_squared,0.0603682221590947
+interaction_eta_squared,0.0583934019551761
 h3_supported_above_10_percent,FALSE
-h4_mean_delta_sbs_minus_universal,-540324379.26953
+h4_mean_delta_sbs_minus_universal,-521742758.136224
 h4_wilcoxon_less_p_value,0

@@ -177,9 +177,10 @@ validate_revenue_inputs <- function(revenue_country_year,
     stop("Each country-year must contain all 32 factorial scenarios")
   }
 
-  if (n_distinct(revenue_country_year$country) != 27 ||
-    !setequal(unique(revenue_country_year$year), MAIN_YEARS)) {
-    stop("Stage 4.6 revenue matrix is not the expected EU27 by 2017-2022 panel")
+  if (!setequal(revenue_country_year$country, EU27_ISO3) ||
+    !setequal(revenue_country_year$year, MAIN_YEARS) ||
+    nrow(scenario_counts) != length(EU27_ISO3) * length(MAIN_YEARS)) {
+    stop("Stage 4.6 revenue matrix must contain every EU27 country in every main panel year")
   }
 
   if (any(is.na(revenue_country_year$country_name))) {
@@ -956,7 +957,7 @@ build_cluster_stability <- function(scaled_matrix,
       selected = k == 4L,
       selection_reason = if_else(
         k == 4L,
-        "Selected: stable, no single-country clusters, and separates conduit hubs, QDMTT-protected smaller states, residual-exposure states and states with latent exposure masked by sparse CbCR data.",
+        "Four clusters retained for comparison with the published collector typology.",
         ""
       )
     )
@@ -966,7 +967,7 @@ build_cluster_stability <- function(scaled_matrix,
 label_cluster_profile <- function(total_revenue, mean_revenue_to_cit,
                                   mean_qdmtt_share) {
   case_when(
-    total_revenue <= 0 ~ "Exposure masked by sparse CbCR data",
+    total_revenue <= 0 ~ "No collector revenue under the preferred scenario",
     !is.na(mean_revenue_to_cit) & mean_revenue_to_cit >= 0.30 ~
       "High-salience conduit hubs",
     !is.na(mean_qdmtt_share) & mean_qdmtt_share >= 0.80 ~
@@ -1455,6 +1456,11 @@ run_stage4_6_pipeline <- function(write_latex = TRUE) {
   )
   fiscal_salience_country <- build_fiscal_salience_country(
     fiscal_salience_country_year
+  )
+  stopifnot(
+    setequal(fiscal_salience_country$country, EU27_ISO3),
+    all(fiscal_salience_country$cit_1200_years == length(MAIN_YEARS)),
+    all(is.finite(fiscal_salience_country$revenue_to_cit_1200))
   )
   country_typology_feature_matrix <- build_country_typology_feature_matrix(
     fiscal_salience_country,
