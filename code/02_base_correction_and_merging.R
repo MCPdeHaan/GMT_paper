@@ -152,7 +152,7 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
   # enter the share denominator, which keeps bracket_profit_share bounded in
   # [0, 1] even when an affiliate-year reports substantial loss mass.
   T4_POSITIVE_BRACKETS <- c(
-    "rate_0_15", "rate_15", "rate_20_30", "rate_30",
+    T4_DIRECT_POSITIVE_BRACKETS,
     "rate_0_10", "rate_10", "rate_10_20", "rate_20",
     "rate_10_accrued"
   )
@@ -173,6 +173,51 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
       cbcr_count = sum_or_na(cbcr_count),
       .groups = "drop"
     )
+
+  t4_bilateral_brackets <- t4 |>
+    filter(
+      year %in% CORE_YEARS,
+      !parent %in% AGGREGATE_AFFILIATES,
+      !affiliate %in% AGGREGATE_AFFILIATES
+    ) |>
+    group_by(parent, affiliate, year) |>
+    mutate(
+      is_positive_bracket = etr_bracket %in% T4_POSITIVE_BRACKETS,
+      positive_profit_total = sum(pmax(profit[is_positive_bracket], 0),
+        na.rm = TRUE
+      ),
+      bracket_profit_share = if_else(
+        is_positive_bracket & positive_profit_total > 0,
+        pmax(profit, 0) / positive_profit_total,
+        NA_real_
+      )
+    ) |>
+    ungroup() |>
+    arrange(parent, affiliate, year, etr_bracket)
+
+  assert_unique_keys(
+    t4_bilateral_brackets,
+    c("parent", "affiliate", "year", "etr_bracket"),
+    "Bilateral Table IV bracket shares"
+  )
+
+  t4_parent_profit <- t4_bilateral_brackets |>
+    filter(year >= 2019L, etr_bracket %in% T4_DIRECT_POSITIVE_BRACKETS) |>
+    mutate(eu27 = affiliate %in% EU27_ISO3)
+
+  t4_parent_composition <- bind_rows(
+    mutate(t4_parent_profit, scope = "global"),
+    mutate(filter(t4_parent_profit, eu27), scope = "eu27")
+  ) |>
+    group_by(year, scope, parent) |>
+    summarise(positive_profit = sum(pmax(profit, 0), na.rm = TRUE), .groups = "drop") |>
+    group_by(year, scope) |>
+    mutate(
+      scope_positive_profit = sum(positive_profit),
+      share = safe_divide(positive_profit, scope_positive_profit)
+    ) |>
+    ungroup() |>
+    arrange(year, scope, desc(share), parent)
 
   t4_positive_totals <- t4_brackets_long |>
     filter(etr_bracket %in% T4_POSITIVE_BRACKETS) |>
@@ -1030,7 +1075,7 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
 
   fats_foreign_sector_levels <- fats_post2021 |>
     filter(
-      year %in% 2021:2022,
+      year >= 2021L, year %in% CORE_YEARS,
       geo %in% fats_geo_map$geo,
       c_ctrl == "WRL_REST"
     ) |>
@@ -1071,7 +1116,7 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
 
   fats_sector_shares <- fats_post2021 |>
     filter(
-      year %in% 2021:2022,
+      year >= 2021L, year %in% CORE_YEARS,
       geo %in% fats_geo_map$geo,
       c_ctrl == "WRL_REST"
     ) |>
@@ -1988,6 +2033,14 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
     t4_brackets_by_affiliate_year,
     file.path(output_dir, "base_panel_t4_bracket_shares.rds")
   )
+  saveRDS(
+    t4_bilateral_brackets,
+    file.path(output_dir, "base_panel_t4_bilateral_bracket_shares.rds")
+  )
+  write_csv(
+    t4_parent_composition,
+    file.path(diagnostics_dir, "step2_t4_parent_composition.csv")
+  )
 
   message("\nStep 2 outputs written:")
   message(" - data/processed/base_panel.rds")
@@ -1997,6 +2050,7 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
   message(" - data/processed/base_panel_bea_us_parent_sector_benchmark.rds")
   message(" - data/processed/base_panel_global_intan_eu27_macro.rds")
   message(" - data/processed/base_panel_t4_bracket_shares.rds")
+  message(" - data/processed/base_panel_t4_bilateral_bracket_shares.rds")
   message(" - diagnostics/step2_*.csv")
 }
 

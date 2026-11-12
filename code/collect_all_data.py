@@ -1,10 +1,12 @@
-import pandas as pd
 import argparse
 import csv
 import gzip
 import os
+import subprocess
 import sys
+import tempfile
 import time
+import zipfile
 import json
 import logging
 from pathlib import Path
@@ -38,6 +40,7 @@ EUROSTAT_SDMX = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data"
 SDMX_CSV_HEADERS = {"Accept": "application/vnd.sdmx.data+csv;file=true"}
 
 COLLECTORS = {}
+REFRESH = False
 
 def register(key: str, name: str):
     def decorator(func):
@@ -117,33 +120,39 @@ PILLAR2_BEPS_CONFIG = [
 ]
 
 def download_file(url: str, dest: Path, description: str, headers: Optional[dict] = None) -> bool:
-    if dest.exists() and dest.stat().st_size > 0:
+    if not REFRESH and dest.exists() and dest.stat().st_size > 0:
         return True
 
     for attempt in range(1, MAX_RETRIES + 1):
+        temporary = None
         try:
-            req_headers = headers or {}
-            resp = SESSION.get(url, timeout=TIMEOUT, headers=req_headers, stream=True)
-            resp.raise_for_status()
-
-            with open(dest, "wb") as f:
-                for chunk in resp.iter_content(chunk_size=65536):
-                    f.write(chunk)
+            with SESSION.get(url, timeout=TIMEOUT, headers=headers, stream=True) as resp:
+                resp.raise_for_status()
+                with tempfile.NamedTemporaryFile(dir=dest.parent, delete=False) as f:
+                    temporary = Path(f.name)
+                    for chunk in resp.iter_content(chunk_size=65536):
+                        f.write(chunk)
+                    if f.tell() == 0:
+                        raise requests.exceptions.RequestException("Empty response")
+            temporary.replace(dest)
             return True
 
         except requests.exceptions.RequestException as e:
-            if dest.exists():
-                dest.unlink()
             if attempt < MAX_RETRIES:
                 time.sleep(RETRY_WAIT)
             else:
                 log.error(f"FAILED: {description} - {e}")
                 return False
+        finally:
+            if temporary is not None:
+                temporary.unlink(missing_ok=True)
     return False
 
 def download_oecd(dataflow: str, dest: Path, description: str) -> bool:
     url = f"{OECD_SDMX}/{dataflow}/all?format=csv"
-    return download_file(url, dest, description, headers=SDMX_CSV_HEADERS)
+    if not download_file(url, dest, description, headers=SDMX_CSV_HEADERS):
+        raise RuntimeError(f"Failed to download OECD flow {dataflow}")
+    return True
 
 def download_eurostat(dataset: str, dest: Path, description: str) -> bool:
     url = f"{EUROSTAT_SDMX}/{dataset}/?format=SDMX-CSV&compressed=true"
@@ -290,7 +299,10 @@ def collect_world_bank():
                 if page >= data[0].get("pages", 1):
                     break
                 page += 1
-            pd.DataFrame(all_c).to_csv(csv_dest, index=False)
+            with csv_dest.open("w", newline="", encoding="utf-8") as f:
+                writer = csv.DictWriter(f, fieldnames=["iso3", "iso2", "name", "region", "income_level", "income_id"])
+                writer.writeheader()
+                writer.writerows(all_c)
         except requests.exceptions.RequestException as e:
             log.error(f"Income Classification API error: {e}")
 
@@ -300,63 +312,69 @@ def collect_world_bank():
         "Historical income group classifications",
     )
 
-    gdp_dest = d / "wb_gdp_per_capita.csv"
-    if not gdp_dest.exists():
-        try:
-            all_obs = []
-            page = 1
-            while True:
-                r = SESSION.get(
-                    "https://api.worldbank.org/v2/country/all/indicator/NY.GDP.PCAP.CD",
-                    params={"per_page": 10000, "page": page, "format": "json", "date": "2015:2024"},
-                    timeout=TIMEOUT,
-                )
-                r.raise_for_status()
-                data = r.json()
-                if len(data) < 2 or not data[1]:
-                    break
-                for o in data[1]:
-                    all_obs.append({
-                        "iso3": o["country"]["id"],
-                        "country": o["country"]["value"],
-                        "year": o["date"],
-                        "gdp_pc_usd": o["value"],
-                    })
-                if page >= data[0].get("pages", 1):
-                    break
-                page += 1
-            pd.DataFrame(all_obs).to_csv(gdp_dest, index=False)
-        except requests.exceptions.RequestException as e:
-            log.error(f"GDP API error: {e}")
+    with csv_dest.open(newline="", encoding="utf-8") as f:
+        country_codes = {row["iso3"]: row["iso2"] for row in csv.DictReader(f)}
+    collect_world_bank_indicator(
+        "NY.GDP.PCAP.CD", d / "wb_gdp_per_capita.csv", "gdp_pc_usd", country_codes
+    )
+    collect_world_bank_indicator(
+        "SP.POP.TOTL", d / "wb_population.csv", "population", country_codes
+    )
 
-    pop_dest = d / "wb_population.csv"
-    if not pop_dest.exists():
-        try:
-            all_obs = []
-            page = 1
-            while True:
-                r = SESSION.get(
-                    "https://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL",
-                    params={"per_page": 10000, "page": page, "format": "json", "date": "2015:2024"},
-                    timeout=TIMEOUT,
-                )
-                r.raise_for_status()
-                data = r.json()
-                if len(data) < 2 or not data[1]:
-                    break
-                for o in data[1]:
-                    all_obs.append({
-                        "iso3": o["country"]["id"],
-                        "country": o["country"]["value"],
-                        "year": o["date"],
-                        "population": o["value"],
-                    })
-                if page >= data[0].get("pages", 1):
-                    break
-                page += 1
-            pd.DataFrame(all_obs).to_csv(pop_dest, index=False)
-        except requests.exceptions.RequestException as e:
-            log.error(f"Population API error: {e}")
+
+def collect_world_bank_indicator(indicator, dest, value_column, country_codes):
+    if not REFRESH and dest.exists() and dest.stat().st_size > 0:
+        return
+
+    url = f"https://api.worldbank.org/v2/en/indicator/{indicator}"
+    with tempfile.TemporaryDirectory(dir=dest.parent) as directory:
+        work = Path(directory).resolve()
+        archive = work / "indicator.zip"
+        source = work / "indicator.csv"
+        if download_file(f"{url}?downloadformat=csv", archive, indicator):
+            with zipfile.ZipFile(archive) as bundle:
+                member = next(name for name in bundle.namelist() if name.startswith("API_"))
+                with bundle.open(member) as input_file, source.open("wb") as output_file:
+                    for chunk in iter(lambda: input_file.read(65536), b""):
+                        output_file.write(chunk)
+        else:
+            # The World Bank can serve Excel when the CSV endpoint returns 502.
+            workbook = work / "indicator.xls"
+            if not download_file(f"{url}?downloadformat=excel", workbook, indicator):
+                raise RuntimeError(f"No World Bank bulk download for {indicator}")
+            subprocess.run(
+                [
+                    "soffice", f"-env:UserInstallation={(work / 'profile').as_uri()}",
+                    "--headless", "--convert-to", "csv:Text - txt - csv (StarCalc):44,34,76",
+                    "--outdir", str(work), str(workbook),
+                ],
+                check=True,
+            )
+
+        years = [str(year) for year in range(2015, 2025)]
+        output = work / dest.name
+        with source.open(newline="", encoding="utf-8-sig") as f, output.open(
+            "w", newline="", encoding="utf-8"
+        ) as g:
+            rows = csv.reader(f)
+            header = next((row for row in rows if row[:2] == ["Country Name", "Country Code"]), [])
+            if not set(years).issubset(header):
+                raise ValueError(f"World Bank bulk file lacks the requested years for {indicator}")
+            writer = csv.writer(g)
+            # Preserve the legacy raw header and its two-letter code convention.
+            writer.writerow(["iso3", "country", "year", value_column])
+            covered_2023 = False
+            for row in csv.DictReader(f, fieldnames=header):
+                country_code = country_codes.get(row["Country Code"])
+                if country_code is None:
+                    continue
+                covered_2023 |= bool(row["2023"])
+                for year in years:
+                    writer.writerow([country_code, row["Country Name"], year, row[year]])
+            if not covered_2023:
+                raise ValueError(f"No 2023 World Bank data for {indicator}")
+        output.replace(dest)
+
 
 @register("eurostat_fats", "Eurostat Inward FATS")
 def collect_eurostat_fats():
@@ -424,7 +442,8 @@ def collect_ilo_wages():
     ilo_sdmx = "https://sdmx.ilo.org/rest/data"
     for fname, flow, desc in ILO_WAGES_CONFIG:
         url = f"{ilo_sdmx}/{flow}/all?format=csv"
-        download_file(url, d / fname, desc, headers=SDMX_CSV_HEADERS)
+        if not download_file(url, d / fname, desc, headers=SDMX_CSV_HEADERS):
+            raise RuntimeError(f"Failed to download ILO flow {flow}")
 
 @register("pillar2_tracker", "OECD BEPS / Pillar Two")
 def collect_pillar2_tracker():
@@ -490,10 +509,13 @@ def collect_all():
     log.info(f"\nTotal Data Collected: {total_mb:.1f} MB")
 
 def main():
+    global REFRESH
     parser = argparse.ArgumentParser(description="GMT Thesis Data Collection")
     parser.add_argument("--source", action="append", choices=list(COLLECTORS.keys()))
+    parser.add_argument("--refresh", action="store_true", help="Refresh the selected raw sources")
     parser.add_argument("--list", action="store_true")
     args = parser.parse_args()
+    REFRESH = args.refresh
 
     if args.list:
         for key, (name, _) in COLLECTORS.items():
@@ -501,9 +523,12 @@ def main():
         return
 
     if args.source:
+        results = []
         for s in args.source:
             name, func = COLLECTORS[s]
-            execute_collection(name, func)
+            results.append(execute_collection(name, func))
+        if "✗" in results:
+            sys.exit(1)
     else:
         collect_all()
 

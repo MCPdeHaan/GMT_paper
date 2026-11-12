@@ -2,8 +2,7 @@
 # Step 1 of the methodology pipeline.
 #
 # Reshapes the raw datasets collected by code/collect_all_data.py into tidy,
-# analysis-ready intermediate tables in data/processed/. No new variables are
-# calculated, no datasets are merged.
+# analysis-ready intermediate tables in data/processed/.
 library(dplyr)
 library(tidyr)
 library(readr)
@@ -1090,12 +1089,22 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
   saveRDS(cbcr_req, file.path(processed_dir, "cbcr_requirements.rds"))
   add_diag("cbcr_requirements", "rows", nrow(cbcr_req))
 
-  # OECD comparative tax revenue statistics (CIT revenue / GDP among others).
-  cit_revenue <- read_oecd(file.path(raw_data_dir, "oecd_cts_additional/oecd_cit_revenue_gdp.csv")) |>
+  # Retain monetary values in billions of the reported currency, as expected
+  # by the fiscal-salience code. Ratios retain their original units.
+  revenue_raw <- read_oecd(file.path(raw_data_dir, "oecd_cts_additional/oecd_cit_revenue_gdp.csv"))
+  monetary <- revenue_raw$UNIT_MEASURE %in% c("USD", "XDC") &
+    !is.na(revenue_raw$OBS_VALUE)
+  if (any(!is.finite(revenue_raw$UNIT_MULT[monetary]))) {
+    stop("OECD monetary revenue has missing or invalid UNIT_MULT")
+  }
+  cit_revenue <- revenue_raw |>
     transmute(
       jurisdiction = REF_AREA, year = TIME_PERIOD, measure = MEASURE,
       sector = SECTOR, revenue_classification = STANDARD_REVENUE,
-      unit = UNIT_MEASURE, value = OBS_VALUE
+      unit = UNIT_MEASURE,
+      value = if_else(unit %in% c("USD", "XDC"),
+        OBS_VALUE * 10^(UNIT_MULT - 9), OBS_VALUE
+      )
     )
   saveRDS(cit_revenue, file.path(processed_dir, "cit_revenue.rds"))
   add_diag("cit_revenue", "rows", nrow(cit_revenue))
@@ -1106,11 +1115,7 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
   diagnostics_df <- bind_rows(diagnostics)
   write_csv(diagnostics_df, file.path(diagnostics_dir, "summary.csv"))
 
-  message(sprintf(
-    "\nDiagnostics summary",
-    file.path(diagnostics_dir, "summary.csv"),
-    nrow(diagnostics_df)
-  ))
+  message("\nDiagnostics summary written to ", file.path(diagnostics_dir, "summary.csv"))
   message(sprintf(
     "%d intermediate files written to %s/",
     length(list.files(processed_dir, pattern = "\\.rds$")), processed_dir

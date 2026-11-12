@@ -1,0 +1,14 @@
+feature,missing_values,imputation_value
+preferred_revenue,0,21.6155040257161
+scenario_spread,0,22.20333017230766
+revenue_to_cit_1200,1,0.05336568189529722
+revenue_to_gdp,0,0.0012270700268227997
+revenue_per_capita,0,5.108675257935376
+etr_measurement_main_effect,0,21.427226224717874
+sbs_regime_main_effect,0,20.47504479466189
+substance_specification_main_effect,0,19.653841473781174
+behavioural_response_main_effect,0,19.667790237416177
+qdmtt_share,5,0.7016130635701199
+residual_iir_utpr_exposure,5,0.2983869364298802
+sbs_extinguished_share,5,0.2895302802526069
+high_risk_imputation_share,0,0.3241120163372241

@@ -1,0 +1,11 @@
+bridge_component,source_rank,source_dataset,source_variable,source_role,implementation_rule
+liability_base,1,OECD CbCR,"PROFIT, PROFIT_ADJ, TAX_ACCRUED, ASSETS, EMPLOYEES",Only source used for the GMT liability base,CbCR remains the parent-affiliate-year base; sectoral data only allocate country-level levels across sectors
+sectoral_payroll_share,1,Eurostat inward FATS,ind_expn_sal_ben_meur,Preferred EU host-country sectoral payroll allocator,"Foreign-control WRL_REST leaf-sector personnel costs, normalised within affiliate-year"
+sectoral_payroll_share,2,Eurostat inward FATS,ind_emp_nr,Fallback payroll allocator where personnel costs are suppressed,Employees scaled by observed personnel cost per employee in the same affiliate-year
+sectoral_payroll_share,3,Eurostat inward FATS,ind_nettur_meur,Last payroll allocator where both personnel costs and employees are suppressed,Turnover scaled by observed personnel-cost-to-turnover ratio in the same affiliate-year
+sectoral_asset_share,1,EUKLEMS and INTANProd,K_Tang,Preferred sectoral tangible-asset allocator,Used when EUKLEMS tangible-stock cells cover at least 75 per cent of FATS turnover in the affiliate-year
+sectoral_asset_share,2,Eurostat inward FATS,ind_grsinv_tnca_meur,Fallback tangible-asset allocator,"Gross investment in tangible non-current assets, with activity-scaled imputation for suppressed cells"
+sectoral_profit_share,1,Eurostat inward FATS,ind_gos_meur,Preferred sectoral profit allocator,"Positive gross operating surplus, normalised within affiliate-year"
+sectoral_profit_share,2,Eurostat inward FATS,ind_av_meur,Fallback profit allocator,Positive value added scaled by the observed gross-operating-surplus-to-value-added ratio
+sectoral_profit_share,3,Eurostat inward FATS,ind_nettur_meur,Last profit allocator,"Turnover scaled by the observed gross-operating-surplus-to-turnover ratio, or turnover shares when no surplus information is usable"
+bea_validation,99,BEA USDIA MOFA,"employment, compensation, ppe_expenditures, total_assets",External U.S.-parent benchmark only,Used to validate broad-sector shares; never replaces CbCR levels or the EU sectoral bridge

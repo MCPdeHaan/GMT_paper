@@ -1,0 +1,32 @@
+effect,effect_label,interaction_order,ss,total_ss,eta_squared
+x1_etr,ETR measurement,1,8234048426087293e6,11916159540508565e6,0.6909985048535088
+x4_sbs,SbS regime,1,1789226309285326e6,11916159540508565e6,0.15015125495785064
+x5_behaviour,Behavioural response,1,6050309963877945e5,11916159540508565e6,0.0507739926048332
+x2_substance,Substance specification,1,55191301065947624e4,11916159540508565e6,0.04631634955736094
+x1_etr:x4_sbs,ETR measurement x SbS regime,2,3612978864862619e5,11916159540508565e6,0.03031999406000251
+x1_etr:x2_substance,ETR measurement x Substance specification,2,2.4843180740253145e+20,11916159540508565e6,0.020848311619024257
+x1_etr:x5_behaviour,ETR measurement x Behavioural response,2,8056429016558184e4,11916159540508565e6,0.006760927452482184
+x3_rates,SBIE rate endpoint,1,1658343166403952e4,11916159540508565e6,0.0013916758673517863
+x4_sbs:x5_behaviour,SbS regime x Behavioural response,2,14134765347111504e3,11916159540508565e6,0.0011861846343245797
+x1_etr:x3_rates,ETR measurement x SBIE rate endpoint,2,6807373187151842e3,11916159540508565e6,5.712724107134028e-4
+x2_substance:x5_behaviour,Substance specification x Behavioural response,2,2397514599541072e3,11916159540508565e6,2.011985985409817e-4
+x2_substance:x3_rates,Substance specification x SBIE rate endpoint,2,1702037160544624400,11916159540508565e6,1.4283437165796655e-4
+x1_etr:x4_sbs:x5_behaviour,ETR measurement x SbS regime x Behavioural response,3,1634490272673463600,11916159540508565e6,1.3716586011768903e-4
+x1_etr:x2_substance:x5_behaviour,ETR measurement x Substance specification x Behavioural response,3,1081848128296398300,11916159540508565e6,9.078832191015013e-5
+x3_rates:x4_sbs,SBIE rate endpoint x SbS regime,2,406582791818119100,11916159540508565e6,3.412028770141548e-5
+x1_etr:x3_rates:x4_sbs,ETR measurement x SBIE rate endpoint x SbS regime,3,370947222686139460,11916159540508565e6,3.112976302684749e-5
+x1_etr:x2_substance:x3_rates,ETR measurement x Substance specification x SBIE rate endpoint,3,365089372813606850,11916159540508565e6,3.063817428530546e-5
+x3_rates:x5_behaviour,SBIE rate endpoint x Behavioural response,2,108104735413869200,11916159540508565e6,9.072112121893883e-6
+x1_etr:x3_rates:x5_behaviour,ETR measurement x SBIE rate endpoint x Behavioural response,3,34482573055041160,11916159540508565e6,2.8937656413392976e-6
+x2_substance:x3_rates:x5_behaviour,Substance specification x SBIE rate endpoint x Behavioural response,3,12782688788587866,11916159540508565e6,1.0727188357233356e-6
+x1_etr:x2_substance:x3_rates:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x Behavioural response,4,3348851071288978.5,11916159540508565e6,2.8103442723342845e-7
+x3_rates:x4_sbs:x5_behaviour,SBIE rate endpoint x SbS regime x Behavioural response,3,1904870729319363,11916159540508565e6,1.5985609481341886e-7
+x1_etr:x3_rates:x4_sbs:x5_behaviour,ETR measurement x SBIE rate endpoint x SbS regime x Behavioural response,4,1654677052087709.8,11916159540508565e6,1.388599276858197e-7
+x2_substance:x4_sbs,Substance specification x SbS regime,2,432186477381156.7,11916159540508565e6,3.626894016582725e-8
+x1_etr:x2_substance:x4_sbs,ETR measurement x Substance specification x SbS regime,3,19985690872144.27,11916159540508565e6,1.6771922870119032e-9
+x2_substance:x4_sbs:x5_behaviour,Substance specification x SbS regime x Behavioural response,3,3239691364869.016,11916159540508565e6,2.718737823084526e-10
+x1_etr:x2_substance:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SbS regime x Behavioural response,4,327873445230.54095,11916159540508565e6,2.7515026474422965e-11
+x2_substance:x3_rates:x4_sbs,Substance specification x SBIE rate endpoint x SbS regime,3,146047951591.2664,11916159540508565e6,1.2256293740846748e-11
+x1_etr:x2_substance:x3_rates:x4_sbs,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime,4,4636143828.001989,11916159540508565e6,3.8906359152389507e-13
+x2_substance:x3_rates:x4_sbs:x5_behaviour,Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,4,1051512464.5887861,11916159540508565e6,8.824256347141094e-14
+x1_etr:x2_substance:x3_rates:x4_sbs:x5_behaviour,ETR measurement x Substance specification x SBIE rate endpoint x SbS regime x Behavioural response,5,45353830.423984006,11916159540508565e6,3.806077811379183e-15

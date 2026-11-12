@@ -1,0 +1,41 @@
+nace_r2,euklems_nace_r2,euklems_mapping_tier,fats_sector_level,euklems_crosswalk_rule
+B,B,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+C10-C12,C10-C12,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+C13-C15,C13-C15,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+C16-C18,C16-C18,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+C19,C19,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+C20,C20,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+C21,C21,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+C22-C23,C22-C23,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+C24-C25,C24-C25,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+C26,C26,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+C27,C27,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+C28,C28,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+C29-C30,C29-C30,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+C31-C32,C31-C33,allocated_from_broader_stock,post_2021_fats_leaf_sector,Broader EUKLEMS stock is allocated across FATS child sectors using the FATS activity base
+C33,C31-C33,allocated_from_broader_stock,post_2021_fats_leaf_sector,Broader EUKLEMS stock is allocated across FATS child sectors using the FATS activity base
+D,D,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+E,E,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+F,F,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+G,G,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+H49,H49,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+H50,H50,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+H51,H51,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+H52-H53,H52-H53,custom_aggregate,post_2021_fats_leaf_sector,EUKLEMS source sectors are summed to match the FATS sector
+I,I,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+J58,J58-J60,allocated_from_broader_stock,post_2021_fats_leaf_sector,Broader EUKLEMS stock is allocated across FATS child sectors using the FATS activity base
+J59-J60,J58-J60,allocated_from_broader_stock,post_2021_fats_leaf_sector,Broader EUKLEMS stock is allocated across FATS child sectors using the FATS activity base
+J61,J61,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+J62-J63,J62-J63,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+K,K,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+L,L,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+M69-M71,M,allocated_from_broader_stock,post_2021_fats_leaf_sector,Broader EUKLEMS stock is allocated across FATS child sectors using the FATS activity base
+M72,M,allocated_from_broader_stock,post_2021_fats_leaf_sector,Broader EUKLEMS stock is allocated across FATS child sectors using the FATS activity base
+M73-M75,M,allocated_from_broader_stock,post_2021_fats_leaf_sector,Broader EUKLEMS stock is allocated across FATS child sectors using the FATS activity base
+N77,N,allocated_from_broader_stock,post_2021_fats_leaf_sector,Broader EUKLEMS stock is allocated across FATS child sectors using the FATS activity base
+N78-N82,N,allocated_from_broader_stock,post_2021_fats_leaf_sector,Broader EUKLEMS stock is allocated across FATS child sectors using the FATS activity base
+P,P,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+Q86,Q86,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+Q87-Q88,Q87-Q88,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+R,R,direct,post_2021_fats_leaf_sector,FATS and EUKLEMS sectors are aligned one-to-one
+S95-S96,S,allocated_from_broader_stock,post_2021_fats_leaf_sector,Broader EUKLEMS stock is allocated across FATS child sectors using the FATS activity base
