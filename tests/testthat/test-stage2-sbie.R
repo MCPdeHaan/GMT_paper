@@ -36,6 +36,25 @@ test_that("SBTI overlay cannot push the effective floor below zero", {
   )
 })
 
+test_that("sectoral liabilities distinguish the SBIE filter from the SBTI overlay", {
+  sectors <- tibble::tibble(
+    affiliate = "IRL", year = 2023L, rate_scenario = "initial",
+    sectoral_profit_proxy = c(75, 25),
+    average_topup_rate = 0.10, stage1_distributional_topup_rate = 0.10,
+    sectoral_phi = c(0.2, 0.6), sectoral_kappa = c(0.03, 0.05)
+  )
+  stage1 <- tibble::tibble(
+    affiliate = "IRL", year = 2023L, average_low_share = 1,
+    stage1_distributional_low_share = 0.5
+  )
+  rates <- summarise_sectoral_sbie_rates(sectors, stage1)
+
+  expect_equal(rates$sectoral_sbie_per_profit_average, 0.07)
+  expect_equal(rates$sectoral_sbie_sbti_per_profit_average, 0.0375)
+  expect_equal(rates$sectoral_sbie_per_profit_distributional, 0.035)
+  expect_equal(rates$sectoral_sbie_sbti_per_profit_distributional, 0.01875)
+})
+
 test_that("BEA bridge classifier rejects weak total-asset alignment", {
   expect_equal(
     classify_bea_bridge_signal(

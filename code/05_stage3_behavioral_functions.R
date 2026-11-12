@@ -12,7 +12,7 @@ library(purrr)
 library(tibble)
 library(stringr)
 
-source("code/00_helpers.R")
+source("code/04_stage2_sbie_functions.R")
 
 dir.create(DIAGNOSTICS_DIR, showWarnings = FALSE, recursive = TRUE)
 
@@ -28,8 +28,9 @@ SIMULATED_ETR_TAX_BASIS <- "BASELINE"
 SIMULATED_ETR_SCENARIO <- "FIXED"
 SIMULATED_ETR_TAX_TYPE <- "COMPOSITE"
 BEHAVIOURAL_MAX_REALLOCATION_SHARE <- 1
-DIAGNOSTIC_CHANNEL_PRIOR_TP_IP <- 0.82
-DIAGNOSTIC_CHANNEL_PRIOR_DEBT <- 0.18
+# Fixed sensitivity benchmark motivated by Heckemeyer and Overesch (2017).
+DIAGNOSTIC_CHANNEL_PRIOR_TP_IP <- 0.72
+DIAGNOSTIC_CHANNEL_PRIOR_DEBT <- 0.28
 DIAGNOSTIC_CHANNEL_PRIOR_SUBSTANCE <- 0
 
 winsorise <- function(x, probs = ETR_WINSOR_PROBS) {
@@ -788,6 +789,166 @@ estimate_stage3_models <- function(estimation_sample) {
   )
 }
 
+stage3_gaussian_bic <- function(fit, weights) {
+  n <- stats::nobs(fit)
+  weighted_variance <- sum(weights * stats::residuals(fit)^2) / n
+  minus_twice_log_likelihood <-
+    n * (log(2 * pi) + 1 + log(weighted_variance)) - sum(log(weights))
+  minus_twice_log_likelihood + (fit$nparams + 1) * log(n)
+}
+
+build_stage3_alternative_estimators_diagnostic <- function(estimation_sample, base_panel,
+                                                           log_t0 = NULL) {
+  if (is.null(log_t0)) {
+    log_t0 <- estimate_stage3_models(estimation_sample)$logarithmic$t0
+  }
+
+  positive <- base_panel |>
+    filter(year %in% MAIN_YEARS, is.finite(analysis_profit_base), analysis_profit_base > 0)
+
+  pair_weights <- positive |>
+    group_by(pair_id) |>
+    summarise(pair_mean_positive_profit = mean(analysis_profit_base), .groups = "drop")
+
+  weighted_sample <- estimation_sample |>
+    left_join(pair_weights, by = "pair_id", relationship = "many-to-one") |>
+    mutate(pair_profit_weight = pair_mean_positive_profit / mean(pair_mean_positive_profit))
+  stopifnot(all(is.finite(weighted_sample$pair_profit_weight)),
+    all(weighted_sample$pair_profit_weight > 0)
+  )
+
+  # A cell's accrued-tax ETR is undefined at zero corrected profit. For
+  # those rows only, use the affiliate-year ETR from observed positive cells.
+  affiliate_year_etr <- positive |>
+    group_by(affiliate, year) |>
+    summarise(
+      zero_profit_etr_proxy = weighted_mean_available(etr_panelai_reg, analysis_profit_base),
+      .groups = "drop"
+    )
+  bounds <- stats::quantile(estimation_sample$tau_raw, ETR_WINSOR_PROBS, names = FALSE)
+  expanded_sample <- base_panel |>
+    filter(
+      year %in% MAIN_YEARS, is.finite(analysis_profit_base), analysis_profit_base >= 0,
+      is.finite(assets_sbie), assets_sbie > 0, is.finite(payroll_sbie), payroll_sbie > 0,
+      is.finite(affiliate_gdp_pc_usd), affiliate_gdp_pc_usd > 0,
+      is.finite(affiliate_population), affiliate_population > 0
+    ) |>
+    left_join(affiliate_year_etr, by = c("affiliate", "year"), relationship = "many-to-one") |>
+    mutate(
+      tau_proxy_used = analysis_profit_base == 0 & !is.finite(etr_panelai_reg),
+      tau_raw = if_else(tau_proxy_used, zero_profit_etr_proxy, etr_panelai_reg)
+    ) |>
+    filter(is.finite(tau_raw)) |>
+    mutate(
+      tau = clamp_interval(tau_raw, bounds[1], bounds[2]),
+      tau_sq = tau^2,
+      log_assets = log(assets_sbie),
+      log_payroll = log(payroll_sbie),
+      log_gdp_pc = log(affiliate_gdp_pc_usd),
+      log_population = log(affiliate_population)
+    )
+
+  samples <- list(
+    fe_ols = list(data = estimation_sample, sample = "positive_profit", family = "gaussian"),
+    fe_wls = list(data = weighted_sample, sample = "positive_profit", family = "gaussian"),
+    fe_ppml_positive = list(
+      data = estimation_sample, sample = "positive_profit", family = "poisson"
+    ),
+    fe_ppml_nonnegative = list(
+      data = expanded_sample, sample = "nonnegative_profit", family = "poisson"
+    )
+  )
+  tax_terms <- list(
+    linear = "tau", quadratic = c("tau", "tau_sq"), logarithmic = c("tau", "log_tau")
+  )
+  controls <- c("log_assets", "log_payroll", "log_gdp_pc", "log_population")
+  # Match the legacy two-way covariance correction, including the FE rank
+  # and each cluster component's own degrees-of-freedom factor.
+  cluster_correction <- fixest::ssc(K.fixef = "full", G.df = "conventional")
+
+  map_dfr(names(samples), function(estimator) {
+    design <- samples[[estimator]]
+    data <- design$data |>
+      mutate(log_tau = log(log_t0 + tau))
+    map_dfr(names(tax_terms), function(specification) {
+      poisson <- design$family == "poisson"
+      dependent_variable <- if (poisson) "analysis_profit_base" else "log_profit"
+      rhs <- paste(c(controls, tax_terms[[specification]]), collapse = " + ")
+      formula <- stats::as.formula(paste(dependent_variable, "~", rhs, "| pair_id + year"))
+      fit <- if (poisson) {
+        fixest::fepois(formula, data = data, cluster = ~ parent + affiliate,
+          ssc = cluster_correction, notes = FALSE
+        )
+      } else {
+        fixest::feols(formula, data = data, cluster = ~ parent + affiliate,
+          weights = if (estimator == "fe_wls") ~ pair_profit_weight else NULL,
+          ssc = cluster_correction,
+          notes = FALSE
+        )
+      }
+
+      used <- data[fixest::obs(fit), , drop = FALSE]
+      # The fixest Gaussian log-likelihood uses unweighted residuals.
+      # For WLS, evaluate the Gaussian likelihood with analytic weights.
+      bic <- if (poisson) {
+        stats::BIC(fit)
+      } else {
+        weights <- if (estimator == "fe_wls") used$pair_profit_weight else rep(1, nrow(used))
+        stage3_gaussian_bic(fit, weights)
+      }
+      coefs <- stats::coef(fit)
+      vcov <- stats::vcov(fit)
+      terms <- intersect(c("log_assets", "log_payroll", tax_terms[[specification]]), names(coefs))
+      n_parents <- n_distinct(used$parent)
+      n_affiliates <- n_distinct(used$affiliate)
+      fit_metadata <- list(
+        coefficients = coefs, model_spec = specification,
+        t0 = if (specification == "logarithmic") log_t0 else NA_real_,
+        n = stats::nobs(fit), n_pairs = n_distinct(used$pair_id),
+        n_affiliates = n_affiliates, n_parents = n_parents
+      )
+      coefficient_rows <- tibble(
+        statistic_type = "coefficient",
+        term = terms,
+        tau_eval = NA_real_,
+        estimate = unname(coefs[terms]),
+        std_error = unname(sqrt(diag(vcov))[terms])
+      )
+      semi_elasticities <- semielasticity_schedule_one(
+        fit_metadata, c(0.05, 0.10, 0.15),
+        inference = "parent_affiliate_two_way_clustered",
+        vcov = vcov, df_inference = min(n_parents, n_affiliates) - 1L
+      ) |>
+        transmute(
+          statistic_type = "semi_elasticity", term = "negative_log_profit_derivative",
+          tau_eval = tau, estimate = semi_elasticity, std_error
+        )
+
+      bind_rows(coefficient_rows, semi_elasticities) |>
+        mutate(
+          estimator = estimator,
+          sample = design$sample,
+          model_spec = specification,
+          dependent_variable = dependent_variable,
+          inference = "parent_affiliate_two_way_clustered",
+          n = fit_metadata$n,
+          n_supplied = nrow(data),
+          n_pairs = fit_metadata$n_pairs,
+          n_parents = n_parents,
+          n_affiliates = n_affiliates,
+          n_zero_profit_supplied = sum(data$analysis_profit_base == 0),
+          n_zero_profit = sum(used$analysis_profit_base == 0),
+          n_tax_proxy = if ("tau_proxy_used" %in% names(used)) sum(used$tau_proxy_used) else 0L,
+          bic = bic,
+          bic_basis = if (poisson) "poisson_pseudo_likelihood_usd" else "gaussian_log_profit",
+          t0 = fit_metadata$t0,
+          converged = !isFALSE(fit$convStatus),
+          .before = 1
+        )
+    })
+  })
+}
+
 model_comparison_table <- function(model_fits) {
   fit_row <- function(fit) {
     tibble(
@@ -1496,6 +1657,66 @@ build_policy_flags <- function(oecd_central_record) {
     )
 }
 
+build_eu27_legal_regime_classification <- function(oecd_central_record) {
+  snapshot_date <- as.Date("2026-05-01")
+  snapshot <- oecd_central_record |>
+    filter(table_current_as == snapshot_date, rule_type %in% c("qualified_iir", "qualified_qdmtt"))
+  if (nrow(snapshot) == 0) stop("Missing 1 May 2026 OECD IIR and QDMTT snapshot")
+
+  qualified <- build_policy_flags(snapshot) |>
+    select(jurisdiction, qdmtt_by_2026, iir_by_2026, qdmtt_rule_rows, iir_rule_rows,
+      qdmtt_start, iir_start
+    )
+  article50 <- c("EST", "LTU", "LVA", "MLT", "SVK")
+
+  tibble(jurisdiction = EU27_ISO3) |>
+    left_join(qualified, by = "jurisdiction", relationship = "one-to-one") |>
+    mutate(
+      central_record_snapshot = snapshot_date,
+      qdmtt_by_2026 = coalesce(qdmtt_by_2026, FALSE),
+      iir_by_2026 = coalesce(iir_by_2026, FALSE),
+      qdmtt_listed = coalesce(qdmtt_rule_rows, 0L) > 0,
+      iir_listed = coalesce(iir_rule_rows, 0L) > 0,
+      article50_iir_utpr_deferral = jurisdiction %in% article50,
+      domestic_topup_tax_enacted = case_when(
+        jurisdiction == "CYP" | qdmtt_listed ~ TRUE,
+        article50_iir_utpr_deferral & jurisdiction != "SVK" ~ FALSE,
+        TRUE ~ NA
+      ),
+      domestic_topup_tax_start = if_else(
+        jurisdiction == "CYP", as.Date("2024-12-31"), qdmtt_start
+      ),
+      domestic_iir_start = if_else(jurisdiction == "CYP", as.Date("2023-12-31"), iir_start),
+      domestic_enactment_summary = case_when(
+        jurisdiction == "CYP" ~ paste(
+          "Law 151(I)/2024 enacted IIR and domestic top-up tax.",
+          "Neither rule is listed in the pinned OECD snapshot."
+        ),
+        jurisdiction == "SVK" ~ "Domestic top-up tax enacted and listed. Article 50 defers IIR and UTPR.",
+        article50_iir_utpr_deferral ~ "Article 50 deferral of IIR and UTPR. No domestic top-up tax in the snapshot period.",
+        qdmtt_listed & iir_listed ~ "Domestic top-up tax and IIR enacted and listed.",
+        TRUE ~ "Domestic enactment not verified"
+      ),
+      article50_source = "https://eur-lex.europa.eu/eli/C/2023/1536/oj/eng",
+      qualification_source = paste0(
+        "https://www.oecd.org/en/topics/sub-issues/global-minimum-tax/",
+        "central-record-of-legislation-with-transitional-qualified-status.html"
+      ),
+      domestic_source = case_when(
+        jurisdiction == "CYP" ~ paste0(
+          "https://www.gov.cy/mof-tax/documents/",
+          "elachisto-pragmatiko-pagkosmio-epipedo-forologias-pillar-ii/"
+        ),
+        article50_iir_utpr_deferral ~ paste0(
+          "https://www.oecd.org/en/publications/tax-policy-reforms-2026_43d18a55-en/",
+          "full-report/tax-policy-reforms_82075677.html"
+        ),
+        TRUE ~ qualification_source
+      )
+    ) |>
+    select(-qdmtt_rule_rows, -iir_rule_rows)
+}
+
 build_policy_tracker_diagnostics <- function(oecd_central_record) {
   oecd_central_record |>
     count(
@@ -1509,83 +1730,97 @@ build_policy_tracker_diagnostics <- function(oecd_central_record) {
 
 build_sectoral_factor2_bridge <- function(stage2_bilateral,
                                           stage1_affiliate_year,
-                                          stage2_sectoral_matrix) {
-  stage2_country_2022 <- stage2_bilateral |>
-    filter(year == 2022, affiliate_is_eu27, analysis_profit_positive > 0) |>
-    group_by(rate_scenario, affiliate) |>
+                                          stage2_sectoral_matrix,
+                                          use_contemporaneous = TRUE) {
+  keys <- c("rate_scenario", "affiliate", "year")
+  aggregate_rates <- stage2_bilateral |>
+    filter(affiliate_is_eu27, analysis_profit_positive > 0) |>
+    group_by(rate_scenario, affiliate, year) |>
     summarise(
-      aggregate_profit = sum(analysis_profit_positive, na.rm = TRUE),
-      aggregate_tax_per_profit_average = safe_divide(
-        sum(stage2_topup_tax_average, na.rm = TRUE),
-        aggregate_profit
-      ),
-      aggregate_tax_per_profit_distributional = safe_divide(
-        sum(stage2_topup_tax_distributional, na.rm = TRUE),
-        aggregate_profit
-      ),
+      aggregate_profit = sum(analysis_profit_positive),
+      aggregate_tax_per_profit_average =
+        sum(stage2_topup_tax_average, na.rm = TRUE) / aggregate_profit,
+      aggregate_tax_per_profit_distributional =
+        sum(stage2_topup_tax_distributional, na.rm = TRUE) / aggregate_profit,
       .groups = "drop"
     )
 
-  stage1_2022 <- stage1_affiliate_year |>
-    filter(year == 2022, affiliate_is_eu27) |>
-    select(
-      affiliate,
-      average_low_share,
-      distributional_low_share = stage1_distributional_low_share
+  sectoral_rates <- summarise_sectoral_sbie_rates(stage2_sectoral_matrix, stage1_affiliate_year) |>
+    rename(
+      sectoral_tax_per_profit_average = sectoral_sbie_sbti_per_profit_average,
+      sectoral_tax_per_profit_distributional = sectoral_sbie_sbti_per_profit_distributional
     )
-
-  sectoral_rates <- stage2_sectoral_matrix |>
-    filter(rate_scenario %in% c("initial", "long_run")) |>
-    left_join(stage1_2022, by = "affiliate") |>
-    group_by(rate_scenario, affiliate) |>
-    summarise(
-      sectoral_tax_per_profit_average = first(average_low_share) *
-        weighted_mean_available(
-          pmax(first(average_topup_rate) * (1 - sectoral_phi) - sectoral_kappa, 0),
-          sectoral_profit_proxy
-        ),
-      sectoral_tax_per_profit_distributional =
-        first(distributional_low_share) *
-          weighted_mean_available(
-            pmax(first(stage1_distributional_topup_rate) *
-              (1 - sectoral_phi) - sectoral_kappa, 0),
-            sectoral_profit_proxy
-          ),
-      weighted_sectoral_phi = weighted_mean_available(
-        sectoral_phi,
-        sectoral_profit_proxy
-      ),
-      weighted_sectoral_kappa = weighted_mean_available(
-        sectoral_kappa,
-        sectoral_profit_proxy
-      ),
-      .groups = "drop"
-    )
-
-  stage2_country_2022 |>
-    left_join(sectoral_rates, by = c("rate_scenario", "affiliate")) |>
+  scales <- aggregate_rates |>
+    left_join(sectoral_rates, by = keys, relationship = "one-to-one") |>
     mutate(
-      sectoral_scale_average = if_else(
-        !is.na(aggregate_tax_per_profit_average) &
-          aggregate_tax_per_profit_average > 0,
-        sectoral_tax_per_profit_average / aggregate_tax_per_profit_average,
-        1
+      sectoral_scale_same_year_average = safe_divide(
+        sectoral_tax_per_profit_average, aggregate_tax_per_profit_average
       ),
-      sectoral_scale_distributional = if_else(
-        !is.na(aggregate_tax_per_profit_distributional) &
-          aggregate_tax_per_profit_distributional > 0,
-        sectoral_tax_per_profit_distributional /
-          aggregate_tax_per_profit_distributional,
-        1
-      ),
-      sectoral_scale_average = if_else(is.na(sectoral_scale_average), 1,
-        pmax(sectoral_scale_average, 0)
-      ),
-      sectoral_scale_distributional = if_else(
-        is.na(sectoral_scale_distributional),
-        1,
-        pmax(sectoral_scale_distributional, 0)
+      sectoral_scale_same_year_distributional = safe_divide(
+        sectoral_tax_per_profit_distributional, aggregate_tax_per_profit_distributional
       )
+    )
+  reference <- scales |>
+    filter(year == SECTORAL_REFERENCE_YEAR) |>
+    transmute(
+      rate_scenario, affiliate,
+      sectoral_scale_reference_average = sectoral_scale_same_year_average,
+      sectoral_scale_reference_distributional = sectoral_scale_same_year_distributional
+    )
+
+  bridge <- scales |>
+    left_join(reference, by = c("rate_scenario", "affiliate"), relationship = "many-to-one") |>
+    mutate(
+      sectoral_scale_static_average = coalesce(sectoral_scale_reference_average, 1),
+      sectoral_scale_static_distributional = coalesce(sectoral_scale_reference_distributional, 1),
+      sectoral_scale_average = if (use_contemporaneous) {
+        coalesce(sectoral_scale_same_year_average, sectoral_scale_static_average)
+      } else {
+        sectoral_scale_static_average
+      },
+      sectoral_scale_distributional = if (use_contemporaneous) {
+        coalesce(sectoral_scale_same_year_distributional, sectoral_scale_static_distributional)
+      } else {
+        sectoral_scale_static_distributional
+      },
+      sectoral_scale_source_average = case_when(
+        use_contemporaneous & is.finite(sectoral_scale_same_year_average) ~ "contemporaneous",
+        is.finite(sectoral_scale_reference_average) ~ "reference_2022",
+        TRUE ~ "neutral"
+      ),
+      sectoral_scale_source_distributional = case_when(
+        use_contemporaneous & is.finite(sectoral_scale_same_year_distributional) ~ "contemporaneous",
+        is.finite(sectoral_scale_reference_distributional) ~ "reference_2022",
+        TRUE ~ "neutral"
+      )
+    )
+  assert_unique_keys(bridge, keys, "Stage 3 sectoral bridge")
+  bridge
+}
+
+summarise_sectoral_bridge_comparison <- function(bridge) {
+  bridge |>
+    filter(year %in% SECTORAL_PANEL_YEARS) |>
+    select(
+      rate_scenario, affiliate, year, aggregate_profit,
+      starts_with("aggregate_tax_per_profit_"), sectoral_scale_average,
+      sectoral_scale_distributional, starts_with("sectoral_scale_static_"),
+      starts_with("sectoral_scale_source_")
+    ) |>
+    pivot_longer(
+      ends_with("_average") | ends_with("_distributional"),
+      names_to = c(".value", "etr_measurement"),
+      names_pattern = "(.+)_(average|distributional)"
+    ) |>
+    group_by(year, rate_scenario, etr_measurement) |>
+    summarise(
+      affiliates = n(),
+      contemporaneous_affiliates = sum(sectoral_scale_source == "contemporaneous"),
+      aggregate_topup = sum(aggregate_profit * aggregate_tax_per_profit),
+      static_2022_topup = sum(aggregate_profit * aggregate_tax_per_profit * sectoral_scale_static),
+      contemporaneous_topup = sum(aggregate_profit * aggregate_tax_per_profit * sectoral_scale),
+      difference = contemporaneous_topup - static_2022_topup,
+      .groups = "drop"
     )
 }
 
@@ -1641,15 +1876,7 @@ add_behavioural_response <- function(scenario_panel) {
         sbs_exempt & !qdmtt_flag ~ 0,
         TRUE ~ 1
       ),
-      diagnostic_planning_intensity = 1 +
-        0.55 * ip_holding_score +
-        0.35 * conduit_haven_score +
-        0.30 * low_substance_score +
-        0.20 * profit_per_employee_score +
-        0.15 * coalesce(post_gmt_tax_gap_relative, 0) +
-        0.15 * substance_anchor_score * as.numeric(
-          factor2_substance == "sectoral_sbie_sbti"
-        ),
+      diagnostic_planning_intensity = 1,
       strategic_response_eligible =
         factor5_behaviour == "behavioural" &
           static_behavioural_regime == "semi_elasticity_reallocation" &
@@ -1696,14 +1923,9 @@ add_behavioural_response <- function(scenario_panel) {
           strategic_beta_applied,
         0
       ),
-      tp_ip_channel_raw = DIAGNOSTIC_CHANNEL_PRIOR_TP_IP *
-        (1 + 0.50 * ip_holding_score + 0.25 * conduit_haven_score),
-      debt_channel_raw = DIAGNOSTIC_CHANNEL_PRIOR_DEBT *
-        (1 + 0.20 * (1 - ip_holding_score) +
-          0.10 * profit_to_assets_score),
-      substance_channel_raw = DIAGNOSTIC_CHANNEL_PRIOR_SUBSTANCE *
-        (1 + 1.25 * substance_anchor_score +
-          0.50 * as.numeric(factor2_substance == "sectoral_sbie_sbti")),
+      tp_ip_channel_raw = DIAGNOSTIC_CHANNEL_PRIOR_TP_IP,
+      debt_channel_raw = DIAGNOSTIC_CHANNEL_PRIOR_DEBT,
+      substance_channel_raw = DIAGNOSTIC_CHANNEL_PRIOR_SUBSTANCE,
       behavioural_channel_total =
         tp_ip_channel_raw + debt_channel_raw + substance_channel_raw,
       channel_transfer_pricing_ip_share =
@@ -1793,10 +2015,11 @@ build_factorial_revenue <- function(stage2_bilateral,
     left_join(
       sectoral_bridge |>
         select(
-          rate_scenario, affiliate,
+          rate_scenario, affiliate, year,
           sectoral_scale_average, sectoral_scale_distributional
         ),
-      by = c("rate_scenario", "affiliate")
+      by = c("rate_scenario", "affiliate", "year"),
+      relationship = "many-to-one"
     ) |>
     left_join(policy_affiliate, by = "affiliate") |>
     left_join(policy_parent, by = "parent") |>
@@ -2386,7 +2609,7 @@ run_stage3_pipeline <- function() {
   base_panel <- readRDS(file.path(PROCESSED_DIR, "base_panel.rds"))
   stage1_affiliate_year <- readRDS(file.path(PROCESSED_DIR, "stage1_affiliate_year.rds"))
   stage2_bilateral <- readRDS(file.path(PROCESSED_DIR, "stage2_bilateral_panel.rds"))
-  stage2_sectoral_matrix <- readRDS(file.path(PROCESSED_DIR, "stage2_sectoral_matrix.rds"))
+  stage2_sectoral_panel <- readRDS(file.path(PROCESSED_DIR, "stage2_sectoral_panel.rds"))
   etr_forward <- readRDS(file.path(PROCESSED_DIR, "etr_forward.rds"))
   oecd_central_record <- readRDS(file.path(PROCESSED_DIR, "oecd_pillar2_central_record.rds"))
 
@@ -2426,6 +2649,9 @@ run_stage3_pipeline <- function() {
     model_fits[c("linear", "quadratic", "logarithmic")],
     build_fixest_equivalence_diagnostic
   ))
+  alternative_estimators <- build_stage3_alternative_estimators_diagnostic(
+    estimation_sample, base_panel, log_t0 = model_fits$logarithmic$t0
+  )
   model_wald_tests <- stage3_model_wald_tests(model_fits)
   tax_endogeneity_diagnostics <- build_tax_endogeneity_diagnostics(estimation_sample)
   tax_instrument_coverage <- summarise_tax_instrument_coverage(estimation_sample)
@@ -2493,11 +2719,13 @@ run_stage3_pipeline <- function() {
 
   policy_flags <- build_policy_flags(oecd_central_record)
   policy_tracker_diagnostics <- build_policy_tracker_diagnostics(oecd_central_record)
+  eu27_legal_regimes <- build_eu27_legal_regime_classification(oecd_central_record)
   sectoral_bridge <- build_sectoral_factor2_bridge(
     stage2_bilateral,
     stage1_affiliate_year,
-    stage2_sectoral_matrix
+    stage2_sectoral_panel
   )
+  sectoral_bridge_comparison <- summarise_sectoral_bridge_comparison(sectoral_bridge)
 
   revenue_objects <- build_factorial_revenue(
     stage2_bilateral,
@@ -2760,8 +2988,20 @@ run_stage3_pipeline <- function() {
     file.path(DIAGNOSTICS_DIR, "step5_stage3_policy_tracker_diagnostics.csv")
   )
   write_csv(
+    eu27_legal_regimes,
+    file.path(DIAGNOSTICS_DIR, "step5_stage3_eu27_legal_regime_classification.csv")
+  )
+  write_csv(
     sectoral_bridge,
     file.path(DIAGNOSTICS_DIR, "step5_stage3_sectoral_factor2_bridge.csv")
+  )
+  write_csv(
+    alternative_estimators,
+    file.path(DIAGNOSTICS_DIR, "step5_stage3_alternative_estimators.csv")
+  )
+  write_csv(
+    sectoral_bridge_comparison,
+    file.path(DIAGNOSTICS_DIR, "step5_stage3_sectoral_factor2_bridge_comparison.csv")
   )
   write_csv(
     revenue_objects$scenario_summary,

@@ -2,11 +2,8 @@
 # Step 4 of the methodology pipeline.
 #
 # Implements Stage 2 of the GMT revenue pipeline on top of the Stage 1 outputs.
-# The script produces two linked objects:
-# an aggregate bilateral SBIE filter for the 2017-2022 panel; and
-# a 2022 EU27 sectoral effective-floor matrix using CbCR levels, FATS
-#  foreign-control sector shares and EUKLEMS tangible-capital stock shares,
-#  with an SBTI-capacity overlay and a mechanical 2024-2033 transition path.
+# Produces the aggregate bilateral SBIE filter, the 2022 reference matrix
+# and a 2021–2023 sectoral panel based on CbCR, FATS and EUKLEMS.
 library(dplyr)
 library(tidyr)
 library(readr)
@@ -17,6 +14,7 @@ source("code/00_helpers.R")
 dir.create(DIAGNOSTICS_DIR, showWarnings = FALSE, recursive = TRUE)
 
 SECTORAL_REFERENCE_YEAR <- 2022
+SECTORAL_PANEL_YEARS <- 2021:2023
 SECTORAL_TRANSITION_YEARS <- 2024:2033
 
 STAGE2_ENDPOINTS <- tribble(
@@ -176,6 +174,128 @@ build_transition_rates <- function(years = SECTORAL_TRANSITION_YEARS,
     )
 }
 
+# Use the Stage 3 liability formula for the decomposition. The separate
+# effective-floor overlay in the H5 diagnostic is a capacity measure.
+summarise_sectoral_sbie_rates <- function(sectoral_panel, stage1_affiliate_year) {
+  sectoral_panel |>
+    filter(rate_scenario %in% STAGE2_ENDPOINTS$rate_scenario) |>
+    left_join(
+      stage1_affiliate_year |>
+        transmute(
+          affiliate, year, average_low_share,
+          distributional_low_share = stage1_distributional_low_share
+        ),
+      by = c("affiliate", "year"),
+      relationship = "many-to-one"
+    ) |>
+    mutate(
+      average_post_sbie_gap = average_topup_rate * (1 - sectoral_phi),
+      distributional_post_sbie_gap =
+        stage1_distributional_topup_rate * (1 - sectoral_phi)
+    ) |>
+    group_by(rate_scenario, affiliate, year) |>
+    summarise(
+      sectoral_sbie_per_profit_average = first(average_low_share) *
+        weighted_mean_available(average_post_sbie_gap, sectoral_profit_proxy),
+      sectoral_sbie_sbti_per_profit_average = first(average_low_share) *
+        weighted_mean_available(pmax(average_post_sbie_gap - sectoral_kappa, 0),
+          sectoral_profit_proxy
+        ),
+      sectoral_sbie_per_profit_distributional = first(distributional_low_share) *
+        weighted_mean_available(distributional_post_sbie_gap, sectoral_profit_proxy),
+      sectoral_sbie_sbti_per_profit_distributional = first(distributional_low_share) *
+        weighted_mean_available(pmax(distributional_post_sbie_gap - sectoral_kappa, 0),
+          sectoral_profit_proxy
+        ),
+      weighted_sectoral_phi = weighted_mean_available(sectoral_phi, sectoral_profit_proxy),
+      weighted_sectoral_kappa = weighted_mean_available(sectoral_kappa, sectoral_profit_proxy),
+      .groups = "drop"
+    )
+}
+
+build_sectoral_sbie_decomposition <- function(sectoral_rates, stage2_affiliate_year) {
+  country <- stage2_affiliate_year |>
+    filter(affiliate_is_eu27, year %in% c(SECTORAL_REFERENCE_YEAR, max(SECTORAL_PANEL_YEARS))) |>
+    transmute(
+      rate_scenario, affiliate, year, profit = total_analysis_profit_positive,
+      aggregate_sbie_per_profit_average =
+        safe_divide(total_stage2_topup_tax_average, profit),
+      aggregate_sbie_per_profit_distributional =
+        safe_divide(total_stage2_topup_tax_distributional, profit)
+    ) |>
+    left_join(sectoral_rates, by = c("rate_scenario", "affiliate", "year"),
+      relationship = "one-to-one"
+    ) |>
+    select(-weighted_sectoral_phi, -weighted_sectoral_kappa) |>
+    pivot_longer(
+      ends_with("_average") | ends_with("_distributional"),
+      names_to = c(".value", "etr_measurement"),
+      names_pattern = "(.+)_(average|distributional)"
+    ) |>
+    mutate(comparable_profit = if_else(
+      is.finite(aggregate_sbie_per_profit) & is.finite(sectoral_sbie_per_profit) &
+        is.finite(sectoral_sbie_sbti_per_profit), profit, 0
+    ))
+
+  eu27 <- country |>
+    group_by(rate_scenario, year, etr_measurement) |>
+    summarise(
+      across(ends_with("_per_profit"), ~ weighted_mean_available(.x, comparable_profit)),
+      profit = sum(profit),
+      comparable_profit = sum(comparable_profit),
+      .groups = "drop"
+    ) |>
+    mutate(affiliate = "EU27")
+
+  bind_rows(country, eu27) |>
+    mutate(
+      comparable_profit_share = safe_divide(comparable_profit, profit),
+      sectoral_sbie_effect = sectoral_sbie_per_profit - aggregate_sbie_per_profit,
+      sbti_overlay_effect = sectoral_sbie_sbti_per_profit - sectoral_sbie_per_profit,
+      total_factor2_effect = sectoral_sbie_sbti_per_profit - aggregate_sbie_per_profit
+    ) |>
+    arrange(year, rate_scenario, etr_measurement, affiliate)
+}
+
+build_sectoral_h5_panel_regression <- function(sectoral_panel) {
+  sample <- sectoral_panel |>
+    filter(
+      rate_scenario %in% STAGE2_ENDPOINTS$rate_scenario,
+      is.finite(sectoral_delta_floor_average),
+      is.finite(sectoral_capital_intensity), sectoral_profit_proxy > 0
+    )
+  slices <- list(
+    cross_section_2022 = filter(sample, year == 2022L),
+    cross_section_2023 = filter(sample, year == 2023L),
+    pooled_2021_2023 = sample
+  )
+  bind_rows(lapply(names(slices), function(sample_name) {
+    pooled <- sample_name == "pooled_2021_2023"
+    formula <- if (pooled) {
+      sectoral_delta_floor_average ~ sectoral_capital_intensity + interaction(affiliate, year)
+    } else {
+      sectoral_delta_floor_average ~ sectoral_capital_intensity + factor(affiliate)
+    }
+    bind_rows(lapply(STAGE2_ENDPOINTS$rate_scenario, function(endpoint) {
+      data <- filter(slices[[sample_name]], rate_scenario == endpoint)
+      fit <- stats::lm(formula, data = data)
+      weighted_fit <- stats::lm(formula, data = data, weights = sectoral_profit_proxy)
+      bind_rows(
+        tidy_lm_clustered(fit, data$affiliate, "unweighted"),
+        tidy_lm_clustered(weighted_fit, data$affiliate, "profit_weighted")
+      ) |>
+        filter(term == "sectoral_capital_intensity") |>
+        select(-reference_year, -transition_year) |>
+        mutate(
+          sample = sample_name,
+          rate_scenario = endpoint,
+          fixed_effects = if (pooled) "affiliate^year" else "affiliate",
+          .before = 1
+        )
+    }))
+  }))
+}
+
 run_stage2_pipeline <- function() {
   stage1_bilateral <- readRDS(file.path(PROCESSED_DIR, "stage1_bilateral_panel.rds")) |>
     filter(year %in% MAIN_YEARS)
@@ -234,24 +354,32 @@ run_stage2_pipeline <- function() {
         stage1_lowtax_profit_average * coalesce(stage2_phi, 0),
       stage2_sbie_shield_distributional =
         stage1_lowtax_profit_distributional * coalesce(stage2_phi, 0),
+      stage2_sbie_shield_distributional_bilat =
+        stage1_lowtax_profit_distributional_bilat * coalesce(stage2_phi, 0),
       stage2_sbie_shield_distributional_strict =
         stage1_lowtax_profit_distributional_strict * coalesce(stage2_phi, 0),
       stage2_excess_lowtax_profit_average =
         stage1_lowtax_profit_average * stage2_filter,
       stage2_excess_lowtax_profit_distributional =
         stage1_lowtax_profit_distributional * stage2_filter,
+      stage2_excess_lowtax_profit_distributional_bilat =
+        stage1_lowtax_profit_distributional_bilat * stage2_filter,
       stage2_excess_lowtax_profit_distributional_strict =
         stage1_lowtax_profit_distributional_strict * stage2_filter,
       stage2_topup_tax_average =
         coalesce(stage1_topup_tax_average, 0) * stage2_filter,
       stage2_topup_tax_distributional =
         coalesce(stage1_topup_tax_distributional, 0) * stage2_filter,
+      stage2_topup_tax_distributional_bilat =
+        coalesce(stage1_topup_tax_distributional_bilat, 0) * stage2_filter,
       stage2_topup_tax_distributional_strict =
         coalesce(stage1_topup_tax_distributional_strict, 0) * stage2_filter,
       stage2_effective_floor_average =
         compute_effective_floor(average_topup_rate, stage2_phi),
       stage2_effective_floor_distributional =
         compute_effective_floor(stage1_distributional_topup_rate, stage2_phi),
+      stage2_effective_floor_distributional_bilat =
+        compute_effective_floor(stage1_distributional_topup_rate_bilat, stage2_phi),
       stage2_effective_floor_distributional_strict =
         compute_effective_floor(
           stage1_distributional_topup_rate_strict,
@@ -287,6 +415,10 @@ run_stage2_pipeline <- function() {
         stage1_topup_tax_distributional,
         na.rm = TRUE
       ),
+      total_stage1_lowtax_profit_distributional_bilat =
+        sum(stage1_lowtax_profit_distributional_bilat, na.rm = TRUE),
+      total_stage1_topup_tax_distributional_bilat =
+        sum(stage1_topup_tax_distributional_bilat, na.rm = TRUE),
       total_stage1_topup_tax_distributional_strict = sum(
         stage1_topup_tax_distributional_strict,
         na.rm = TRUE
@@ -296,6 +428,10 @@ run_stage2_pipeline <- function() {
         stage2_topup_tax_distributional,
         na.rm = TRUE
       ),
+      total_stage2_topup_tax_distributional_bilat =
+        sum(stage2_topup_tax_distributional_bilat, na.rm = TRUE),
+      total_stage2_excess_lowtax_profit_distributional_bilat =
+        sum(stage2_excess_lowtax_profit_distributional_bilat, na.rm = TRUE),
       total_stage2_topup_tax_distributional_strict = sum(
         stage2_topup_tax_distributional_strict,
         na.rm = TRUE
@@ -315,6 +451,9 @@ run_stage2_pipeline <- function() {
       profit_weighted_floor_distributional = weighted_mean_available(
         stage2_effective_floor_distributional,
         analysis_profit_positive
+      ),
+      profit_weighted_floor_distributional_bilat = weighted_mean_available(
+        stage2_effective_floor_distributional_bilat, analysis_profit_positive
       ),
       profit_weighted_floor_distributional_strict = weighted_mean_available(
         stage2_effective_floor_distributional_strict,
@@ -375,6 +514,10 @@ run_stage2_pipeline <- function() {
       ),
       stage2_distributional_liability_rate = safe_divide(
         sum(stage2_topup_tax_distributional, na.rm = TRUE),
+        sum(analysis_profit_positive, na.rm = TRUE)
+      ),
+      stage2_distributional_liability_rate_bilat = safe_divide(
+        sum(stage2_topup_tax_distributional_bilat, na.rm = TRUE),
         sum(analysis_profit_positive, na.rm = TRUE)
       ),
       stage2_distributional_liability_rate_strict = safe_divide(
@@ -438,12 +581,9 @@ run_stage2_pipeline <- function() {
     ) |>
     arrange(rate_scenario, year)
 
-  # Sectoral Stage 2 matrix. This is a 2022 EU27 reference-year object used
-  # for the sectoral floor map and the H5 cross-section; it is not imposed on
-  # the historical 2017-2022 bilateral panel because sectoral profits and QTI
-  # claims are not observed in the public data.
+  # Retain the 2022 reference matrix and use the same construction in 2021 and 2023.
   sectoral_weights_check <- fats_sector_shares |>
-    filter(year == SECTORAL_REFERENCE_YEAR, affiliate %in% EU27_ISO3) |>
+    filter(year %in% SECTORAL_PANEL_YEARS, affiliate %in% EU27_ISO3) |>
     group_by(affiliate, year) |>
     summarise(
       n_nace = n(),
@@ -466,13 +606,13 @@ run_stage2_pipeline <- function() {
     stop("Sectoral Stage 2 weights do not sum to one")
   }
 
-  sectoral_reference_base <- stage1_bilateral |>
+  sectoral_country_year_base <- stage1_bilateral |>
     filter(
-      year == SECTORAL_REFERENCE_YEAR,
+      year %in% SECTORAL_PANEL_YEARS,
       affiliate_is_eu27,
       analysis_profit_positive > 0
     ) |>
-    group_by(affiliate, affiliate_jurisdiction_name) |>
+    group_by(affiliate, year, affiliate_jurisdiction_name) |>
     summarise(
       total_profit = sum(analysis_profit_positive, na.rm = TRUE),
       total_payroll = sum(coalesce_zero(payroll_sbie), na.rm = TRUE),
@@ -483,32 +623,33 @@ run_stage2_pipeline <- function() {
     ) |>
     left_join(
       stage1_affiliate_year |>
-        filter(year == SECTORAL_REFERENCE_YEAR, affiliate_is_eu27) |>
+        filter(year %in% SECTORAL_PANEL_YEARS, affiliate_is_eu27) |>
         select(
-          affiliate,
+          affiliate, year,
           affiliate_name,
           avg_etr_stage1,
           average_topup_rate,
           stage1_distributional_topup_rate,
           stage1_distributional_topup_rate_strict
         ),
-      by = "affiliate"
+      by = c("affiliate", "year"),
+      relationship = "one-to-one"
     )
 
-  assert_unique_keys(
-    sectoral_reference_base,
-    c("affiliate"),
-    "sectoral reference base"
-  )
+  assert_unique_keys(sectoral_country_year_base, c("affiliate", "year"), "sectoral base")
+  sectoral_reference_base <- sectoral_country_year_base |>
+    filter(year == SECTORAL_REFERENCE_YEAR) |>
+    select(-year)
 
   transition_rates <- build_transition_rates()
 
   # Sectoral SBIE with SBTI overlay. Unlike the aggregate bilateral SBIE above,
-  # this allocates 2022 affiliate profit, payroll and tangible assets across
-  # broad NACE sectors before applying the sectoral transition path.
-  stage2_sectoral_matrix <- fats_sector_shares |>
-    filter(year == SECTORAL_REFERENCE_YEAR, affiliate %in% EU27_ISO3) |>
-    left_join(sectoral_reference_base, by = "affiliate") |>
+  # this allocates affiliate-year profit, payroll and assets across NACE sectors.
+  sectoral_transition_panel <- fats_sector_shares |>
+    filter(year %in% SECTORAL_PANEL_YEARS, affiliate %in% EU27_ISO3) |>
+    left_join(sectoral_country_year_base, by = c("affiliate", "year"),
+      relationship = "many-to-one"
+    ) |>
     tidyr::crossing(transition_rates) |>
     mutate(
       sectoral_payroll_share_used = fats_payroll_share,
@@ -569,6 +710,34 @@ run_stage2_pipeline <- function() {
         sectoral_floor_distributional_strict_sbti -
           sectoral_floor_distributional_strict
     )
+
+  assert_unique_keys(
+    sectoral_transition_panel,
+    c("affiliate", "year", "transition_year", "nace_r2"),
+    "stage2 sectoral panel"
+  )
+  stage2_sectoral_matrix <- filter(sectoral_transition_panel, year == SECTORAL_REFERENCE_YEAR)
+  stage2_sectoral_panel <- filter(
+    sectoral_transition_panel, rate_scenario %in% STAGE2_ENDPOINTS$rate_scenario
+  )
+  sectoral_panel_summary <- stage2_sectoral_panel |>
+    group_by(year, rate_scenario) |>
+    summarise(
+      affiliates = n_distinct(affiliate),
+      sectors = n(),
+      positive_profit_sectors = sum(sectoral_profit_proxy > 0, na.rm = TRUE),
+      profit_proxy = sum(sectoral_profit_proxy, na.rm = TRUE),
+      weighted_phi = weighted_mean_available(sectoral_phi, sectoral_profit_proxy),
+      weighted_kappa = weighted_mean_available(sectoral_kappa, sectoral_profit_proxy),
+      weighted_delta_floor_average =
+        weighted_mean_available(sectoral_delta_floor_average, sectoral_profit_proxy),
+      .groups = "drop"
+    )
+  sectoral_h5_panel_regression <- build_sectoral_h5_panel_regression(stage2_sectoral_panel)
+  sectoral_sbie_decomposition <- build_sectoral_sbie_decomposition(
+    summarise_sectoral_sbie_rates(stage2_sectoral_panel, stage1_affiliate_year),
+    stage2_affiliate_year
+  )
 
   assert_unique_keys(
     stage2_sectoral_matrix,
@@ -1056,6 +1225,16 @@ run_stage2_pipeline <- function() {
     file.path(DIAGNOSTICS_DIR, "step4_stage2_irl_nld_comparison.csv")
   )
 
+  write_csv(sectoral_panel_summary,
+    file.path(DIAGNOSTICS_DIR, "step4_stage2_sectoral_panel_2021_2023_summary.csv")
+  )
+  write_csv(sectoral_h5_panel_regression,
+    file.path(DIAGNOSTICS_DIR, "step4_stage2_sectoral_h5_panel_regression.csv")
+  )
+  write_csv(sectoral_sbie_decomposition,
+    file.path(DIAGNOSTICS_DIR, "step4_stage2_sbti_vs_sectoral_sbie_decomposition.csv")
+  )
+  saveRDS(stage2_sectoral_panel, file.path(PROCESSED_DIR, "stage2_sectoral_panel.rds"))
   saveRDS(stage2_bilateral, file.path(PROCESSED_DIR, "stage2_bilateral_panel.rds"))
   saveRDS(stage2_affiliate_year, file.path(PROCESSED_DIR, "stage2_affiliate_year.rds"))
   saveRDS(stage2_sectoral_matrix, file.path(PROCESSED_DIR, "stage2_sectoral_matrix.rds"))

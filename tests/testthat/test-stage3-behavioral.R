@@ -243,6 +243,64 @@ test_that("behavioural response conserves channel shares and bounds beta", {
     tolerance = 1e-12
   )
   expect_equal(out$channel_substance_planning_share, 0)
+  expect_equal(out$diagnostic_planning_intensity, 1)
+  expect_equal(out$channel_transfer_pricing_ip_share, 0.72)
+  expect_equal(out$channel_debt_share, 0.28)
+})
+
+test_that("the sectoral bridge uses same-year rates and preserves the reference fallback", {
+  stage2 <- tibble::tibble(
+    affiliate = "IRL", year = 2020:2023, rate_scenario = "initial",
+    affiliate_is_eu27 = TRUE, analysis_profit_positive = 100,
+    stage2_topup_tax_average = 10, stage2_topup_tax_distributional = 10
+  )
+  stage1 <- tibble::tibble(
+    affiliate = "IRL", year = 2021:2023,
+    average_low_share = 1, stage1_distributional_low_share = 1
+  )
+  sectors <- tibble::tibble(
+    affiliate = "IRL", year = 2021:2023, rate_scenario = "initial",
+    sectoral_profit_proxy = 100, sectoral_phi = c(0.1, 0.2, 0.3), sectoral_kappa = 0,
+    average_topup_rate = 0.1, stage1_distributional_topup_rate = 0.1
+  )
+
+  bridge <- build_sectoral_factor2_bridge(stage2, stage1, sectors)
+  static <- build_sectoral_factor2_bridge(stage2, stage1, sectors, use_contemporaneous = FALSE)
+
+  expect_equal(nrow(bridge), 4L)
+  expect_equal(bridge$sectoral_scale_distributional, c(0.8, 0.9, 0.8, 0.7))
+  expect_equal(static$sectoral_scale_distributional, rep(0.8, 4))
+  expect_equal(
+    filter(summarise_sectoral_bridge_comparison(bridge), etr_measurement == "distributional")$difference,
+    c(1, 0, -1)
+  )
+})
+
+test_that("analytic-weight BIC agrees with the Gaussian lm likelihood", {
+  data <- tibble::tibble(
+    y = c(1, 4, 8, 10, 1, 4), weight = c(4, 2, 5, 1, 4, 1),
+    x = c(2, 2, 1, 1, 5, 4)
+  )
+  fit <- fixest::feols(y ~ x, data = data, weights = ~ weight)
+  expected <- stats::BIC(stats::lm(y ~ x, data = data, weights = weight))
+  expect_equal(stage3_gaussian_bic(fit, data$weight), expected)
+})
+
+test_that("legal classification distinguishes an enacted Cyprus DMTT from OECD listing", {
+  record <- tibble::tibble(
+    jurisdiction = "SVK", jurisdiction_name = "Slovak Republic",
+    rule_type = "qualified_qdmtt", effective_date = as.Date("2023-12-31"),
+    table_current_as = as.Date("2026-05-01")
+  )
+  legal <- build_eu27_legal_regime_classification(record)
+  expect_equal(nrow(legal), 27L)
+  expect_setequal(legal$jurisdiction[legal$article50_iir_utpr_deferral],
+    c("EST", "LTU", "LVA", "MLT", "SVK")
+  )
+  expect_true(legal$domestic_topup_tax_enacted[legal$jurisdiction == "CYP"])
+  expect_false(legal$qdmtt_by_2026[legal$jurisdiction == "CYP"])
+  expect_true(legal$qdmtt_by_2026[legal$jurisdiction == "SVK"])
+  expect_false(legal$domestic_topup_tax_enacted[legal$jurisdiction == "EST"])
 })
 
 test_that("SbS exemption switches off the semi-elasticity response without QDMTT", {
