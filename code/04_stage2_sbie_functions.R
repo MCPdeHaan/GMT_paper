@@ -215,7 +215,7 @@ summarise_sectoral_sbie_rates <- function(sectoral_panel, stage1_affiliate_year)
 
 build_sectoral_sbie_decomposition <- function(sectoral_rates, stage2_affiliate_year) {
   country <- stage2_affiliate_year |>
-    filter(affiliate_is_eu27, year %in% c(SECTORAL_REFERENCE_YEAR, max(SECTORAL_PANEL_YEARS))) |>
+    filter(affiliate_is_eu27, year %in% SECTORAL_PANEL_YEARS) |>
     transmute(
       rate_scenario, affiliate, year, profit = total_analysis_profit_positive,
       aggregate_sbie_per_profit_average =

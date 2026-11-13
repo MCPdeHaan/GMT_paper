@@ -224,7 +224,7 @@ summarise_stress_variant <- function(revenue, design, factors, variant, gap, tau
   y <- t(as.matrix(revenues[design$scenario_id]))
   stopifnot(all(is.finite(y)))
   effects <- strsplit(colnames(x)[-1], ":", fixed = TRUE)
-  map_dfr(c(2017L, 2019L), function(start) {
+  map_dfr(c(2017L, 2019L, 2021L), function(start) {
     window_y <- y[, revenues$year >= start, drop = FALSE]
     coefficients <- crossprod(x, window_y) / n_scenarios
     ss <- n_scenarios * rowSums(coefficients[-1, , drop = FALSE]^2)
@@ -255,7 +255,7 @@ build_architecture_stress <- function(panel, weights, baseline_revenue, baseline
   base_design <- distinct(baseline_revenue, scenario_id, across(all_of(FACTOR_COLS)))
   a <- summarise_stress_variant(baseline_revenue, base_design, FACTOR_COLS, "A_baseline", baseline_gap)
   a_reference <- read_stage5_input("stage4_6_measurement_sample_main_effects")
-  for (start in c(2017L, 2019L)) {
+  for (start in c(2017L, 2019L, 2021L)) {
     expected <- filter(a_reference, start_year == start, end_year == max(MAIN_YEARS))
     observed <- filter(a, start_year == start)
     stopifnot(max(abs(observed$main_eta_squared - expected$eta_squared[

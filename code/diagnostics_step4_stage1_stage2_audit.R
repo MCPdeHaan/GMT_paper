@@ -246,8 +246,8 @@ compare_percentile_estimators <- function() {
       predictions <- fit_quantile_rows(sample, Q_RAW, model)
       if (model == MODEL_IDS[1]) {
         stopifnot(
-          max(abs(predictions$low_share - sample$percentile_low_share)) < 1e-8,
-          max(abs(predictions$liability_rate - sample$percentile_liability_rate)) < 1e-8
+          max(abs(predictions$low_share - sample$percentile_low_share_uncapped)) < 1e-8,
+          max(abs(predictions$liability_rate - sample$percentile_liability_rate_uncapped)) < 1e-8
         )
       }
       evaluation <- bind_cols(

@@ -13,6 +13,7 @@ library(tibble)
 library(stringr)
 
 source("code/04_stage2_sbie_functions.R")
+source("code/05_stage3_reallocation_functions.R")
 
 dir.create(DIAGNOSTICS_DIR, showWarnings = FALSE, recursive = TRUE)
 
@@ -2310,7 +2311,7 @@ run_stage3_h4_tests <- function(country_year_revenue, scenario_panel) {
   )
 }
 
-build_reallocation_matrix <- function(scenario_panel) {
+build_rule_a_global_reallocation <- function(scenario_panel) {
   source_long <- scenario_panel |>
     filter(factor5_behaviour == "behavioural", reallocated_profit > 0) |>
     transmute(
@@ -2496,6 +2497,83 @@ build_reallocation_matrix <- function(scenario_panel) {
     channel_summary = channel_summary,
     destination_summary = destination_summary
   )
+}
+
+build_reallocation_matrix <- function(scenario_panel, affiliate_year) {
+  legacy <- build_rule_a_global_reallocation(scenario_panel)
+  rule_b <- build_rule_b_reallocation(scenario_panel, affiliate_year)
+  keys <- c(SCENARIO_VARS, "year", "destination", "behavioural_channel")
+  amounts <- c("reallocated_profit_received", "ordinary_cit_gross_destination_revenue",
+    "ordinary_cit_net_recovery")
+  legacy_values <- c(amounts, "reallocation_weight", "destination_weight_source")
+  destinations <- scenario_panel |>
+    summarise(destination_name_rule_b = first(affiliate_jurisdiction_name),
+      destination_cit_rate_rule_b = first_non_missing(affiliate_cit_rate_unit),
+      destination_is_conduit_haven_rule_b = any(coalesce(affiliate_is_conduit_haven, FALSE)),
+      .by = c(affiliate, year)) |>
+    rename(destination = affiliate)
+  channel_keys <- setdiff(keys, "destination")
+  channel_totals <- distinct(legacy$matrix, across(all_of(channel_keys)),
+    channel_reallocated_profit = total_reallocated_profit)
+  matrix <- legacy$matrix |>
+    rename_with(~ paste0(.x, "_rule_a"), all_of(legacy_values)) |>
+    full_join(rule_b, by = keys, relationship = "one-to-one") |>
+    left_join(destinations, by = c("destination", "year"), relationship = "many-to-one") |>
+    left_join(channel_totals, by = channel_keys, relationship = "many-to-one") |>
+    mutate(
+      destination_name = coalesce(destination_name, destination_name_rule_b),
+      destination_cit_rate = coalesce(destination_cit_rate_rule_b, destination_cit_rate),
+      destination_is_conduit_haven = coalesce(destination_is_conduit_haven,
+        destination_is_conduit_haven_rule_b),
+      destination_is_eu27 = destination %in% EU27_ISO3,
+      total_reallocated_profit = coalesce(total_reallocated_profit, channel_reallocated_profit),
+      across(c(all_of(amounts), ends_with("_revenue_effective"), ordinary_cit_source_loss,
+        global_fallback_profit_received, all_of(paste0(amounts, "_rule_a"))), coalesce_zero),
+      weighted_source_tau_rule_a = weighted_source_tau,
+      weighted_source_tau = safe_divide(ordinary_cit_source_loss, reallocated_profit_received),
+      destination_weight_source = case_when(
+        reallocated_profit_received == 0 ~ "none",
+        global_fallback_profit_received == 0 ~ "parent_activity",
+        global_fallback_profit_received >= reallocated_profit_received ~ "global_activity",
+        TRUE ~ "mixed_activity"
+      )
+    ) |>
+    select(-destination_name_rule_b, -destination_cit_rate_rule_b,
+      -destination_is_conduit_haven_rule_b, -channel_reallocated_profit) |>
+    group_by(across(all_of(SCENARIO_VARS)), year, behavioural_channel) |>
+    mutate(reallocation_weight = coalesce_zero(safe_divide(
+      reallocated_profit_received, sum(reallocated_profit_received)
+    ))) |>
+    ungroup()
+  allocated <- matrix |>
+    summarise(
+      allocated_profit = sum(reallocated_profit_received),
+      eu27_destination_profit = sum(reallocated_profit_received[destination_is_eu27]),
+      across(c(ordinary_cit_gross_destination_revenue, ordinary_cit_net_recovery,
+        ordinary_cit_source_loss, global_fallback_profit_received), sum),
+      weight_sum = sum(reallocation_weight[behavioural_channel == first(behavioural_channel)]),
+      destinations = n_distinct(destination[reallocated_profit_received > 0]),
+      .by = c(all_of(SCENARIO_VARS), year)
+    )
+  conservation <- legacy$conservation |>
+    rename_with(~ paste0(.x, "_rule_a"), -all_of(c(SCENARIO_VARS, "year", "total_reallocated_profit"))) |>
+    left_join(allocated, by = c(SCENARIO_VARS, "year"), relationship = "one-to-one") |>
+    mutate(across(all_of(setdiff(names(allocated), c(SCENARIO_VARS, "year"))), coalesce_zero),
+      allocation_gap = allocated_profit - total_reallocated_profit)
+  stopifnot(all(abs(conservation$allocation_gap) < 1e-3),
+    all(abs(conservation$allocation_gap_rule_a) < 1e-3))
+
+  destination_summary <- matrix |>
+    filter(behavioural_channel != "none") |>
+    summarise(
+      across(c(all_of(amounts), all_of(paste0(amounts, "_rule_a")),
+        ordinary_cit_gross_destination_revenue_effective, ordinary_cit_source_loss,
+        global_fallback_profit_received), sum),
+      .by = c(all_of(SCENARIO_VARS), destination, destination_name,
+        destination_is_eu27, behavioural_channel)
+    )
+  list(matrix = matrix, conservation = conservation, channel_summary = legacy$channel_summary,
+    destination_summary = destination_summary)
 }
 
 build_behavioural_identification_design <- function() {
@@ -2743,7 +2821,7 @@ run_stage3_pipeline <- function() {
     revenue_objects$scenario_panel
   )
   reallocation_objects <- build_reallocation_matrix(
-    revenue_objects$scenario_panel
+    revenue_objects$scenario_panel, stage1_affiliate_year
   )
   behavioural_identification_design <- build_behavioural_identification_design()
 

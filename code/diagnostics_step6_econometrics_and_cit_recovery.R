@@ -229,20 +229,6 @@ audit_division_bias <- function(estimation, base) {
   bind_rows(available, matched, lagged_activity)
 }
 
-normalise_formulary_destinations <- function(destinations, keys) {
-  destinations |>
-    group_by(across(all_of(keys))) |>
-    mutate(
-      raw_weight = 0.25 * coalesce_zero(safe_divide(employees, sum(employees))) +
-        0.25 * coalesce_zero(safe_divide(payroll, sum(payroll))) +
-        0.50 * coalesce_zero(safe_divide(upr, sum(upr))),
-      weight = if (sum(raw_weight) > 0) raw_weight / sum(raw_weight) else rep(1 / n(), n()),
-      equal_weight_fallback = sum(raw_weight) == 0
-    ) |>
-    ungroup() |>
-    filter(weight > 0)
-}
-
 build_parent_specific_reallocation <- function(panel, affiliate_year) {
   keys <- c("scenario_id", "parent", "year")
   source_rows <- panel |>
@@ -331,15 +317,31 @@ allocate_avoided_topup <- function(panel, weights, regime) {
     select(country, year, scenario_id, revenue)
 }
 
-build_total_fiscal_country_year <- function(panel, direct, affiliate_year, weights) {
-  reallocation <- build_parent_specific_reallocation(panel, affiliate_year)
-  destination <- reallocation$matrix |>
+build_total_fiscal_country_year <- function(panel, direct, affiliate_year, weights,
+                                           rule_b_matrix = NULL) {
+  reallocation <- if (is.null(rule_b_matrix)) {
+    build_parent_specific_reallocation(panel, affiliate_year)
+  } else {
+    list(matrix = rule_b_matrix, source_rows = panel |>
+      filter(reallocated_profit > 0) |>
+      mutate(source_tax_loss = reallocated_profit * static_tau_low))
+  }
+  routing <- reallocation$matrix
+  if (is.null(rule_b_matrix)) {
+    routing <- routing |>
+      mutate(global_fallback_profit_received = if_else(destination_weight_source == "parent_year",
+        0, reallocated_profit_received))
+  } else {
+    routing <- routing |>
+      mutate(equal_weight_fallback = FALSE, effective_rate_fallback = FALSE)
+  }
+  destination <- routing |>
     filter(destination %in% EU27_ISO3) |>
     group_by(country = destination, year, scenario_id) |>
     summarise(
       across(c(reallocated_profit_received, ordinary_cit_gross_destination_revenue,
         ordinary_cit_gross_destination_revenue_effective, ordinary_cit_net_recovery), sum),
-      global_fallback_profit_received = sum(reallocated_profit_received[destination_weight_source != "parent_year"]),
+      global_fallback_profit_received = sum(global_fallback_profit_received),
       equal_weight_profit_received = sum(reallocated_profit_received[equal_weight_fallback]),
       effective_rate_fallback_profit = sum(reallocated_profit_received[effective_rate_fallback]),
       .groups = "drop"
@@ -385,15 +387,19 @@ build_total_fiscal_country_year <- function(panel, direct, affiliate_year, weigh
 }
 
 summarise_total_fiscal_ledger <- function(country_year, reallocation) {
-  global <- reallocation$matrix |>
+  matrix <- reallocation$matrix
+  legacy <- "parent" %in% names(matrix)
+  global <- matrix |>
     group_by(scenario_id, year) |>
     summarise(
       global_reallocated_profit = sum(reallocated_profit_received),
-      global_reallocated_profit_using_fallback = sum(reallocated_profit_received[
+      global_reallocated_profit_using_fallback = if (legacy) sum(reallocated_profit_received[
         destination_weight_source != "parent_year"
-      ]),
-      parent_year_pools = n_distinct(parent),
-      fallback_parent_year_pools = n_distinct(parent[destination_weight_source != "parent_year"]),
+      ]) else sum(global_fallback_profit_received),
+      parent_year_pools = if (legacy) n_distinct(parent) else NA_integer_,
+      fallback_parent_year_pools = if (legacy) {
+        n_distinct(parent[destination_weight_source != "parent_year"])
+      } else NA_integer_,
       .groups = "drop"
     )
   amounts <- c(
@@ -412,8 +418,7 @@ summarise_total_fiscal_ledger <- function(country_year, reallocation) {
     summarise(across(all_of(amounts), sum), .groups = "drop") |>
     mutate(country = "EU27", country_name = "European Union (27)") |>
     left_join(global, by = c("scenario_id", "year"), relationship = "one-to-one") |>
-    mutate(across(c(global_reallocated_profit, global_reallocated_profit_using_fallback,
-      parent_year_pools, fallback_parent_year_pools), coalesce_zero))
+    mutate(across(c(global_reallocated_profit, global_reallocated_profit_using_fallback), coalesce_zero))
   annual <- bind_rows(country_year, eu)
   global_amounts <- setdiff(names(global), c("scenario_id", "year"))
   cumulative <- annual |>
@@ -431,8 +436,9 @@ summarise_total_fiscal_ledger <- function(country_year, reallocation) {
 }
 
 decompose_total_fiscal_revenue <- function(country_year) {
-  outcomes <- c("direct_topup", "total_fiscal_revenue", "total_fiscal_revenue_effective")
-  map_dfr(c(min(MAIN_YEARS), max(MAIN_YEARS)), function(start) {
+  outcomes <- c("direct_topup", "total_fiscal_revenue", "total_fiscal_revenue_effective",
+    "total_fiscal_revenue_net_by_incidence")
+  map_dfr(c(2017L, 2019L, 2021L, 2023L), function(start) {
     map_dfr(outcomes, function(outcome) {
       input <- country_year |>
         filter(year >= start) |>
@@ -489,6 +495,17 @@ run_fiscal_recovery_audit <- function(panel, direct, weights) {
   )
   write_step6_diagnostic(ledger, "topup_vs_cit_recovery_eu27")
   write_step6_diagnostic(decompose_total_fiscal_revenue(output$country_year), "anova_total_fiscal_revenue")
+  rule_b_matrix <- read_step6_input("stage3_reallocation_matrix")
+  if ("reallocated_profit_received_rule_a" %in% names(rule_b_matrix)) {
+    rule_b <- build_total_fiscal_country_year(panel, direct, read_step6_input("stage1_affiliate_year"),
+      weights, rule_b_matrix)
+    rule_b_ledger <- summarise_total_fiscal_ledger(rule_b$country_year, rule_b$reallocation)
+    stopifnot(nrow(rule_b_ledger) == nrow(ledger),
+      all(rule_b_ledger$ordinary_cit_gross_destination_revenue[rule_b_ledger$x5_behaviour == 0] == 0))
+    write_step6_diagnostic(rule_b_ledger, "topup_vs_cit_recovery_rule_b_eu27")
+    write_step6_diagnostic(decompose_total_fiscal_revenue(rule_b$country_year),
+      "anova_total_fiscal_revenue_rule_b")
+  }
 }
 
 build_eurostat_oecd_comparison <- function(eurostat, cit_revenue) {

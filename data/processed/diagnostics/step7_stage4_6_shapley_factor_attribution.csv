@@ -1,6 +1,6 @@
 effect,factor_label,effect_label,economic_object,uncertainty_class,main_eta_squared,interaction_eta_squared,shapley_eta_squared
-x1_etr,ETR measurement,Endowment: low-taxed profit base,Low-taxed profit volume and average top-up rate,Epistemic measurement uncertainty,0.7148280277515644,0.02842115446659389,0.74324918221815806
-x4_sbs,SbS regime,Legal allocation regime,"QDMTT, IIR and UTPR collection rights",Epistemic legal-regime uncertainty,0.1443185834312556,0.01626062010451588,0.16057920353577146
-x5_behaviour,Behavioural response,Coefficient: behavioural response,Panel-estimated semi-elasticity and SESH liability filter,Behavioural specification; aleatoric only under coefficient bootstrap,0.04521007240650959,0.003858768492264272,0.04906884089877386
-x2_substance,Substance specification,Endowment: substance shield,"Payroll, tangible assets and sectoral SBTI capacity",Epistemic model uncertainty,0.03586194845732467,0.00944117608108209,0.04530312453840676
-x3_rates,SBIE rate endpoint,Policy parameter: SBIE transition,Statutory carve-out endpoint,Policy-design scenario uncertainty,0.0013879659981693396,4.116828107199662e-4,0.001799648808889306
+x1_etr,ETR measurement,Endowment: low-taxed profit base,Low-taxed profit volume and average top-up rate,Epistemic measurement uncertainty,0.7146211984190982,0.028440097100478588,0.7430612955195768
+x4_sbs,SbS regime,Legal allocation regime,"QDMTT, IIR and UTPR collection rights",Epistemic legal-regime uncertainty,0.14443087212083477,0.016273079706268814,0.1607039518271036
+x5_behaviour,Behavioural response,Coefficient: behavioural response,Panel-estimated semi-elasticity and SESH liability filter,Behavioural specification; aleatoric only under coefficient bootstrap,0.04523665116851385,0.0038588733245852524,0.04909552449309911
+x2_substance,Substance specification,Endowment: substance shield,"Payroll, tangible assets and sectoral SBTI capacity",Epistemic model uncertainty,0.03589006833098408,0.009448579044111605,0.045338647375095686
+x3_rates,SBIE rate endpoint,Policy parameter: SBIE transition,Statutory carve-out endpoint,Policy-design scenario uncertainty,0.0013887165825550102,4.118642025698913e-4,0.0018005807851249017

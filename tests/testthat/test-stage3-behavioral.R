@@ -3,6 +3,22 @@ source("code/05_stage3_behavioral.R")
 
 library(testthat)
 
+test_that("Rule B retains eligible hubs and uses global activity for unsupported parents", {
+  sources <- tibble(source_id = 1:2, parent = c("USA", "CHE"), affiliate = "IRL",
+    year = 2023L, source_etr = 0.07, reallocated_profit = c(100, 200))
+  footprint <- tibble(parent = "USA", year = 2023L,
+    destination = c("NLD", "LUX", "DEU", "IRL"),
+    statutory_rate = c(0.25, 0.25, 0.14, 0.20),
+    destination_etr = c(0.22, 0.06, 0.20, 0.20), employees = 1, payroll = 1, upr = 1) |>
+    filter(statutory_rate >= GMT_RATE)
+  host <- tibble(affiliate = c("NLD", "LUX", "IRL"), year = 2023L,
+    avg_etr_stage1 = c(0.22, 0.06, 0.20))
+  routes <- allocate_rule_b_sources(sources, footprint, build_rule_b_global_footprint(footprint, host))
+  expect_equal(routes$destination, c("NLD", "NLD"))
+  expect_equal(routes$route, c("parent_activity", "global_activity"))
+  expect_equal(routes$received, c(100, 200))
+})
+
 test_that("counterfactual ratios follow the hand-worked formulas", {
   expect_equal(
     counterfactual_profit_ratio(tau = 0.05, model_spec = "linear", beta3 = -2),

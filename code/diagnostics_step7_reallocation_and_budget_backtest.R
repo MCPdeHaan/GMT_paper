@@ -22,41 +22,12 @@ build_hub_destination_routes <- function(panel, stage1, host) {
     mutate(source_id = row_number())
   stopifnot(all(is.finite(sources$source_etr)), all(sources$source_etr < GMT_RATE))
   footprint <- panel |>
-    distinct(across(all_of(keys)), affiliate_cit_rate_unit, employees_sbie, payroll_sbie, upr_panelai) |>
+    select(all_of(keys), affiliate_cit_rate_unit, employees_sbie, payroll_sbie, upr_panelai) |>
     left_join(bilateral |> select(-parent_cit_rate_unit),
-      by = keys, relationship = "one-to-one"
-    ) |>
-    filter(affiliate_cit_rate_unit >= GMT_RATE) |>
-    transmute(
-      parent, year, destination = affiliate, statutory_rate = affiliate_cit_rate_unit,
-      destination_etr = etr_panelai_stage1,
-      employees = pmax(coalesce_zero(employees_sbie), 0),
-      payroll = pmax(coalesce_zero(payroll_sbie), 0),
-      upr = pmax(coalesce_zero(upr_panelai), 0)
-    ) |>
-    filter(employees > 0 | payroll > 0 | upr > 0)
-
-  own <- sources |>
-    inner_join(footprint, by = c("parent", "year"), relationship = "many-to-many") |>
-    filter(destination != affiliate, destination_etr > source_etr) |>
-    normalise_formulary_destinations("source_id") |>
-    mutate(route = "parent_activity")
-  global <- footprint |>
-    group_by(destination, year, statutory_rate) |>
-    summarise(across(c(employees, payroll, upr), sum), .groups = "drop") |>
-    left_join(
-      transmute(host, destination = affiliate, year, destination_etr = avg_etr_stage1),
-      by = c("destination", "year"), relationship = "many-to-one"
-    )
-  fallback <- sources |>
-    anti_join(own, by = "source_id") |>
-    inner_join(global, by = "year", relationship = "many-to-many") |>
-    filter(destination != affiliate, destination_etr > source_etr) |>
-    normalise_formulary_destinations("source_id") |>
-    mutate(route = "global_activity")
-  formulary <- bind_rows(own, fallback)
-  unsupported <- anti_join(sources, formulary, by = "source_id")
-  if (nrow(unsupported)) stop("No eligible activity destination for ", nrow(unsupported), " source cells")
+      by = keys, relationship = "many-to-one") |>
+    build_rule_b_footprint()
+  global <- build_rule_b_global_footprint(footprint, host)
+  formulary <- allocate_rule_b_sources(sources, footprint, global)
 
   b <- formulary |>
     transmute(source_id, scenario_id, year, destination, route, statutory_rate,
@@ -172,6 +143,7 @@ build_destination_comparison <- function(panel, direct, stage1, host) {
 budget_benchmarks <- function() {
   dutch_2023 <- "https://www.tweedekamer.nl/downloads/document?id=2023D23289"
   dutch_2026 <- "https://zoek.officielebekendmakingen.nl/kst-36915-3.html"
+  dutch_october_2026 <- "https://zoek.officielebekendmakingen.nl/dossier/kst-1275297.pdf#page=44"
   german <- "https://dserver.bundestag.de/btd/20/086/2008668.pdf"
   belgian <- "https://www.dekamer.be/FLWB/PDF/55/3272/55K3272004.pdf"
   slovak <- "https://link.springer.com/article/10.1007/s10797-026-09946-8"
@@ -184,6 +156,9 @@ budget_benchmarks <- function() {
     "NLD", "Dutch 2026 pre-SbS estimate", "official forecast", "annual", "Direct plus behavioural CIT", "direct", .700, .700, 0L, dutch_2026,
     "NLD", "Dutch 2026 post-SbS estimate", "implied by official figures", "annual", "Direct plus behavioural CIT and package changes", "direct", .578, .578, 1L, dutch_2026,
     "NLD", "2023 estimate less 2026 haircut", "cross-vintage arithmetic", "structural illustration", "Mixed vintages", "direct", .344, .344, 1L, dutch_2026,
+    "NLD", "Dutch October 2026 structural domestic top-up", "official forecast", "structural, 2020–2023 CbCR base", "QDMTT, retained under both policies", "qdmt", .055, .055, NA_integer_, dutch_october_2026,
+    "NLD", "Dutch October 2026 direct before package", "implied by official figures", "structural, 2020–2023 CbCR base", "QDMTT 55m plus IIR/UTPR 175m", "direct", .230, .230, 0L, dutch_october_2026,
+    "NLD", "Dutch October 2026 direct after package", "implied by official figures", "structural, 2020–2023 CbCR base", "QDMTT 55m plus IIR/UTPR 121m after both safe harbours", "direct", .176, .176, 1L, dutch_october_2026,
     "DEU", "Mindeststeuergesetz cash estimate", "official draft costing", "2026 cash", "Minimum tax, separate from accompanying tax changes", "direct", 1, 1, 0L, german,
     "DEU", "Mindeststeuergesetz full-year effect", "official draft costing", "full-year effect", "Minimum tax, separate from accompanying tax changes", "direct", .2, .2, 0L, german,
     "FRA", "Projet de loi de finances 2026", "official forecast", "2026 cash", "Domestic and other top-up receipts", "direct", .5, .5, NA_integer_, "https://www.senat.fr/rap/l25-139-21/l25-139-211.pdf",

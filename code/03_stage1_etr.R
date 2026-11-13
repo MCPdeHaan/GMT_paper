@@ -22,10 +22,10 @@ PERCENTILE_PROBS <- c(0.05, 0.25, 0.50, 0.75, 0.95)
 BETA_PRECISION_LOG_BOUNDS <- log(c(1e-4, 1e6))
 BETA_BOUNDARY_EPS <- 1e-8
 
-condition_stage1_percentiles <- function(q) {
+condition_stage1_percentiles <- function(q, upper_cap = 1) {
   q |>
     pmax(0) |>
-    pmin(1) |>
+    pmin(upper_cap) |>
     cummax()
 }
 
@@ -104,12 +104,13 @@ beta_quantiles <- function(probs, alpha, beta) {
 }
 
 fit_constrained_beta_percentiles <- function(q, target_mean,
-                                             probs = PERCENTILE_PROBS) {
+                                             probs = PERCENTILE_PROBS,
+                                             upper_cap = NULL) {
   if (is.na(target_mean) || any(is.na(q))) {
     return(empty_beta_fit())
   }
 
-  q <- condition_stage1_percentiles(q)
+  q <- condition_stage1_percentiles(q, if (is.null(upper_cap)) 1 else upper_cap)
   target_mean <- pmin(pmax(target_mean, 0), 1)
 
   if (target_mean <= BETA_BOUNDARY_EPS) {
@@ -154,8 +155,12 @@ fit_constrained_beta_percentiles <- function(q, target_mean,
     sum((q_fit - q)^2)
   }
 
-  opt <- stats::optimize(objective, interval = BETA_PRECISION_LOG_BOUNDS)
-  precision <- exp(opt$minimum)
+  log_precision <- if (is.null(upper_cap)) {
+    stats::optimize(objective, interval = BETA_PRECISION_LOG_BOUNDS)$minimum
+  } else {
+    stage1_minimise(objective, BETA_PRECISION_LOG_BOUNDS[1], BETA_PRECISION_LOG_BOUNDS[2])
+  }
+  precision <- exp(log_precision)
   alpha <- target_mean * precision
   beta <- (1 - target_mean) * precision
   q_fit <- beta_quantiles(probs, alpha, beta)
@@ -360,9 +365,20 @@ fit_matched_beta_metrics <- function(data) {
     rowwise() |>
     mutate(
       fit = list(fit_constrained_beta_percentiles(
+        c(q5_raw, q25_raw, q50_raw, q75_raw, q95_raw), mean_etr,
+        upper_cap = affiliate_etr_cap_stage1
+      )),
+      uncapped = list(fit_constrained_beta_percentiles(
         c(q5_raw, q25_raw, q50_raw, q75_raw, q95_raw), mean_etr
       )),
       boundary_mean = if_else(fit$boundary_flag, fit$mean, NA_real_),
+      uncapped_boundary = if_else(uncapped$boundary_flag, uncapped$mean, NA_real_),
+      percentile_low_share_uncapped = beta_mass_below(uncapped$alpha, uncapped$beta,
+        boundary_mean = uncapped_boundary),
+      percentile_topup_rate_uncapped = beta_avg_topup_rate(uncapped$alpha, uncapped$beta,
+        boundary_mean = uncapped_boundary),
+      percentile_liability_rate_uncapped =
+        percentile_low_share_uncapped * percentile_topup_rate_uncapped,
       percentile_low_share = beta_mass_below(fit$alpha, fit$beta,
         boundary_mean = boundary_mean
       ),
@@ -374,7 +390,7 @@ fit_matched_beta_metrics <- function(data) {
       liability_rate_diff = percentile_liability_rate - direct_liability_rate
     ) |>
     ungroup() |>
-    select(-fit, -boundary_mean)
+    select(-fit, -boundary_mean, -uncapped, -uncapped_boundary)
 }
 
 build_matched_stage1_crossval <- function(panel, bilateral_brackets, direct_bilateral) {
@@ -396,6 +412,7 @@ build_matched_stage1_crossval <- function(panel, bilateral_brackets, direct_bila
     transmute(
       parent, affiliate, year, affiliate_is_eu27, analysis_profit_base,
       mean_etr = etr_panelai_reg,
+      affiliate_etr_cap_stage1 = pmin(1, coalesce(affiliate_cit_rate_unit + ZETA_LOSS_OFFSET, 1)),
       q5_raw = etr_p5_panelai, q25_raw = etr_p25_panelai, q50_raw = etr_p50_panelai,
       q75_raw = etr_p75_panelai, q95_raw = etr_p95_panelai,
       t4_positive_profit, t4_low_profit, t4_low_tax,
@@ -420,10 +437,10 @@ build_matched_stage1_crossval <- function(panel, bilateral_brackets, direct_bila
       .groups = "drop"
     ) |>
     mutate(
-      cap = pmin(1, coalesce(cit_rate + ZETA_LOSS_OFFSET, 1)),
-      mean_etr = pmin(pmax(tax_accrued / analysis_profit_base, 0), cap)
+      affiliate_etr_cap_stage1 = pmin(1, coalesce(cit_rate + ZETA_LOSS_OFFSET, 1)),
+      mean_etr = pmin(pmax(tax_accrued / analysis_profit_base, 0), affiliate_etr_cap_stage1)
     ) |>
-    select(-cap, -cit_rate)
+    select(-cit_rate)
 
   restricted <- pool_panelai_percentiles(matched) |>
     inner_join(restricted_means, by = affiliate_year_keys) |>
@@ -433,13 +450,14 @@ build_matched_stage1_crossval <- function(panel, bilateral_brackets, direct_bila
   list(exact = exact, restricted = restricted)
 }
 
-summarise_stage1_crossval <- function(data, sample) {
-  outcomes <- c("low_share", "liability_rate")
+summarise_stage1_crossval <- function(data, sample, uncapped = FALSE) {
+  suffix <- if (uncapped) "_uncapped" else ""
+  outcomes <- c("low_share", "topup_rate", "liability_rate")
   map_dfr(outcomes, function(outcome) {
     observations <- tibble(
       year = data$year,
       benchmark = data[[paste0("direct_", outcome)]],
-      prediction = data[[paste0("percentile_", outcome)]]
+      prediction = data[[paste0("percentile_", outcome, suffix)]]
     ) |>
       filter(is.finite(benchmark), is.finite(prediction))
     gap <- observations$prediction - observations$benchmark
@@ -461,17 +479,23 @@ summarise_stage1_crossval <- function(data, sample) {
       median_gap = median(gap),
       mae = mean(abs(gap)),
       rmse = sqrt(mean(gap^2)),
+      p90_absolute_error = unname(quantile(abs(gap), .9)),
       spearman = safe_cor(observations$prediction, observations$benchmark, method = "spearman"),
       calibration_slope = calibration[["slope"]],
       calibration_r_squared = calibration[["r_squared"]]
     )
     tibble(
-      sample = sample, outcome = outcome, statistic = names(values),
-      metric = paste(sample, outcome, statistic, sep = "_"),
+      sample = sample, estimator = if (uncapped) "uncapped" else "statutory_cap",
+      outcome = outcome, statistic = names(values),
+      prediction_field = paste0("percentile_", outcome, suffix),
+      metric = paste0(paste(sample, outcome, statistic, sep = "_"), suffix),
       value = if_else(is.nan(values), NA_real_, unname(values))
     )
   })
 }
+
+source("code/03_stage1_rank_beta_functions.R")
+source("code/03_stage1_ladder_functions.R")
 
 run_stage1_pipeline <- function() {
   panel <- readRDS(file.path(PROCESSED_DIR, "base_panel.rds")) |>
@@ -612,7 +636,7 @@ run_stage1_pipeline <- function() {
 
   percentile_affiliate_year <- affiliate_year_base |>
     select(
-      affiliate, year, affiliate_is_eu27, avg_etr_stage1,
+      affiliate, year, affiliate_is_eu27, avg_etr_stage1, affiliate_etr_cap_stage1,
       total_analysis_profit_positive
     ) |>
     left_join(percentile_source_availability, by = c("affiliate", "year")) |>
@@ -642,7 +666,7 @@ run_stage1_pipeline <- function() {
       percentile_raw_out_of_support = any(unlist(percentile_raw) < 0 |
         unlist(percentile_raw) > 1),
       percentile_conditioned = list(
-        condition_stage1_percentiles(unlist(percentile_raw))
+        condition_stage1_percentiles(unlist(percentile_raw), affiliate_etr_cap_stage1)
       ),
       percentile_conditioning_flag = any(abs(
         unlist(percentile_conditioned) - unlist(percentile_raw)
@@ -651,9 +675,24 @@ run_stage1_pipeline <- function() {
         unlist(percentile_conditioned) - unlist(percentile_raw)
       )),
       percentile_beta_fit = list(fit_constrained_beta_percentiles(
-        unlist(percentile_conditioned),
-        avg_etr_stage1
+        unlist(percentile_raw), avg_etr_stage1, upper_cap = affiliate_etr_cap_stage1
       )),
+      percentile_uncapped_fit = list(fit_constrained_beta_percentiles(
+        unlist(percentile_raw), avg_etr_stage1
+      )),
+      percentile_uncapped_boundary = if_else(percentile_uncapped_fit$boundary_flag,
+        percentile_uncapped_fit$mean, NA_real_),
+      percentile_beta_precision_uncapped = percentile_uncapped_fit$precision,
+      percentile_low_share_uncapped = beta_mass_below(percentile_uncapped_fit$alpha,
+        percentile_uncapped_fit$beta, boundary_mean = percentile_uncapped_boundary),
+      percentile_topup_rate_uncapped = beta_avg_topup_rate(percentile_uncapped_fit$alpha,
+        percentile_uncapped_fit$beta, boundary_mean = percentile_uncapped_boundary),
+      percentile_liability_rate_uncapped = percentile_low_share_uncapped * percentile_topup_rate_uncapped,
+      percentile_beta_precision_rank_bounded = if (is.finite(avg_etr_stage1) &&
+        all(is.finite(unlist(percentile_raw)))) {
+        stage1_fit_cell(unlist(percentile_raw), avg_etr_stage1,
+          affiliate_etr_cap_stage1, STAGE1_BETA_MODELS[3])$precision
+      } else NA_real_,
       percentile_beta_alpha = percentile_beta_fit$alpha,
       percentile_beta_beta = percentile_beta_fit$beta,
       percentile_beta_precision = percentile_beta_fit$precision,
@@ -718,6 +757,9 @@ run_stage1_pipeline <- function() {
       percentile_beta_boundary_flag,
       percentile_q5, percentile_q25, percentile_q50, percentile_q75, percentile_q95,
       percentile_iqr, percentile_low_share, percentile_topup_rate,
+      percentile_beta_precision_uncapped, percentile_low_share_uncapped,
+      percentile_topup_rate_uncapped, percentile_liability_rate_uncapped,
+      percentile_beta_precision_rank_bounded,
       percentile_liability_rate, percentile_rate_0_15, percentile_rate_15,
       percentile_rate_20_30, percentile_rate_30
     )
@@ -1127,7 +1169,8 @@ run_stage1_pipeline <- function() {
         stage1_lowtax_profit_distributional_strict *
           stage1_distributional_topup_rate_strict
     ) |>
-    select(-t4_available, -direct_low_share_bilat, -direct_topup_rate_bilat)
+    select(-t4_available, -direct_low_share_bilat, -direct_topup_rate_bilat) |>
+    add_stage1_ladder_columns(affiliate_year_stage1, t4_bilateral_brackets)
 
   assert_unique_keys(affiliate_year_stage1, c("affiliate", "year"), "stage1 affiliate-year")
   assert_unique_keys(bilateral_stage1, c("parent", "affiliate", "year"), "stage1 bilateral")
@@ -1502,7 +1545,10 @@ run_stage1_pipeline <- function() {
     stage1_crossval_summary,
     summarise_stage1_crossval(crossval_affiliate_year, "unmatched_affiliate_year"),
     summarise_stage1_crossval(matched_crossval$restricted, "parent_restricted_affiliate_year"),
-    summarise_stage1_crossval(matched_crossval$exact, "exact_bilateral")
+    summarise_stage1_crossval(matched_crossval$exact, "exact_bilateral"),
+    summarise_stage1_crossval(crossval_affiliate_year, "unmatched_affiliate_year", uncapped = TRUE),
+    summarise_stage1_crossval(matched_crossval$restricted, "parent_restricted_affiliate_year", uncapped = TRUE),
+    summarise_stage1_crossval(matched_crossval$exact, "exact_bilateral", uncapped = TRUE)
   )
 
   write_csv(

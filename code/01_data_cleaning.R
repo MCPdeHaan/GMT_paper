@@ -9,7 +9,6 @@ library(readr)
 library(purrr)
 library(stringr)
 library(tibble)
-library(xml2)
 
 source("code/00_helpers.R")
 
@@ -175,9 +174,9 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
     tmp <- tempfile("xlsx_names_")
     dir.create(tmp)
     utils::unzip(xlsx_path, exdir = tmp)
-    wb <- read_xml(file.path(tmp, "xl/workbook.xml"))
-    ns <- xml_ns(wb)
-    xml_attr(xml_find_all(wb, ".//d1:sheets/d1:sheet", ns), "name")
+    wb <- xml2::read_xml(file.path(tmp, "xl/workbook.xml"))
+    ns <- xml2::xml_ns(wb)
+    xml2::xml_attr(xml2::xml_find_all(wb, ".//d1:sheets/d1:sheet", ns), "name")
   }
 
   read_xlsx_sheet_cells <- function(xlsx_path, sheet_index) {
@@ -188,18 +187,18 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
     shared_path <- file.path(tmp, "xl/sharedStrings.xml")
     shared_strings <- character()
     if (file.exists(shared_path)) {
-      shared_xml <- read_xml(shared_path)
-      shared_ns <- xml_ns(shared_xml)
-      shared_strings <- xml_text(xml_find_all(shared_xml, ".//d1:si", shared_ns))
+      shared_xml <- xml2::read_xml(shared_path)
+      shared_ns <- xml2::xml_ns(shared_xml)
+      shared_strings <- xml2::xml_text(xml2::xml_find_all(shared_xml, ".//d1:si", shared_ns))
     }
 
-    sheet_xml <- read_xml(file.path(tmp, sprintf("xl/worksheets/sheet%d.xml", sheet_index)))
-    sheet_ns <- xml_ns(sheet_xml)
-    cells <- xml_find_all(sheet_xml, ".//d1:c", sheet_ns)
-    ref <- xml_attr(cells, "r")
-    type <- xml_attr(cells, "t")
-    raw_value <- xml_text(xml_find_first(cells, "d1:v", sheet_ns))
-    inline_value <- xml_text(xml_find_first(cells, "d1:is", sheet_ns))
+    sheet_xml <- xml2::read_xml(file.path(tmp, sprintf("xl/worksheets/sheet%d.xml", sheet_index)))
+    sheet_ns <- xml2::xml_ns(sheet_xml)
+    cells <- xml2::xml_find_all(sheet_xml, ".//d1:c", sheet_ns)
+    ref <- xml2::xml_attr(cells, "r")
+    type <- xml2::xml_attr(cells, "t")
+    raw_value <- xml2::xml_text(xml2::xml_find_first(cells, "d1:v", sheet_ns))
+    inline_value <- xml2::xml_text(xml2::xml_find_first(cells, "d1:is", sheet_ns))
 
     value <- case_when(
       type == "s" ~ shared_strings[as.integer(raw_value) + 1L],
@@ -234,9 +233,11 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
   }
 
   clean_bea_numeric <- function(x) {
+    # BEA publishes letter-coded ranges for suppressed employment counts.
     parse_number(
       x,
-      na = c("", "D", "(D)", "(*)", "NA", "(NA)", "n.a.", "--", "...")
+      na = c("", "D", "(D)", "A", LETTERS[6:13], "(P)", "P", "*", "(*)",
+        "NA", "(NA)", "n.a.", "--", "...")
     )
   }
 

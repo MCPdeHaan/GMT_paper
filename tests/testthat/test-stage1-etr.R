@@ -9,6 +9,22 @@ test_that("percentile conditioning clamps and orders quantiles", {
 
   expect_equal(q_cond, c(0, 0.10, 0.10, 1, 1))
   expect_true(all(diff(q_cond) >= 0))
+  expect_equal(condition_stage1_percentiles(q_raw, upper_cap = 0.25),
+    c(0, 0.10, 0.10, 0.25, 0.25))
+})
+
+test_that("statutory-cap and rank-bounded fits preserve the mean anchor", {
+  q <- c(0.0053, 0.1087, 0.2435, 0.3748, 1.2253)
+  target <- 0.20825
+  legacy <- fit_constrained_beta_percentiles(q, target)
+  capped <- fit_constrained_beta_percentiles(q, target, upper_cap = target)
+  rank <- stage1_fit_cell(q, target, target, STAGE1_BETA_MODELS[3])
+  expect_equal(capped$mean, target)
+  expect_lt(beta_mass_below(capped$alpha, capped$beta), beta_mass_below(legacy$alpha, legacy$beta))
+  expect_equal(rank$target_mean, target)
+  expect_gte(rank$share, 0.25)
+  expect_lte(rank$share, 0.50)
+  expect_false(rank$rank_violation)
 })
 
 test_that("constrained beta fit recovers a known beta distribution", {
