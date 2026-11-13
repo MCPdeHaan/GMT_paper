@@ -1,6 +1,6 @@
 # Usage from any directory:
 # Rscript /path/to/GMT_paper/tests/verify_golden_step15.R [output-root]
-# Verify the immutable Step 15 manifest and the separately frozen Step 17 CSV.
+# Verify the active Step 15 outputs and the separately frozen Step 17 CSV.
 # A future schema migration needs a separate keyed comparison.
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) > 1L) stop("Usage: Rscript tests/verify_golden_step15.R [output-root]")

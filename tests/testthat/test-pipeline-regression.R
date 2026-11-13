@@ -179,7 +179,7 @@ test_that("generated LaTeX tables remain present and well formed", {
 })
 
 test_that("measurement-error draws are reproducible with a fixed seed", {
-  source_pipeline("11_policy_game_and_variance_extensions.R")
+  source_pipeline("07a_uncertainty.R")
 
   toy_stage1 <- tibble::tibble(
     affiliate = c("AAA", "BBB"),

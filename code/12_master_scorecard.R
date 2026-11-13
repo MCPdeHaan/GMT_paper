@@ -1,6 +1,7 @@
 # Thesis and journal paper scorecard with a fixed archived baseline.
 
 source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "11_policy_game_and_variance_extensions.R"), local = TRUE)
+source(file.path(GMT_PROJECT_ROOT, "code", "09_econometric_and_reallocation_extensions.R"), local = TRUE)
 
 # Scorecard assembly
 

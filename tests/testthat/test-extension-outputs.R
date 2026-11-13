@@ -63,3 +63,24 @@ test_that("the master scorecard includes all empirical stages and extension resu
     "Stage 4.5", "Stage 4.6", "Step 12", "Step 13", "Step 14", "Step 15"))
   expect_true(any(is.finite(scorecard$paper_value)))
 })
+
+test_that("the Paper v2 publication tables and figures are complete", {
+  expect_setequal(list.files(generated_path("paper_v2_tables")), c(
+    "tab_v2_etr_ladder_and_crossval.tex",
+    "tab_v2_stage2_sbti_and_bracket_substance.tex",
+    "tab_v2_stage3_division_bias_and_ppml.tex",
+    "tab_v2_factorial_globe_and_total_variance.tex",
+    "tab_v2_source_collector_ledger_and_regimes.tex",
+    "tab_v2_budget_backtest_and_hanlon_waterfall.tex",
+    "tab_v2_qdmtt_nash_deviation_game.tex",
+    "tab_v2_cbcr_tables_2_3_6_extensions.tex"
+  ))
+  figures <- file.path(generated_path("paper_v2_figures"), c(
+    "fig_v2_cbcr_to_budget_waterfall.pdf",
+    "fig_v2_qdmtt_deviation_efficiency_vs_sbti.pdf"
+  ))
+  expect_true(all(file.exists(figures)))
+  expect_true(all(vapply(figures, function(path) {
+    identical(rawToChar(readBin(path, "raw", n = 5L)), "%PDF-")
+  }, logical(1))))
+})

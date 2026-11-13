@@ -943,11 +943,49 @@ ladder_sbs_summary <- function(preferred_source, preferred_revenue) {
     arrange(level, scope, window)
 }
 
-ladder_official_forecasts <- function() {
-  forecasts <- read_csv(file.path(DIAGNOSTICS_DIR, "step7_official_budget_forecasts_backtest.csv"),
-    show_col_types = FALSE
+budget_benchmarks <- function() {
+  dutch_2023 <- "https://www.tweedekamer.nl/downloads/document?id=2023D23289"
+  dutch_2026 <- "https://zoek.officielebekendmakingen.nl/kst-36915-3.html"
+  dutch_october_2026 <- "https://zoek.officielebekendmakingen.nl/dossier/kst-1275297.pdf#page=44"
+  german <- "https://dserver.bundestag.de/btd/20/086/2008668.pdf"
+  belgian <- "https://www.dekamer.be/FLWB/PDF/55/3272/55K3272004.pdf"
+  slovak <- "https://link.springer.com/article/10.1007/s10797-026-09946-8"
+  tribble(
+    ~country, ~benchmark, ~evidence, ~forecast_period, ~revenue_scope, ~model_scope,
+    ~official_low_eur_bn, ~official_high_eur_bn, ~stated_sbs_switch, ~source_url,
+    "NLD", "Dutch 2023 structural estimate", "official forecast", "2034 onward", "Direct plus behavioural CIT", "direct", .466, .466, 0L, dutch_2023,
+    "NLD", "Dutch 2023 direct component", "official forecast", "2034 onward", "QDMTT 55m plus IIR/UTPR 9m", "direct", .064, .064, 0L, dutch_2023,
+    "NLD", "Dutch 2023 structural domestic top-up", "official forecast", "2034 onward", "QDMTT", "qdmt", .055, .055, 0L, dutch_2023,
+    "NLD", "Dutch 2026 pre-SbS estimate", "official forecast", "annual", "Direct plus behavioural CIT", "direct", .700, .700, 0L, dutch_2026,
+    "NLD", "Dutch 2026 post-SbS estimate", "implied by official figures", "annual", "Direct plus behavioural CIT and package changes", "direct", .578, .578, 1L, dutch_2026,
+    "NLD", "2023 estimate less 2026 haircut", "cross-vintage arithmetic", "structural illustration", "Mixed vintages", "direct", .344, .344, 1L, dutch_2026,
+    "NLD", "Dutch October 2026 structural domestic top-up", "official forecast", "structural, 2020–2023 CbCR base", "QDMTT, retained under both policies", "qdmt", .055, .055, NA_integer_, dutch_october_2026,
+    "NLD", "Dutch October 2026 direct before package", "implied by official figures", "structural, 2020–2023 CbCR base", "QDMTT 55m plus IIR/UTPR 175m", "direct", .230, .230, 0L, dutch_october_2026,
+    "NLD", "Dutch October 2026 direct after package", "implied by official figures", "structural, 2020–2023 CbCR base", "QDMTT 55m plus IIR/UTPR 121m after both safe harbours", "direct", .176, .176, 1L, dutch_october_2026,
+    "DEU", "Mindeststeuergesetz cash estimate", "official draft costing", "2026 cash", "Minimum tax, separate from accompanying tax changes", "direct", 1, 1, 0L, german,
+    "DEU", "Mindeststeuergesetz full-year effect", "official draft costing", "full-year effect", "Minimum tax, separate from accompanying tax changes", "direct", .2, .2, 0L, german,
+    "FRA", "Projet de loi de finances 2026", "official forecast", "2026 cash", "Domestic and other top-up receipts", "direct", .5, .5, NA_integer_, "https://www.senat.fr/rap/l25-139-21/l25-139-211.pdf",
+    "IRL", "Department of Finance estimate, reported by IFAC", "official forecast", "2026 cash", "Pillar II additional receipts", "direct", 3.2, 3.2, NA_integer_, "https://www.fiscalcouncil.ie/wp-content/uploads/2025/11/Supporting-items-Fiscal-Assessment-Report-November-2025.pdf",
+    "BEL", "Belgian 2024 budget", "official forecast", "2024 cash", "QDMTT and IIR net of 16m implementation costs", "direct", .634, .634, 0L, belgian,
+    "BEL", "Belgian 2024 domestic top-up", "official forecast", "2024 cash", "QDMTT gross", "qdmt", .350, .350, 0L, belgian,
+    "BEL", "Belgian 2024 IIR", "official forecast", "2024 cash", "IIR gross", "iir", .300, .300, 0L, belgian,
+    "AUT", "Austrian MinBestG impact assessment", "official potential estimate", "2026 onward", "Additional minimum-tax revenue", "direct", .100, .100, 0L, "https://www.parlament.gv.at/dokument/XXVII/I/2322/imfname_1596482.pdf",
+    "SVK", "Slovak implementing bill", "official unquantified", "2026 onward", "Domestic top-up, no published amount in bill", "qdmt", NA_real_, NA_real_, NA_integer_, "https://www.vssr.sk/dovodova-sprava/dovodova-sprava-k-zakonu-c-507-2023-z-z.htm",
+    "SVK", "Boukal et al. domestic top-up", "academic estimate", "annual, 2020 base", "QDMTT after behaviour", "qdmt", .044, .044, NA_integer_, slovak,
+    "SVK", "Boukal et al. total direct top-up", "academic estimate", "annual, 2020 base", "Domestic and third-country top-up", "direct", .053, .053, NA_integer_, slovak,
+    "SVK", "Boukal et al. overall effect", "academic estimate", "annual, 2020 base", "Top-up plus net ordinary corporate tax effect", "direct", .117, .144, NA_integer_, slovak
   ) |>
-    filter(window == "FY2023", country %in% LADDER_BUDGET_COUNTRIES,
+    mutate(comparison_scope = case_when(
+      grepl("behavioural CIT|ordinary corporate|Mixed vintages", revenue_scope) ~
+        "Numerical collector comparison only; benchmark includes more than direct top-up",
+      benchmark == "Belgian 2024 budget" ~ "Gross model versus forecast net of implementation costs",
+      TRUE ~ "Model channel as specified"
+    ))
+}
+
+ladder_official_forecasts <- function() {
+  forecasts <- budget_benchmarks() |>
+    filter(country %in% LADDER_BUDGET_COUNTRIES,
       startsWith(evidence, "official") | evidence %in% c("implied by official figures", "academic estimate")
     ) |>
     select(country, benchmark, evidence, forecast_period, revenue_scope, model_scope,
