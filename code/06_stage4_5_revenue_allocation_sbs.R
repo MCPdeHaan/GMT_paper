@@ -7,7 +7,7 @@
 # the earlier source-country UTPR proxy with a parent-year substance-weighted
 # UTPR allocation.
 
-source("code/00_helpers.R", local = TRUE)
+source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "00_helpers.R"), local = TRUE)
 
 
 compute_utpr_raw_weight <- function(employee_share, asset_share) {

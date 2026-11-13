@@ -1,5 +1,4 @@
-setwd(normalizePath(file.path("..", ".."), mustWork = TRUE))
-source("code/04_stage2_sbie.R")
+source_pipeline("04_stage2_sbie.R")
 
 library(testthat)
 

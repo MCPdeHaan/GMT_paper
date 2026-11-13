@@ -1,5 +1,4 @@
-setwd(normalizePath(file.path("..", ".."), mustWork = TRUE))
-source("code/07_stage4_6_revenue_pipeline_decomposition.R")
+source_pipeline("07_stage4_6_revenue_pipeline_decomposition.R")
 
 library(testthat)
 

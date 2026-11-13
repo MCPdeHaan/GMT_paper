@@ -1,5 +1,4 @@
-setwd(normalizePath(file.path("..", ".."), mustWork = TRUE))
-source("code/10_jurisdiction_influence_robustness.R")
+source_pipeline("11_policy_game_and_variance_extensions.R")
 
 library(testthat)
 

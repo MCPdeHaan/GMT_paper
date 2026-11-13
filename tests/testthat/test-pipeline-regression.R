@@ -1,19 +1,6 @@
 library(testthat)
 library(dplyr)
 
-setwd(normalizePath(file.path("..", ".."), mustWork = TRUE))
-repo_root <- getwd()
-
-repo_path <- function(...) file.path(repo_root, ...)
-
-source_from_repo <- function(path) {
-  source(path)
-}
-
-source_from_repo("code/00_helpers.R")
-
-processed_path <- function(file) repo_path("data", "processed", file)
-
 baseline_path <- function(env_var, ...) {
   value <- Sys.getenv(env_var)
   if (nzchar(value)) value else repo_path(...)
@@ -171,7 +158,7 @@ test_that("current fiscal and typology results use complete CIT denominators", {
 })
 
 test_that("generated LaTeX tables remain present and well formed", {
-  generated_files <- list.files(repo_path("writing", "generated"),
+  generated_files <- list.files(generated_path(),
     pattern = "\\.tex$", recursive = TRUE,
     full.names = TRUE
   )
@@ -180,7 +167,7 @@ test_that("generated LaTeX tables remain present and well formed", {
   for (current_file in generated_files) {
     rel_file <- substring(
       current_file,
-      nchar(repo_path("writing", "generated")) + 2L
+      nchar(generated_path()) + 2L
     )
     labels <- latex_labels(current_file)
     expect_identical(labels, unique(labels), info = rel_file)
@@ -192,7 +179,7 @@ test_that("generated LaTeX tables remain present and well formed", {
 })
 
 test_that("measurement-error draws are reproducible with a fixed seed", {
-  source_from_repo("code/09_stage1_measurement_error_simulation.R")
+  source_pipeline("11_policy_game_and_variance_extensions.R")
 
   toy_stage1 <- tibble::tibble(
     affiliate = c("AAA", "BBB"),
@@ -216,7 +203,7 @@ test_that("measurement-error draws are reproducible with a fixed seed", {
 })
 
 test_that("country typology cluster stability is reproducible with a fixed seed", {
-  source_from_repo("code/07_stage4_6_revenue_pipeline_decomposition.R")
+  source_pipeline("07_stage4_6_revenue_pipeline_decomposition.R")
 
   scaled_matrix <- matrix(seq(-2.5, 2.5, length.out = 40), nrow = 10)
   first <- build_cluster_stability(scaled_matrix,

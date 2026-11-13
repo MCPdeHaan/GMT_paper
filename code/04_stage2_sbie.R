@@ -5,7 +5,7 @@
 # Produces the aggregate bilateral SBIE filter, the 2022 reference matrix
 # and a 2021–2023 sectoral panel based on CbCR, FATS and EUKLEMS.
 
-source("code/00_helpers.R", local = TRUE)
+source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "00_helpers.R"), local = TRUE)
 
 
 SECTORAL_REFERENCE_YEAR <- 2022

@@ -5,7 +5,7 @@
 # allocation. The script treats the Stage 4.5 country-year revenue matrix as
 # the final object for the 2^5 counterfactual decomposition.
 
-source("code/00_helpers.R", local = TRUE)
+source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "00_helpers.R"), local = TRUE)
 
 
 FACTOR_LABELS <- c(
@@ -1814,6 +1814,85 @@ run_stage4_6_pipeline <- function(write_latex = TRUE) {
   message(" - data/processed/stage4_6_measurement_sample_*.rds")
   message(" - diagnostics/step7_stage4_6_*.csv")
   if (write_latex) message(" - writing/generated/stage4_6_results_tables.tex")
+}
+
+# Scenario inputs and balanced factorial contrasts used by the extensions
+
+read_stage5_input <- function(stem) readRDS(file.path(PROCESSED_DIR, paste0(stem, ".rds")))
+
+stage5_source_inputs <- function() {
+  read_stage5_input("stage3_factorial_pair_year") |>
+    select(
+      all_of(SCENARIO_VARS), parent, affiliate, year, pair_id,
+      affiliate_jurisdiction_name, parent_jurisdiction_name, affiliate_is_conduit_haven,
+      employees_sbie, assets_sbie, stage2_phi, act_ip_panelai, act_holding_panelai,
+      act_igf_panelai, analysis_profit_positive, average_low_share,
+      stage1_distributional_low_share, stage1_distributional_low_share_bilat,
+      stage1_lowtax_profit_average, stage1_lowtax_profit_distributional,
+      stage1_lowtax_profit_distributional_bilat, stage1_topup_tax_distributional_bilat,
+      stage2_excess_lowtax_profit_average, stage2_excess_lowtax_profit_distributional,
+      stage2_excess_lowtax_profit_distributional_bilat, stage2_topup_selected,
+      stage2_topup_tax_distributional_bilat, sectoral_scale_selected,
+      static_tau_low, static_beta_applied, static_behavioural_regime,
+      topup_after_stage2, topup_after_behaviour, qdmtt_flag, sbs_exempt,
+      parent_iir_utpr_flag, affiliate_oecd_iir_by_2026,
+      affiliate_policy_iir_utpr_by_2026, affiliate_policy_utpr_by_2026,
+      affiliate_policy_iir_utpr_explicit_by_2026, affiliate_policy_iir_utpr_ambiguous_by_2026
+    )
+}
+
+replace_behaviour_schedule <- function(panel, tau_low, beta_raw) {
+  regime <- apply_behavioural_regime(tau_low, beta_raw)
+  panel |>
+    mutate(
+      static_tau_low = tau_low,
+      static_beta_applied = regime$beta_applied,
+      static_behavioural_regime = regime$behavioural_regime
+    ) |>
+    add_behavioural_response()
+}
+
+summarise_stress_variant <- function(revenue, design, factors, variant, gap, tau_floor = NA_real_) {
+  design <- arrange(design, scenario_id)
+  n_scenarios <- 2^length(factors)
+  stopifnot(nrow(design) == n_scenarios, nrow(distinct(design, across(all_of(factors)))) == n_scenarios)
+  contrasts <- design |>
+    mutate(across(all_of(factors), ~ 2 * .x - 1))
+  x <- model.matrix(reformulate(paste(factors, collapse = "*")), data = contrasts)
+  stopifnot(all(crossprod(x) == diag(n_scenarios) * n_scenarios))
+  assert_unique_keys(revenue, c("country", "year", "scenario_id"), variant)
+  revenues <- revenue |>
+    select(country, year, scenario_id, revenue) |>
+    pivot_wider(names_from = scenario_id, values_from = revenue)
+  stopifnot(nrow(revenues) == length(EU27_ISO3) * length(MAIN_YEARS))
+  y <- t(as.matrix(revenues[design$scenario_id]))
+  stopifnot(all(is.finite(y)))
+  effects <- strsplit(colnames(x)[-1], ":", fixed = TRUE)
+  map_dfr(c(2017L, 2019L, 2021L), function(start) {
+    window_y <- y[, revenues$year >= start, drop = FALSE]
+    coefficients <- crossprod(x, window_y) / n_scenarios
+    ss <- n_scenarios * rowSums(coefficients[-1, , drop = FALSE]^2)
+    total_ss <- sum(sweep(window_y, 2, colMeans(window_y))^2)
+    stopifnot(abs(sum(ss) / total_ss - 1) < 1e-12)
+    eta <- ss / total_ss
+    order <- lengths(effects)
+    shapley <- vapply(factors, function(factor) {
+      sum(eta[vapply(effects, function(effect) factor %in% effect, logical(1))] /
+        order[vapply(effects, function(effect) factor %in% effect, logical(1))])
+    }, numeric(1))
+    stopifnot(abs(sum(shapley) - 1) < 1e-12)
+    total <- rowSums(window_y)
+    tibble(
+      variant, start_year = start, end_year = max(MAIN_YEARS), country_years = ncol(window_y),
+      n_scenarios, effect = factors,
+      main_eta_squared = eta[match(factors, colnames(x)[-1])],
+      shapley_eta_squared = unname(shapley), interaction_eta_squared = sum(eta[order > 1]),
+      min_scenario = design$scenario_id[which.min(total)], min_eu27_revenue = min(total),
+      max_scenario = design$scenario_id[which.max(total)], max_eu27_revenue = max(total),
+      eu27_revenue_spread = max(total) - min(total),
+      max_global_conservation_gap = gap, ppml_tau_floor = tau_floor
+    )
+  })
 }
 
 if (is_direct_script_run("code/07_stage4_6_revenue_pipeline_decomposition.R")) {

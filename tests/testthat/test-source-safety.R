@@ -1,16 +1,16 @@
 testthat::test_that("R modules can be sourced into an isolated environment", {
-  repo <- normalizePath(file.path("..", ".."), mustWork = TRUE)
   fixture <- tempfile("gmt-source-")
   dir.create(fixture)
   withr::defer(unlink(fixture, recursive = TRUE))
   dir.create(file.path(fixture, "code"))
-  scripts <- list.files(file.path(repo, "code"), "\\.[Rr]$", full.names = TRUE)
+  scripts <- list.files(repo_path("code"), "\\.[Rr]$", full.names = TRUE)
   stopifnot(all(file.copy(scripts, file.path(fixture, "code"))))
 
   probe <- file.path(fixture, "probe.R")
   writeLines(c(
     "local({",
-    "  setwd(commandArgs(trailingOnly = TRUE)[1L])",
+    "  Sys.unsetenv('GMT_PROJECT_ROOT')",
+    "  withr::local_dir(commandArgs(trailingOnly = TRUE)[1L])",
     "  files <- list.files(all.files = TRUE, recursive = TRUE, include.dirs = TRUE)",
     "  bindings <- ls(globalenv(), all.names = TRUE)",
     "  namespaces <- sort(loadedNamespaces())",

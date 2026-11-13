@@ -1,5 +1,4 @@
-setwd(normalizePath(file.path("..", ".."), mustWork = TRUE))
-source("code/11_sesh_notch_bunching_diagnostic.R")
+source_pipeline("09_econometric_and_reallocation_extensions.R")
 
 library(testthat)
 library(tibble)

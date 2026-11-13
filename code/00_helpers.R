@@ -1,6 +1,6 @@
 # Small utility functions used across the GMT pipeline.
 
-source("code/00_config.R", local = TRUE)
+source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "00_config.R"), local = TRUE)
 
 # Resolve imports on first use in the sourcing environment. This preserves the
 # bare names used in stored model calls without attaching packages on source.

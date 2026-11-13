@@ -27,9 +27,22 @@ Rscript --vanilla -e "testthat::test_dir('tests/testthat')"
 ```
 
 The golden manifest was introduced at `5351361bc8f06f6691aa91c1210be5ffdea3ca5e`
-and covers 360 frozen processed files. The verifier allows one additional
-file, `step3_stage1_pooled_t4_completeness_sensitivity.csv`. It reports
+and covers 360 frozen processed files. A second manifest pins the SHA-256
+hash of `step3_stage1_pooled_t4_completeness_sensitivity.csv` for 361 files
+in total. The sensitivity reports
 the effect of requiring observed low and upper Table IV profit brackets and
 observed low-bracket tax when low-bracket profit is positive. It separates
 screening direct estimates from also screening the anchors used to transport
 bracket shapes.
+
+The runner executes the fiscal-flow phase of module 11 before module 09.
+Modules 08 and 10 then consume the budget comparisons. The remaining policy
+and variance phase of module 11 consumes their outputs. Use
+`--skip-measurement-error` for a replay that omits the legacy 500-draw Stage 1
+simulation. This leaves 13 frozen files out of a fresh replay. To produce them
+in that directory, run the following from the repository root.
+
+```sh
+GMT_OUTPUT_ROOT="$out" Rscript --vanilla code/11_policy_game_and_variance_extensions.R --phase=measurement_error
+GMT_OUTPUT_ROOT="$out" Rscript --vanilla code/13_generate_exhibits.R
+```

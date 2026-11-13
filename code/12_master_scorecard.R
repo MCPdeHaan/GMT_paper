@@ -1,5 +1,8 @@
-# Assemble the paper scorecard from archived thesis and current production outputs.
-source("code/diagnostics_step5_revenue_architecture.R", local = TRUE)
+# Thesis and journal paper scorecard with a fixed archived baseline.
+
+source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "11_policy_game_and_variance_extensions.R"), local = TRUE)
+
+# Scorecard assembly
 
 SCORE_THESIS_YEARS <- 2017:2022
 SCORE_PAPER_YEARS <- MAIN_YEARS
@@ -597,6 +600,8 @@ run_master_paper_scorecard <- function() {
   message("Master scorecard written with ", nrow(output), " comparable or explicitly vintage-specific measures")
 }
 
-if (is_direct_script_run("code/diagnostics_step11_master_scorecard.R")) {
-  run_master_paper_scorecard()
+run_scorecard <- function() run_master_paper_scorecard()
+
+if (is_direct_script_run("code/12_master_scorecard.R")) {
+  run_scorecard()
 }

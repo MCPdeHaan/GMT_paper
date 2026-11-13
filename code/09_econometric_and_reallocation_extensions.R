@@ -1,0 +1,1350 @@
+# Division bias, induced ordinary CIT, destination rules and budget forecasts.
+
+source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "01_data_cleaning.R"), local = TRUE)
+source(file.path(GMT_PROJECT_ROOT, "code", "05_stage3_behavioral.R"), local = TRUE)
+source(file.path(GMT_PROJECT_ROOT, "code", "06_stage4_5_revenue_allocation_sbs.R"), local = TRUE)
+source(file.path(GMT_PROJECT_ROOT, "code", "07_stage4_6_revenue_pipeline_decomposition.R"), local = TRUE)
+
+# Tax-rate endogeneity and induced ordinary CIT recovery
+
+read_step6_input <- function(stem) readRDS(file.path(PROCESSED_DIR, paste0(stem, ".rds")))
+
+write_step6_diagnostic <- function(data, stem) {
+  write_csv(data, file.path(DIAGNOSTICS_DIR, paste0("step6_", stem, ".csv")))
+}
+
+build_division_bias_inputs <- function(estimation, base) {
+  pair_keys <- c("parent", "affiliate", "year")
+  assert_unique_keys(base, pair_keys, "division-bias input")
+  lagged <- base |>
+    transmute(
+      parent, affiliate, year = year + 1L, lagged_bounded = etr_panelai_stage1,
+      log_assets_lagged = log(if_else(assets_sbie > 0, assets_sbie, NA_real_)),
+      log_payroll_lagged = log(if_else(payroll_sbie > 0, payroll_sbie, NA_real_))
+    )
+  donors <- base |>
+    filter(is.finite(analysis_profit_base), analysis_profit_base > 0,
+      is.finite(tax_accrued_panelai)
+    ) |>
+    transmute(parent, affiliate, year, donor_profit = analysis_profit_base,
+      donor_tax = tax_accrued_panelai
+    )
+  host_totals <- donors |>
+    group_by(affiliate, year) |>
+    summarise(
+      total_profit = sum(donor_profit), total_tax = sum(donor_tax),
+      foreign_profit = sum(donor_profit[parent != affiliate]),
+      foreign_tax = sum(donor_tax[parent != affiliate]),
+      foreign_parents = sum(parent != affiliate), .groups = "drop"
+    )
+
+  estimation |>
+    select(all_of(pair_keys), pair_id, tau, etr_panelai_stage1, log_profit,
+      analysis_profit_base, log_assets, log_payroll, log_gdp_pc, log_population,
+      affiliate_cit_rate_unit, affiliate_simulated_eatr_unit
+    ) |>
+    left_join(lagged, by = pair_keys, relationship = "one-to-one") |>
+    left_join(host_totals, by = c("affiliate", "year"), relationship = "many-to-one") |>
+    left_join(donors, by = pair_keys, relationship = "one-to-one") |>
+    mutate(
+      own_foreign_donor = !is.na(donor_profit) & parent != affiliate,
+      other_foreign_parents = foreign_parents - as.integer(own_foreign_donor),
+      leaveout_profit = total_profit - coalesce_zero(donor_profit),
+      leaveout_tax = total_tax - coalesce_zero(donor_tax),
+      leaveout_foreign_profit = foreign_profit - if_else(own_foreign_donor, donor_profit, 0),
+      leaveout_foreign_tax = foreign_tax - if_else(own_foreign_donor, donor_tax, 0),
+      current_etr = tau,
+      current_bounded = winsorise(etr_panelai_stage1),
+      lagged_etr = winsorise(lagged_bounded),
+      jackknife_etr = winsorise(clamp_unit_interval(if_else(
+        other_foreign_parents >= 2 & leaveout_profit > 0,
+        safe_divide(leaveout_tax, leaveout_profit), NA_real_
+      ))),
+      jackknife_foreign_only_etr = winsorise(clamp_unit_interval(if_else(
+        other_foreign_parents >= 2 & leaveout_foreign_profit > 0,
+        safe_divide(leaveout_foreign_tax, leaveout_foreign_profit), NA_real_
+      ))),
+      statutory_cit = affiliate_cit_rate_unit,
+      forward_eatr = affiliate_simulated_eatr_unit
+    ) |>
+    left_join(
+      base |>
+        filter(year %in% MAIN_YEARS, is.finite(analysis_profit_base), analysis_profit_base > 0) |>
+        group_by(pair_id) |>
+        summarise(pair_mean_profit = mean(analysis_profit_base), .groups = "drop"),
+      by = "pair_id", relationship = "many-to-one"
+    ) |>
+    mutate(pair_profit_weight = pair_mean_profit / mean(pair_mean_profit))
+}
+
+fit_division_bias_design <- function(data, regressor, support, activity, log_t0) {
+  stopifnot(all(is.finite(data[[regressor]])), min(data[[regressor]]) + log_t0 > 0)
+  data <- data |>
+    mutate(
+      tau = .data[[regressor]], tau_sq = tau^2, log_tau = log(log_t0 + tau),
+      log_assets = if (activity == "lagged") log_assets_lagged else log_assets,
+      log_payroll = if (activity == "lagged") log_payroll_lagged else log_payroll
+    )
+  tax_terms <- list(
+    linear = "tau", quadratic = c("tau", "tau_sq"), logarithmic = c("tau", "log_tau")
+  )
+  controls <- c("log_assets", "log_payroll", "log_gdp_pc", "log_population")
+  cluster_correction <- fixest::ssc(K.fixef = "full", G.df = "conventional")
+
+  map_dfr(c("fe_ols", "fe_wls", "fe_ppml_positive"), function(estimator) {
+    used_rows <- NULL
+    estimates <- imap_dfr(tax_terms, function(terms, form) {
+      poisson <- estimator == "fe_ppml_positive"
+      outcome <- if (poisson) "analysis_profit_base" else "log_profit"
+      formula <- as.formula(paste(outcome, "~", paste(c(controls, terms), collapse = " + "),
+        "| pair_id + year"
+      ))
+      covariance_repaired <- FALSE
+      record_covariance_repair <- function(warning) {
+        if (grepl("VCOV matrix is not positive definite and was 'fixed'", conditionMessage(warning), fixed = TRUE)) {
+          covariance_repaired <<- TRUE
+          invokeRestart("muffleWarning")
+        }
+      }
+      fit <- withCallingHandlers(if (poisson) {
+        fixest::fepois(formula, data = data, cluster = ~ parent + affiliate,
+          ssc = cluster_correction, notes = FALSE, nthreads = 2
+        )
+      } else {
+        fixest::feols(formula, data = data, cluster = ~ parent + affiliate,
+          weights = if (estimator == "fe_wls") ~ pair_profit_weight else NULL,
+          ssc = cluster_correction, notes = FALSE, nthreads = 2
+        )
+      }, warning = record_covariance_repair)
+      indices <- fixest::obs(fit)
+      if (is.null(used_rows)) used_rows <<- indices
+      stopifnot(identical(indices, used_rows), !isFALSE(fit$convStatus))
+      used <- data[indices, , drop = FALSE]
+      coefs <- coef(fit)
+      covariance <- vcov(fit)
+      coefficient_table <- fixest::coeftable(fit)
+      report_terms <- intersect(c("log_assets", "log_payroll", terms), names(coefs))
+      stopifnot(all(terms %in% report_terms))
+      tax_pattern <- paste0("^(", paste(terms, collapse = "|"), ")$")
+      wald <- withCallingHandlers(fixest::wald(fit, keep = tax_pattern, print = FALSE),
+        warning = record_covariance_repair
+      )
+      affiliate_cluster_p <- if (covariance_repaired) {
+        fixest::wald(fit, keep = tax_pattern, vcov = ~affiliate, print = FALSE)$p
+      } else {
+        NA_real_
+      }
+      n_parents <- n_distinct(used$parent)
+      n_affiliates <- n_distinct(used$affiliate)
+      n_pairs <- n_distinct(used$pair_id)
+      bic <- if (poisson) {
+        BIC(fit)
+      } else {
+        weights <- if (estimator == "fe_wls") used$pair_profit_weight else rep(1, nrow(used))
+        stage3_gaussian_bic(fit, weights)
+      }
+      semi <- semielasticity_schedule_one(
+        list(coefficients = coefs, model_spec = form, t0 = log_t0, n = nrow(used),
+          n_parents = n_parents, n_affiliates = n_affiliates, n_pairs = n_pairs
+        ),
+        c(0.05, 0.10, 0.15), inference = "parent_affiliate_two_way_clustered",
+        vcov = covariance, df_inference = min(n_parents, n_affiliates) - 1L
+      ) |>
+        transmute(statistic_type = "semi_elasticity", term = "negative_log_profit_derivative",
+          tau_eval = tau, estimate = semi_elasticity, std_error, p_value
+        )
+      bind_rows(
+        tibble(statistic_type = "coefficient", term = report_terms, tau_eval = NA_real_,
+          estimate = coefficient_table[report_terms, 1], std_error = coefficient_table[report_terms, 2],
+          p_value = coefficient_table[report_terms, 4]
+        ),
+        semi
+      ) |>
+        mutate(
+          regressor, sample = support, activity, estimator, model_spec = form,
+          dependent_variable = outcome, n = nrow(used), n_supplied = nrow(data),
+          n_pairs, n_parents, n_affiliates, start_year = min(used$year), end_year = max(used$year),
+          etr_min = min(used$tau), etr_max = max(used$tau),
+          n_etr_below_005 = sum(used$tau < 0.05),
+          n_etr_at_or_below_010 = sum(used$tau <= 0.10),
+          joint_tax_wald_f = wald$stat, joint_tax_wald_p = wald$p,
+          joint_tax_wald_df1 = wald$df1, joint_tax_wald_df2 = wald$df2,
+          covariance_repaired, affiliate_cluster_p_if_repaired = affiliate_cluster_p,
+          bic, bic_basis = if (poisson) "poisson_pseudo_likelihood_usd" else "gaussian_log_profit",
+          log_t0 = if (form == "logarithmic") log_t0 else NA_real_,
+          .before = 1
+        )
+    })
+    estimates |>
+      mutate(delta_bic = bic - min(bic), bic_winner = delta_bic == 0)
+  })
+}
+
+audit_division_bias <- function(estimation, base) {
+  inputs <- build_division_bias_inputs(estimation, base)
+  regressors <- c("current_etr", "lagged_etr", "jackknife_etr", "jackknife_foreign_only_etr",
+    "statutory_cit", "forward_eatr"
+  )
+  archived <- read_csv(file.path(DIAGNOSTICS_DIR, "step5_stage3_alternative_estimators.csv"),
+    show_col_types = FALSE
+  ) |>
+    filter(sample == "positive_profit")
+  log_t0 <- unique(na.omit(archived$t0))
+  stopifnot(length(log_t0) == 1, all(inputs$pair_profit_weight > 0))
+  available <- map_dfr(regressors, function(regressor) {
+    fit_division_bias_design(filter(inputs, is.finite(.data[[regressor]])),
+      regressor, "available", "current", log_t0
+    )
+  })
+  reference <- available |>
+    filter(regressor == "current_etr", statistic_type == "semi_elasticity") |>
+    inner_join(
+      archived |> filter(statistic_type == "semi_elasticity") |>
+        select(estimator, model_spec, tau_eval, archived_estimate = estimate),
+      by = c("estimator", "model_spec", "tau_eval"), relationship = "one-to-one"
+    )
+  stopifnot(nrow(reference) == 27, max(abs(reference$estimate - reference$archived_estimate)) < 1e-8)
+
+  matched <- map_dfr(regressors[-1], function(proxy) {
+    data <- filter(inputs, is.finite(.data[[proxy]]))
+    benchmark <- c("current_etr",
+      if (proxy == "lagged_etr" || startsWith(proxy, "jackknife")) "current_bounded"
+    )
+    support <- paste0("matched_", proxy)
+    stopifnot(all(is.finite(data$current_etr)), all(is.finite(data$current_bounded)))
+    bind_rows(
+      map_dfr(benchmark, ~ fit_division_bias_design(data, .x, support, "current", log_t0)),
+      available |> filter(regressor == proxy) |> mutate(sample = support)
+    )
+  })
+
+  # Replace only the two activity controls. The current-control comparison
+  # uses exactly the same cells with available t-1 activity.
+  lagged_activity <- map_dfr(regressors, function(regressor) {
+    data <- filter(inputs, is.finite(.data[[regressor]]),
+      is.finite(log_assets_lagged), is.finite(log_payroll_lagged)
+    )
+    map_dfr(c("current", "lagged"), function(activity) {
+      fit_division_bias_design(data, regressor, "matched_lagged_activity", activity, log_t0)
+    })
+  })
+
+  bind_rows(available, matched, lagged_activity)
+}
+
+build_parent_specific_reallocation <- function(panel, affiliate_year) {
+  keys <- c("scenario_id", "parent", "year")
+  source_rows <- panel |>
+    filter(reallocated_profit > 0) |>
+    mutate(source_tax_loss = reallocated_profit * clamp_interval(static_tau_low, 0, GMT_RATE))
+  stopifnot(all(source_rows$factor5_behaviour == "behavioural"),
+    all(source_rows$static_tau_low < GMT_RATE), all(is.finite(source_rows$source_tax_loss))
+  )
+  sources <- source_rows |>
+    group_by(across(all_of(keys))) |>
+    summarise(
+      reallocated_profit = sum(reallocated_profit),
+      source_tax_loss = sum(source_tax_loss),
+      .groups = "drop"
+    ) |>
+    mutate(weighted_source_etr = source_tax_loss / reallocated_profit)
+
+  # Destination eligibility depends on the observed footprint and tax code.
+  # A loss-making destination may still employ workers and make sales.
+  footprint <- panel |>
+    distinct(parent, destination = affiliate, year, affiliate_cit_rate_unit,
+      affiliate_is_conduit_haven, employees_sbie, payroll_sbie, upr_panelai
+    ) |>
+    filter(affiliate_cit_rate_unit >= GMT_RATE, !coalesce(affiliate_is_conduit_haven, FALSE)) |>
+    transmute(
+      parent, destination, year, statutory_rate = affiliate_cit_rate_unit,
+      employees = pmax(coalesce_zero(employees_sbie), 0),
+      payroll = pmax(coalesce_zero(payroll_sbie), 0),
+      upr = pmax(coalesce_zero(upr_panelai), 0)
+    )
+  assert_unique_keys(footprint, c("parent", "destination", "year"), "destination footprint")
+  parent_weights <- normalise_formulary_destinations(footprint, c("parent", "year"))
+  global_weights <- footprint |>
+    group_by(destination, year, statutory_rate) |>
+    summarise(across(c(employees, payroll, upr), sum), .groups = "drop") |>
+    normalise_formulary_destinations("year")
+
+  support <- distinct(parent_weights, parent, year)
+  within_parent <- sources |>
+    semi_join(support, by = c("parent", "year")) |>
+    left_join(parent_weights, by = c("parent", "year"), relationship = "many-to-many") |>
+    mutate(destination_weight_source = "parent_year")
+  fallback <- sources |>
+    anti_join(support, by = c("parent", "year")) |>
+    left_join(global_weights, by = "year", relationship = "many-to-many") |>
+    mutate(destination_weight_source = "global_year_no_eligible_parent_destination")
+
+  matrix <- bind_rows(within_parent, fallback) |>
+    left_join(
+      transmute(affiliate_year, destination = affiliate, year, observed_etr = avg_etr_stage1),
+      by = c("destination", "year"), relationship = "many-to-one"
+    ) |>
+    mutate(
+      reallocated_profit_received = reallocated_profit * weight,
+      # The observed ETR sensitivity uses the 15% floor and falls back to
+      # the observed statutory rate when the affiliate-year ETR is missing.
+      effective_rate_fallback = !is.finite(observed_etr),
+      effective_rate = pmax(GMT_RATE, coalesce(observed_etr, statutory_rate)),
+      ordinary_cit_gross_destination_revenue = reallocated_profit_received * statutory_rate,
+      ordinary_cit_gross_destination_revenue_effective = reallocated_profit_received * effective_rate,
+      ordinary_cit_net_recovery = reallocated_profit_received * pmax(statutory_rate - weighted_source_etr, 0)
+    )
+  stopifnot(!anyNA(matrix$weight), !anyNA(matrix$destination))
+  conservation <- matrix |>
+    group_by(across(all_of(keys))) |>
+    summarise(
+      allocation_gap = sum(reallocated_profit_received) - first(reallocated_profit),
+      weight_gap = sum(weight) - 1,
+      .groups = "drop"
+    )
+  stopifnot(nrow(conservation) == nrow(sources),
+    max(abs(conservation$allocation_gap)) < 1e-3, max(abs(conservation$weight_gap)) < 1e-12
+  )
+  message("Maximum reallocated-profit residual by parent-year-scenario (USD): ",
+    format(max(abs(conservation$allocation_gap)), digits = 8)
+  )
+  list(matrix = matrix, source_rows = source_rows, conservation = conservation)
+}
+
+allocate_avoided_topup <- function(panel, weights, regime) {
+  source <- panel |>
+    filter(factor5_behaviour == "behavioural") |>
+    mutate(topup_after_behaviour = if_else(behavioural_regime == regime, behavioural_avoided_topup, 0)) |>
+    build_source_panel()
+  allocate_stage4_revenue(source, weights)$revenue_country_year_eu27 |>
+    select(country, year, scenario_id, revenue)
+}
+
+build_total_fiscal_country_year <- function(panel, direct, affiliate_year, weights,
+                                           rule_b_matrix = NULL) {
+  reallocation <- if (is.null(rule_b_matrix)) {
+    build_parent_specific_reallocation(panel, affiliate_year)
+  } else {
+    list(matrix = rule_b_matrix, source_rows = panel |>
+      filter(reallocated_profit > 0) |>
+      mutate(source_tax_loss = reallocated_profit * static_tau_low))
+  }
+  routing <- reallocation$matrix
+  if (is.null(rule_b_matrix)) {
+    routing <- routing |>
+      mutate(global_fallback_profit_received = if_else(destination_weight_source == "parent_year",
+        0, reallocated_profit_received))
+  } else {
+    routing <- routing |>
+      mutate(equal_weight_fallback = FALSE, effective_rate_fallback = FALSE)
+  }
+  destination <- routing |>
+    filter(destination %in% EU27_ISO3) |>
+    group_by(country = destination, year, scenario_id) |>
+    summarise(
+      across(c(reallocated_profit_received, ordinary_cit_gross_destination_revenue,
+        ordinary_cit_gross_destination_revenue_effective, ordinary_cit_net_recovery), sum),
+      global_fallback_profit_received = sum(global_fallback_profit_received),
+      equal_weight_profit_received = sum(reallocated_profit_received[equal_weight_fallback]),
+      effective_rate_fallback_profit = sum(reallocated_profit_received[effective_rate_fallback]),
+      .groups = "drop"
+    )
+  origin <- reallocation$source_rows |>
+    filter(affiliate %in% EU27_ISO3) |>
+    group_by(country = affiliate, year, scenario_id) |>
+    summarise(reallocated_profit_sent = sum(reallocated_profit),
+      ordinary_cit_source_loss = sum(source_tax_loss), .groups = "drop"
+    )
+  direct_reallocation <- allocate_avoided_topup(panel, weights, "semi_elasticity_reallocation") |>
+    rename(direct_topup_lost_reallocation = revenue)
+  direct_bunching <- allocate_avoided_topup(panel, weights, "sesh_bunching_topup_zero") |>
+    rename(direct_topup_lost_bunching = revenue)
+  keys <- c("country", "year", "scenario_id")
+  country_year <- direct |>
+    rename(direct_topup = revenue) |>
+    mutate(mechanical_scenario = paste0(substr(scenario_id, 1, 5), "0")) |>
+    left_join(
+      direct |> transmute(country, year, mechanical_scenario = scenario_id, mechanical_direct_topup = revenue),
+      by = c("country", "year", "mechanical_scenario"), relationship = "many-to-one"
+    ) |>
+    left_join(direct_reallocation, by = keys, relationship = "one-to-one") |>
+    left_join(direct_bunching, by = keys, relationship = "one-to-one") |>
+    left_join(destination, by = keys, relationship = "one-to-one") |>
+    left_join(origin, by = keys, relationship = "one-to-one") |>
+    mutate(
+      across(c(starts_with("direct_topup_lost_"), starts_with("reallocated_profit_"),
+        starts_with("ordinary_cit_"), ends_with("_profit_received"), effective_rate_fallback_profit),
+      coalesce_zero),
+      direct_topup_lost_total = mechanical_direct_topup - direct_topup,
+      ordinary_cit_net_by_incidence = ordinary_cit_gross_destination_revenue - ordinary_cit_source_loss,
+      total_fiscal_revenue = direct_topup + ordinary_cit_gross_destination_revenue,
+      total_fiscal_revenue_effective = direct_topup + ordinary_cit_gross_destination_revenue_effective,
+      total_fiscal_revenue_net_by_incidence = direct_topup + ordinary_cit_net_by_incidence,
+      total_fiscal_gain_vs_mechanical = total_fiscal_revenue - mechanical_direct_topup,
+      total_fiscal_gain_vs_mechanical_effective = total_fiscal_revenue_effective - mechanical_direct_topup,
+      total_fiscal_gain_vs_mechanical_net_by_incidence = total_fiscal_revenue_net_by_incidence - mechanical_direct_topup
+    )
+  stopifnot(max(abs(with(country_year, direct_topup_lost_total -
+    direct_topup_lost_reallocation - direct_topup_lost_bunching))) < 1e-4)
+  list(country_year = country_year, reallocation = reallocation)
+}
+
+summarise_total_fiscal_ledger <- function(country_year, reallocation) {
+  matrix <- reallocation$matrix
+  legacy <- "parent" %in% names(matrix)
+  global <- matrix |>
+    group_by(scenario_id, year) |>
+    summarise(
+      global_reallocated_profit = sum(reallocated_profit_received),
+      global_reallocated_profit_using_fallback = if (legacy) sum(reallocated_profit_received[
+        destination_weight_source != "parent_year"
+      ]) else sum(global_fallback_profit_received),
+      parent_year_pools = if (legacy) n_distinct(parent) else NA_integer_,
+      fallback_parent_year_pools = if (legacy) {
+        n_distinct(parent[destination_weight_source != "parent_year"])
+      } else NA_integer_,
+      .groups = "drop"
+    )
+  amounts <- c(
+    "direct_topup", "mechanical_direct_topup", "direct_topup_lost_total",
+    "direct_topup_lost_reallocation", "direct_topup_lost_bunching",
+    "reallocated_profit_received", "reallocated_profit_sent",
+    "ordinary_cit_gross_destination_revenue", "ordinary_cit_gross_destination_revenue_effective",
+    "ordinary_cit_source_loss", "ordinary_cit_net_recovery", "ordinary_cit_net_by_incidence",
+    "total_fiscal_revenue", "total_fiscal_revenue_effective", "total_fiscal_revenue_net_by_incidence",
+    "total_fiscal_gain_vs_mechanical", "total_fiscal_gain_vs_mechanical_effective",
+    "total_fiscal_gain_vs_mechanical_net_by_incidence", "global_fallback_profit_received",
+    "equal_weight_profit_received", "effective_rate_fallback_profit"
+  )
+  eu <- country_year |>
+    group_by(across(all_of(SCENARIO_VARS)), year) |>
+    summarise(across(all_of(amounts), sum), .groups = "drop") |>
+    mutate(country = "EU27", country_name = "European Union (27)") |>
+    left_join(global, by = c("scenario_id", "year"), relationship = "one-to-one") |>
+    mutate(across(c(global_reallocated_profit, global_reallocated_profit_using_fallback), coalesce_zero))
+  annual <- bind_rows(country_year, eu)
+  global_amounts <- setdiff(names(global), c("scenario_id", "year"))
+  cumulative <- annual |>
+    group_by(across(all_of(SCENARIO_VARS)), country, country_name) |>
+    summarise(across(all_of(c(amounts, global_amounts)), sum_or_na), .groups = "drop")
+  bind_rows(
+    annual |> mutate(start_year = year, end_year = year, .before = 1) |> select(-year),
+    cumulative |> mutate(start_year = min(MAIN_YEARS), end_year = max(MAIN_YEARS), .before = 1)
+  ) |>
+    select(start_year, end_year, country, country_name, all_of(SCENARIO_VARS),
+      all_of(c(amounts, global_amounts))
+    ) |>
+    mutate(mechanical_scenario = paste0(substr(scenario_id, 1, 5), "0")) |>
+    arrange(start_year, end_year, country, scenario_id)
+}
+
+decompose_total_fiscal_revenue <- function(country_year) {
+  outcomes <- c("direct_topup", "total_fiscal_revenue", "total_fiscal_revenue_effective",
+    "total_fiscal_revenue_net_by_incidence")
+  map_dfr(c(2017L, 2019L, 2021L, 2023L), function(start) {
+    map_dfr(outcomes, function(outcome) {
+      input <- country_year |>
+        filter(year >= start) |>
+        transmute(across(all_of(SCENARIO_VARS)), country, country_name, year, revenue = .data[[outcome]])
+      anova <- compute_factorial_anova(input)$pooled
+      shapley <- build_shapley_factor_attribution(anova) |>
+        select(effect, shapley_eta_squared)
+      stopifnot(abs(sum(anova$eta_squared) - 1) < 1e-12,
+        abs(sum(shapley$shapley_eta_squared) - 1) < 1e-12
+      )
+      totals <- build_scenario_summary(input)
+      anova |>
+        left_join(shapley, by = "effect", relationship = "one-to-one") |>
+        mutate(
+          outcome, start_year = start, end_year = max(MAIN_YEARS),
+          country_years = n_distinct(input$country, input$year),
+          interaction_eta_squared = sum(eta_squared[interaction_order > 1]),
+          eu27_revenue_min = min(totals$eu_revenue), eu27_revenue_max = max(totals$eu_revenue),
+          min_scenario = totals$scenario_id[which.min(totals$eu_revenue)],
+          max_scenario = totals$scenario_id[which.max(totals$eu_revenue)],
+          .before = 1
+        )
+    })
+  })
+}
+
+read_step6_factorial_input <- function() {
+  read_step6_input("stage3_factorial_pair_year") |>
+    select(all_of(SCENARIO_VARS), parent, affiliate, year, affiliate_jurisdiction_name,
+      parent_jurisdiction_name, affiliate_cit_rate_unit, affiliate_is_conduit_haven,
+      employees_sbie, payroll_sbie, upr_panelai, static_tau_low, reallocated_profit,
+      behavioural_avoided_topup, behavioural_regime, qdmtt_flag, parent_iir_utpr_flag, sbs_exempt,
+      stage2_phi, assets_sbie, act_ip_panelai, act_holding_panelai, act_igf_panelai,
+      analysis_profit_positive, average_low_share, stage1_distributional_low_share,
+      stage2_excess_lowtax_profit_average, stage2_excess_lowtax_profit_distributional,
+      stage1_lowtax_profit_average, stage1_lowtax_profit_distributional,
+      static_beta_applied, static_behavioural_regime, topup_after_stage2, topup_after_behaviour
+    )
+}
+
+read_step6_utpr_weights <- function() {
+  list(
+    parent_year_weights = read_step6_input("stage4_5_utpr_parent_year_weights"),
+    fallback_weights = read_step6_input("stage4_5_utpr_fallback_weights")
+  )
+}
+
+run_fiscal_recovery_audit <- function(panel, direct, weights) {
+  output <- build_total_fiscal_country_year(panel, direct, read_step6_input("stage1_affiliate_year"), weights)
+  ledger <- summarise_total_fiscal_ledger(output$country_year, output$reallocation)
+  stopifnot(nrow(ledger) == (length(MAIN_YEARS) + 1) * 28 * 32,
+    all(ledger$ordinary_cit_gross_destination_revenue[ledger$x5_behaviour == 0] == 0),
+    all(ledger$ordinary_cit_gross_destination_revenue >= 0)
+  )
+  write_step6_diagnostic(ledger, "topup_vs_cit_recovery_eu27")
+  write_step6_diagnostic(decompose_total_fiscal_revenue(output$country_year), "anova_total_fiscal_revenue")
+  rule_b_matrix <- read_step6_input("stage3_reallocation_matrix")
+  if ("reallocated_profit_received_rule_a" %in% names(rule_b_matrix)) {
+    rule_b <- build_total_fiscal_country_year(panel, direct, read_step6_input("stage1_affiliate_year"),
+      weights, rule_b_matrix)
+    rule_b_ledger <- summarise_total_fiscal_ledger(rule_b$country_year, rule_b$reallocation)
+    stopifnot(nrow(rule_b_ledger) == nrow(ledger),
+      all(rule_b_ledger$ordinary_cit_gross_destination_revenue[rule_b_ledger$x5_behaviour == 0] == 0))
+    write_step6_diagnostic(rule_b_ledger, "topup_vs_cit_recovery_rule_b_eu27")
+    write_step6_diagnostic(decompose_total_fiscal_revenue(rule_b$country_year),
+      "anova_total_fiscal_revenue_rule_b")
+  }
+}
+
+build_eurostat_oecd_comparison <- function(eurostat, cit_revenue) {
+  oecd <- cit_revenue |>
+    filter(jurisdiction %in% setdiff(EU27_ISO3, "CYP"), year %in% CORE_YEARS,
+      measure == "TAX_REV", sector == "S13", revenue_classification == "T_1200", unit == "USD"
+    ) |>
+    transmute(jurisdiction, year, oecd_t1200_usd_billions = value)
+  precision <- read_csv(
+    file.path(RAW_DIR, "oecd_cts_additional", "oecd_cit_revenue_gdp.csv"),
+    col_select = c(REF_AREA, TIME_PERIOD, MEASURE, SECTOR, STANDARD_REVENUE, UNIT_MEASURE,
+      UNIT_MULT, DECIMALS
+    ),
+    show_col_types = FALSE
+  ) |>
+    filter(REF_AREA %in% setdiff(EU27_ISO3, "CYP"), TIME_PERIOD %in% CORE_YEARS,
+      MEASURE == "TAX_REV", SECTOR == "S13", STANDARD_REVENUE == "T_1200", UNIT_MEASURE == "USD"
+    ) |>
+    transmute(jurisdiction = REF_AREA, year = as.integer(TIME_PERIOD),
+      oecd_rounding_half_unit_usd_billions = 0.5 * 10^(UNIT_MULT - DECIMALS - 9)
+    )
+  assert_unique_keys(oecd, c("jurisdiction", "year"), "OECD comparator")
+  assert_unique_keys(precision, c("jurisdiction", "year"), "OECD rounding metadata")
+
+  crossing(jurisdiction = EU27_ISO3, year = CORE_YEARS, eurostat_tax_code = c("D51B", "D51B_C2")) |>
+    left_join(eurostat, by = c("jurisdiction", "year", "eurostat_tax_code"), relationship = "one-to-one") |>
+    left_join(oecd, by = c("jurisdiction", "year"), relationship = "many-to-one") |>
+    left_join(precision, by = c("jurisdiction", "year"), relationship = "many-to-one") |>
+    mutate(
+      eurostat_usd_billions = usd_billions,
+      difference_usd_billions = eurostat_usd_billions - oecd_t1200_usd_billions,
+      difference_pct_oecd = 100 * safe_divide(difference_usd_billions, oecd_t1200_usd_billions),
+      # Eurostat's published values in this extract are rounded to EUR 0.1m.
+      rounding_tolerance_usd_billions = 0.05 * usd_per_eur / 1000 + oecd_rounding_half_unit_usd_billions,
+      within_source_rounding = abs(difference_usd_billions) <= rounding_tolerance_usd_billions
+    ) |>
+    select(-usd_billions)
+}
+
+build_cyprus_denominator_audit <- function(eurostat, panel, direct, weights) {
+  preferred_ids <- c("x10001", "x10011")
+  cyprus <- eurostat |>
+    filter(jurisdiction == "CYP") |>
+    select(year, eurostat_tax_code, eur_millions, usd_billions, usd_per_eur, eurostat_last_update) |>
+    pivot_wider(names_from = eurostat_tax_code, values_from = c(eur_millions, usd_billions))
+  stopifnot(setequal(cyprus$year, CORE_YEARS), all(cyprus$eur_millions_D51B_C2 == cyprus$eur_millions_D51B),
+    all(cyprus$eur_millions_D51C2 == 0)
+  )
+  preferred_source <- panel |> filter(scenario_id %in% preferred_ids)
+  generated <- preferred_source |>
+    filter(affiliate == "CYP") |>
+    group_by(scenario_id, year) |>
+    summarise(source_liability = sum(topup_after_behaviour), .groups = "drop")
+
+  # Reproduce the Step 5 R2 policy change annually. The UTPR collector set
+  # and its weights are held fixed, as in that sensitivity.
+  cyprus_active_source <- preferred_source |>
+    mutate(qdmtt_flag = qdmtt_flag | affiliate == "CYP",
+      parent_iir_utpr_flag = parent_iir_utpr_flag | parent == "CYP"
+    ) |>
+    add_behavioural_response() |>
+    build_source_panel()
+  allocation <- allocate_stage4_revenue(cyprus_active_source, weights)
+  build_conservation_diagnostics(cyprus_active_source, allocation$revenue_by_channel_global)
+  active <- allocation$revenue_country_year_eu27 |>
+    filter(country == "CYP") |>
+    select(scenario_id, year, r2_cyprus_active_revenue = revenue)
+  step5 <- read_csv(file.path(DIAGNOSTICS_DIR, "step7_cyprus_and_article50_sensitivity.csv"),
+    show_col_types = FALSE
+  ) |>
+    filter(country == "CYP", regime == "R2_cyprus_domestic_law")
+  check <- active |>
+    group_by(scenario_id) |>
+    summarise(full = sum(r2_cyprus_active_revenue),
+      last = r2_cyprus_active_revenue[year == max(MAIN_YEARS)], .groups = "drop"
+    ) |>
+    pivot_longer(c(full, last), names_to = "window", values_to = "calculated") |>
+    mutate(start_year = if_else(window == "full", min(MAIN_YEARS), max(MAIN_YEARS))) |>
+    inner_join(select(step5, scenario_id, start_year, collector_revenue),
+      by = c("scenario_id", "start_year"), relationship = "one-to-one"
+    )
+  stopifnot(nrow(check) == 4, max(abs(check$calculated - check$collector_revenue)) < 1e-4)
+  preferred <- direct |>
+    filter(country == "CYP", scenario_id %in% preferred_ids) |>
+    select(scenario_id, year, preferred_revenue = revenue)
+  cyprus |>
+    left_join(preferred, by = "year", relationship = "one-to-many") |>
+    left_join(generated, by = c("scenario_id", "year"), relationship = "one-to-one") |>
+    left_join(active, by = c("scenario_id", "year"), relationship = "one-to-one") |>
+    mutate(
+      jurisdiction = "CYP", eurostat_dataset = "gov_10a_taxag", eurostat_sector = "S13",
+      denominator_tax_code = "D51B_C2", exchange_rate_series = "ECB EXR.A.USD.EUR.SP00.A",
+      cit_revenue_T_1200_usd_billions = usd_billions_D51B_C2,
+      preferred_revenue_pct_of_cit = 100 * preferred_revenue / (cit_revenue_T_1200_usd_billions * 1e9),
+      source_liability_pct_of_cit = 100 * source_liability / (cit_revenue_T_1200_usd_billions * 1e9),
+      r2_cyprus_active_revenue_pct_of_cit = 100 * r2_cyprus_active_revenue / (cit_revenue_T_1200_usd_billions * 1e9)
+    ) |>
+    relocate(jurisdiction, year, scenario_id, cit_revenue_T_1200_usd_billions)
+}
+
+run_division_bias_and_cit_recovery <- function() {
+  message("Estimating matched division-bias and activity-control models")
+  estimates <- audit_division_bias(read_step6_input("stage3_estimation_sample"), read_step6_input("base_panel"))
+  write_step6_diagnostic(estimates, "division_bias_and_curvature_audit")
+
+  message("Reconciling parent-specific CIT recovery with direct top-up")
+  panel <- read_step6_factorial_input()
+  direct <- read_step6_input("stage4_5_revenue_country_year")
+  weights <- read_step6_utpr_weights()
+  run_fiscal_recovery_audit(panel, direct, weights)
+
+  message("Verifying Cyprus CIT receipts and the Eurostat–OECD crosswalk")
+  eurostat <- read_eurostat_corporate_tax()
+  cyprus <- build_cyprus_denominator_audit(eurostat, panel, direct, weights)
+  stopifnot(nrow(cyprus) == 1 + 2 * length(MAIN_YEARS))
+  write_step6_diagnostic(cyprus, "cyprus_cit_denominator")
+  write_step6_diagnostic(
+    build_eurostat_oecd_comparison(eurostat, read_step6_input("cit_revenue")),
+    "eurostat_oecd_cit_comparison"
+  )
+}
+
+# Formulary destinations, budget forecasts and institutional regimes
+
+STEP7_PREFERRED <- c("x10001", "x10011")
+STEP7_WINDOWS <- list(`2017–2023` = MAIN_YEARS, FY2023 = 2023L, `2019–2023` = 2019:2023)
+USD_PER_EUR_2023 <- 1.0813
+
+write_step7 <- function(data, name) {
+  write_csv(data, file.path(DIAGNOSTICS_DIR, paste0("step7_", name, ".csv")))
+}
+
+build_hub_destination_routes <- function(panel, stage1, host) {
+  keys <- c("parent", "affiliate", "year")
+  bilateral <- stage1 |>
+    select(all_of(keys), etr_panelai_stage1, parent_cit_rate_unit)
+  sources <- panel |>
+    filter(reallocated_profit > 0) |>
+    transmute(across(all_of(keys)), scenario_id, source_etr = static_tau_low, reallocated_profit) |>
+    left_join(bilateral |> select(-etr_panelai_stage1),
+      by = keys, relationship = "many-to-one"
+    ) |>
+    mutate(source_id = row_number())
+  stopifnot(all(is.finite(sources$source_etr)), all(sources$source_etr < GMT_RATE))
+  footprint <- panel |>
+    select(all_of(keys), affiliate_cit_rate_unit, employees_sbie, payroll_sbie, upr_panelai) |>
+    left_join(bilateral |> select(-parent_cit_rate_unit),
+      by = keys, relationship = "many-to-one") |>
+    build_rule_b_footprint()
+  global <- build_rule_b_global_footprint(footprint, host)
+  formulary <- allocate_rule_b_sources(sources, footprint, global)
+
+  b <- formulary |>
+    transmute(source_id, scenario_id, year, destination, route, statutory_rate,
+      received = reallocated_profit * weight, same_country_headquarters = FALSE
+    )
+  c <- bind_rows(
+    formulary |>
+      transmute(source_id, scenario_id, year, destination, route, statutory_rate,
+        received = reallocated_profit * weight *
+          if_else(coalesce(parent_cit_rate_unit >= GMT_RATE, FALSE), 0.5, 1),
+        same_country_headquarters = FALSE
+      ),
+    sources |>
+      filter(parent_cit_rate_unit >= GMT_RATE) |>
+      transmute(source_id, scenario_id, year, destination = parent, route = "headquarters",
+        statutory_rate = parent_cit_rate_unit, received = 0.5 * reallocated_profit,
+        same_country_headquarters = affiliate == parent
+      )
+  )
+  for (routes in list(b, c)) {
+    check <- routes |>
+      group_by(source_id) |>
+      summarise(received = sum(received), .groups = "drop") |>
+      left_join(select(sources, source_id, reallocated_profit), by = "source_id", relationship = "one-to-one")
+    stopifnot(nrow(check) == nrow(sources), max(abs(check$received - check$reallocated_profit)) < 1e-3)
+  }
+  bind_rows(B = b, C = c, .id = "rule")
+}
+
+build_destination_comparison <- function(panel, direct, stage1, host) {
+  panel <- filter(panel, scenario_id %in% STEP7_PREFERRED)
+  a <- build_parent_specific_reallocation(panel, host)
+  route_a <- a$matrix |>
+    transmute(rule = "A", scenario_id, year, destination, statutory_rate,
+      route = if_else(destination_weight_source == "parent_year", "parent_activity", "global_activity"),
+      received = reallocated_profit_received, same_country_headquarters = FALSE
+    )
+  routes <- bind_rows(route_a, build_hub_destination_routes(panel, stage1, host))
+  receipts <- routes |>
+    group_by(rule, scenario_id, year, country = destination) |>
+    summarise(
+      gross_cit = sum(received * statutory_rate), profit_received = sum(received),
+      global_fallback_profit = sum(received[route == "global_activity"]),
+      headquarters_profit = sum(received[route == "headquarters"]),
+      same_country_headquarters_profit = sum(received[same_country_headquarters]), .groups = "drop"
+    )
+  origin <- a$source_rows |>
+    group_by(country = affiliate, scenario_id, year) |>
+    summarise(source_cit_lost = sum(source_tax_loss), profit_sent = sum(reallocated_profit), .groups = "drop")
+  keys <- c("country", "scenario_id", "year")
+  annual <- direct |>
+    filter(scenario_id %in% STEP7_PREFERRED) |>
+    transmute(across(all_of(keys)), direct_topup = revenue,
+      mechanical_id = sub("1$", "0", scenario_id)
+    ) |>
+    left_join(
+      transmute(direct, country, year, mechanical_id = scenario_id, mechanical_topup = revenue),
+      by = c("country", "year", "mechanical_id"), relationship = "many-to-one"
+    ) |>
+    left_join(origin, by = keys, relationship = "one-to-one") |>
+    crossing(rule = c("A", "B", "C")) |>
+    left_join(receipts, by = c("rule", keys), relationship = "one-to-one") |>
+    mutate(across(c(gross_cit, source_cit_lost, profit_received, profit_sent,
+      global_fallback_profit, headquarters_profit, same_country_headquarters_profit), coalesce_zero),
+      direct_topup_change = direct_topup - mechanical_topup,
+      net_fiscal_change = direct_topup_change + gross_cit - source_cit_lost
+    )
+  amounts <- c("direct_topup", "mechanical_topup", "direct_topup_change", "gross_cit",
+    "source_cit_lost", "net_fiscal_change", "profit_received", "profit_sent",
+    "global_fallback_profit", "headquarters_profit", "same_country_headquarters_profit")
+  compare <- imap_dfr(STEP7_WINDOWS, function(years, window) {
+    states <- annual |>
+      filter(year %in% years) |>
+      group_by(country, scenario_id, rule) |>
+      summarise(across(all_of(amounts), sum), .groups = "drop")
+    eu <- states |>
+      group_by(scenario_id, rule) |>
+      summarise(across(all_of(amounts), sum), .groups = "drop") |>
+      mutate(country = "EU27")
+    support <- routes |>
+      filter(year %in% years) |>
+      group_by(scenario_id, rule) |>
+      summarise(
+        global_profit_reallocated = sum(received),
+        global_profit_using_fallback = sum(received[route == "global_activity"]),
+        global_headquarters_profit = sum(received[route == "headquarters"]),
+        global_same_country_headquarters_profit = sum(received[same_country_headquarters]), .groups = "drop"
+      )
+    bind_rows(states, left_join(eu, support, by = c("scenario_id", "rule"))) |>
+      mutate(window, start_year = min(years), end_year = max(years), .before = 1)
+  })
+  step6 <- read_csv(file.path(DIAGNOSTICS_DIR, "step6_topup_vs_cit_recovery_eu27.csv"),
+    show_col_types = FALSE
+  )
+  previous <- imap_dfr(STEP7_WINDOWS, function(years, window) {
+    step6 |>
+      filter(scenario_id %in% STEP7_PREFERRED, start_year == end_year, end_year %in% years) |>
+      group_by(country, scenario_id) |>
+      summarise(ordinary_cit_gross_destination_revenue = sum(ordinary_cit_gross_destination_revenue),
+        .groups = "drop"
+      ) |>
+      mutate(window)
+  })
+  check <- compare |>
+    filter(rule == "A") |>
+    left_join(previous, by = c("country", "scenario_id", "window"), relationship = "one-to-one")
+  stopifnot(nrow(compare) == length(STEP7_WINDOWS) * 28L * 2L * 3L,
+    max(abs(check$gross_cit - check$ordinary_cit_gross_destination_revenue)) < 1e-3
+  )
+  compare
+}
+
+budget_benchmarks <- function() {
+  dutch_2023 <- "https://www.tweedekamer.nl/downloads/document?id=2023D23289"
+  dutch_2026 <- "https://zoek.officielebekendmakingen.nl/kst-36915-3.html"
+  dutch_october_2026 <- "https://zoek.officielebekendmakingen.nl/dossier/kst-1275297.pdf#page=44"
+  german <- "https://dserver.bundestag.de/btd/20/086/2008668.pdf"
+  belgian <- "https://www.dekamer.be/FLWB/PDF/55/3272/55K3272004.pdf"
+  slovak <- "https://link.springer.com/article/10.1007/s10797-026-09946-8"
+  tribble(
+    ~country, ~benchmark, ~evidence, ~forecast_period, ~revenue_scope, ~model_scope,
+    ~official_low_eur_bn, ~official_high_eur_bn, ~stated_sbs_switch, ~source_url,
+    "NLD", "Dutch 2023 structural estimate", "official forecast", "2034 onward", "Direct plus behavioural CIT", "direct", .466, .466, 0L, dutch_2023,
+    "NLD", "Dutch 2023 direct component", "official forecast", "2034 onward", "QDMTT 55m plus IIR/UTPR 9m", "direct", .064, .064, 0L, dutch_2023,
+    "NLD", "Dutch 2023 structural domestic top-up", "official forecast", "2034 onward", "QDMTT", "qdmt", .055, .055, 0L, dutch_2023,
+    "NLD", "Dutch 2026 pre-SbS estimate", "official forecast", "annual", "Direct plus behavioural CIT", "direct", .700, .700, 0L, dutch_2026,
+    "NLD", "Dutch 2026 post-SbS estimate", "implied by official figures", "annual", "Direct plus behavioural CIT and package changes", "direct", .578, .578, 1L, dutch_2026,
+    "NLD", "2023 estimate less 2026 haircut", "cross-vintage arithmetic", "structural illustration", "Mixed vintages", "direct", .344, .344, 1L, dutch_2026,
+    "NLD", "Dutch October 2026 structural domestic top-up", "official forecast", "structural, 2020–2023 CbCR base", "QDMTT, retained under both policies", "qdmt", .055, .055, NA_integer_, dutch_october_2026,
+    "NLD", "Dutch October 2026 direct before package", "implied by official figures", "structural, 2020–2023 CbCR base", "QDMTT 55m plus IIR/UTPR 175m", "direct", .230, .230, 0L, dutch_october_2026,
+    "NLD", "Dutch October 2026 direct after package", "implied by official figures", "structural, 2020–2023 CbCR base", "QDMTT 55m plus IIR/UTPR 121m after both safe harbours", "direct", .176, .176, 1L, dutch_october_2026,
+    "DEU", "Mindeststeuergesetz cash estimate", "official draft costing", "2026 cash", "Minimum tax, separate from accompanying tax changes", "direct", 1, 1, 0L, german,
+    "DEU", "Mindeststeuergesetz full-year effect", "official draft costing", "full-year effect", "Minimum tax, separate from accompanying tax changes", "direct", .2, .2, 0L, german,
+    "FRA", "Projet de loi de finances 2026", "official forecast", "2026 cash", "Domestic and other top-up receipts", "direct", .5, .5, NA_integer_, "https://www.senat.fr/rap/l25-139-21/l25-139-211.pdf",
+    "IRL", "Department of Finance estimate, reported by IFAC", "official forecast", "2026 cash", "Pillar II additional receipts", "direct", 3.2, 3.2, NA_integer_, "https://www.fiscalcouncil.ie/wp-content/uploads/2025/11/Supporting-items-Fiscal-Assessment-Report-November-2025.pdf",
+    "BEL", "Belgian 2024 budget", "official forecast", "2024 cash", "QDMTT and IIR net of 16m implementation costs", "direct", .634, .634, 0L, belgian,
+    "BEL", "Belgian 2024 domestic top-up", "official forecast", "2024 cash", "QDMTT gross", "qdmt", .350, .350, 0L, belgian,
+    "BEL", "Belgian 2024 IIR", "official forecast", "2024 cash", "IIR gross", "iir", .300, .300, 0L, belgian,
+    "AUT", "Austrian MinBestG impact assessment", "official potential estimate", "2026 onward", "Additional minimum-tax revenue", "direct", .100, .100, 0L, "https://www.parlament.gv.at/dokument/XXVII/I/2322/imfname_1596482.pdf",
+    "SVK", "Slovak implementing bill", "official unquantified", "2026 onward", "Domestic top-up, no published amount in bill", "qdmt", NA_real_, NA_real_, NA_integer_, "https://www.vssr.sk/dovodova-sprava/dovodova-sprava-k-zakonu-c-507-2023-z-z.htm",
+    "SVK", "Boukal et al. domestic top-up", "academic estimate", "annual, 2020 base", "QDMTT after behaviour", "qdmt", .044, .044, NA_integer_, slovak,
+    "SVK", "Boukal et al. total direct top-up", "academic estimate", "annual, 2020 base", "Domestic and third-country top-up", "direct", .053, .053, NA_integer_, slovak,
+    "SVK", "Boukal et al. overall effect", "academic estimate", "annual, 2020 base", "Top-up plus net ordinary corporate tax effect", "direct", .117, .144, NA_integer_, slovak
+  ) |>
+    mutate(comparison_scope = case_when(
+      grepl("behavioural CIT|ordinary corporate|Mixed vintages", revenue_scope) ~
+        "Numerical collector comparison only; benchmark includes more than direct top-up",
+      benchmark == "Belgian 2024 budget" ~ "Gross model versus forecast net of implementation costs",
+      TRUE ~ "Model channel as specified"
+    ))
+}
+
+summarise_budget_matches <- function(revenue, channels, destination_comparison) {
+  windows <- list(FY2023 = 2023L, `2019–2023 annualised` = 2019:2023,
+    `2017–2023 annualised` = MAIN_YEARS)
+  model <- imap_dfr(windows, function(years, window) {
+    scope_values <- channels |>
+      filter(year %in% years, channel %in% c("QDMTT", "IIR")) |>
+      group_by(country, scenario_id, channel) |>
+      summarise(channel_eur_bn = sum(revenue) / (length(years) * USD_PER_EUR_2023 * 1e9),
+        .groups = "drop"
+      ) |>
+      mutate(channel = recode(channel, QDMTT = "qdmt", IIR = "iir")) |>
+      pivot_wider(names_from = channel, values_from = channel_eur_bn)
+    revenue |>
+      filter(year %in% years) |>
+      group_by(country, scenario_id, across(all_of(FACTOR_COLS))) |>
+      summarise(direct = sum(revenue) / (length(years) * USD_PER_EUR_2023 * 1e9),
+        observations = n(), .groups = "drop"
+      ) |>
+      left_join(scope_values, by = c("country", "scenario_id"), relationship = "one-to-one") |>
+      mutate(across(c(qdmt, iir), coalesce_zero), window)
+  })
+  stopifnot(all(model$observations == lengths(windows)[model$window]))
+  benchmarks <- budget_benchmarks()
+  matches <- pmap_dfr(benchmarks, function(country, benchmark, evidence, forecast_period, revenue_scope,
+                              model_scope, official_low_eur_bn, official_high_eur_bn,
+                              stated_sbs_switch, source_url, comparison_scope) {
+    member <- model[model$country == country, ]
+    map_dfr(names(windows), function(window) {
+      x <- member[member$window == window, ]
+      stopifnot(nrow(x) == 32L, n_distinct(x$scenario_id) == 32L)
+      value <- x[[model_scope]]
+      distance <- pmax(official_low_eur_bn - value, value - official_high_eur_bn, 0)
+      eligible <- is.na(stated_sbs_switch) | x$x4_sbs == stated_sbs_switch
+      indices <- which(distance == min(distance))
+      best <- indices[1]
+      policy_indices <- which(eligible & distance == min(distance[eligible]))
+      pair <- match(STEP7_PREFERRED, x$scenario_id)
+      tibble(
+        country, benchmark, evidence, forecast_period, revenue_scope, model_scope, comparison_scope,
+        window, official_low_eur_bn, official_high_eur_bn, usd_per_eur = USD_PER_EUR_2023,
+        collector_min_eur_bn = min(x$direct), collector_max_eur_bn = max(x$direct),
+        benchmark_inside_collector_range = official_high_eur_bn >= min(x$direct) & official_low_eur_bn <= max(x$direct),
+        comparable_min_eur_bn = min(value), comparable_max_eur_bn = max(value),
+        benchmark_inside_comparable_range = official_high_eur_bn >= min(value) & official_low_eur_bn <= max(value),
+        closest_scenario = x$scenario_id[best],
+        closest_tied_scenarios = if (length(indices)) paste(x$scenario_id[indices], collapse = "/") else NA_character_,
+        closest_model_eur_bn = value[best], distance_to_benchmark_eur_bn = distance[best],
+        stated_sbs_switch,
+        closest_with_stated_sbs = x$scenario_id[policy_indices[1]],
+        closest_with_stated_sbs_eur_bn = value[policy_indices[1]],
+        preferred_universal_direct = x$direct[pair[1]], preferred_sbs_direct = x$direct[pair[2]],
+        preferred_universal_qdmtt = x$qdmt[pair[1]], preferred_sbs_qdmtt = x$qdmt[pair[2]],
+        preferred_direct_haircut_pct = 100 * (x$direct[pair[2]] / x$direct[pair[1]] - 1),
+        source_url
+      ) |>
+        bind_cols(select(x[best, ], all_of(FACTOR_COLS)))
+    })
+  })
+  fiscal <- destination_comparison |>
+    mutate(
+      window = if_else(window == "FY2023", window, paste(window, "annualised")),
+      scale = (end_year - start_year + 1) * USD_PER_EUR_2023 * 1e9,
+      gross_induced_cit = gross_cit / scale,
+      net_fiscal_receipts = (direct_topup + gross_cit - source_cit_lost) / scale
+    ) |>
+    select(country, window, scenario_id, rule, gross_induced_cit, net_fiscal_receipts) |>
+    pivot_wider(names_from = c(scenario_id, rule), values_from = c(gross_induced_cit, net_fiscal_receipts))
+  matches |> left_join(fiscal, by = c("country", "window"), relationship = "many-to-one")
+}
+
+build_institutional_regime_matrix <- function(stage1, host, cit) {
+  read_ledger <- function(suffix) {
+    read_csv(file.path(DIAGNOSTICS_DIR, paste0("step7_eu27_source_vs_collector_ledger_", suffix, ".csv")),
+      show_col_types = FALSE
+    ) |>
+      filter(scenario_id == "x10011") |>
+      select(-cit_revenue_T_1200, -cit_years_observed, -collector_revenue_pct_of_cit)
+  }
+  by_country <- cit |>
+    group_by(country) |>
+    summarise(cit_revenue = sum(cit_revenue_T_1200),
+      cit_revenue_2023 = cit_revenue_T_1200[year == 2023L], .groups = "drop")
+  hidden <- stage1 |>
+    filter(affiliate %in% EU27_ISO3, year %in% MAIN_YEARS) |>
+    left_join(select(host, affiliate, year, avg_etr_stage1),
+      by = c("affiliate", "year"), relationship = "many-to-one"
+    ) |>
+    group_by(country = affiliate) |>
+    summarise(
+      low_tax_profit = sum(stage1_lowtax_profit_distributional, na.rm = TRUE),
+      low_tax_profit_in_high_mean_cells = sum(if_else(avg_etr_stage1 > GMT_RATE,
+        stage1_lowtax_profit_distributional, 0, missing = 0
+      ), na.rm = TRUE), .groups = "drop"
+    ) |>
+    mutate(hidden_tail_share = safe_divide(low_tax_profit_in_high_mean_cells, low_tax_profit))
+  legal <- read_csv(file.path(DIAGNOSTICS_DIR, "step5_stage3_eu27_legal_regime_classification.csv"),
+    show_col_types = FALSE
+  ) |>
+    transmute(country = jurisdiction, domestic_topup_tax_enacted, domestic_enactment_summary)
+  r2 <- read_csv(file.path(DIAGNOSTICS_DIR, "step7_cyprus_and_article50_sensitivity.csv"),
+    show_col_types = FALSE
+  ) |>
+    filter(regime == "R2_cyprus_domestic_law", start_year == 2017L, end_year == 2023L, scenario_id == "x10011") |>
+    transmute(country, r2_collector_revenue = collector_revenue, r2_source_liability = source_topup_liability,
+      r2_qdmtt = collector_QDMTT, r2_iir = collector_IIR, r2_utpr = collector_UTPR
+    )
+  result <- read_ledger("2017_2023") |>
+    left_join(by_country, by = "country", relationship = "one-to-one") |>
+    left_join(
+      read_ledger("2023") |> transmute(country, source_liability_2023 = source_topup_liability),
+      by = "country", relationship = "one-to-one"
+    ) |>
+    left_join(hidden, by = "country", relationship = "one-to-one") |>
+    left_join(legal, by = "country", relationship = "one-to-one") |>
+    left_join(r2, by = "country", relationship = "one-to-one") |>
+    mutate(
+      source_to_cit = source_topup_liability / cit_revenue,
+      source_to_cit_2023 = source_liability_2023 / cit_revenue_2023,
+      collector_to_cit = collector_revenue / cit_revenue,
+      r2_collector_to_cit = r2_collector_revenue / cit_revenue,
+      collector_qdmtt_share = safe_divide(collector_QDMTT, collector_revenue),
+      source_qdmtt_retention_share = safe_divide(source_retained_qdmtt, source_topup_liability),
+      foreign_export_share = safe_divide(source_exported_iir + source_exported_utpr, source_topup_liability),
+      high_salience = source_to_cit > .25,
+      institutional_group = case_when(
+        high_salience ~ 1L,
+        article50_deferral & !qdmtt_by_2026 & foreign_export_share > 0 ~ 4L,
+        qdmtt_by_2026 & collector_qdmtt_share >= .75 ~ 2L,
+        TRUE ~ 3L
+      ),
+      institutional_regime = case_when(
+        institutional_group == 1L & qdmtt_by_2026 ~ "High-salience source, QDMTT active",
+        institutional_group == 1L & article50_deferral ~ "High-salience source, Article 50 exporter",
+        institutional_group == 1L ~ "High-salience source, domestic tax outside pinned baseline",
+        institutional_group == 2L ~ "QDMTT-protected collector",
+        institutional_group == 3L ~ "Residual IIR/UTPR collector",
+        TRUE ~ "Article 50 fiscal exporter"
+      ),
+      proposed_group = case_when(
+        country %in% c("LUX", "CYP", "NLD", "IRL", "HUN", "MLT") ~ 1L,
+        country %in% c("AUT", "BEL", "DNK", "FIN", "GRC", "SVK") ~ 2L,
+        country %in% c("EST", "LTU", "LVA") ~ 4L,
+        TRUE ~ 3L
+      ),
+      matches_proposed_group = institutional_group == proposed_group
+    ) |>
+    relocate(country, country_name, institutional_group, institutional_regime, proposed_group,
+      source_to_cit, source_to_cit_2023, collector_to_cit, collector_qdmtt_share, hidden_tail_share
+    ) |>
+    arrange(institutional_group, desc(source_to_cit))
+  stopifnot(nrow(result) == 27L, all(is.finite(result$source_to_cit)), all(is.finite(result$collector_to_cit)))
+  result
+}
+
+compare_typology_membership <- function(features, fiscal, regimes) {
+  baseline <- prepare_typology_matrix(features)$scaled
+  source <- cbind(baseline, source_topup_liability = scale(log1p(regimes$source_topup_liability[
+    match(features$country, regimes$country)
+  ])))
+  r2 <- read_csv(file.path(DIAGNOSTICS_DIR, "step7_cyprus_and_article50_sensitivity.csv"),
+    show_col_types = FALSE
+  ) |>
+    filter(regime == "R2_cyprus_domestic_law", start_year == 2017L, end_year == 2023L,
+      country %in% EU27_ISO3
+    ) |>
+    select(country, scenario_id, collector_revenue, collector_QDMTT, collector_IIR, collector_UTPR) |>
+    pivot_wider(names_from = scenario_id,
+      values_from = c(collector_revenue, collector_QDMTT, collector_IIR, collector_UTPR)
+    )
+  # R2 updates the preferred fiscal and channel features. The factorial
+  # main effects, spread and measurement-risk features retain the base design.
+  r2_features <- features |>
+    left_join(r2, by = "country", relationship = "one-to-one") |>
+    left_join(select(fiscal, country, cit_revenue_T_1200, gdp_usd, average_population),
+      by = "country", relationship = "one-to-one"
+    ) |>
+    mutate(
+      preferred_revenue = collector_revenue_x10011,
+      revenue_to_cit_1200 = preferred_revenue / cit_revenue_T_1200,
+      revenue_to_gdp = preferred_revenue / gdp_usd,
+      revenue_per_capita = preferred_revenue / average_population,
+      qdmtt_share = safe_divide(collector_QDMTT_x10011, preferred_revenue),
+      residual_iir_utpr_exposure = safe_divide(collector_IIR_x10011 + collector_UTPR_x10011, preferred_revenue),
+      sbs_extinguished_share = safe_divide(collector_revenue_x10001 - preferred_revenue, collector_revenue_x10001)
+    )
+  source_view <- features |>
+    left_join(select(regimes, country, source_topup_liability), by = "country", relationship = "one-to-one") |>
+    left_join(select(fiscal, country, cit_revenue_T_1200, gdp_usd, average_population),
+      by = "country", relationship = "one-to-one"
+    ) |>
+    mutate(preferred_revenue = source_topup_liability,
+      revenue_to_cit_1200 = source_topup_liability / cit_revenue_T_1200,
+      revenue_to_gdp = source_topup_liability / gdp_usd,
+      revenue_per_capita = source_topup_liability / average_population
+    )
+  inputs <- list(baseline_collector = baseline, add_source_liability = source,
+    substitute_source_fiscal_scale = prepare_typology_matrix(source_view)$scaled,
+    cyprus_active_r2 = prepare_typology_matrix(r2_features)$scaled)
+  fits <- map(inputs, function(x) {
+    list(
+      cluster = run_country_typology_clusters(features, x)$fit$cluster,
+      pca = stats::prcomp(x, center = FALSE, scale. = FALSE)
+    )
+  })
+  ref <- fits$baseline_collector$cluster
+  permutations <- crossing(a = 1:4, b = 1:4, c = 1:4, d = 1:4) |>
+    filter(a != b, a != c, a != d, b != c, b != d, c != d) |>
+    as.matrix()
+  imap_dfr(fits, function(fit, variant) {
+    match_count <- apply(permutations, 1, function(labels) sum(ref == labels[fit$cluster]))
+    aligned <- if (variant == "baseline_collector") ref else permutations[which.max(match_count), fit$cluster]
+    variance <- fit$pca$sdev^2 / sum(fit$pca$sdev^2)
+    tibble(
+      country = features$country, variant, baseline_cluster = ref, aligned_cluster = aligned,
+      membership_changed = aligned != ref, pairwise_agreement = pairwise_cluster_agreement(ref, fit$cluster),
+      pc1_variance_share = variance[1], first3_variance_share = sum(variance[1:3]),
+      PC1 = fit$pca$x[, 1], PC2 = fit$pca$x[, 2], PC3 = fit$pca$x[, 3]
+    )
+  })
+}
+
+run_reallocation_and_budget_backtest <- function() {
+  direct <- read_step6_input("stage4_5_revenue_country_year")
+  stage1 <- read_step6_input("stage1_bilateral_panel")
+  host <- read_step6_input("stage1_affiliate_year")
+  reallocation <- build_destination_comparison(read_step6_factorial_input(), direct, stage1, host)
+  write_step7(reallocation, "reallocation_destination_rules_comparison")
+  write_step7(summarise_budget_matches(direct, read_step6_input("stage4_5_revenue_by_channel"), reallocation),
+    "official_budget_forecasts_backtest")
+  fiscal <- read_step6_input("stage4_6_fiscal_salience_country")
+  features <- read_step6_input("stage4_6_country_typology_feature_matrix")
+  stopifnot(nrow(fiscal) == 27L, all(fiscal$cit_1200_years == length(MAIN_YEARS)),
+    nrow(features) == 27L, all(is.finite(features$revenue_to_cit_1200)),
+    all(is.finite(fiscal$revenue_to_cit_1200))
+  )
+  regimes <- build_institutional_regime_matrix(stage1, host,
+    build_cit_revenue_denominators(read_step6_input("cit_revenue"))
+  )
+  write_step7(regimes, "eu27_institutional_regime_matrix")
+  write_step7(compare_typology_membership(features, fiscal, regimes), "eu27_typology_cluster_sensitivity")
+}
+
+# ETR density and the simplified ETR safe harbour notch
+
+NOTCH_BIN_WIDTH <- 0.005
+NOTCH_POLYNOMIAL_ORDER <- 4L
+NOTCH_ESTIMATION_LOWER <- 0
+NOTCH_ESTIMATION_UPPER <- 0.30
+NOTCH_EXCLUDED_BANDWIDTH <- 0.02
+
+build_etr_density_bins <- function(etr, weight = NULL,
+                                   bin_width = NOTCH_BIN_WIDTH,
+                                   lower = NOTCH_ESTIMATION_LOWER,
+                                   upper = NOTCH_ESTIMATION_UPPER) {
+  if (is.null(weight)) weight <- rep(1, length(etr))
+
+  raw <- tibble(etr = etr, weight = weight) |>
+    filter(
+      is.finite(etr),
+      is.finite(weight),
+      weight > 0,
+      etr >= lower,
+      etr <= upper
+    ) |>
+    mutate(
+      bin_id = pmin(
+        floor((etr - lower) / bin_width),
+        as.integer(round((upper - lower) / bin_width)) - 1L
+      ),
+      bin_lower = lower + bin_id * bin_width
+    )
+
+  bin_template <- tibble(
+    bin_lower = seq(lower, upper - bin_width, by = bin_width),
+    bin_upper = bin_lower + bin_width,
+    bin_midpoint = bin_lower + bin_width / 2
+  )
+
+  binned <- raw |>
+    group_by(bin_lower) |>
+    summarise(
+      observed_count = n(),
+      observed_weight = sum(weight, na.rm = TRUE),
+      .groups = "drop"
+    )
+
+  total_weight <- sum(raw$weight, na.rm = TRUE)
+
+  bin_template |>
+    left_join(binned, by = "bin_lower") |>
+    mutate(
+      observed_count = coalesce(observed_count, 0L),
+      observed_weight = coalesce(observed_weight, 0),
+      observed_share = if (total_weight > 0) {
+        observed_weight / total_weight
+      } else {
+        NA_real_
+      }
+    )
+}
+
+fit_notch_counterfactual_density <- function(binned_density,
+                                             threshold = GMT_RATE,
+                                             excluded_bandwidth =
+                                               NOTCH_EXCLUDED_BANDWIDTH,
+                                             polynomial_order =
+                                               NOTCH_POLYNOMIAL_ORDER) {
+  estimation_bins <- binned_density |>
+    filter(
+      is.finite(observed_share),
+      !(bin_midpoint >= threshold - excluded_bandwidth &
+        bin_midpoint < threshold + excluded_bandwidth)
+    )
+
+  effective_order <- min(
+    as.integer(polynomial_order),
+    max(nrow(estimation_bins) - 2L, 1L)
+  )
+
+  fit <- stats::lm(
+    observed_share ~ stats::poly(bin_midpoint, effective_order, raw = TRUE),
+    data = estimation_bins
+  )
+
+  predicted <- pmax(
+    stats::predict(fit, newdata = binned_density),
+    0
+  )
+  observed_total <- sum(binned_density$observed_share, na.rm = TRUE)
+  predicted_total <- sum(predicted, na.rm = TRUE)
+
+  binned_density |>
+    mutate(
+      counterfactual_share = if (predicted_total > 0) {
+        predicted * observed_total / predicted_total
+      } else {
+        NA_real_
+      },
+      estimation_bin = !(bin_midpoint >= threshold - excluded_bandwidth &
+        bin_midpoint < threshold + excluded_bandwidth),
+      polynomial_order = effective_order,
+      excluded_bandwidth = excluded_bandwidth
+    )
+}
+
+summarise_notch_counterfactual <- function(fitted_density,
+                                           threshold = GMT_RATE,
+                                           bunching_bandwidth =
+                                             SESH_BANDWIDTH_BASELINE) {
+  dominated_region <- fitted_density |>
+    filter(
+      bin_lower >= threshold - bunching_bandwidth,
+      bin_upper <= threshold
+    )
+
+  threshold_bin <- fitted_density |>
+    filter(bin_lower <= threshold, bin_upper > threshold)
+
+  observed_dominated <- sum(dominated_region$observed_share, na.rm = TRUE)
+  counterfactual_dominated <-
+    sum(dominated_region$counterfactual_share, na.rm = TRUE)
+  observed_threshold <- sum(threshold_bin$observed_share, na.rm = TRUE)
+  counterfactual_threshold <-
+    sum(threshold_bin$counterfactual_share, na.rm = TRUE)
+
+  missing_mass <- counterfactual_dominated - observed_dominated
+  excess_mass <- observed_threshold - counterfactual_threshold
+  responsive_share <- clamp_unit_interval(
+    safe_divide(pmax(missing_mass, 0), counterfactual_dominated)
+  )
+
+  tibble(
+    threshold = threshold,
+    bunching_bandwidth = bunching_bandwidth,
+    observed_dominated_mass = observed_dominated,
+    counterfactual_dominated_mass = counterfactual_dominated,
+    placebo_missing_mass = missing_mass,
+    observed_threshold_mass = observed_threshold,
+    counterfactual_threshold_mass = counterfactual_threshold,
+    placebo_excess_mass = excess_mass,
+    implied_responsive_share_if_post_reform = responsive_share,
+    implied_friction_share_if_post_reform = 1 - responsive_share,
+    interpretation = paste(
+      "Pre-reform placebo and exposure diagnostic only;",
+      "not a structural estimate of post-SESH bunching."
+    )
+  )
+}
+
+notch_bunching_probability <- function(etr,
+                                       threshold = GMT_RATE,
+                                       bunching_bandwidth =
+                                         SESH_BANDWIDTH_BASELINE,
+                                       responsive_share = 1,
+                                       curvature = 1) {
+  gap <- threshold - etr
+  in_band <- is.finite(gap) & gap > 0 & gap <= bunching_bandwidth
+  probability <- rep(0, length(etr))
+  probability[in_band] <- responsive_share *
+    (1 - gap[in_band] / bunching_bandwidth)^curvature
+  clamp_unit_interval(probability)
+}
+
+prepare_notch_sample <- function(stage1_affiliate_year, sample_name) {
+  stage1_affiliate_year |>
+    filter(
+      stage1_positive_profit_flag,
+      is.finite(avg_etr_stage1),
+      is.finite(total_analysis_profit_positive),
+      total_analysis_profit_positive > 0
+    ) |>
+    mutate(sample = sample_name) |>
+    select(
+      sample, affiliate, affiliate_name, affiliate_is_eu27, year,
+      avg_etr_stage1, total_analysis_profit_positive
+    )
+}
+
+estimate_notch_sample <- function(notch_sample,
+                                  bin_width = NOTCH_BIN_WIDTH,
+                                  polynomial_order = NOTCH_POLYNOMIAL_ORDER,
+                                  threshold = GMT_RATE,
+                                  excluded_bandwidth =
+                                    NOTCH_EXCLUDED_BANDWIDTH,
+                                  bunching_bandwidth =
+                                    SESH_BANDWIDTH_BASELINE) {
+  density <- build_etr_density_bins(
+    notch_sample$avg_etr_stage1,
+    notch_sample$total_analysis_profit_positive,
+    bin_width = bin_width
+  ) |>
+    fit_notch_counterfactual_density(
+      threshold = threshold,
+      excluded_bandwidth = excluded_bandwidth,
+      polynomial_order = polynomial_order
+    )
+
+  summary <- summarise_notch_counterfactual(
+    density,
+    threshold = threshold,
+    bunching_bandwidth = bunching_bandwidth
+  ) |>
+    mutate(
+      affiliate_years = nrow(notch_sample),
+      weighted_profit = sum(notch_sample$total_analysis_profit_positive,
+        na.rm = TRUE
+      ),
+      bin_width = bin_width,
+      polynomial_order = first(density$polynomial_order),
+      excluded_bandwidth = excluded_bandwidth,
+      .before = 1
+    )
+
+  assignments <- notch_sample |>
+    mutate(
+      distance_to_threshold = threshold - avg_etr_stage1,
+      in_sesh_band = distance_to_threshold > 0 &
+        distance_to_threshold <= bunching_bandwidth,
+      upper_bound_bunching_probability = notch_bunching_probability(
+        avg_etr_stage1,
+        threshold = threshold,
+        bunching_bandwidth = bunching_bandwidth,
+        responsive_share = 1
+      ),
+      placebo_calibrated_bunching_probability =
+        notch_bunching_probability(
+          avg_etr_stage1,
+          threshold = threshold,
+          bunching_bandwidth = bunching_bandwidth,
+          responsive_share =
+            summary$implied_responsive_share_if_post_reform[1]
+        )
+    )
+
+  list(density = density, summary = summary, assignments = assignments)
+}
+
+run_sesh_notch_bunching_diagnostic <- function() {
+  dir.create(DIAGNOSTICS_DIR, showWarnings = FALSE, recursive = TRUE)
+  stage1_affiliate_year <- readRDS(file.path(PROCESSED_DIR, "stage1_affiliate_year.rds"))
+
+  samples <- bind_rows(
+    prepare_notch_sample(stage1_affiliate_year, "global"),
+    prepare_notch_sample(
+      stage1_affiliate_year |> filter(affiliate_is_eu27),
+      "eu27"
+    )
+  )
+
+  sample_splits <- samples |>
+    group_split(sample)
+  names(sample_splits) <- map_chr(sample_splits, ~ first(.x$sample))
+
+  results <- map(sample_splits, estimate_notch_sample)
+
+  density <- imap_dfr(results, ~ mutate(.x$density, sample = .y, .before = 1))
+  summary <- imap_dfr(results, ~ mutate(.x$summary, sample = .y, .before = 1))
+  assignments <- imap_dfr(results, ~ .x$assignments)
+
+  write_csv(
+    density,
+    file.path(DIAGNOSTICS_DIR, "step11_sesh_notch_density_bins.csv")
+  )
+  write_csv(
+    summary,
+    file.path(DIAGNOSTICS_DIR, "step11_sesh_notch_summary.csv")
+  )
+  write_csv(
+    assignments,
+    file.path(DIAGNOSTICS_DIR, "step11_sesh_notch_assignment.csv")
+  )
+
+  saveRDS(density, file.path(PROCESSED_DIR, "sesh_notch_density_bins.rds"))
+  saveRDS(summary, file.path(PROCESSED_DIR, "sesh_notch_summary.rds"))
+  saveRDS(assignments, file.path(PROCESSED_DIR, "sesh_notch_assignment.rds"))
+
+  message("\nStep 11 outputs written:")
+  message(" - data/processed/sesh_notch_*.rds")
+  message(" - diagnostics/step11_sesh_notch_*.csv")
+
+  invisible(list(
+    density = density,
+    summary = summary,
+    assignments = assignments
+  ))
+}
+
+run_econometric_and_reallocation_extensions <- function() {
+  run_division_bias_and_cit_recovery()
+  run_reallocation_and_budget_backtest()
+  run_sesh_notch_bunching_diagnostic()
+}
+
+if (is_direct_script_run("code/09_econometric_and_reallocation_extensions.R")) {
+  run_econometric_and_reallocation_extensions()
+}

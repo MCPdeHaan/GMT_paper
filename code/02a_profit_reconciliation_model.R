@@ -6,7 +6,7 @@
 # evidence, and the public domestic-versus-foreign ETR comparison is retained
 # as a noisy diagnostic signal.
 
-source("code/00_helpers.R", local = TRUE)
+source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "00_helpers.R"), local = TRUE)
 
 MIN_PARITY_FOREIGN_PROFIT <- 1e9
 MIN_PARITY_DOMESTIC_PROFIT <- 1e7

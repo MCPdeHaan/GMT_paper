@@ -4,7 +4,7 @@
 # Reshapes the raw datasets collected by code/collect_all_data.py into tidy,
 # analysis-ready intermediate tables in data/processed/.
 
-source("code/00_helpers.R", local = TRUE)
+source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "00_helpers.R"), local = TRUE)
 
 delayedAssign("EUROSTAT_GEO_MAP", tribble(
   ~geo, ~jurisdiction,

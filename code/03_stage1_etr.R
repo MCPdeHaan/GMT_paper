@@ -4,7 +4,7 @@
 # affiliate-year ETR measurement object, then maps the resulting low-tax share
 # and average top-up rate back to the bilateral corrected profit base.
 
-source("code/00_helpers.R", local = TRUE)
+source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "00_helpers.R"), local = TRUE)
 
 
 DIRECT_YEARS <- 2019:2023
@@ -621,8 +621,370 @@ summarise_stage1_crossval <- function(data, sample, uncapped = FALSE) {
   })
 }
 
-source("code/03_stage1_rank_beta_functions.R", local = TRUE)
-source("code/03_stage1_ladder_functions.R", local = TRUE)
+# Rank-bounded and statutory-capped sensitivity estimators used by Stage 1.
+STAGE1_BETA_MODELS <- c("M1_Baseline", "M1a_StatCap_LowerTail", "M1b_RankBounded_Beta")
+STAGE1_BETA_BLEND_WEIGHTS <- seq(0, 1, by = 0.25)
+STAGE1_RANK_TOL <- 1e-8
+
+stage1_condition_percentile_knots <- function(q, cap) {
+  out <- q
+  observed <- is.finite(q)
+  out[observed] <- cummax(pmin(pmax(q[observed], 0), cap))
+  out
+}
+
+stage1_rank <- function(q) {
+  q <- unname(q)
+  lower <- which(q < GMT_RATE)
+  upper <- which(q > GMT_RATE)
+  p_low <- max(c(0, PERCENTILE_PROBS[lower]))
+  p_high <- min(c(1, PERCENTILE_PROBS[upper]))
+  q_low <- if (length(lower)) q[max(lower)] else 0
+  q_high <- if (length(upper)) q[min(upper)] else 1
+  c(lower = p_low, upper = p_high,
+    interpolated = p_low + (p_high - p_low) * (GMT_RATE - q_low) / (q_high - q_low))
+}
+
+stage1_rank_violation <- function(share, lower, upper) {
+  share < lower - STAGE1_RANK_TOL | share > upper + STAGE1_RANK_TOL
+}
+
+stage1_tail_gap <- function(mean, precision, share, raw_share) {
+  if (share <= 0) return(0)
+  if (!is.finite(precision)) return(pmax(0, GMT_RATE - mean))
+  alpha <- mean * precision
+  beta <- (1 - mean) * precision
+  quantile <- if (precision > 1e5) stats::qbeta else beta_quantiles
+  truncated_moment <- if (share == raw_share) {
+    mean * pbeta(GMT_RATE, alpha + 1, beta)
+  } else if (share == 1) {
+    mean
+  } else if (share <= pbeta(0.5, alpha, beta)) {
+    mean * pbeta(quantile(share, alpha, beta), alpha + 1, beta)
+  } else {
+    reflected <- quantile(1 - share, beta, alpha)
+    if (reflected == 0) {
+      # Small-tail limit after the reflected quantile underflows.
+      pmax(0, mean + share - 1)
+    } else {
+      mean * pbeta(reflected, beta, alpha + 1, lower.tail = FALSE)
+    }
+  }
+  pmax(0, GMT_RATE - pmin(1, truncated_moment / share))
+}
+
+# Search the log-precision ray, including nonmonotone CDF sections. Turning
+# points bracket separate crossings of either rank bound.
+stage1_rank_feasibility <- function(cdf, bounds, rank) {
+  grid <- seq(bounds[1], bounds[2], length.out = 81L)
+  cdf_grid <- cdf(grid)
+  left <- cdf_grid[-c(length(grid) - 1L, length(grid))]
+  mid <- cdf_grid[-c(1L, length(grid))]
+  right <- cdf_grid[-c(1L, 2L)]
+  peaks <- which(mid > left & mid > right) + 1L
+  troughs <- which(mid < left & mid < right) + 1L
+  extrema <- c(
+    map_dbl(peaks, ~ optimize(cdf, grid[c(.x - 1L, .x + 1L)], maximum = TRUE)$maximum),
+    map_dbl(troughs, ~ optimize(cdf, grid[c(.x - 1L, .x + 1L)])$minimum)
+  )
+  knots <- sort(unique(c(bounds, extrema, grid)))
+  values <- cdf(knots)
+  roots <- map(rank[c("lower", "upper")], function(target) {
+    error <- values - target
+    across_target <- which(head(error, -1) * tail(error, -1) < 0)
+    map_dbl(across_target, ~ uniroot(function(x) cdf(x) - target,
+      knots[c(.x, .x + 1L)], tol = 1e-11)$root)
+  })
+  intervals <- sort(unique(c(bounds, extrema, unlist(roots))))
+  low <- head(intervals, -1)
+  high <- tail(intervals, -1)
+  eligible <- !stage1_rank_violation(cdf((low + high) / 2), rank["lower"], rank["upper"])
+  points <- intervals[!stage1_rank_violation(cdf(intervals), rank["lower"], rank["upper"])]
+  distances <- pmax(rank["lower"] - values, values - rank["upper"], 0)
+  list(low = low[eligible], high = high[eligible], points = points,
+    closest = knots[which.min(distances)])
+}
+
+stage1_minimise <- function(objective, low, high, points = numeric()) {
+  # Include boundaries and optimise around all detected local minima.
+  candidates <- c(points, map2(low, high, function(a, b) {
+    if (b - a < 1e-9) return(a)
+    grid <- seq(a, b, length.out = 9L)
+    scores <- map_dbl(grid, objective)
+    interior <- which(scores[2:8] < scores[1:7] & scores[2:8] < scores[3:9]) + 1L
+    c(a, b, optimize(objective, c(a, b), tol = 1e-8)$minimum,
+      map_dbl(interior, ~ optimize(objective, grid[c(.x - 1L, .x + 1L)], tol = 1e-8)$minimum))
+  }) |> unlist())
+  candidates <- unique(candidates)
+  candidates[which.min(map_dbl(candidates, objective))]
+}
+
+stage1_fit_cell <- function(raw, mean, cap, models, blends = FALSE) {
+  stopifnot(length(raw) == length(PERCENTILE_PROBS), all(is.finite(raw)),
+    is.finite(mean), is.finite(cap), cap >= 0, cap <= 1)
+  unit_q <- stage1_condition_percentile_knots(raw, 1)
+  capped_q <- stage1_condition_percentile_knots(raw, cap)
+  # Preserve rank information from the published knots, even when a low
+  # statutory cap moves a knot from above to below the threshold.
+  rank <- stage1_rank(unit_q)
+  capped_rank <- stage1_rank(capped_q)
+  mean <- clamp_unit_interval(mean)
+  boundary <- mean <= BETA_BOUNDARY_EPS || mean >= 1 - BETA_BOUNDARY_EPS
+  if (boundary) mean <- round(mean)
+  cdf <- function(log_precision) {
+    precision <- exp(log_precision)
+    pbeta(GMT_RATE, mean * precision, (1 - mean) * precision)
+  }
+
+  fit <- map_dfr(models, function(model) {
+    baseline <- model == STAGE1_BETA_MODELS[1]
+    lower_tail <- model == STAGE1_BETA_MODELS[2]
+    rank_bounded <- model == STAGE1_BETA_MODELS[3]
+    q <- if (baseline) unit_q else capped_q
+    bounds <- BETA_PRECISION_LOG_BOUNDS
+    if (lower_tail) bounds[1] <- log(1 / max(mean, 1 - mean))
+    weights <- rep(1, length(raw))
+    if (lower_tail && raw[5] > cap) weights[5] <- 0
+    objective <- function(log_precision) {
+      precision <- exp(log_precision)
+      fitted <- beta_quantiles(PERCENTILE_PROBS, mean * precision, (1 - mean) * precision)
+      sum(weights * (fitted - q)^2)
+    }
+    if (boundary) {
+      precision <- NA_real_
+      raw_share <- as.numeric(mean < GMT_RATE)
+    } else if (baseline) {
+      precision <- fit_constrained_beta_percentiles(unit_q, mean)$precision
+      raw_share <- cdf(log(precision))
+    } else if (rank_bounded) {
+      feasible <- stage1_rank_feasibility(cdf, bounds, rank)
+      precision <- if (length(feasible$points) + length(feasible$low)) {
+        exp(stage1_minimise(objective, feasible$low, feasible$high, feasible$points))
+      } else {
+        exp(feasible$closest)
+      }
+      raw_share <- cdf(log(precision))
+    } else {
+      precision <- exp(stage1_minimise(objective, bounds[1], bounds[2]))
+      raw_share <- cdf(log(precision))
+    }
+    share <- if (rank_bounded) clamp_interval(raw_share, rank["lower"], rank["upper"]) else raw_share
+    gap <- stage1_tail_gap(mean, precision, share, raw_share)
+    quantile_rmse <- if (boundary) sqrt(mean((mean - q)^2)) else {
+      sqrt(objective(log(precision)) / sum(weights))
+    }
+    tibble(
+      model, omega = NA_real_, target_mean = mean, cap,
+      rank_lower = unname(rank["lower"]), rank_upper = unname(rank["upper"]),
+      capped_rank_lower = unname(capped_rank["lower"]), capped_rank_upper = unname(capped_rank["upper"]),
+      raw_p95_above_cap = raw[5] > cap, p95_excluded = weights[5] == 0,
+      precision, alpha = mean * precision, beta = (1 - mean) * precision,
+      beta_share_at_threshold = raw_share, share, gap, quantile_rmse,
+      rank_projection = rank_bounded & stage1_rank_violation(raw_share, rank["lower"], rank["upper"]),
+      rank_violation = stage1_rank_violation(share, rank["lower"], rank["upper"])
+    )
+  })
+  if (blends) {
+    base <- filter(fit, model == STAGE1_BETA_MODELS[2])
+    mixture <- crossing(base |> select(-omega), omega = STAGE1_BETA_BLEND_WEIGHTS) |>
+      mutate(
+        model = "M1c_ProfitSkew_Adjusted_Beta",
+        share = omega * beta_share_at_threshold + (1 - omega) * unname(rank["interpolated"]),
+        gap = map2_dbl(share, beta_share_at_threshold,
+          ~ stage1_tail_gap(mean, base$precision, .x, .y)),
+        rank_violation = stage1_rank_violation(share, rank_lower, rank_upper)
+      )
+    fit <- bind_rows(fit, mixture)
+  }
+  mutate(fit, liability_rate = share * gap)
+}
+# Bilateral ETR measurements used by production and the ladder diagnostics.
+LADDER_QUANTILES <- paste0("etr_p", c(5, 25, 50, 75, 95), "_panelai")
+LADDER_BSPI <- "L4_strict_pair_BSPI_sensitivity"
+LADDER_LEVELS <- c("L1_Host_Average", "L2_Bilateral_Cell_Average",
+  "L3_Host_Pooled_Distributional", "L4_bilat_anchored", "L4_strict_no_transport")
+LADDER_KEYS <- c("parent", "affiliate", "year")
+ladder_beta_metrics <- function(mean, precision) {
+  interior <- is.finite(precision) & precision > 0 &
+    is.finite(mean) & mean > BETA_BOUNDARY_EPS & mean < 1 - BETA_BOUNDARY_EPS
+  boundary <- is.finite(mean) & (mean <= BETA_BOUNDARY_EPS | mean >= 1 - BETA_BOUNDARY_EPS)
+  alpha <- mean[interior] * precision[interior]
+  beta <- (1 - mean[interior]) * precision[interior]
+  share <- gap <- rep(NA_real_, length(mean))
+  share[interior] <- pbeta(GMT_RATE, alpha, beta)
+  first_moment <- mean[interior] * pbeta(GMT_RATE, alpha + 1, beta)
+  gap[interior] <- coalesce(pmax(GMT_RATE - safe_divide(first_moment, share[interior]), 0), 0)
+  share[boundary] <- as.numeric(mean[boundary] < GMT_RATE)
+  gap[boundary] <- pmax(0, GMT_RATE - if_else(mean[boundary] <= BETA_BOUNDARY_EPS, 0, 1))
+  tibble(beta_share = share, beta_gap = gap)
+}
+
+ladder_bilateral_fits <- function(stage1, rank_consistent = FALSE) {
+  fit_inputs <- stage1 |>
+    filter(
+      analysis_profit_positive > 0, year %in% PERCENTILE_YEARS,
+      is.finite(etr_panelai_stage1),
+      has_panelai_percentiles | (!affiliate_is_eu27 & has_t_fallback_percentiles)
+    ) |>
+    mutate(
+      percentile_source = if_else(has_panelai_percentiles, "panel_ai", "panel_t_non_eu")
+    )
+  fallback <- paste0("etr_p", c(5, 25, 50, 75, 95))
+  probabilities <- as.matrix(fit_inputs[LADDER_QUANTILES])
+  use_t <- fit_inputs$percentile_source == "panel_t_non_eu"
+  probabilities[use_t, ] <- as.matrix(fit_inputs[use_t, fallback])
+  if (rank_consistent) {
+    caps <- pmin(1, coalesce(fit_inputs$affiliate_cit_rate_unit + ZETA_LOSS_OFFSET, 1))
+    fits <- map_dfr(seq_len(nrow(fit_inputs)), function(i) {
+      stage1_fit_cell(probabilities[i, ], fit_inputs$etr_panelai_stage1[i], caps[i],
+        STAGE1_BETA_MODELS[3])
+    })
+    return(bind_cols(
+      select(fit_inputs, all_of(LADDER_KEYS), percentile_source),
+      transmute(fits, fitted_precision = precision, fit_rmse = quantile_rmse,
+        percentile_rank_lower = rank_lower, percentile_rank_upper = rank_upper,
+        fitted_share = share, fitted_gap = gap, fitted_share_outside_percentile_rank = rank_violation)
+    ))
+  }
+  # A quantile below the threshold supplies a lower bound on its CDF rank.
+  # A quantile at or above the threshold supplies an upper bound.
+  rank_bounds <- t(apply(probabilities, 1, function(q) {
+    conditioned <- condition_stage1_percentiles(q)
+    c(max(c(0, PERCENTILE_PROBS[conditioned < GMT_RATE])),
+      min(c(1, PERCENTILE_PROBS[conditioned >= GMT_RATE])))
+  }))
+  fits <- map(seq_len(nrow(fit_inputs)), function(i) {
+    fit_constrained_beta_percentiles(probabilities[i, ], fit_inputs$etr_panelai_stage1[i])
+  })
+  precision <- map_dbl(fits, "precision")
+  mean <- map_dbl(fits, "mean")
+  bind_cols(
+    select(fit_inputs, all_of(LADDER_KEYS), percentile_source),
+    tibble(fitted_precision = precision,
+      fit_rmse = sqrt(map_dbl(fits, "sse") / ncol(probabilities)),
+      percentile_rank_lower = rank_bounds[, 1], percentile_rank_upper = rank_bounds[, 2]),
+    ladder_beta_metrics(mean, precision) |>
+      rename(fitted_share = beta_share, fitted_gap = beta_gap)
+  ) |>
+    mutate(fitted_share_outside_percentile_rank = fitted_share < percentile_rank_lower - 1e-8 |
+      fitted_share > percentile_rank_upper + 1e-8)
+}
+
+ladder_build_measurements <- function(stage1, host_stage1, brackets, rank_consistent = FALSE) {
+  exact <- summarise_observed_t4(brackets, LADDER_KEYS) |>
+    filter(t4_available)
+  message("Fitting bilateral Table I distributions")
+  fits <- ladder_bilateral_fits(stage1, rank_consistent)
+  pair_precision <- fits |>
+    filter(is.finite(fitted_precision)) |>
+    summarise(pair_precision = median(fitted_precision), .by = c(parent, affiliate))
+  precision_field <- if (rank_consistent) "percentile_beta_precision_rank_bounded" else "percentile_beta_precision"
+  host_precision <- host_stage1 |>
+    transmute(affiliate, year, host_year_precision = .data[[precision_field]]) |>
+    filter(year %in% PERCENTILE_YEARS, is.finite(host_year_precision))
+  host_median <- host_precision |>
+    summarise(host_median_precision = median(host_year_precision), .by = affiliate)
+
+  # Report the 2017–2018 exception separately. The strict specification
+  # uses L2 throughout these years because no contemporaneous partition exists.
+  pair_bspi <- exact |>
+    filter(year %in% BSPI_ANCHOR_YEARS) |>
+    summarise(
+      positive_profit = sum(t4_positive_profit),
+      low_profit = sum(t4_low_profit),
+      low_tax = sum(t4_low_tax, na.rm = TRUE),
+      bspi_anchor_years = n(), .by = c(parent, affiliate)
+    ) |>
+    transmute(
+      parent, affiliate, bspi_anchor_years,
+      bspi_share = low_profit / positive_profit,
+      bspi_gap = if_else(low_profit > 0,
+        pmax(0, GMT_RATE - pmax(0, safe_divide(low_tax, low_profit))), 0)
+    )
+
+  cells <- stage1 |>
+    left_join(select(exact, all_of(LADDER_KEYS), t4_available, direct_low_share, direct_topup_rate),
+      by = LADDER_KEYS, relationship = "one-to-one") |>
+    left_join(fits, by = LADDER_KEYS, relationship = "one-to-one") |>
+    left_join(pair_precision, by = c("parent", "affiliate"), relationship = "many-to-one") |>
+    left_join(host_precision, by = c("affiliate", "year"), relationship = "many-to-one") |>
+    left_join(host_median, by = "affiliate", relationship = "many-to-one") |>
+    left_join(pair_bspi, by = c("parent", "affiliate"), relationship = "many-to-one") |>
+    mutate(
+      t4_available = coalesce(t4_available, FALSE),
+      mean_available = is.finite(etr_panelai_stage1),
+      selected_precision = coalesce(pair_precision, host_year_precision, host_median_precision),
+      l2_share = if_else(mean_available, as.numeric(etr_panelai_stage1 < GMT_RATE), NA_real_),
+      l2_gap = if_else(mean_available, pmax(GMT_RATE - etr_panelai_stage1, 0), NA_real_),
+      exact_source = case_when(
+        t4_available ~ "exact_table_iv",
+        !is.na(fitted_share) ~ paste0("exact_table_i_", percentile_source)
+      )
+    )
+  transported <- ladder_beta_metrics(cells$etr_panelai_stage1, cells$selected_precision)
+  cells <- bind_cols(cells, transported) |>
+    mutate(
+      strict_share = coalesce(direct_low_share, fitted_share, l2_share),
+      strict_gap = coalesce(direct_topup_rate, fitted_gap, l2_gap),
+      strict_source = coalesce(exact_source, if_else(mean_available, "bilateral_average", "unmeasured")),
+      anchored_share = coalesce(direct_low_share, fitted_share, beta_share, l2_share),
+      anchored_gap = coalesce(direct_topup_rate, fitted_gap, beta_gap, l2_gap),
+      anchored_source = coalesce(exact_source, case_when(
+        !is.na(beta_share) & etr_panelai_stage1 %in% c(0, 1) ~ "bilateral_boundary_mean",
+        !is.na(beta_share) & !is.na(pair_precision) ~ "pair_precision",
+        !is.na(beta_share) & !is.na(host_year_precision) ~ "host_year_precision",
+        !is.na(beta_share) & !is.na(host_median_precision) ~ "host_median_precision",
+        mean_available ~ "bilateral_average",
+        TRUE ~ "unmeasured"
+      )),
+      use_pair_bspi = year %in% BSPI_IMPUTE_YEARS & !is.na(bspi_share)
+    )
+  measurements <- bind_rows(
+    transmute(cells, across(all_of(LADDER_KEYS)), level = LADDER_LEVELS[1],
+      share = average_low_share, gap = average_topup_rate, source_tier = "host_average"),
+    transmute(cells, across(all_of(LADDER_KEYS)), level = LADDER_LEVELS[2],
+      share = l2_share, gap = l2_gap, source_tier = if_else(mean_available, "bilateral_average", "unmeasured")),
+    transmute(cells, across(all_of(LADDER_KEYS)), level = LADDER_LEVELS[3],
+      share = stage1_distributional_low_share, gap = stage1_distributional_topup_rate,
+      source_tier = stage1_distributional_source),
+    transmute(cells, across(all_of(LADDER_KEYS)), level = LADDER_LEVELS[4],
+      share = anchored_share, gap = anchored_gap, source_tier = anchored_source),
+    transmute(cells, across(all_of(LADDER_KEYS)), level = LADDER_LEVELS[5],
+      share = strict_share, gap = strict_gap, source_tier = strict_source),
+    transmute(cells, across(all_of(LADDER_KEYS)), level = LADDER_BSPI,
+      share = if_else(use_pair_bspi, bspi_share, strict_share),
+      gap = if_else(use_pair_bspi, bspi_gap, strict_gap),
+      source_tier = if_else(use_pair_bspi, "pair_bspi_2019_2020", strict_source))
+  ) |>
+    left_join(select(stage1, all_of(LADDER_KEYS), affiliate_is_eu27, analysis_profit_positive),
+      by = LADDER_KEYS, relationship = "many-to-one") |>
+    left_join(select(fits, all_of(LADDER_KEYS), fitted_share_outside_percentile_rank),
+      by = LADDER_KEYS, relationship = "many-to-one") |>
+    mutate(
+      measured = is.finite(share) & is.finite(gap),
+      low_profit = if_else(measured, analysis_profit_positive * share, 0),
+      stage1_tax = if_else(measured, low_profit * gap, 0),
+      percentile_fit_rank_violation = startsWith(source_tier, "exact_table_i_") &
+        coalesce(fitted_share_outside_percentile_rank, FALSE)
+    )
+  assert_unique_keys(measurements, c(LADDER_KEYS, "level"), "Ladder measurements")
+  stopifnot(all(between(measurements$share[measurements$measured], 0, 1)),
+    all(between(measurements$gap[measurements$measured], 0, GMT_RATE)))
+  list(cells = cells, measurements = measurements, direct = exact)
+}
+
+add_stage1_ladder_columns <- function(stage1, host_stage1, brackets) {
+  levels <- set_names(c("l1", "l2", "l3", "l4_anchored", "l4_strict"), LADDER_LEVELS)
+  measurements <- ladder_build_measurements(stage1, host_stage1, brackets,
+    rank_consistent = TRUE)$measurements |>
+    filter(level %in% LADDER_LEVELS) |>
+    transmute(across(all_of(LADDER_KEYS)), level = unname(levels[level]),
+      low_share = share, topup_rate = gap, liability_rate = share * gap,
+      lowtax_profit = low_profit, topup_tax = stage1_tax, source = source_tier) |>
+    pivot_wider(names_from = level, values_from = c(low_share, topup_rate, liability_rate,
+      lowtax_profit, topup_tax, source), names_glue = "ladder_{level}_{.value}")
+  left_join(stage1, measurements, by = LADDER_KEYS, relationship = "one-to-one")
+}
 
 run_stage1_pipeline <- function() {
   dir.create(DIAGNOSTICS_DIR, showWarnings = FALSE, recursive = TRUE)

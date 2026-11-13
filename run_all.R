@@ -1,18 +1,32 @@
 # Run the pinned-input pipeline in fresh R sessions, from the repository root.
-# Usage: Rscript --vanilla run_all.R [--output-root=/path/to/output]
+# Usage: Rscript --vanilla run_all.R [--output-root=PATH] [--skip-measurement-error]
 main <- function(args = commandArgs(trailingOnly = TRUE)) {
-  if (length(args) > 1L || (length(args) && !grepl("^--output-root=.+", args))) {
-    stop("Usage: Rscript --vanilla run_all.R [--output-root=/path/to/output]")
+  output_arg <- grep("^--output-root=.+", args, value = TRUE)
+  skip_measurement_error <- "--skip-measurement-error" %in% args
+  if (length(output_arg) > 1L || anyDuplicated(args) ||
+      length(setdiff(args, c(output_arg, "--skip-measurement-error")))) {
+    stop("Usage: Rscript --vanilla run_all.R [--output-root=PATH] [--skip-measurement-error]")
   }
   if (!file.exists("code/00_config.R")) {
     stop("Run this command from the repository root")
   }
-  if (length(args)) {
-    output_root <- path.expand(sub("^--output-root=", "", args))
+  if (length(output_arg)) {
+    output_root <- path.expand(sub("^--output-root=", "", output_arg))
     dir.create(output_root, recursive = TRUE, showWarnings = FALSE)
     Sys.setenv(GMT_OUTPUT_ROOT = normalizePath(output_root, mustWork = TRUE))
   }
-  scripts <- c(
+  Sys.setenv(GMT_PROJECT_ROOT = normalizePath(".", mustWork = TRUE))
+
+  rscript <- file.path(R.home("bin"), "Rscript")
+  run_script <- function(filename, ...) {
+    script <- file.path("code", filename)
+    args <- c(...)
+    message("Running ", script, if (length(args)) paste0(" ", paste(args, collapse = " ")))
+    status <- system2(rscript, c("--vanilla", shQuote(script), shQuote(args)))
+    if (status != 0L) stop(script, " exited with status ", status)
+  }
+
+  for (script in c(
     "01_data_cleaning.R",
     "02a_profit_reconciliation_model.R",
     "02_base_correction_and_merging.R",
@@ -20,33 +34,22 @@ main <- function(args = commandArgs(trailingOnly = TRUE)) {
     "04_stage2_sbie.R",
     "05_stage3_behavioral.R",
     "06_stage4_5_revenue_allocation_sbs.R",
-    "07_stage4_6_revenue_pipeline_decomposition.R",
-    "07a_profit_correction_revenue_uncertainty.R",
-    "09_stage1_measurement_error_simulation.R",
-    "10_jurisdiction_influence_robustness.R",
-    "11_sesh_notch_bunching_diagnostic.R",
-    "12_profit_correction_validation.R",
-    "diagnostics_step4_stage1_stage2_audit.R",
-    "diagnostics_step5_revenue_architecture.R",
-    "diagnostics_step6_econometrics_and_cit_recovery.R",
-    "diagnostics_step7_reallocation_and_budget_backtest.R",
-    "diagnostics_step8_conduit_globe_wedge.R",
-    "diagnostics_step9_bilateral_aggregation_ladder.R",
-    "diagnostics_step10_rank_consistent_beta.R",
-    "diagnostics_step12_hanlon_globe_bridge.R",
-    "diagnostics_step13_qdmtt_nash_equilibrium.R",
-    "diagnostics_step14_cbcr_tables_2_3_5_6_extensions.R",
-    "diagnostics_step15_total_variance_and_globe_factorial.R",
-    "diagnostics_step11_master_scorecard.R",
-    "08_generate_results_tables.R",
-    "13_generate_results_figures.R"
-  )
-  rscript <- file.path(R.home("bin"), "Rscript")
-  for (script in file.path("code", scripts)) {
-    message("Running ", script)
-    status <- system2(rscript, c("--vanilla", shQuote(script)))
-    if (status != 0L) stop(script, " exited with status ", status)
+    "07_stage4_6_revenue_pipeline_decomposition.R"
+  )) run_script(script)
+
+  policy_module <- "11_policy_game_and_variance_extensions.R"
+  # The fiscal ledger feeds the budget backtest. The budget comparisons
+  # feed the measurement and accounting extensions used by the policy games.
+  run_script(policy_module, "--phase=fiscal_flows")
+  run_script("09_econometric_and_reallocation_extensions.R")
+  run_script("08_measurement_and_cbcr_extensions.R")
+  run_script("10_accounting_bridge_and_conduit_wedge.R")
+  run_script(policy_module, "--phase=policy_and_variance")
+  if (!skip_measurement_error) {
+    run_script(policy_module, "--phase=measurement_error")
   }
+  run_script("12_master_scorecard.R")
+  run_script("13_generate_exhibits.R")
 }
 
 if (sys.nframe() == 0L) main()

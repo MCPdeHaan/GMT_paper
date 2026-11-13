@@ -7,7 +7,7 @@
 # constructs a wage-based payroll proxy from employee counts;
 # constructs deterministic corrected profit bases before Stage 1 / Stage 3.
 
-source("code/00_helpers.R", local = TRUE)
+source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "00_helpers.R"), local = TRUE)
 
 cap_table4_employees <- function(brackets, population, employees_per_entity_cap) {
   brackets |>

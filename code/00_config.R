@@ -1,5 +1,6 @@
 # Shared paths, constants and scenario definitions for the GMT pipeline.
 
+GMT_PROJECT_ROOT <- Sys.getenv("GMT_PROJECT_ROOT", unset = ".")
 RAW_DIR <- "data/raw"
 GMT_OUTPUT_ROOT <- Sys.getenv("GMT_OUTPUT_ROOT")
 PROCESSED_DIR <- if (nzchar(GMT_OUTPUT_ROOT)) {
