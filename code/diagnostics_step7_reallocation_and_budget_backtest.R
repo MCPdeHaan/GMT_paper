@@ -1,5 +1,5 @@
 # Run from the repository root with Rscript after the Stage 3 and 4.5 pipelines.
-source("code/diagnostics_step6_econometrics_and_cit_recovery.R")
+source("code/diagnostics_step6_econometrics_and_cit_recovery.R", local = TRUE)
 
 STEP7_PREFERRED <- c("x10001", "x10011")
 STEP7_WINDOWS <- list(`2017–2023` = MAIN_YEARS, FY2023 = 2023L, `2019–2023` = 2019:2023)

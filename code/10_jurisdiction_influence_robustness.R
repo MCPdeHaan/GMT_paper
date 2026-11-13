@@ -11,26 +11,25 @@ library(purrr)
 library(tibble)
 library(stringr)
 
-source("code/00_helpers.R")
+source("code/00_helpers.R", local = TRUE)
 
-source("code/05_stage3_behavioral_functions.R")
+source("code/05_stage3_behavioral.R", local = TRUE)
 stage3_estimate_models <- estimate_stage3_models
 stage3_semielasticity_schedule_fn <- stage3_semielasticity_schedule
 stage3_build_model_diagnostics <- build_model_diagnostics
 
-source("code/06_stage4_5_revenue_allocation_sbs_functions.R")
+source("code/06_stage4_5_revenue_allocation_sbs.R", local = TRUE)
 stage45_build_source_panel <- build_source_panel
 stage45_build_collector_activity <- build_collector_activity
 stage45_build_parent_year_utpr_weights <- build_parent_year_utpr_weights
 stage45_allocate_stage4_revenue <- allocate_stage4_revenue
 stage45_build_conservation_diagnostics <- build_conservation_diagnostics
 
-source("code/07_stage4_6_revenue_pipeline_decomposition_functions.R")
+source("code/07_stage4_6_revenue_pipeline_decomposition.R", local = TRUE)
 stage46_build_scenario_summary <- build_scenario_summary
 stage46_compute_factorial_anova <- compute_factorial_anova
 stage46_compute_main_effects <- compute_main_effects
 
-dir.create(DIAGNOSTICS_DIR, showWarnings = FALSE, recursive = TRUE)
 
 DEFAULT_TOP_N <- 8L
 NAMED_INFLUENCE_JURISDICTIONS <- c(
@@ -538,6 +537,7 @@ add_baseline_model_case_id <- function(model_comparison) {
 }
 
 run_jurisdiction_influence_suite <- function(top_n = DEFAULT_TOP_N) {
+  dir.create(DIAGNOSTICS_DIR, showWarnings = FALSE, recursive = TRUE)
   stage1_bilateral <- readRDS(file.path(PROCESSED_DIR, "stage1_bilateral_panel.rds"))
   stage3_panel <- readRDS(file.path(PROCESSED_DIR, "stage3_factorial_pair_year.rds"))
   estimation_sample <- readRDS(file.path(PROCESSED_DIR, "stage3_estimation_sample.rds"))

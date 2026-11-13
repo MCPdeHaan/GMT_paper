@@ -1,3 +1,12 @@
+"""Acquire source files for the GMT replication pipeline.
+
+The version-controlled data/raw/pillar2_qdmtt/oecd_central_record_2026_05.csv
+is curated separately and consumed by code/01_data_cleaning.R. The version-
+controlled data/manual/profit_correction_anchors.csv is curated separately and
+consumed by code/02a_profit_reconciliation_model.R. This downloader does not
+generate either file.
+"""
+
 import argparse
 import csv
 import gzip
@@ -507,6 +516,8 @@ def collect_all():
         if p.is_file()
     )
     log.info(f"\nTotal Data Collected: {total_mb:.1f} MB")
+    if "✗" in results.values():
+        sys.exit(1)
 
 def main():
     global REFRESH

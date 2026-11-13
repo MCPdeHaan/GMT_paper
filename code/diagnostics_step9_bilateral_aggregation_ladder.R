@@ -1,6 +1,6 @@
 # Run from the repository root after Stage 4.6. Inputs are read-only.
-source("code/03_stage1_etr.R")
-source("code/diagnostics_step5_revenue_architecture.R")
+source("code/03_stage1_etr.R", local = TRUE)
+source("code/diagnostics_step5_revenue_architecture.R", local = TRUE)
 
 LADDER_HOSTS <- c("NLD", "LUX", "IRL", "DEU", "FRA", "BEL")
 LADDER_BUDGET_COUNTRIES <- c(LADDER_HOSTS, "AUT", "SVK")
@@ -515,6 +515,6 @@ run_step9_diagnostics <- function() {
   ladder_write(anova, "ladder_anova_decomposition")
 }
 
-if (sys.nframe() == 0L) {
+if (is_direct_script_run("code/diagnostics_step9_bilateral_aggregation_ladder.R")) {
   run_step9_diagnostics()
 }

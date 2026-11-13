@@ -7,9 +7,7 @@ suppressPackageStartupMessages({
   library(scales)
 })
 
-options(lifecycle_verbosity = "quiet")
-
-source("code/00_helpers.R")
+source("code/00_helpers.R", local = TRUE)
 
 FIGURES_DIR <- file.path(GENERATED_DIR, "figures")
 
@@ -666,6 +664,8 @@ make_preferred_channel_plot <- function() {
 }
 
 run_generate_results_figures <- function() {
+  old_options <- options(lifecycle_verbosity = "quiet")
+  on.exit(options(old_options), add = TRUE)
   figures <- list(
     fig_profit_employee_etr_bubble = make_profit_employee_etr_bubble(),
     fig_stage3_semielasticity_estimated = make_semielasticity_plot(),

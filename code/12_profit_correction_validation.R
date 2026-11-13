@@ -4,7 +4,7 @@
 library(dplyr)
 library(readr)
 
-source("code/00_helpers.R")
+source("code/00_helpers.R", local = TRUE)
 
 run_profit_correction_validation <- function(in_dir = PROCESSED_DIR,
                                              out_dir = PROCESSED_DIR) {

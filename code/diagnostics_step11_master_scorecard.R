@@ -1,5 +1,5 @@
 # Assemble the paper scorecard from archived thesis and current production outputs.
-source("code/diagnostics_step5_revenue_architecture.R")
+source("code/diagnostics_step5_revenue_architecture.R", local = TRUE)
 
 SCORE_THESIS_YEARS <- 2017:2022
 SCORE_PAPER_YEARS <- MAIN_YEARS

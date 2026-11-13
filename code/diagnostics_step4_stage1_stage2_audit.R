@@ -1,5 +1,5 @@
 # Run from the repository root with Rscript. This audit only writes its four CSVs.
-suppressPackageStartupMessages(source("code/03_stage1_etr.R"))
+suppressPackageStartupMessages(source("code/03_stage1_etr.R", local = TRUE))
 if (!requireNamespace("fixest", quietly = TRUE)) {
   stop("The bracket fixed-effect diagnostic requires fixest")
 }

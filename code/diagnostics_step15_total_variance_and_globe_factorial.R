@@ -1,6 +1,6 @@
 # Run from the repository root after Stages 1–4.6 and the Step 12 diagnostic.
 # This script reads the production inputs and writes two diagnostic CSVs.
-source("code/diagnostics_step12_hanlon_globe_bridge.R")
+source("code/diagnostics_step12_hanlon_globe_bridge.R", local = TRUE)
 
 STEP15_SEED <- 20261113L
 STEP15_DRAWS <- 500L

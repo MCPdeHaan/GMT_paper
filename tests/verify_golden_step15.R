@@ -1,7 +1,7 @@
 # Usage from any directory:
 # Rscript /path/to/GMT_paper/tests/verify_golden_step15.R [repository-root]
-# Exact mode intentionally rejects extra processed CSV/RDS files. A future
-# schema migration needs a separate keyed comparison and a reviewed mapping.
+# Exact mode rejects extras except for the documented Step 17 sensitivity.
+# A future schema migration needs a separate keyed comparison.
 args <- commandArgs(trailingOnly = TRUE)
 if (length(args) > 1L) stop("Usage: Rscript tests/verify_golden_step15.R [repository-root]")
 script <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE))
@@ -17,7 +17,8 @@ report <- function(label, paths) {
   if (length(paths)) cat("\n", file = stderr())
 }
 missing <- setdiff(expected, actual)
-extra <- setdiff(actual, expected)
+allowed_additions <- "data/processed/diagnostics/step3_stage1_pooled_t4_completeness_sensitivity.csv"
+extra <- setdiff(actual, c(expected, allowed_additions))
 index <- expected %in% actual
 paths <- file.path(root, expected[index])
 if (!exists("sha256sum", envir = asNamespace("tools"), inherits = FALSE)) {

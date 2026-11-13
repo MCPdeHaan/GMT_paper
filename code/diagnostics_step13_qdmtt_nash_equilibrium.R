@@ -1,5 +1,5 @@
 # Run from the repository root after Stages 1–4.6. Write only Step 13 CSVs.
-source("code/diagnostics_step9_bilateral_aggregation_ladder.R")
+source("code/diagnostics_step9_bilateral_aggregation_ladder.R", local = TRUE)
 
 NASH_KEYS <- c("parent", "affiliate", "year")
 NASH_IDS <- c("x10001", "x10011")

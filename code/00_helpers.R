@@ -1,6 +1,6 @@
 # Small utility functions used across the GMT pipeline.
 
-source("code/00_config.R")
+source("code/00_config.R", local = TRUE)
 
 latex_escape <- function(x) {
   x <- as.character(x)
@@ -163,4 +163,123 @@ min_date_or_na <- function(x) {
   x <- as.Date(x)
   if (all(is.na(x))) return(as.Date(NA))
   min(x, na.rm = TRUE)
+}
+
+winsorise <- function(x, probs = ETR_WINSOR_PROBS) {
+  bounds <- stats::quantile(x, probs, na.rm = TRUE, names = FALSE)
+  pmin(pmax(x, bounds[1]), bounds[2])
+}
+
+rank01 <- function(x) {
+  x <- as.numeric(x)
+  keep <- is.finite(x) & !is.na(x)
+  out <- rep(0.5, length(x))
+
+  if (sum(keep) > 1 && length(unique(x[keep])) > 1) {
+    out[keep] <- dplyr::percent_rank(x[keep])
+    out[!keep] <- stats::median(out[keep], na.rm = TRUE)
+  }
+
+  out
+}
+
+# Fast two way within transformation for an unbalanced pair x year panel.
+group_mean_matrix <- function(mat, group) {
+  group <- factor(group)
+  sums <- rowsum(mat, group, reorder = TRUE)
+  counts <- as.vector(tabulate(as.integer(group), nbins = nlevels(group)))
+  means <- sweep(sums, 1, counts, "/")
+  means[as.integer(group), , drop = FALSE]
+}
+
+demean_two_way <- function(mat, fe1, fe2, tol = 1e-10, max_iter = 100L) {
+  out <- as.matrix(mat)
+
+  for (i in seq_len(max_iter)) {
+    old <- out
+    out <- out - group_mean_matrix(out, fe1)
+    out <- out - group_mean_matrix(out, fe2)
+
+    if (max(abs(out - old), na.rm = TRUE) < tol) break
+  }
+
+  out
+}
+
+cluster_vcov <- function(x, residuals, cluster, df_resid_full) {
+  x <- as.matrix(x)
+  cluster <- factor(cluster)
+  bread <- solve(crossprod(x))
+  scores <- x * as.numeric(residuals)
+  meat <- matrix(0, ncol(x), ncol(x))
+
+  for (g in levels(cluster)) {
+    sg <- colSums(scores[cluster == g, , drop = FALSE])
+    meat <- meat + tcrossprod(sg)
+  }
+
+  g_count <- nlevels(cluster)
+  n <- nrow(x)
+  correction <- if (g_count > 1 && df_resid_full > 0) {
+    g_count / (g_count - 1) * (n - 1) / df_resid_full
+  } else {
+    1
+  }
+
+  correction * bread %*% meat %*% bread
+}
+
+cluster_vcov_twoway <- function(x, residuals, cluster_a, cluster_b,
+                                df_resid_full) {
+  cluster_ab <- interaction(cluster_a, cluster_b, drop = TRUE)
+
+  cluster_vcov(x, residuals, cluster_a, df_resid_full) +
+    cluster_vcov(x, residuals, cluster_b, df_resid_full) -
+    cluster_vcov(x, residuals, cluster_ab, df_resid_full)
+}
+
+format_bn <- function(x, digits = 1) {
+  formatC(x / 1e9, format = "f", digits = digits, big.mark = ",")
+}
+
+format_pct <- function(x, digits = 1) {
+  formatC(100 * x, format = "f", digits = digits)
+}
+
+signed_log1p <- function(x) {
+  sign(x) * log1p(abs(x))
+}
+
+nan_to_na <- function(x) {
+  dplyr::if_else(is.nan(x), NA_real_, x)
+}
+
+build_h4_pairs <- function(revenue_country_year) {
+  other_factors <- c(
+    "rate_scenario", "factor1_etr", "factor2_substance",
+    "factor5_behaviour", "country", "country_name", "year"
+  )
+
+  revenue_country_year |>
+    dplyr::select(dplyr::all_of(other_factors), factor4_sbs, revenue) |>
+    tidyr::pivot_wider(names_from = factor4_sbs, values_from = revenue) |>
+    dplyr::mutate(delta_sbs_minus_universal = sbs - universal)
+}
+
+# Orthogonal contrasts for the production five-factor design.
+factorial_binary_components <- function(df) {
+  design <- df |>
+    dplyr::arrange(scenario_id) |>
+    dplyr::mutate(dplyr::across(dplyr::all_of(FACTOR_COLS),
+      ~ dplyr::if_else(as.integer(.x) == 1L, 1, -1)))
+  y <- design$revenue
+  x <- stats::model.matrix(
+    ~ x1_etr * x2_substance * x3_rates * x4_sbs * x5_behaviour,
+    data = design
+  )
+  coefs <- as.numeric(crossprod(x, y) / colSums(x^2))
+  names(coefs) <- colnames(x)
+  list(coefs = coefs[-1],
+       ss = (coefs[-1]^2) * colSums(x[, -1, drop = FALSE]^2),
+       total_ss = sum((y - mean(y))^2))
 }

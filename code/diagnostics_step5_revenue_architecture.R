@@ -1,7 +1,7 @@
 # Run from the repository root after Stages 4.5 and 4.6.
-source("code/05_stage3_behavioral_functions.R")
-source("code/06_stage4_5_revenue_allocation_sbs_functions.R")
-source("code/07_stage4_6_revenue_pipeline_decomposition_functions.R")
+source("code/05_stage3_behavioral.R", local = TRUE)
+source("code/06_stage4_5_revenue_allocation_sbs.R", local = TRUE)
+source("code/07_stage4_6_revenue_pipeline_decomposition.R", local = TRUE)
 
 read_stage5_input <- function(stem) readRDS(file.path(PROCESSED_DIR, paste0(stem, ".rds")))
 

@@ -10,7 +10,7 @@ library(purrr)
 library(stringr)
 library(tibble)
 
-source("code/00_helpers.R")
+source("code/00_helpers.R", local = TRUE)
 
 EUROSTAT_GEO_MAP <- tribble(
   ~geo, ~jurisdiction,
@@ -720,9 +720,7 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
   } else {
     # The archived ILO vintage includes FY2023 and is available when the
     # live SDMX endpoint is unavailable and the raw CSV is absent.
-    archived_ilo <- file.path(
-      dirname(raw_data_dir), "processed_backup_2017_2022", "wages_ilo_monthly.rds"
-    )
+    archived_ilo <- file.path(BASELINE_PROCESSED_DIR, "wages_ilo_monthly.rds")
     message("Using archived ILO monthly wage series from ", archived_ilo)
     readRDS(archived_ilo)
   }

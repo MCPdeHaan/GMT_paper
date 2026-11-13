@@ -1,17 +1,7 @@
 # Run from the repository root after Steps 8–11. Read production RDS files
 # and write four diagnostic CSVs. All amounts are in USD unless labelled.
-source("code/diagnostics_step8_conduit_globe_wedge.R")
-source("code/diagnostics_step9_bilateral_aggregation_ladder.R")
-
-# R's qbeta can round beyond one for some cash-anchored tail fits.
-# Clamp the reflected logarithm at the probability boundary for this
-# diagnostic, leaving the production fitter on disk untouched.
-beta_quantiles <- local({
-  quantile <- beta_quantiles
-  log1p <- function(x) base::log1p(pmax(x, -1))
-  environment(quantile) <- environment()
-  quantile
-})
+source("code/diagnostics_step8_conduit_globe_wedge.R", local = TRUE)
+source("code/diagnostics_step9_bilateral_aggregation_ladder.R", local = TRUE)
 
 BRIDGE_KEYS <- c("parent", "affiliate", "year")
 BRIDGE_BUDGETS <- c("NLD", "LUX", "IRL", "DEU", "FRA", "BEL", "AUT", "SVK")

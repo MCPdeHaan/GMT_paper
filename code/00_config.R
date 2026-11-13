@@ -12,6 +12,7 @@ BASELINE_GENERATED_DIR <- "writing/baseline_generated"
 MAIN_YEARS <- 2017:2023
 CORE_YEARS <- 2016:2023
 GMT_RATE <- 0.15
+ETR_WINSOR_PROBS <- c(0.01, 0.99)
 T4_DIRECT_POSITIVE_BRACKETS <- c("rate_0_15", "rate_15", "rate_20_30", "rate_30")
 
 EU27_ISO3 <- c(

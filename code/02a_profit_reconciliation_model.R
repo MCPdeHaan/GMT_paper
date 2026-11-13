@@ -10,7 +10,7 @@ library(tidyr)
 library(readr)
 library(tibble)
 
-source("code/00_helpers.R")
+source("code/00_helpers.R", local = TRUE)
 
 MIN_PARITY_FOREIGN_PROFIT <- 1e9
 MIN_PARITY_DOMESTIC_PROFIT <- 1e7

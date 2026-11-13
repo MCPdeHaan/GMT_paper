@@ -9,9 +9,8 @@ library(readr)
 library(purrr)
 library(tibble)
 
-source("code/00_helpers.R")
+source("code/00_helpers.R", local = TRUE)
 
-dir.create(DIAGNOSTICS_DIR, showWarnings = FALSE, recursive = TRUE)
 
 DIRECT_YEARS <- 2019:2023
 PERCENTILE_YEARS <- 2021:2023
@@ -75,7 +74,9 @@ beta_quantiles <- function(probs, alpha, beta) {
   lower <- which(is.finite(quantiles) & quantiles <= 0.5)
   upper <- which(is.finite(quantiles) & quantiles > 0.5)
   cdf[lower] <- beta_lower_tail(log(quantiles[lower]), alpha, beta)
-  cdf[upper] <- 1 - beta_lower_tail(log1p(-quantiles[upper]), beta, alpha)
+  # qbeta can round slightly outside its support for extreme shapes. Keep the
+  # reflected CDF defined so the log-odds fallback can retry the inversion.
+  cdf[upper] <- 1 - beta_lower_tail(log1p(-pmin(quantiles[upper], 1)), beta, alpha)
   residual <- abs(cdf - probs)
   retry <- which(interior & (!is.finite(residual) | residual > 1e-8))
   for (i in retry) {
@@ -360,6 +361,137 @@ summarise_observed_t4 <- function(brackets, keys) {
     select(-direct_metrics)
 }
 
+# This sensitivity uses the frozen L3 priority order. The second specification
+# also screens the Table IV partitions from which BSPI transports 2019–2020
+# bracket shapes to 2017–2018. Missing Stage 1 liability contributes zero,
+# matching the treatment when source liabilities enter the waterfall.
+audit_pooled_t4_completeness <- function(host, brackets) {
+  keys <- c("affiliate", "year")
+  observed <- summarise_observed_t4(brackets, keys) |>
+    select(all_of(keys), t4_has_low, t4_has_upper, t4_available, t4_low_profit, t4_low_tax)
+  complete_anchors <- host |>
+    filter(year %in% BSPI_ANCHOR_YEARS) |>
+    inner_join(filter(observed, t4_available), by = keys, relationship = "one-to-one") |>
+    summarise(
+      complete_anchor_years = n(),
+      complete_anchor_profit = sum(direct_positive_profit_total),
+      complete_anchor_low_profit = sum(direct_low_profit),
+      complete_anchor_tax = sum(direct_low_tax),
+      .by = affiliate
+    ) |>
+    mutate(
+      complete_bspi_share = safe_divide(complete_anchor_low_profit, complete_anchor_profit),
+      complete_bspi_gap = if_else(complete_anchor_low_profit > 0,
+        GMT_RATE - clamp_interval(
+          safe_divide(complete_anchor_tax, complete_anchor_low_profit), 0, GMT_RATE
+        ), 0)
+    )
+  base <- host |>
+    select(
+      all_of(keys), affiliate_is_eu27, total_analysis_profit_positive,
+      direct_available, percentile_available, bspi_available, average_available,
+      direct_low_share, direct_topup_rate, percentile_low_share, percentile_topup_rate,
+      bspi_low_share, bspi_topup_rate, average_low_share, average_topup_rate,
+      baseline_source = stage1_distributional_source,
+      baseline_share = stage1_distributional_low_share,
+      baseline_gap = stage1_distributional_topup_rate
+    ) |>
+    left_join(observed, by = keys, relationship = "one-to-one") |>
+    left_join(complete_anchors, by = "affiliate", relationship = "many-to-one") |>
+    mutate(
+      across(c(t4_has_low, t4_has_upper, t4_available), ~ coalesce(.x, FALSE)),
+      complete_anchor_years = coalesce(complete_anchor_years, 0L),
+      incomplete_direct = baseline_source == "direct_t4" & !t4_available,
+      missing_numeric_low = incomplete_direct & !t4_has_low,
+      missing_numeric_upper = incomplete_direct & !t4_has_upper,
+      missing_low_tax = incomplete_direct & coalesce(t4_low_profit > 0, FALSE) &
+        !is.finite(t4_low_tax)
+    )
+  details <- map_dfr(c("direct_only", "direct_and_bspi_anchors"), function(spec) {
+    use_complete_anchors <- spec == "direct_and_bspi_anchors"
+    base |>
+      mutate(
+        specification = spec,
+        sensitivity_source = choose_distributional_source(
+          year, direct_available & t4_available, percentile_available,
+          if (use_complete_anchors) complete_anchor_years > 0L else bspi_available,
+          average_available
+        ),
+        sensitivity_share = case_when(
+          sensitivity_source == "direct_t4" ~ direct_low_share,
+          sensitivity_source == "percentile_fit" ~ percentile_low_share,
+          sensitivity_source == "shape_transport" ~
+            if (use_complete_anchors) complete_bspi_share else bspi_low_share,
+          sensitivity_source == "avg_only" ~ average_low_share,
+          TRUE ~ NA_real_
+        ),
+        sensitivity_gap = case_when(
+          sensitivity_source == "direct_t4" ~ direct_topup_rate,
+          sensitivity_source == "percentile_fit" ~ percentile_topup_rate,
+          sensitivity_source == "shape_transport" ~
+            if (use_complete_anchors) complete_bspi_gap else bspi_topup_rate,
+          sensitivity_source == "avg_only" ~ average_topup_rate,
+          TRUE ~ NA_real_
+        ),
+        source_changed = sensitivity_source != baseline_source,
+        baseline_low_profit_usd = total_analysis_profit_positive * coalesce_zero(baseline_share),
+        sensitivity_low_profit_usd = total_analysis_profit_positive * coalesce_zero(sensitivity_share),
+        baseline_liability_usd = baseline_low_profit_usd * coalesce_zero(baseline_gap),
+        sensitivity_liability_usd = sensitivity_low_profit_usd * coalesce_zero(sensitivity_gap),
+        delta_low_profit_usd = sensitivity_low_profit_usd - baseline_low_profit_usd,
+        delta_liability_usd = sensitivity_liability_usd - baseline_liability_usd
+      )
+  })
+  summary <- bind_rows(
+    mutate(details, scope = "Global"),
+    mutate(filter(details, affiliate_is_eu27), scope = "EU27")
+  ) |>
+    mutate(window = as.character(year)) |>
+    bind_rows(
+      filter(details, year %in% MAIN_YEARS) |>
+        mutate(scope = "Global", window = "2017–2023"),
+      filter(details, year %in% MAIN_YEARS, affiliate_is_eu27) |>
+        mutate(scope = "EU27", window = "2017–2023"),
+      filter(details, year %in% DIRECT_YEARS) |>
+        mutate(scope = "Global", window = "2019–2023"),
+      filter(details, year %in% DIRECT_YEARS, affiliate_is_eu27) |>
+        mutate(scope = "EU27", window = "2019–2023")
+    ) |>
+    summarise(
+      host_years = n(),
+      baseline_direct_host_years = sum(baseline_source == "direct_t4"),
+      incomplete_direct_host_years = sum(incomplete_direct),
+      missing_numeric_low_host_years = sum(missing_numeric_low),
+      missing_numeric_upper_host_years = sum(missing_numeric_upper),
+      missing_low_tax_host_years = sum(missing_low_tax),
+      changed_branch_host_years = sum(source_changed),
+      changed_liability_host_years = sum(delta_liability_usd != 0),
+      across(c(total_analysis_profit_positive, ends_with("_profit_usd"),
+               ends_with("_liability_usd")), sum),
+      .by = c(specification, scope, window)
+    ) |>
+    mutate(
+      baseline_liability_rate = safe_divide(baseline_liability_usd, total_analysis_profit_positive),
+      sensitivity_liability_rate = safe_divide(sensitivity_liability_usd, total_analysis_profit_positive),
+      delta_liability_rate = sensitivity_liability_rate - baseline_liability_rate
+    ) |>
+    arrange(specification, scope, window)
+  bind_rows(
+    mutate(summary, record = "summary", .before = 1L),
+    details |>
+      filter(incomplete_direct | source_changed | delta_liability_usd != 0) |>
+      transmute(
+        record = "affiliate_year", specification, scope = if_else(affiliate_is_eu27, "EU27", "non_EU27"),
+        window = as.character(year), affiliate, year, baseline_source, sensitivity_source,
+        t4_has_low, t4_has_upper, t4_available, t4_low_profit, t4_low_tax, missing_low_tax,
+        complete_anchor_years, total_analysis_profit_positive, baseline_share, sensitivity_share,
+        baseline_gap, sensitivity_gap, baseline_low_profit_usd, sensitivity_low_profit_usd,
+        delta_low_profit_usd, baseline_liability_usd, sensitivity_liability_usd, delta_liability_usd
+      ) |>
+      arrange(specification, year, affiliate)
+  )
+}
+
 fit_matched_beta_metrics <- function(data) {
   data |>
     rowwise() |>
@@ -494,10 +626,11 @@ summarise_stage1_crossval <- function(data, sample, uncapped = FALSE) {
   })
 }
 
-source("code/03_stage1_rank_beta_functions.R")
-source("code/03_stage1_ladder_functions.R")
+source("code/03_stage1_rank_beta_functions.R", local = TRUE)
+source("code/03_stage1_ladder_functions.R", local = TRUE)
 
 run_stage1_pipeline <- function() {
+  dir.create(DIAGNOSTICS_DIR, showWarnings = FALSE, recursive = TRUE)
   panel <- readRDS(file.path(PROCESSED_DIR, "base_panel.rds")) |>
     filter(year %in% MAIN_YEARS)
   t4_brackets <- readRDS(file.path(PROCESSED_DIR, "base_panel_t4_bracket_shares.rds"))
@@ -1600,6 +1733,10 @@ run_stage1_pipeline <- function() {
     file.path(DIAGNOSTICS_DIR, "step3_stage1_bspi_validation.csv")
   )
 
+  write_csv(
+    audit_pooled_t4_completeness(affiliate_year_stage1, t4_brackets),
+    file.path(DIAGNOSTICS_DIR, "step3_stage1_pooled_t4_completeness_sensitivity.csv")
+  )
   saveRDS(affiliate_year_stage1, file.path(PROCESSED_DIR, "stage1_affiliate_year.rds"))
   saveRDS(bilateral_stage1, file.path(PROCESSED_DIR, "stage1_bilateral_panel.rds"))
 

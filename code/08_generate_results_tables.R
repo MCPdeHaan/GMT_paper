@@ -11,7 +11,7 @@ library(readr)
 library(stringr)
 library(tibble)
 
-source("code/00_helpers.R")
+source("code/00_helpers.R", local = TRUE)
 
 
 read_diag <- function(file) {

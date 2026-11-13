@@ -11,14 +11,13 @@ library(readr)
 library(purrr)
 library(tibble)
 
-source("code/00_helpers.R")
+source("code/00_helpers.R", local = TRUE)
 
-source("code/04_stage2_sbie_functions.R")
-source("code/05_stage3_behavioral_functions.R")
-source("code/06_stage4_5_revenue_allocation_sbs_functions.R")
-source("code/07_stage4_6_revenue_pipeline_decomposition_functions.R")
+source("code/04_stage2_sbie.R", local = TRUE)
+source("code/05_stage3_behavioral.R", local = TRUE)
+source("code/06_stage4_5_revenue_allocation_sbs.R", local = TRUE)
+source("code/07_stage4_6_revenue_pipeline_decomposition.R", local = TRUE)
 
-dir.create(DIAGNOSTICS_DIR, showWarnings = FALSE, recursive = TRUE)
 
 MEASUREMENT_ERROR_DRAWS <- 500L
 MEASUREMENT_ERROR_SEED <- 20260503L
@@ -507,6 +506,7 @@ run_stage1_measurement_error_simulation <- function(
   n_draws = MEASUREMENT_ERROR_DRAWS,
   seed = MEASUREMENT_ERROR_SEED
 ) {
+  dir.create(DIAGNOSTICS_DIR, showWarnings = FALSE, recursive = TRUE)
   stage1_affiliate_year <- readRDS(file.path(PROCESSED_DIR, "stage1_affiliate_year.rds"))
   stage2_bilateral <- readRDS(file.path(PROCESSED_DIR, "stage2_bilateral_panel.rds"))
   stage2_sectoral_matrix <- readRDS(file.path(PROCESSED_DIR, "stage2_sectoral_matrix.rds"))

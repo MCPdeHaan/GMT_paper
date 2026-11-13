@@ -9,11 +9,10 @@ library(readr)
 library(purrr)
 library(tibble)
 
-source("code/00_helpers.R")
+source("code/00_helpers.R", local = TRUE)
 
-source("code/05_stage3_behavioral_functions.R")
+source("code/05_stage3_behavioral.R", local = TRUE)
 
-dir.create(DIAGNOSTICS_DIR, showWarnings = FALSE, recursive = TRUE)
 
 NOTCH_BIN_WIDTH <- 0.005
 NOTCH_POLYNOMIAL_ORDER <- 4L
@@ -249,6 +248,7 @@ estimate_notch_sample <- function(notch_sample,
 }
 
 run_sesh_notch_bunching_diagnostic <- function() {
+  dir.create(DIAGNOSTICS_DIR, showWarnings = FALSE, recursive = TRUE)
   stage1_affiliate_year <- readRDS(file.path(PROCESSED_DIR, "stage1_affiliate_year.rds"))
 
   samples <- bind_rows(

@@ -1,6 +1,6 @@
 # Run from the repository root after Stage 4.6 and the Step 7 budget backtest.
 # This audit reads the archived pipeline inputs and writes only Step 10 CSVs.
-source("code/diagnostics_step9_bilateral_aggregation_ladder.R")
+source("code/diagnostics_step9_bilateral_aggregation_ladder.R", local = TRUE)
 
 STEP10_RAW_QUANTILES <- paste0("q", c(5, 25, 50, 75, 95), "_raw")
 STEP10_MODELS <- STAGE1_BETA_MODELS
@@ -382,6 +382,6 @@ run_step10_diagnostics <- function() {
   step10_write(anova, "ladder_anova_decomposition")
 }
 
-if (sys.nframe() == 0L) {
+if (is_direct_script_run("code/diagnostics_step10_rank_consistent_beta.R")) {
   run_step10_diagnostics()
 }

@@ -1,7 +1,7 @@
 # Run from the repository root after Stages 1–4.6. This audit reads the
 # replication objects and writes only the four Step 8 diagnostic CSVs.
-source("code/03_stage1_etr.R")
-source("code/diagnostics_step5_revenue_architecture.R")
+source("code/03_stage1_etr.R", local = TRUE)
+source("code/diagnostics_step5_revenue_architecture.R", local = TRUE)
 
 STEP8_KEYS <- c("parent", "affiliate", "year")
 STEP8_HOSTS <- c("NLD", "LUX", "IRL", "CYP", "DEU", "FRA", "BEL")
@@ -598,6 +598,6 @@ run_step8_diagnostics <- function() {
     "anova_with_globe_dividend_purge")
 }
 
-if (sys.nframe() == 0L) {
+if (is_direct_script_run("code/diagnostics_step8_conduit_globe_wedge.R")) {
   run_step8_diagnostics()
 }
