@@ -6,12 +6,6 @@
 # filters and builds the 2^5 liability scenario matrix. The Stage 3 revenue,
 # ANOVA and H4 exports are pre-waterfall source-proxy diagnostics. Stage 4.5
 # allocates UTPR by collector substance and Stage 4.6 decomposes that revenue.
-library(dplyr)
-library(tidyr)
-library(readr)
-library(purrr)
-library(tibble)
-library(stringr)
 
 source("code/04_stage2_sbie.R", local = TRUE)
 source("code/05_stage3_reallocation_functions.R", local = TRUE)

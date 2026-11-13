@@ -1,9 +1,18 @@
 # Shared paths, constants and scenario definitions for the GMT pipeline.
 
 RAW_DIR <- "data/raw"
-PROCESSED_DIR <- "data/processed"
+GMT_OUTPUT_ROOT <- Sys.getenv("GMT_OUTPUT_ROOT")
+PROCESSED_DIR <- if (nzchar(GMT_OUTPUT_ROOT)) {
+  file.path(GMT_OUTPUT_ROOT, "data", "processed")
+} else {
+  "data/processed"
+}
 DIAGNOSTICS_DIR <- file.path(PROCESSED_DIR, "diagnostics")
-GENERATED_DIR <- "writing/generated"
+GENERATED_DIR <- if (nzchar(GMT_OUTPUT_ROOT)) {
+  file.path(GMT_OUTPUT_ROOT, "writing", "generated")
+} else {
+  "writing/generated"
+}
 GENERATED_TABLES_DIR <- file.path(GENERATED_DIR, "results_tables")
 BASELINE_PROCESSED_DIR <- "data/baseline_processed"
 BASELINE_DIAGNOSTICS_DIR <- "data/baseline_diagnostics"
@@ -31,7 +40,7 @@ SELECTED_COUNTRIES <- c("NLD", "IRL", "LUX", "DEU", "FRA")
 COUNTRY_CASE_COUNTRIES <- c("DEU", "NLD", "FRA", "LUX", "IRL", "HUN")
 SELECTED_FISCAL_COUNTRIES <- COUNTRY_CASE_COUNTRIES
 COUNTRY_REVENUE_DIAGNOSTIC_EXCLUDED <- c("CYP", "EST", "LVA", "LTU", "MLT")
-COUNTRY_REVENUE_DIAGNOSTIC_COUNTRIES <- setdiff(
+COUNTRY_REVENUE_DIAGNOSTIC_COUNTRIES <- base::setdiff(
   EU27_ISO3,
   COUNTRY_REVENUE_DIAGNOSTIC_EXCLUDED
 )

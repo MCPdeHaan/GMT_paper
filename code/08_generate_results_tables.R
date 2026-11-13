@@ -5,11 +5,6 @@
 # included directly in the thesis manuscript. This keeps the Results section tied
 # to the current data pipeline instead of hardcoding numerical tables in the
 # manuscript.
-library(dplyr)
-library(tidyr)
-library(readr)
-library(stringr)
-library(tibble)
 
 source("code/00_helpers.R", local = TRUE)
 
@@ -365,7 +360,7 @@ write_custom_table <- function(file, lines) {
 
 write_appendix_latex_table <- function(file, caption, label, col_spec, header,
                                        rows, notes = NULL,
-                                       short_caption = NULL, ...) {
+                                       short_caption = NULL, ..., size = "\\footnotesize") {
   write_latex_table(
     file = file,
     caption = caption,
@@ -375,7 +370,7 @@ write_appendix_latex_table <- function(file, caption, label, col_spec, header,
     rows = rows,
     notes = notes,
     short_caption = short_caption,
-    size = "\\footnotesize",
+    size = size,
     ...
   )
 }
@@ -602,6 +597,7 @@ write_data_descriptive_tables <- function() {
 
   write_latex_table(
     file.path(GENERATED_TABLES_DIR, "data_panel_coverage.tex"),
+    label = "tab:data_panel_coverage",
     caption = "Analytical panel coverage by fiscal year",
     short_caption = "Analytical panel coverage by fiscal year",
     col_spec = "lrrrrrrrr",
@@ -891,6 +887,7 @@ write_stage1_source_table <- function() {
 
   write_latex_table(
     file.path(GENERATED_TABLES_DIR, "stage1_source_coverage.tex"),
+    label = "tab:stage1_source_updated",
     caption = "Stage 1 source coverage, 2017 to 2022",
     short_caption = "Stage 1 source coverage",
     col_spec = paste0("l", paste(rep("r", length(years) + 1), collapse = "")),
@@ -1004,6 +1001,7 @@ write_stage1_bspi_table <- function() {
 
   write_latex_table(
     file.path(GENERATED_TABLES_DIR, "stage1_bspi_validation.tex"),
+    label = "tab:stage1_bspi_updated",
     caption = "EU27 BSPI validation, 2019 to 2020 anchor versus 2021 to 2022 validation",
     short_caption = "EU27 BSPI validation",
     col_spec = "lrrrr",
@@ -1056,6 +1054,7 @@ write_stage1_crossval_table <- function() {
 
   write_latex_table(
     file.path(GENERATED_TABLES_DIR, "stage1_crossval.tex"),
+    label = "tab:app_stage1_crossval",
     caption = "Beta percentile fit versus Table IV cross-validation",
     short_caption = "Beta percentile fit versus Table IV cross-validation",
     col_spec = "lr",
@@ -1122,6 +1121,7 @@ write_stage2_aggregate_table <- function() {
 
   write_latex_table(
     file.path(GENERATED_TABLES_DIR, "stage2_aggregate.tex"),
+    label = "tab:stage2_aggregate_updated",
     caption = "Aggregate Stage 2 effect of the SBIE",
     short_caption = "Aggregate Stage 2 effect of the SBIE",
     col_spec = "llrrrrr",
@@ -1179,6 +1179,7 @@ write_stage2_sectoral_table <- function() {
 
   write_latex_table(
     file.path(GENERATED_TABLES_DIR, "stage2_sectoral_sbti.tex"),
+    label = "tab:stage2_sectoral_sbti",
     caption = "Sectoral SBTI effect in selected EU countries",
     short_caption = "Sectoral SBTI effect in selected EU countries",
     col_spec = "lrrrrr",
@@ -1241,6 +1242,7 @@ write_stage2_h5_table <- function() {
 
   write_latex_table(
     file.path(GENERATED_TABLES_DIR, "stage2_h5_regression.tex"),
+    label = "tab:stage2_h5_regression",
     caption = "Sectoral capital-intensity regression",
     short_caption = "Sectoral capital-intensity regression",
     col_spec = "lcc",
@@ -1277,6 +1279,7 @@ write_stage3_model_table <- function() {
 
   write_latex_table(
     file.path(GENERATED_TABLES_DIR, "stage3_model_comparison.tex"),
+    label = "tab:stage3_model_comparison",
     caption = "Stage 3 model comparison",
     short_caption = "Stage 3 model comparison",
     col_spec = "lrrrrrr",
@@ -1606,6 +1609,7 @@ write_stage3_iv_table <- function() {
 
   write_latex_table(
     file.path(GENERATED_TABLES_DIR, "stage3_iv_diagnostics.tex"),
+    label = "tab:stage3_iv_diagnostics",
     caption = "Tax-code instrument diagnostics",
     short_caption = "Tax-code instrument diagnostics",
     col_spec = "lllrrrrr",
@@ -1776,6 +1780,7 @@ write_stage3_econometric_scorecard_table <- function() {
 
   write_latex_table(
     file.path(GENERATED_TABLES_DIR, "stage3_econometric_scorecard.tex"),
+    label = "tab:stage3_econometric_scorecard",
     caption = "Econometric diagnostics for the behavioural stage",
     short_caption = "Econometric diagnostics for the behavioural stage",
     col_spec = "L{3.2cm}L{5.4cm}L{6.2cm}",
@@ -1978,6 +1983,7 @@ write_stage3_reliability_scorecard_table <- function() {
 
   write_latex_table(
     file.path(GENERATED_TABLES_DIR, "stage3_reliability_scorecard.tex"),
+    label = "tab:stage3_reliability_scorecard",
     caption = "Reliability scorecard for the behavioural module",
     short_caption = "Reliability scorecard for the behavioural module",
     col_spec = "L{3.0cm}L{6.3cm}L{5.4cm}",
@@ -2007,6 +2013,7 @@ write_stage3_semielasticity_table <- function() {
 
   write_latex_table(
     file.path(GENERATED_TABLES_DIR, "stage3_semielasticity.tex"),
+    label = "tab:stage3_semielasticity",
     caption = "Stage 3 semi-elasticity schedule",
     short_caption = "Stage 3 semi-elasticity schedule",
     col_spec = "lrrrrr",
@@ -2040,6 +2047,7 @@ write_stage46_anova_table <- function() {
 
   write_latex_table(
     file.path(GENERATED_TABLES_DIR, "stage4_6_anova.tex"),
+    label = "tab:stage4_6_anova_updated",
     caption = "Pooled factorial decomposition of EU GMT revenue",
     short_caption = "Pooled factorial decomposition of EU GMT revenue",
     col_spec = "lrr",
@@ -2207,6 +2215,7 @@ write_stage1_measurement_error_table <- function() {
 
   write_latex_table(
     file.path(GENERATED_TABLES_DIR, "stage1_measurement_error_interval.tex"),
+    label = "tab:stage1_measurement_error_interval",
     caption = "Revenue interval from Stage 1 ETR measurement error",
     short_caption = "Stage 1 ETR measurement-error interval",
     col_spec = "llrrrrr",
@@ -2390,6 +2399,7 @@ write_stage46_measurement_sample_table <- function() {
 
   write_latex_table(
     file.path(GENERATED_TABLES_DIR, "stage46_measurement_sample_decomposition.tex"),
+    label = "tab:stage46_measurement_sample_decomposition",
     caption = "Decomposition stability across higher-measurement windows",
     short_caption = "Decomposition stability across higher-measurement windows",
     col_spec = "L{3.7cm}rrrrrrr",
@@ -2423,6 +2433,7 @@ write_stage46_measurement_sample_table <- function() {
 
   write_latex_table(
     file.path(GENERATED_TABLES_DIR, "appendix_stage46_measurement_sample_decomposition.tex"),
+    label = "tab:app_stage46_measurement_sample_decomposition",
     caption = "Decomposition-window robustness diagnostics",
     short_caption = "Decomposition-window robustness diagnostics",
     col_spec = "L{3.7cm}rrrrrrrr",
@@ -2459,6 +2470,7 @@ write_country_typology_tables <- function() {
 
   write_latex_table(
     file.path(GENERATED_TABLES_DIR, "country_typology_pca.tex"),
+    label = "tab:country_typology_pca",
     caption = "PCA of the country typology feature matrix",
     short_caption = "PCA of the country typology feature matrix",
     col_spec = "lrrL{3.0cm}L{6.0cm}",
@@ -2497,6 +2509,7 @@ write_country_typology_tables <- function() {
 
   write_latex_table(
     file.path(GENERATED_TABLES_DIR, "country_typology_clusters.tex"),
+    label = "tab:country_typology_clusters",
     caption = "Policy-facing country typology from PCA-informed clustering",
     short_caption = "Policy-facing country typology",
     col_spec = "L{0.85cm}L{3.35cm}rrrrrrr",
@@ -2654,6 +2667,7 @@ write_hypothesis_summary_table <- function() {
 
   write_latex_table(
     file.path(GENERATED_TABLES_DIR, "hypothesis_summary.tex"),
+    label = "tab:hypothesis_result_summary",
     caption = "Hypothesis summary",
     short_caption = "Hypothesis summary",
     col_spec = "L{1.7cm}L{7.1cm}L{4.8cm}",

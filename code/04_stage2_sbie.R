@@ -4,10 +4,6 @@
 # Implements Stage 2 of the GMT revenue pipeline on top of the Stage 1 outputs.
 # Produces the aggregate bilateral SBIE filter, the 2022 reference matrix
 # and a 2021–2023 sectoral panel based on CbCR, FATS and EUKLEMS.
-library(dplyr)
-library(tidyr)
-library(readr)
-library(tibble)
 
 source("code/00_helpers.R", local = TRUE)
 
@@ -16,18 +12,18 @@ SECTORAL_REFERENCE_YEAR <- 2022
 SECTORAL_PANEL_YEARS <- 2021:2023
 SECTORAL_TRANSITION_YEARS <- 2024:2033
 
-STAGE2_ENDPOINTS <- tribble(
+delayedAssign("STAGE2_ENDPOINTS", tribble(
   ~rate_scenario, ~sigma_w, ~sigma_a,
   "initial",      0.10,     0.08,
   "long_run",     0.05,     0.05
-)
+))
 
-ASSET_COMPONENT_SENSITIVITY <- tribble(
+delayedAssign("ASSET_COMPONENT_SENSITIVITY", tribble(
   ~asset_sensitivity, ~asset_component_scale,
   "minus_25",         0.75,
   "baseline",         1.00,
   "plus_25",          1.25
-)
+))
 
 nace_broad_group <- function(x) {
   out <- substr(x, 1, 1)

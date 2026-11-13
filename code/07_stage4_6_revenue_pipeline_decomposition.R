@@ -4,11 +4,6 @@
 # Executes the Section 4.6 revenue pipeline after the legal Stage 4.5
 # allocation. The script treats the Stage 4.5 country-year revenue matrix as
 # the final object for the 2^5 counterfactual decomposition.
-library(dplyr)
-library(tidyr)
-library(readr)
-library(tibble)
-library(stringr)
 
 source("code/00_helpers.R", local = TRUE)
 
@@ -21,16 +16,16 @@ FACTOR_LABELS <- c(
   x5_behaviour = "Behavioural response"
 )
 
-FACTOR_LEVELS <- tribble(
+delayedAssign("FACTOR_LEVELS", tribble(
   ~effect, ~low_level, ~high_level,
   "x1_etr", "average", "distributional",
   "x2_substance", "aggregate SBIE", "sectoral SBIE with SBTI",
   "x3_rates", "initial rates", "long-run rates",
   "x4_sbs", "universal", "SbS",
   "x5_behaviour", "mechanical", "behavioural"
-)
+))
 
-FACTOR_TAXONOMY <- tribble(
+delayedAssign("FACTOR_TAXONOMY", tribble(
   ~effect, ~mechanism_class, ~economic_object, ~uncertainty_class,
   "x1_etr", "Endowment: low-taxed profit base",
   "Low-taxed profit volume and average top-up rate",
@@ -47,7 +42,7 @@ FACTOR_TAXONOMY <- tribble(
   "x5_behaviour", "Coefficient: behavioural response",
   "Panel-estimated semi-elasticity and SESH liability filter",
   "Behavioural specification; aleatoric only under coefficient bootstrap"
-)
+))
 
 TYPOLOGY_FEATURES <- c(
   "preferred_revenue",
@@ -78,7 +73,7 @@ TYPOLOGY_SIGNED_LOG_FEATURES <- c(
   "behavioural_response_main_effect"
 )
 
-TYPOLOGY_FEATURE_GROUPS <- tribble(
+delayedAssign("TYPOLOGY_FEATURE_GROUPS", tribble(
   ~feature, ~policy_dimension,
   "preferred_revenue", "Fiscal scale",
   "scenario_spread", "Fiscal scale",
@@ -93,15 +88,21 @@ TYPOLOGY_FEATURE_GROUPS <- tribble(
   "qdmtt_share", "Legal allocation",
   "residual_iir_utpr_exposure", "Legal allocation",
   "sbs_extinguished_share", "Legal allocation"
-)
+))
 
-DECOMPOSITION_SAMPLES <- tribble(
-  ~sample_id, ~sample_label, ~start_year, ~end_year,
-  "baseline_2017_2023", "2017–2023 baseline full public panel", 2017L, 2023L,
-  "high_measurement_2019_2023", "2019–2023 direct Table IV window", 2019L, 2023L,
-  "strict_overlap_2021_2023", "2021–2023 Table I and Table IV overlap window", 2021L, 2023L,
-  "baseline_2017_2022", "2017–2022 comparison window on the updated pipeline", 2017L, 2022L
-)
+# The archived RDS uses native-encoded window labels. Preserve the encoding
+# flag as well as the displayed text when serialising the compatibility output.
+delayedAssign("DECOMPOSITION_SAMPLES", local({
+  samples <- tribble(
+    ~sample_id, ~sample_label, ~start_year, ~end_year,
+    "baseline_2017_2023", "2017–2023 baseline full public panel", 2017L, 2023L,
+    "high_measurement_2019_2023", "2019–2023 direct Table IV window", 2019L, 2023L,
+    "strict_overlap_2021_2023", "2021–2023 Table I and Table IV overlap window", 2021L, 2023L,
+    "baseline_2017_2022", "2017–2022 comparison window on the updated pipeline", 2017L, 2022L
+  )
+  samples$sample_label <- iconv(samples$sample_label, to = "", mark = FALSE)
+  samples
+}))
 
 label_effect <- function(effect) {
   parts <- strsplit(effect, ":", fixed = TRUE)

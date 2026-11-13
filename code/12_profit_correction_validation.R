@@ -1,8 +1,6 @@
 # 12_profit_correction_validation.R
 # Diagnostic audit of whether the external profit-correction rates can be
 # reproduced from the public CbCR panel.
-library(dplyr)
-library(readr)
 
 source("code/00_helpers.R", local = TRUE)
 

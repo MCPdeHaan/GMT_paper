@@ -5,10 +5,6 @@
 # profit is used where observed, external anchors enter as higher-precision
 # evidence, and the public domestic-versus-foreign ETR comparison is retained
 # as a noisy diagnostic signal.
-library(dplyr)
-library(tidyr)
-library(readr)
-library(tibble)
 
 source("code/00_helpers.R", local = TRUE)
 

@@ -5,7 +5,7 @@ source("code/diagnostics_step12_hanlon_globe_bridge.R", local = TRUE)
 STEP15_SEED <- 20261113L
 STEP15_DRAWS <- 500L
 STEP15_KEYS <- c("parent", "affiliate", "year")
-STEP15_WINDOWS <- BRIDGE_WINDOWS[c("2017–2023", "2019–2023", "2021–2023")]
+delayedAssign("STEP15_WINDOWS", BRIDGE_WINDOWS[c("2017–2023", "2019–2023", "2021–2023")])
 STEP15_SCOPES <- c(EU27_ISO3, "EU27")
 STEP15_PREFERRED <- "x10011"
 

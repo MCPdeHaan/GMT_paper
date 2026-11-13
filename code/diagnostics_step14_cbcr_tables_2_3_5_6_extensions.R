@@ -3,14 +3,6 @@
 source("code/00_helpers.R", local = TRUE)
 
 run_diagnostics_step14 <- function() {
-  suppressPackageStartupMessages({
-    library(dplyr)
-    library(tidyr)
-    library(purrr)
-    library(readr)
-    library(fixest)
-  })
-
   key <- c("parent", "affiliate", "year")
   aggregate_codes <- c("A", "A_O", "E", "E_O", "F", "F_O", "S", "S_O",
                        "W", "W_O", "WXD", "STLS")
@@ -568,10 +560,10 @@ run_diagnostics_step14 <- function() {
         host_years_with_outcome_variation = nf, term = core_cols,
         estimate = NA_real_, std_error = NA_real_, p_value = NA_real_)))
     }
-    model <- feols(as.formula(paste(outcome, "~", paste(core_cols, collapse = " + "), "|", fe)),
+    model <- fixest::feols(as.formula(paste(outcome, "~", paste(core_cols, collapse = " + "), "|", fe)),
                    data = x, vcov = ~ parent + affiliate, notes = FALSE)
     used <- x[fixest::obs(model), , drop = FALSE]
-    cc <- coeftable(model)
+    cc <- fixest::coeftable(model)
     used_within <- used |> summarise(
       spread = max(.data[[outcome]]) - min(.data[[outcome]]), .by = c(affiliate, year)
     )
@@ -581,7 +573,7 @@ run_diagnostics_step14 <- function() {
         !!!counts(used), status = if_else(is.finite(estimate), "estimated", "collinear"),
         host_years_with_outcome_variation = if (fe == "affiliate^year")
           sum(used_within$spread > 1e-12) else NA_integer_,
-        within_r2 = as.numeric(fitstat(model, "wr2")[[1]]),
+        within_r2 = as.numeric(fixest::fitstat(model, "wr2")[[1]]),
         # x and y are shares: a 10 pp change in x corresponds to 10 * beta pp of y.
         outcome_pp_per_10pp_activity = 10 * estimate,
         se_pp_per_10pp_activity = 10 * std_error,

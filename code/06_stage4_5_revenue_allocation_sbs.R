@@ -6,10 +6,6 @@
 # QDMTT/IIR/UTPR waterfall separate from the behavioural model and replaces
 # the earlier source-country UTPR proxy with a parent-year substance-weighted
 # UTPR allocation.
-library(dplyr)
-library(tidyr)
-library(readr)
-library(tibble)
 
 source("code/00_helpers.R", local = TRUE)
 

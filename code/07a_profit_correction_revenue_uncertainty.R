@@ -7,9 +7,6 @@
 # keeps distributional low-tax shares, behavioural filters and legal allocation
 # weights fixed, and recomputes the preferred scenario's profit denominator and
 # SBIE filter under each draw.
-library(dplyr)
-library(readr)
-library(tibble)
 
 source("code/00_helpers.R", local = TRUE)
 

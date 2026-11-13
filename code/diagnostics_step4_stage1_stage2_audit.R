@@ -1,8 +1,5 @@
 # Run from the repository root with Rscript. This audit only writes its four CSVs.
 suppressPackageStartupMessages(source("code/03_stage1_etr.R", local = TRUE))
-if (!requireNamespace("fixest", quietly = TRUE)) {
-  stop("The bracket fixed-effect diagnostic requires fixest")
-}
 
 AUDIT_YEARS <- 2019:2023
 AUDIT_CV_YEARS <- 2021:2023
@@ -643,6 +640,9 @@ audit_bracket_substance <- function(raw_t4, pooled_t4, stage2) {
 }
 
 run_audit <- function() {
+  if (!requireNamespace("fixest", quietly = TRUE)) {
+    stop("The bracket fixed-effect diagnostic requires fixest")
+  }
   comparison <- compare_percentile_estimators()
   write_audit(comparison, "stage1_estimator_comparison")
 

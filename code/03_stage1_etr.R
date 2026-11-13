@@ -3,11 +3,6 @@
 # base panel from code/02_base_correction_and_merging.R. The script builds an
 # affiliate-year ETR measurement object, then maps the resulting low-tax share
 # and average top-up rate back to the bilateral corrected profit base.
-library(dplyr)
-library(tidyr)
-library(readr)
-library(purrr)
-library(tibble)
 
 source("code/00_helpers.R", local = TRUE)
 

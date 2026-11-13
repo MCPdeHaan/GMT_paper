@@ -6,12 +6,6 @@
 # adds the low-dimensional supplementary controls needed later;
 # constructs a wage-based payroll proxy from employee counts;
 # constructs deterministic corrected profit bases before Stage 1 / Stage 3.
-library(dplyr)
-library(tidyr)
-library(purrr)
-library(readr)
-library(stringr)
-library(tibble)
 
 source("code/00_helpers.R", local = TRUE)
 

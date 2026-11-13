@@ -5,11 +5,6 @@
 # Stage 2 to Stage 4.6 revenue machinery. The calibration uses the 2021-2022
 # overlap where Table I percentile-fit estimates can be compared with direct
 # Table IV low-tax bracket observations.
-library(dplyr)
-library(tidyr)
-library(readr)
-library(purrr)
-library(tibble)
 
 source("code/00_helpers.R", local = TRUE)
 

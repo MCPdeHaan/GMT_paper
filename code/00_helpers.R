@@ -2,6 +2,48 @@
 
 source("code/00_config.R", local = TRUE)
 
+# Resolve imports on first use in the sourcing environment. This preserves the
+# bare names used in stored model calls without attaching packages on source.
+declare_gmt_imports <- function(package, symbols, target = parent.frame()) {
+  for (name in base::setdiff(symbols, ls(target, all.names = TRUE))) {
+    eval(substitute(
+      delayedAssign(NAME, getExportedValue(PACKAGE, NAME), assign.env = target),
+      list(NAME = name, PACKAGE = package)
+    ))
+  }
+  invisible(NULL)
+}
+
+declare_gmt_imports("dplyr", c(
+  "%>%", "across", "all_of", "anti_join", "any_of", "arrange", "between",
+  "bind_cols", "bind_rows", "case_when", "coalesce", "count", "dense_rank",
+  "desc", "distinct", "ends_with", "everything", "filter", "first",
+  "full_join", "group_by", "group_modify", "group_split", "group_vars",
+  "if_all", "if_any", "if_else", "inner_join", "intersect", "lag", "last",
+  "left_join", "matches", "min_rank", "mutate", "n", "n_distinct",
+  "percent_rank", "pick", "pull", "recode", "reframe", "relocate", "rename",
+  "rename_with", "row_number", "rowwise", "select", "semi_join", "setdiff",
+  "setequal", "slice", "slice_head", "slice_max", "slice_min", "starts_with",
+  "summarise", "syms", "top_n", "transmute", "ungroup", "union", "where"
+))
+declare_gmt_imports("tidyr", c(
+  "complete", "crossing", "expand_grid", "nesting", "pivot_longer",
+  "pivot_wider", "replace_na", "separate", "spread", "unnest"
+))
+declare_gmt_imports("readr", c(
+  "col_character", "col_date", "col_double", "col_guess", "col_integer",
+  "col_logical", "cols", "parse_number", "read_csv", "spec", "write_csv"
+))
+declare_gmt_imports("purrr", c(
+  "imap_dfr", "iwalk", "map", "map_chr", "map_dbl", "map_dfr", "map2",
+  "map2_dbl", "pmap", "pmap_dfr", "set_names"
+))
+declare_gmt_imports("tibble", c("as_tibble", "rownames_to_column", "tibble", "tribble"))
+declare_gmt_imports("stringr", c(
+  "fixed", "str_count", "str_detect", "str_ends", "str_replace",
+  "str_replace_all", "str_split", "str_sub", "str_to_lower", "str_to_sentence"
+))
+
 latex_escape <- function(x) {
   x <- as.character(x)
   placeholder <- "\001BACKSLASH\001"

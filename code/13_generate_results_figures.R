@@ -1,12 +1,6 @@
 # 13_generate_results_figures.R
 # Generates publication-ready R figures for thesisv4.tex.
 
-suppressPackageStartupMessages({
-  library(dplyr)
-  library(ggplot2)
-  library(scales)
-})
-
 source("code/00_helpers.R", local = TRUE)
 
 FIGURES_DIR <- file.path(GENERATED_DIR, "figures")
@@ -21,28 +15,28 @@ thesis_cols <- c(
 )
 
 theme_thesis <- function(base_size = 8.5) {
-  theme_minimal(base_size = base_size, base_family = "serif") +
-    theme(
-      text = element_text(colour = thesis_cols[["navy"]]),
-      plot.title = element_blank(),
-      plot.subtitle = element_blank(),
-      plot.caption = element_blank(),
-      axis.title = element_text(face = "bold"),
-      axis.text = element_text(colour = thesis_cols[["navy"]]),
-      panel.grid.major = element_line(colour = thesis_cols[["mid"]], linewidth = 0.25),
-      panel.grid.minor = element_blank(),
+  ggplot2::theme_minimal(base_size = base_size, base_family = "serif") +
+    ggplot2::theme(
+      text = ggplot2::element_text(colour = thesis_cols[["navy"]]),
+      plot.title = ggplot2::element_blank(),
+      plot.subtitle = ggplot2::element_blank(),
+      plot.caption = ggplot2::element_blank(),
+      axis.title = ggplot2::element_text(face = "bold"),
+      axis.text = ggplot2::element_text(colour = thesis_cols[["navy"]]),
+      panel.grid.major = ggplot2::element_line(colour = thesis_cols[["mid"]], linewidth = 0.25),
+      panel.grid.minor = ggplot2::element_blank(),
       legend.position = "bottom",
       legend.box = "vertical",
-      legend.title = element_text(face = "bold"),
-      legend.text = element_text(size = base_size - 0.5),
-      legend.key.width = unit(1.0, "lines"),
-      strip.text = element_text(face = "bold", colour = thesis_cols[["navy"]])
+      legend.title = ggplot2::element_text(face = "bold"),
+      legend.text = ggplot2::element_text(size = base_size - 0.5),
+      legend.key.width = grid::unit(1.0, "lines"),
+      strip.text = ggplot2::element_text(face = "bold", colour = thesis_cols[["navy"]])
     )
 }
 
 save_thesis_plot <- function(plot, filename, width, height) {
   dir.create(FIGURES_DIR, recursive = TRUE, showWarnings = FALSE)
-  ggsave(
+  ggplot2::ggsave(
     filename = file.path(FIGURES_DIR, filename),
     plot = plot,
     width = width,
@@ -148,93 +142,93 @@ make_profit_employee_etr_bubble <- function() {
     filter(label_country) %>%
     inner_join(label_positions, by = "affiliate")
 
-  ggplot(
+  ggplot2::ggplot(
     country_plot,
-    aes(
+    ggplot2::aes(
       x = profit_per_employee,
       y = average_etr,
       size = corrected_profit,
       colour = threshold_group
     )
   ) +
-    geom_hline(
+    ggplot2::geom_hline(
       yintercept = GMT_RATE,
       colour = thesis_cols[["red"]],
       linetype = "dashed",
       linewidth = 0.45
     ) +
-    geom_point(alpha = 0.76) +
-    geom_segment(
+    ggplot2::geom_point(alpha = 0.76) +
+    ggplot2::geom_segment(
       data = label_data,
-      aes(xend = label_x, yend = label_y),
+      ggplot2::aes(xend = label_x, yend = label_y),
       linewidth = 0.25,
       colour = thesis_cols[["grey"]],
       alpha = 0.55,
       show.legend = FALSE
     ) +
-    geom_text(
+    ggplot2::geom_text(
       data = label_data,
-      aes(x = label_x, y = label_y, label = affiliate),
+      ggplot2::aes(x = label_x, y = label_y, label = affiliate),
       inherit.aes = FALSE,
       size = 2.15,
       colour = thesis_cols[["navy"]],
       fontface = "bold",
       show.legend = FALSE
     ) +
-    scale_x_log10(
+    ggplot2::scale_x_log10(
       labels = format_usd_short,
       breaks = c(1e4, 1e5, 1e6, 1e7, 1e8),
-      expand = expansion(mult = c(0.04, 0.10))
+      expand = ggplot2::expansion(mult = c(0.04, 0.10))
     ) +
-    scale_y_continuous(
-      labels = label_percent(accuracy = 1),
+    ggplot2::scale_y_continuous(
+      labels = scales::label_percent(accuracy = 1),
       limits = c(0, 0.25),
       breaks = seq(0, 0.25, by = 0.05),
-      expand = expansion(mult = c(0.02, 0.02))
+      expand = ggplot2::expansion(mult = c(0.02, 0.02))
     ) +
-    scale_size_area(
+    ggplot2::scale_size_area(
       max_size = 10,
       breaks = c(1e11, 5e11, 1e12),
       labels = format_usd_short,
       name = "Corrected profit",
-      guide = guide_legend(
+      guide = ggplot2::guide_legend(
         order = 2,
         nrow = 1,
         override.aes = list(size = c(2.8, 4.5, 6.2), alpha = 0.76),
-        keywidth = unit(0.55, "lines")
+        keywidth = grid::unit(0.55, "lines")
       )
     ) +
-    scale_colour_manual(
+    ggplot2::scale_colour_manual(
       values = c(
         "Below 15% avg. ETR" = thesis_cols[["red"]],
         "Above 15% avg. ETR, tail at least 25%" = thesis_cols[["orange"]],
         "Above 15% avg. ETR, smaller tail" = thesis_cols[["navy"]]
       ),
       name = NULL,
-      guide = guide_legend(
+      guide = ggplot2::guide_legend(
         override.aes = list(size = 3.2, alpha = 0.76),
         nrow = 2,
         ncol = 2,
         byrow = TRUE,
         order = 1,
-        keywidth = unit(0.55, "lines")
+        keywidth = grid::unit(0.55, "lines")
       )
     ) +
-    labs(
+    ggplot2::labs(
       x = "Corrected profit per employee (USD, log scale)",
       y = "Profit-weighted bounded ETR"
     ) +
     theme_thesis() +
-    theme(
+    ggplot2::theme(
       legend.box = "vertical",
-      legend.box.spacing = unit(0.25, "lines"),
-      legend.spacing.y = unit(0.2, "lines"),
-      legend.spacing.x = unit(0.35, "lines"),
-      legend.key.height = unit(0.5, "lines"),
-      legend.margin = margin(t = 2, r = 0, b = 2, l = 0),
-      axis.title.x = element_text(margin = margin(t = 4, b = 2)),
-      plot.margin = margin(2, 4, 6, 2),
-      legend.text = element_text(size = 7)
+      legend.box.spacing = grid::unit(0.25, "lines"),
+      legend.spacing.y = grid::unit(0.2, "lines"),
+      legend.spacing.x = grid::unit(0.35, "lines"),
+      legend.key.height = grid::unit(0.5, "lines"),
+      legend.margin = ggplot2::margin(t = 2, r = 0, b = 2, l = 0),
+      axis.title.x = ggplot2::element_text(margin = ggplot2::margin(t = 4, b = 2)),
+      plot.margin = ggplot2::margin(2, 4, 6, 2),
+      legend.text = ggplot2::element_text(size = 7)
     )
 }
 
@@ -301,15 +295,15 @@ make_semielasticity_plot <- function() {
       model = factor(model, levels = c("Linear, selected", "Quadratic", "Logarithmic"))
     )
 
-  ggplot(curves, aes(x = tau, y = semi_elasticity, colour = model)) +
-    geom_vline(
+  ggplot2::ggplot(curves, ggplot2::aes(x = tau, y = semi_elasticity, colour = model)) +
+    ggplot2::geom_vline(
       xintercept = GMT_RATE,
       colour = thesis_cols[["grey"]],
       linetype = "dashed",
       linewidth = 0.4
     ) +
-    geom_line(linewidth = 0.9) +
-    annotate(
+    ggplot2::geom_line(linewidth = 0.9) +
+    ggplot2::annotate(
       "text",
       x = GMT_RATE + 0.006,
       y = max(curves$semi_elasticity, na.rm = TRUE) - 0.08,
@@ -318,17 +312,17 @@ make_semielasticity_plot <- function() {
       size = 2.6,
       colour = thesis_cols[["grey"]]
     ) +
-    scale_x_continuous(
-      labels = label_percent(accuracy = 1),
+    ggplot2::scale_x_continuous(
+      labels = scales::label_percent(accuracy = 1),
       breaks = seq(0, 0.30, by = 0.05),
       limits = c(0, 0.30),
-      expand = expansion(mult = c(0.01, 0.02))
+      expand = ggplot2::expansion(mult = c(0.01, 0.02))
     ) +
-    scale_y_continuous(
+    ggplot2::scale_y_continuous(
       breaks = seq(1.2, 2.1, by = 0.2),
-      expand = expansion(mult = c(0.03, 0.08))
+      expand = ggplot2::expansion(mult = c(0.03, 0.08))
     ) +
-    scale_colour_manual(
+    ggplot2::scale_colour_manual(
       values = c(
         "Linear, selected" = thesis_cols[["navy"]],
         "Quadratic" = thesis_cols[["orange"]],
@@ -336,15 +330,15 @@ make_semielasticity_plot <- function() {
       ),
       name = "Functional form"
     ) +
-    labs(
+    ggplot2::labs(
       x = "Pre-reform ETR",
       y = "Semi-elasticity of reported profit"
     ) +
     theme_thesis(base_size = 8) +
-    theme(
+    ggplot2::theme(
       legend.box = "horizontal",
-      legend.margin = margin(t = -2, b = -2),
-      plot.margin = margin(2, 4, 2, 2)
+      legend.margin = ggplot2::margin(t = -2, b = -2),
+      plot.margin = ggplot2::margin(2, 4, 2, 2)
     )
 }
 
@@ -372,26 +366,26 @@ make_decomposition_plot <- function() {
         TRUE ~ "Substance and policy"
       ),
       bar_label = paste0(
-        label_percent(accuracy = 0.1)(shapley_eta_squared),
+        scales::label_percent(accuracy = 0.1)(shapley_eta_squared),
         "  ",
         format_signed_bn(high_minus_low)
       )
     )
 
-  ggplot(shapley, aes(x = shapley_eta_squared, y = factor_label, fill = fill_group)) +
-    geom_col(width = 0.66, colour = "white", linewidth = 0.2) +
-    geom_text(
-      aes(label = bar_label),
+  ggplot2::ggplot(shapley, ggplot2::aes(x = shapley_eta_squared, y = factor_label, fill = fill_group)) +
+    ggplot2::geom_col(width = 0.66, colour = "white", linewidth = 0.2) +
+    ggplot2::geom_text(
+      ggplot2::aes(label = bar_label),
       hjust = -0.04,
       size = 2.45,
       colour = thesis_cols[["navy"]]
     ) +
-    scale_x_continuous(
-      labels = label_percent(accuracy = 1),
+    ggplot2::scale_x_continuous(
+      labels = scales::label_percent(accuracy = 1),
       limits = c(0, max(shapley$shapley_eta_squared) * 1.18),
-      expand = expansion(mult = c(0, 0.02))
+      expand = ggplot2::expansion(mult = c(0, 0.02))
     ) +
-    scale_fill_manual(
+    ggplot2::scale_fill_manual(
       values = c(
         "Measurement" = thesis_cols[["navy"]],
         "Legal allocation" = thesis_cols[["red"]],
@@ -400,14 +394,14 @@ make_decomposition_plot <- function() {
       ),
       name = NULL
     ) +
-    labs(
+    ggplot2::labs(
       x = "Share of pooled EU scenario variance",
       y = NULL
     ) +
     theme_thesis(base_size = 8.2) +
-    theme(
+    ggplot2::theme(
       legend.position = "none",
-      plot.margin = margin(2, 8, 2, 2)
+      plot.margin = ggplot2::margin(2, 8, 2, 2)
     )
 }
 
@@ -466,26 +460,26 @@ make_country_salience_plot <- function() {
       label_y = scenario_spread_to_cit_1200 + dy
     )
 
-  ggplot(
+  ggplot2::ggplot(
     filter(plot_data, country != "LUX"),
-    aes(
+    ggplot2::aes(
       x = revenue_to_cit_1200,
       y = scenario_spread_to_cit_1200,
       colour = dominant_channel,
       size = preferred_revenue
     )
   ) +
-    geom_abline(
+    ggplot2::geom_abline(
       slope = 1,
       intercept = 0,
       colour = thesis_cols[["mid"]],
       linetype = "dotted",
       linewidth = 0.45
     ) +
-    geom_point(alpha = 0.78) +
-    geom_segment(
+    ggplot2::geom_point(alpha = 0.78) +
+    ggplot2::geom_segment(
       data = label_data,
-      aes(
+      ggplot2::aes(
         x = revenue_to_cit_1200,
         y = scenario_spread_to_cit_1200,
         xend = label_x,
@@ -497,9 +491,9 @@ make_country_salience_plot <- function() {
       alpha = 0.55,
       show.legend = FALSE
     ) +
-    geom_label(
+    ggplot2::geom_label(
       data = label_data,
-      aes(x = label_x, y = label_y, label = country),
+      ggplot2::aes(x = label_x, y = label_y, label = country),
       inherit.aes = FALSE,
       size = 2.35,
       linewidth = 0.18,
@@ -509,7 +503,7 @@ make_country_salience_plot <- function() {
       colour = thesis_cols[["navy"]],
       show.legend = FALSE
     ) +
-    annotate(
+    ggplot2::annotate(
       "segment",
       x = 0.405,
       xend = 0.448,
@@ -519,7 +513,7 @@ make_country_salience_plot <- function() {
       linewidth = 0.35,
       arrow = grid::arrow(length = grid::unit(0.10, "cm"), type = "closed")
     ) +
-    annotate(
+    ggplot2::annotate(
       "label",
       x = 0.326,
       y = 0.445,
@@ -532,31 +526,31 @@ make_country_salience_plot <- function() {
       fill = "white",
       colour = thesis_cols[["red"]]
     ) +
-    scale_x_continuous(
-      labels = label_percent(accuracy = 1),
+    ggplot2::scale_x_continuous(
+      labels = scales::label_percent(accuracy = 1),
       breaks = c(0, 0.05, 0.10, 0.25, 0.40),
       limits = c(0, 0.46),
-      expand = expansion(mult = c(0.01, 0.03))
+      expand = ggplot2::expansion(mult = c(0.01, 0.03))
     ) +
-    scale_y_continuous(
-      labels = label_percent(accuracy = 1),
+    ggplot2::scale_y_continuous(
+      labels = scales::label_percent(accuracy = 1),
       breaks = c(0, 0.05, 0.10, 0.25, 0.40),
       limits = c(0, 0.46),
-      expand = expansion(mult = c(0.01, 0.04))
+      expand = ggplot2::expansion(mult = c(0.01, 0.04))
     ) +
-    scale_size_area(
+    ggplot2::scale_size_area(
       max_size = 8,
       breaks = c(5e9, 25e9, 75e9),
       labels = format_usd_short,
       name = "Preferred revenue",
-      guide = guide_legend(
+      guide = ggplot2::guide_legend(
         order = 2,
         nrow = 1,
         override.aes = list(size = c(2.4, 4.2, 6.0), alpha = 0.78),
-        keywidth = unit(0.55, "lines")
+        keywidth = grid::unit(0.55, "lines")
       )
     ) +
-    scale_colour_manual(
+    ggplot2::scale_colour_manual(
       values = c(
         "ETR measurement" = thesis_cols[["navy"]],
         "SbS regime" = thesis_cols[["red"]],
@@ -564,29 +558,29 @@ make_country_salience_plot <- function() {
         "Behavioural response" = thesis_cols[["grey"]]
       ),
       name = "Dominant channel",
-      guide = guide_legend(
+      guide = ggplot2::guide_legend(
         order = 1,
         nrow = 2,
         ncol = 2,
         byrow = TRUE,
         override.aes = list(size = 3.2, alpha = 0.78),
-        keywidth = unit(0.55, "lines")
+        keywidth = grid::unit(0.55, "lines")
       )
     ) +
-    labs(
+    ggplot2::labs(
       x = "Preferred revenue as share of CIT",
       y = "Scenario spread as share of CIT"
     ) +
     theme_thesis(base_size = 8.2) +
-    theme(
+    ggplot2::theme(
       legend.box = "vertical",
-      legend.box.spacing = unit(0.25, "lines"),
-      legend.spacing.y = unit(0.2, "lines"),
-      legend.spacing.x = unit(0.35, "lines"),
-      legend.key.height = unit(0.5, "lines"),
-      legend.margin = margin(t = 2, r = 0, b = 2, l = 0),
-      axis.title.x = element_text(margin = margin(t = 4, b = 2)),
-      plot.margin = margin(2, 4, 6, 2)
+      legend.box.spacing = grid::unit(0.25, "lines"),
+      legend.spacing.y = grid::unit(0.2, "lines"),
+      legend.spacing.x = grid::unit(0.35, "lines"),
+      legend.key.height = grid::unit(0.5, "lines"),
+      legend.margin = ggplot2::margin(t = 2, r = 0, b = 2, l = 0),
+      axis.title.x = ggplot2::element_text(margin = ggplot2::margin(t = 4, b = 2)),
+      plot.margin = ggplot2::margin(2, 4, 6, 2)
     )
 }
 
@@ -612,25 +606,25 @@ make_preferred_channel_plot <- function() {
     summarise(loss_bn = revenue_bn[regime == "Universal"] - revenue_bn[regime == "Side-by-Side"]) %>%
     pull(loss_bn)
 
-  ggplot(channel, aes(x = revenue_bn, y = regime, fill = channel)) +
-    geom_col(width = 0.55, colour = "white", linewidth = 0.25) +
-    geom_text(
-      aes(label = channel_label),
-      position = position_stack(vjust = 0.5),
+  ggplot2::ggplot(channel, ggplot2::aes(x = revenue_bn, y = regime, fill = channel)) +
+    ggplot2::geom_col(width = 0.55, colour = "white", linewidth = 0.25) +
+    ggplot2::geom_text(
+      ggplot2::aes(label = channel_label),
+      position = ggplot2::position_stack(vjust = 0.5),
       colour = "white",
       size = 2.35,
       lineheight = 0.92,
       show.legend = FALSE
     ) +
-    geom_text(
+    ggplot2::geom_text(
       data = totals,
-      aes(x = total_bn + 12, y = regime, label = paste0("Total US$", round(total_bn, 1), "bn")),
+      ggplot2::aes(x = total_bn + 12, y = regime, label = paste0("Total US$", round(total_bn, 1), "bn")),
       inherit.aes = FALSE,
       hjust = 0,
       size = 2.45,
       colour = thesis_cols[["navy"]]
     ) +
-    annotate(
+    ggplot2::annotate(
       "text",
       x = 420,
       y = 1.5,
@@ -638,13 +632,13 @@ make_preferred_channel_plot <- function() {
       size = 2.45,
       colour = thesis_cols[["red"]]
     ) +
-    scale_x_continuous(
+    ggplot2::scale_x_continuous(
       labels = function(x) paste0("US$", x, "bn"),
       limits = c(0, 585),
       breaks = seq(0, 500, by = 100),
-      expand = expansion(mult = c(0, 0.02))
+      expand = ggplot2::expansion(mult = c(0, 0.02))
     ) +
-    scale_fill_manual(
+    ggplot2::scale_fill_manual(
       values = c(
         "QDMTT" = thesis_cols[["navy"]],
         "IIR" = thesis_cols[["orange"]],
@@ -652,14 +646,14 @@ make_preferred_channel_plot <- function() {
       ),
       name = "Collection channel"
     ) +
-    labs(
+    ggplot2::labs(
       x = "Cumulative preferred-core revenue, 2017 to 2022",
       y = NULL
     ) +
     theme_thesis(base_size = 8.2) +
-    theme(
+    ggplot2::theme(
       legend.box = "horizontal",
-      plot.margin = margin(2, 4, 2, 2)
+      plot.margin = ggplot2::margin(2, 4, 2, 2)
     )
 }
 

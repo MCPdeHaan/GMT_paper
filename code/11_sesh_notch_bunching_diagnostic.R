@@ -4,10 +4,6 @@
 # Public CbCR currently observes the pre-reform ETR distribution. This script
 # therefore estimates exposure around the 15 per cent threshold and a placebo
 # bunching diagnostic. It does not identify realised post-SESH bunching.
-library(dplyr)
-library(readr)
-library(purrr)
-library(tibble)
 
 source("code/00_helpers.R", local = TRUE)
 

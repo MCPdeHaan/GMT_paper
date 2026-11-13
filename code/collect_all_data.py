@@ -26,16 +26,6 @@ import requests
 BASE_DIR = Path(__file__).parent  
 PROJECT_DIR = BASE_DIR.parent
 RAW_DIR = PROJECT_DIR / "data" / "raw"
-RAW_DIR.mkdir(parents=True, exist_ok=True)
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.FileHandler(BASE_DIR / "collection_log.txt"),
-        logging.StreamHandler(sys.stdout),
-    ],
-)
 log = logging.getLogger(__name__)
 
 SESSION = requests.Session() 
@@ -315,11 +305,12 @@ def collect_world_bank():
         except requests.exceptions.RequestException as e:
             log.error(f"Income Classification API error: {e}")
 
-    download_file(
+    if not download_file(
         "https://databankfiles.worldbank.org/public/ddpext_download/site-content/OGHIST.xlsx",
         d / "wb_historical_income_groups.xlsx",
         "Historical income group classifications",
-    )
+    ):
+        raise RuntimeError("Failed to download World Bank historical income classifications")
 
     with csv_dest.open(newline="", encoding="utf-8") as f:
         country_codes = {row["iso3"]: row["iso2"] for row in csv.DictReader(f)}
@@ -407,7 +398,8 @@ def collect_bea_mne():
     d.mkdir(exist_ok=True)
 
     for fname, url, desc in BEA_MNE_CONFIG:
-        download_file(url, d / fname, desc)
+        if not download_file(url, d / fname, desc):
+            raise RuntimeError(f"Failed to download BEA MNE file {fname}")
 
     api_key = os.environ.get("BEA_API_KEY")
     if api_key:
@@ -477,16 +469,18 @@ def collect_pillar2_qdmtt():
     d = RAW_DIR / "pillar2_qdmtt"
     d.mkdir(exist_ok=True)
 
-    download_file(
+    tracker_ok = download_file(
         "https://www.pwc.com/content/pwc/script/gx/en/pillar-two/registration-tracker.csv",
         d / "pwc_pillar2_tracker.csv",
         "PwC Pillar Two Country Tracker"
     )
-    download_file(
+    central_record_ok = download_file(
         "https://www.oecd.org/content/dam/oecd/en/topics/policy-sub-issues/global-minimum-tax/administrative-guidance-globe-rules-pillar-two-central-record-legislation-transitional-qualified-status.pdf",
         d / "oecd_pillar2_central_record.pdf",
         "OECD Central Record of Qualified Pillar Two Legislation"
     )
+    if not (tracker_ok and central_record_ok):
+        raise RuntimeError("Failed to download one or more Pillar Two source documents")
 
 def execute_collection(name: str, func) -> str:
     log.info("\n" + "=" * 70)
@@ -532,6 +526,16 @@ def main():
         for key, (name, _) in COLLECTORS.items():
             print(f"  {key:25s} {name}")
         return
+
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        handlers=[
+            logging.FileHandler(BASE_DIR / "collection_log.txt"),
+            logging.StreamHandler(sys.stdout),
+        ],
+    )
 
     if args.source:
         results = []

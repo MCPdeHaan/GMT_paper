@@ -3,6 +3,28 @@ source("code/05_stage3_behavioral.R")
 
 library(testthat)
 
+test_that("the J-test aligns fitted values by pair and year", {
+  data <- tibble::as_tibble(expand.grid(pair = 1:6, year = 2017:2022)) |>
+    dplyr::mutate(
+      pair_id = paste0("pair", pair),
+      parent = paste0("P", pair),
+      affiliate = paste0("A", (pair - 1L) %% 3L),
+      current = sin(pair * year),
+      alternative = cos(pair * year),
+      log_profit = current + alternative + sin(pair + year / 3)
+    )
+  fit <- fit_fe_ols(data, "alternative", "alternative")
+  expected <- j_test(data, "current", fit, "current", "alternative")
+  expect_equal(nrow(expected), 1L)
+  order <- rev(seq_len(nrow(fit$model_data)))
+  fit$model_data <- fit$model_data[order, ]
+  fit$fitted_within <- fit$fitted_within[order]
+  expect_identical(j_test(data, "current", fit, "current", "alternative"), expected)
+  fit$model_data[2, c("pair_id", "year")] <- fit$model_data[1, c("pair_id", "year")]
+  expect_error(j_test(data, "current", fit, "current", "alternative"),
+    "J-test alternative fitted values")
+})
+
 test_that("Rule B retains eligible hubs and uses global activity for unsupported parents", {
   sources <- tibble(source_id = 1:2, parent = c("USA", "CHE"), affiliate = "IRL",
     year = 2023L, source_etr = 0.07, reallocated_profit = c(100, 200))

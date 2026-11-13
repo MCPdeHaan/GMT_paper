@@ -7,10 +7,10 @@ BRIDGE_KEYS <- c("parent", "affiliate", "year")
 BRIDGE_BUDGETS <- c("NLD", "LUX", "IRL", "DEU", "FRA", "BEL", "AUT", "SVK")
 BRIDGE_SCENARIO <- "x10011"
 BRIDGE_EUR_USD <- 1.0813
-BRIDGE_SAFE_YEARS <- tibble(policy_year = 2024:2026, transition_etr = c(.15, .16, .17),
-  sigma_payroll = c(.098, .096, .094), sigma_assets = c(.078, .076, .074))
-BRIDGE_WINDOWS <- c(list("2017–2023" = MAIN_YEARS, "2019–2023" = DIRECT_YEARS,
-  "2021–2023" = PERCENTILE_YEARS), set_names(as.list(MAIN_YEARS), paste0("FY", MAIN_YEARS)))
+delayedAssign("BRIDGE_SAFE_YEARS", tibble(policy_year = 2024:2026, transition_etr = c(.15, .16, .17),
+  sigma_payroll = c(.098, .096, .094), sigma_assets = c(.078, .076, .074)))
+delayedAssign("BRIDGE_WINDOWS", c(list("2017–2023" = MAIN_YEARS, "2019–2023" = DIRECT_YEARS,
+  "2021–2023" = PERCENTILE_YEARS), set_names(as.list(MAIN_YEARS), paste0("FY", MAIN_YEARS))))
 
 bridge_read <- function(stem) readRDS(file.path(PROCESSED_DIR, paste0(stem, ".rds")))
 

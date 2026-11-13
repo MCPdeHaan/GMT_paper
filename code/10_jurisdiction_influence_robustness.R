@@ -4,12 +4,6 @@
 # Influence diagnostics for the public CbCR panel. The script asks whether the
 # Stage 3 semi-elasticity, Stage 1 liability rate and final EU revenue
 # decomposition are driven by one large parent or affiliate jurisdiction.
-library(dplyr)
-library(tidyr)
-library(readr)
-library(purrr)
-library(tibble)
-library(stringr)
 
 source("code/00_helpers.R", local = TRUE)
 
@@ -39,11 +33,11 @@ AGGREGATE_CODES <- c(
   "W", "WXD", "STLS", "A", "A_O", "E", "E_O", "F", "F_O", "S", "S_O",
   "OECD", "EU27_2020", "EA19"
 )
-PREFERRED_CORE_FILTER <- rlang::expr(
+delayedAssign("PREFERRED_CORE_FILTER", rlang::expr(
   factor1_etr == "distributional" &
     factor2_substance == "aggregate_sbie" &
     rate_scenario == "initial"
-)
+))
 
 is_jurisdiction_code <- function(x) {
   str_detect(x, "^[A-Z]{3}$") & !x %in% AGGREGATE_CODES

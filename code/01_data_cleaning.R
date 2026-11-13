@@ -3,16 +3,10 @@
 #
 # Reshapes the raw datasets collected by code/collect_all_data.py into tidy,
 # analysis-ready intermediate tables in data/processed/.
-library(dplyr)
-library(tidyr)
-library(readr)
-library(purrr)
-library(stringr)
-library(tibble)
 
 source("code/00_helpers.R", local = TRUE)
 
-EUROSTAT_GEO_MAP <- tribble(
+delayedAssign("EUROSTAT_GEO_MAP", tribble(
   ~geo, ~jurisdiction,
   "AT", "AUT", "BE", "BEL", "BG", "BGR", "CY", "CYP", "CZ", "CZE",
   "DE", "DEU", "DK", "DNK", "EE", "EST", "EL", "GRC", "ES", "ESP",
@@ -20,7 +14,7 @@ EUROSTAT_GEO_MAP <- tribble(
   "IT", "ITA", "LT", "LTU", "LU", "LUX", "LV", "LVA", "MT", "MLT",
   "NL", "NLD", "PL", "POL", "PT", "PRT", "RO", "ROU", "SE", "SWE",
   "SI", "SVN", "SK", "SVK", "US", "USA", "UK", "GBR", "JP", "JPN"
-)
+))
 
 read_eurostat_corporate_tax <- function(raw_dir = RAW_DIR) {
   # Archived SDMX inputs from Eurostat gov_10a_taxag and ECB

@@ -1,13 +1,14 @@
 # Usage from any directory:
-# Rscript /path/to/GMT_paper/tests/verify_golden_step15.R [repository-root]
+# Rscript /path/to/GMT_paper/tests/verify_golden_step15.R [output-root]
 # Exact mode rejects extras except for the documented Step 17 sensitivity.
 # A future schema migration needs a separate keyed comparison.
 args <- commandArgs(trailingOnly = TRUE)
-if (length(args) > 1L) stop("Usage: Rscript tests/verify_golden_step15.R [repository-root]")
+if (length(args) > 1L) stop("Usage: Rscript tests/verify_golden_step15.R [output-root]")
 script <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE))
-root <- if (length(args)) args[[1L]] else file.path(dirname(script), "..")
+repo_root <- file.path(dirname(normalizePath(script, mustWork = TRUE)), "..")
+root <- if (length(args)) args[[1L]] else repo_root
 root <- normalizePath(root, mustWork = TRUE)
-manifest <- readRDS(file.path(root, "tests", "golden_step15_manifest.rds"))$files
+manifest <- readRDS(file.path(repo_root, "tests", "golden_step15_manifest.rds"))$files
 expected <- manifest$path
 actual <- file.path("data", "processed",
   list.files(file.path(root, "data", "processed"), "\\.(rds|csv)$", recursive = TRUE))
