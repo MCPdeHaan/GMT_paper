@@ -4479,7 +4479,20 @@ paper_panel <- function(columns, rows) {
   setNames(rows, columns)
 }
 
-# Input-ready, page-breaking fragments with repeated headers.
+paper_table_rows <- function(data) {
+  bs <- intToUtf8(92L)
+  cells <- as.matrix(data)
+  cells[is.na(cells)] <- "--"
+  apply(cells, 1, function(row) {
+    formatted <- latex_escape(row)
+    formatted[formatted == "infinity"] <- paste0("$", bs, "infty$")
+    formatted[formatted == "-infinity"] <- paste0("$-", bs, "infty$")
+    formatted[formatted == "<0.001"] <- "$<0.001$"
+    paste0(paste(formatted, collapse = " & "), " ", bs, bs)
+  })
+}
+
+# Input-ready, page-breaking fragments with repeated headers, for long appendix tables.
 write_paper_table <- function(filename, title, panels, notes, align = list()) {
   bs <- intToUtf8(92L)
   end_row <- paste0(" ", bs, bs)
@@ -4489,28 +4502,22 @@ write_paper_table <- function(filename, title, panels, notes, align = list()) {
       bs, "setlength{", bs, "LTpost}{4pt}"),
     purrr::imap(panels, function(data, panel) {
       span <- function(x) paste0(bs, "multicolumn{", ncol(data), "}{l}{", x, "}", end_row)
-      label <- if (panel == names(panels)[1]) {
+      first <- panel == names(panels)[1]
+      label <- if (first) {
         paste0(bs, "caption{", latex_escape(title), "}", bs, "label{tab:", filename, "}", end_row)
       } else {
         span(paste0(bs, "textit{", latex_escape(title), " (continued)}"))
       }
       heading <- span(paste0(bs, "textbf{", latex_escape(panel), "}"))
       header <- paste0(paste(latex_escape(names(data)), collapse = " & "), end_row)
-      cells <- as.matrix(data)
-      cells[is.na(cells)] <- "--"
-      body <- apply(cells, 1, function(row) {
-        formatted <- latex_escape(row)
-        formatted[formatted == "infinity"] <- paste0("$", bs, "infty$")
-        formatted[formatted == "-infinity"] <- paste0("$-", bs, "infty$")
-        tiny_p <- formatted == "<0.001"
-        formatted[tiny_p] <- "$<0.001$"
-        paste0(paste(formatted, collapse = " & "), end_row)
-      })
       spec <- if (is.null(align[[panel]])) paste0("l", strrep("r", ncol(data) - 1)) else align[[panel]]
-      c(paste0(bs, "begin{longtable}{@{}", spec, "@{}}"),
+      # Every longtable steps the table counter, so continuation panels undo the step.
+      c(if (!first) paste0(bs, "addtocounter{table}{-1}"),
+        paste0(bs, "begin{longtable}{@{}", spec, "@{}}"),
         label, heading, paste0(bs, "toprule"), header, paste0(bs, c("midrule", "endfirsthead")),
         heading, paste0(bs, "toprule"), header, paste0(bs, c("midrule", "endhead",
-          "midrule", "endfoot", "bottomrule", "endlastfoot")), body, paste0(bs, "end{longtable}"))
+          "midrule", "endfoot", "bottomrule", "endlastfoot")), paper_table_rows(data),
+        paste0(bs, "end{longtable}"))
     }) |> unlist(use.names = FALSE),
     paste0(bs, "par", bs, "noindent{", bs, "footnotesize", bs, "textit{Notes.} ",
       latex_escape(notes), "}", bs, "par"), "}")
@@ -4536,12 +4543,13 @@ write_paper_etr_table <- function() {
     transmute(sample, outcome = if_else(outcome == "low_share", "Low share", "Liability"),
       fit = if_else(estimator == "uncapped", "Uncapped", "Capped"), n = fmt_int(n),
       bias = paper_pct(median_gap), error = paper_pct(mae), r2 = paper_number(calibration_r_squared, 3))
-  write_paper_table("tab_v2_etr_ladder_and_crossval", "ETR aggregation and Table IV validation", list(
+  write_paper_float_table("tab_v2_etr_ladder_and_crossval", "ETR aggregation and Table IV validation", list(
     "A. Measurement ladder" = paper_panel(c("Scope", "Window", "Level", "Low share (%)",
       "Gap (pp)", "Liability (%)", "Post-SBIE"), ladder),
     "B. Table I percentile validation" = paper_panel(c("Sample", "Outcome", "Fit", "N",
       "Bias (pp)", "MAE (pp)", "R-squared"), cv)),
-    "Post-SBIE liability is in US$ bn at initial carve-out rates. Validation uses FY2021–2023. Bias is the median fitted minus direct estimate. The cap is the host statutory rate plus the loss-offset allowance, bounded at 100%.")
+    "Post-SBIE liability is in US$ bn at initial carve-out rates. Validation uses FY2021–2023. Bias is the median fitted minus direct estimate. The cap is the host statutory rate plus the loss-offset allowance, bounded at 100%.",
+    align = list("A. Measurement ladder" = "lllrrrr", "B. Table I percentile validation" = "lllrrrr"))
 }
 
 write_paper_substance_table <- function() {
@@ -4571,8 +4579,9 @@ write_paper_substance_table <- function() {
     "C. Capital intensity, pooled FY2021–2023" = paper_panel(c("Rates", "Weights", "Coef.", "SE", "p", "N", "Clusters"), h5))
   write_paper_table("tab_v2_stage2_sbti_and_bracket_substance", "Substance carve-out and safe harbour", panels,
     "Panel A compares sectoral SBIE at zero SBTI with the SBTI overlay on common support. Panel B excludes Brazil-parent FY2021 and uses affiliate-clustered fixed-effect inference. Panel C uses affiliate-by-year effects and affiliate-clustered standard errors.")
-  write_paper_table("tab_v2_main_table3_substance_and_sbti", "Substance carve-out and safe harbour", panels[1:2],
-    "Panel A compares sectoral SBIE at zero SBTI with the SBTI overlay on common support. Panel B excludes Brazil-parent FY2021 and uses affiliate-clustered fixed-effect inference. The capital-intensity regression is in Online Appendix B.")
+  write_paper_float_table("tab_v2_main_table3_substance_and_sbti", "Substance carve-out and safe harbour", panels[1:2],
+    "Panel A compares sectoral SBIE at zero SBTI with the SBTI overlay on common support. Panel B excludes Brazil-parent FY2021 and uses affiliate-clustered fixed-effect inference. The capital-intensity regression is in Online Appendix B.",
+    align = list("A. EU27 top-up per unit of profit" = "llrrrr", "B. Paired Table IV substance shields" = "lllrrrrrr"))
   write_paper_table("tab_v2_app_table3_h5_regression", "Capital intensity and the SBTI-induced floor reduction",
     list("Capital intensity, pooled FY2021–2023" = panels[[3]]),
     "Affiliate-by-year effects and affiliate-clustered standard errors. The dependent variable is the SBTI-induced reduction in the effective floor.")
@@ -4602,14 +4611,16 @@ write_paper_econometrics_table <- function() {
     filter(inference == "parent_affiliate_clustered", grepl("_2sls_", diagnostic)) |>
     transmute(instrument_label, f = paper_number(weak_instrument_f), coef = paper_number(estimate, 3),
       se = paper_number(std_error, 3), p = paper_p(p_value), n = fmt_int(n))
-  write_paper_table("tab_v2_stage3_division_bias_and_ppml", "Division bias and profit semi-elasticities", list(
+  write_paper_float_table("tab_v2_stage3_division_bias_and_ppml", "Division bias and profit semi-elasticities", list(
     "A. BIC winners by estimator and available sample" = paper_panel(c("ETR", "Estimator", "Form",
       "N", "BIC", "At 5%", "At 10%", "At 15%"), elasticity),
     "B. Current versus alternative ETR on matched support" = paper_panel(c("Support", "ETR",
       "Estimator", "Form", "N", "At 5%", "SE", "Joint p"), matched),
     "C. Tax-code instrument diagnostics" = paper_panel(c("Instrument", "First-stage F",
       "2SLS coefficient", "SE", "p", "N"), iv)),
-    "Semi-elasticities are the negative of the profit slope. BIC is compared within an estimator and sample. FE-WLS uses fixed pair-mean profit weights and PPML here uses positive profit in USD. Standard errors cluster on parent and affiliate. IV coefficients retain their signed scale. The alternative ETRs remove the current own-profit denominator.")
+    "Semi-elasticities are the negative of the profit slope. BIC is compared within an estimator and sample. FE-WLS uses fixed pair-mean profit weights and PPML here uses positive profit in USD. Standard errors cluster on parent and affiliate. IV coefficients retain their signed scale. The alternative ETRs remove the current own-profit denominator.",
+    align = list("A. BIC winners by estimator and available sample" = "lllrrrrr",
+      "B. Current versus alternative ETR on matched support" = "llllrrrr"))
 }
 
 write_paper_variance_table <- function() {
@@ -4680,8 +4691,9 @@ write_paper_ledger_table <- function() {
     "B. Collector receipts, ordinary CIT and scenario spread" = paper_panel(c("ISO", "QDMTT", "IIR",
       "UTPR", "Collected", "Net", "Rule B CIT", "CIT (%)", "Spread"), collector),
     "C. Qualification and adoption sensitivities" = paper_panel(c("ISO", "R1", "R2", "R3"), regimes))
-  write_paper_table("tab_v2_main_table7_source_collector_ledger", "Source liability and collector receipts", panels[1:2],
-    "Cumulative 2017–2023, US$ bn, preferred behavioural SbS scenario. Net is collected minus source liability. Rule B CIT is gross induced ordinary CIT. Groups are high-salience sources (1), QDMTT-protected collectors (2), residual IIR/UTPR collectors (3), and Article 50 fiscal exporters (4). CYP, EST, LTU, LVA and MLT have zero baseline collector receipts. Qualification sensitivities are in Online Appendix E.")
+  write_paper_float_table("tab_v2_main_table7_source_collector_ledger", "Source liability and collector receipts", panels[1:2],
+    "Cumulative 2017–2023, US$ bn, preferred behavioural SbS scenario. Net is collected minus source liability. Rule B CIT is gross induced ordinary CIT. Groups are high-salience sources (1), QDMTT-protected collectors (2), residual IIR/UTPR collectors (3), and Article 50 fiscal exporters (4). CYP, EST, LTU, LVA and MLT have zero baseline collector receipts. Qualification sensitivities are in Online Appendix E.",
+    align = list("A. Liability generated and routed from source" = "llrrrrr"), size = "scriptsize")
   write_paper_table("tab_v2_app_table7_regime_sensitivities", "Qualification and adoption sensitivities",
     list("Collector revenue under alternative legal regimes" = panels[[3]]),
     "Cumulative 2017–2023, US$ bn, preferred behavioural SbS scenario. R1 is the observed qualification baseline. R2 activates Cyprus under Law 151(I)/2024. R3 assumes full EU27 QDMTT and IIR adoption.")
@@ -4715,12 +4727,14 @@ write_paper_budget_table <- function() {
     select(scope, window, stage, collector_annualised_eur_bn) |>
     pivot_wider(names_from = stage, values_from = collector_annualised_eur_bn, names_expand = TRUE) |>
     mutate(across(-c(scope, window), ~ paper_number(.x, 3)))
-  write_paper_table("tab_v2_budget_backtest_and_hanlon_waterfall", "Budget backtest and accounting waterfall", list(
+  write_paper_float_table("tab_v2_budget_backtest_and_hanlon_waterfall", "Budget backtest and accounting waterfall", list(
     "A. Official benchmark and 32-scenario collector range" = paper_panel(c("ISO", "Window", "Vintage",
       "Benchmark", "Min.", "Max.", "Closest", "Model"), backtest),
     "B. Preferred SbS collector revenue after each adjustment" = paper_panel(c("ISO", "Window",
       unname(PAPER_BRIDGE_STEPS)), waterfall)),
-    "EUR bn per year, converted at 1.0813 USD per EUR. The Belgian estimate is net of implementation costs. The Dutch after-package amount is inferred from published components. Budget vintages and cash timing differ from the model. The cumulative 2026 screen is a proxy on net Panel A and the tax envelope. The diagnostic also reports a variant preserving QDMTT. Benchmark sources and scopes are recorded in the input CSV.")
+    "EUR bn per year, converted at 1.0813 USD per EUR. The Belgian estimate is net of implementation costs. The Dutch after-package amount is inferred from published components. Budget vintages and cash timing differ from the model. The cumulative 2026 screen is a proxy on net Panel A and the tax envelope. The diagnostic also reports a variant preserving QDMTT. Benchmark sources and scopes are recorded in the input CSV.",
+    align = list("A. Official benchmark and 32-scenario collector range" = "lllrrrlr",
+      "B. Preferred SbS collector revenue after each adjustment" = "llrrrrrr"))
 }
 
 write_paper_nash_table <- function() {
@@ -4746,10 +4760,11 @@ write_paper_nash_table <- function() {
   compact_columns <- c("ISO", "QDMTT lost", "Soak-up", "MNE tax cut", "Efficiency (%)", "Retained", "Weight")
   sbs_repeal <- filter(deviations, regime == "SbS")
   stopifnot(nrow(sbs_repeal) == 27L)
-  write_paper_table("tab_v2_main_table8_qdmtt_repeal_game", "Unilateral QDMTT repeal and capped SBTI", list(
+  write_paper_float_table("tab_v2_main_table8_qdmtt_repeal_game", "Unilateral QDMTT repeal and capped SBTI", list(
     "A. Repeal under Side-by-Side" = paper_panel(compact_columns, select(sbs_repeal, -regime)),
     "B. Side-by-Side repeal versus maximum SBTI overlay" = strategy_panel),
-    "FY2023, L3, full EU27 adoption benchmark, US$ bn unless shown otherwise. Repeal holds the deviator's IIR and UTPR status fixed. Soak-up is the forgone QDMTT collected by foreign IIR and UTPR. Weight is the critical welfare weight, net domestic tax foregone per unit of retained profit. Under the Universal regime repeal yields no MNE tax cut in any state; those rows are in Online Appendix E. The SBTI overlay represents a capacity proxy. Its relief efficiency is distinct from the fiscal cost of new qualifying incentives.")
+    "FY2023, L3, full EU27 adoption benchmark, US$ bn unless shown otherwise. Repeal holds the deviator's IIR and UTPR status fixed. Soak-up is the forgone QDMTT collected by foreign IIR and UTPR. Weight is the critical welfare weight, net domestic tax foregone per unit of retained profit. Under the Universal regime repeal yields no MNE tax cut in any state; those rows are in Online Appendix E. The SBTI overlay represents a capacity proxy. Its relief efficiency is distinct from the fiscal cost of new qualifying incentives.",
+    size = "scriptsize")
   universal <- filter(deviations, regime == "Universal")
   opt_out <- format_deviations(filter(matrix, deviation == "full_opt_out"))
   stopifnot(nrow(universal) == 27L, nrow(opt_out) == 54L)
@@ -4865,23 +4880,21 @@ make_paper_nash_figure <- function() {
       legend.position = "top", plot.caption = ggplot2::element_text(hjust = 0))
 }
 
-# Single-page float variant of write_paper_table for short main-text tables.
-write_paper_float_table <- function(filename, title, panels, notes, align = list()) {
+# Single-page float for main-text tables: one table counter step and one caption.
+write_paper_float_table <- function(filename, title, panels, notes, align = list(),
+                                    placement = "htbp", size = "footnotesize") {
   bs <- intToUtf8(92L)
   end_row <- paste0(" ", bs, bs)
   body <- purrr::imap(panels, function(data, panel) {
     spec <- if (is.null(align[[panel]])) paste0("l", strrep("r", ncol(data) - 1)) else align[[panel]]
-    cells <- as.matrix(data)
-    cells[is.na(cells)] <- "--"
-    rows <- apply(cells, 1, function(row) paste0(paste(latex_escape(row), collapse = " & "), end_row))
     c(paste0(bs, "begin{tabular}{@{}", spec, "@{}}"),
       paste0(bs, "multicolumn{", ncol(data), "}{@{}l}{", bs, "textbf{", latex_escape(panel), "}}", end_row),
       paste0(bs, "toprule"), paste0(paste(latex_escape(names(data)), collapse = " & "), end_row),
-      paste0(bs, "midrule"), rows, paste0(bs, "bottomrule"), paste0(bs, "end{tabular}"),
+      paste0(bs, "midrule"), paper_table_rows(data), paste0(bs, "bottomrule"), paste0(bs, "end{tabular}"),
       paste0(bs, "par", bs, "vspace{0.6em}"))
   }) |> unlist(use.names = FALSE)
   lines <- c("% Generated by code/13_generate_exhibits.R", "% Requires booktabs and array.",
-    paste0(bs, "begin{table}[t]"), paste0(bs, "centering"), paste0(bs, "footnotesize"),
+    paste0(bs, "begin{table}[", placement, "]"), paste0(bs, "centering"), paste0(bs, size),
     paste0(bs, "caption{", latex_escape(title), "}", bs, "label{tab:", filename, "}"), body,
     paste0(bs, "begin{minipage}{", bs, "textwidth}", bs, "footnotesize", bs, "raggedright", bs,
       "textit{Notes.} ", latex_escape(notes), bs, "end{minipage}"),
@@ -4901,20 +4914,23 @@ write_paper_main_table1 <- function(sample_rows, coverage_rows) {
       "Affiliates", "Positive", "EU27", "Profit", "Low-taxed", "ETR (%)"), coverage_rows)),
     "Share is relative to the 2017–2023 analytical panel. Positive and EU27 count pair-years with positive corrected profit and with an EU27 affiliate. Profit and low-taxed profit are corrected positive profit in US$ bn. ETR is the median effective tax rate over positive-profit pair-years.",
     align = list("A. Sample construction" =
-      ">{\\raggedright\\arraybackslash}p{4.2cm}rrrr>{\\raggedright\\arraybackslash}p{3.9cm}"))
+      ">{\\raggedright\\arraybackslash}p{4.2cm}rrrr>{\\raggedright\\arraybackslash}p{3.9cm}"),
+    placement = "t")
 }
 
 write_paper_variance_profiles <- function(stress, accounting, mc) {
   main_windows <- c("2017–2023", "2019–2023")
   main_accounting <- accounting$design == "Accounting 64" & accounting$window %in% main_windows
-  write_paper_table("tab_v2_main_table5_variance_and_uncertainty", "Scenario and parameter uncertainty", list(
+  write_paper_float_table("tab_v2_main_table5_variance_and_uncertainty", "Scenario and parameter uncertainty", list(
     "A1. Core 32-scenario factorial" = paper_panel(c("Window", "Design", "Factor", "Main (%)",
       "Shapley (%)"), filter(stress, design == "Core 32")),
     "A2. Accounting 64-scenario factorial" = paper_panel(c("Window", "Design", "ETR", "Factor",
       "Main (%)", "Shapley (%)", "Effect (US$ bn)"), accounting[main_accounting, ]),
     "B. Law of total variance, EU27" = paper_panel(c("Scope", "Window", "Scenario (%)", "Parameter (%)",
       "90% width (US$ bn)", "Proposal ratio"), filter(mc, scope == "EU27"))),
-    "Panel A uses pooled EU27 country-year variation. The accounting design adds the CbCR-to-GloBE bridge as a sixth factor. Panel B uses 500 joint draws and 32 scenarios. The proposal ratio divides point scenario spread by the preferred scenario's 90% parameter interval width. Split-SBTI, 32-scenario accounting, 2021–2023 accounting and member-state rows are in Online Appendix D.")
+    "Panel A uses pooled EU27 country-year variation. The accounting design adds the CbCR-to-GloBE bridge as a sixth factor. Panel B uses 500 joint draws and 32 scenarios. The proposal ratio divides point scenario spread by the preferred scenario's 90% parameter interval width. Split-SBTI, 32-scenario accounting, 2021–2023 accounting and member-state rows are in Online Appendix D.",
+    align = list("A1. Core 32-scenario factorial" = "lllrr", "A2. Accounting 64-scenario factorial" = "llllrrr",
+      "B. Law of total variance, EU27" = "llrrrr"))
   write_paper_table("tab_v2_app_table5_country_uncertainty", "Further factorial designs and member-state uncertainty", list(
     "A. Split-SBTI 64-scenario factorial" = paper_panel(c("Window", "Design", "Factor", "Main (%)",
       "Shapley (%)"), filter(stress, design == "Split SBTI 64")),
