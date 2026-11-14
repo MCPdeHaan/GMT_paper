@@ -4250,7 +4250,10 @@ make_country_salience_plot <- function() {
       "label",
       x = 0.326,
       y = 0.445,
-      label = "LUX outside scale:\n225% revenue, 182% spread",
+      label = with(filter(plot_data, country == "LUX"), sprintf(
+        "LUX outside scale:\n%.0f%% revenue, %.0f%% spread",
+        100 * revenue_to_cit_1200, 100 * scenario_spread_to_cit_1200
+      )),
       hjust = 0,
       size = 2.35,
       linewidth = 0.18,
