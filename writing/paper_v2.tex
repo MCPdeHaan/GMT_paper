@@ -1,0 +1,215 @@
+%% Paper v2: The Tax Base Decides
+%% Compile from writing/: python3 make_paper_bib.py; pdflatex paper_v2; bibtex paper_v2; pdflatex paper_v2; pdflatex paper_v2
+%% All numbers come from the v2.0-empirical-freeze outputs in generated/.
+
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage{lmodern}
+\usepackage[british]{babel}
+
+\usepackage[a4paper, top=2.3cm, bottom=2.3cm, left=2.5cm, right=2.5cm]{geometry}
+
+\usepackage{microtype}
+\usepackage{setspace}
+\onehalfspacing
+\raggedbottom
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+\setlength{\emergencystretch}{1.5em}
+
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning}
+\usepackage[font=small, labelfont=bf, skip=4pt]{caption}
+
+\usepackage[round,authoryear]{natbib}
+\setlength{\bibsep}{0.35\baselineskip}
+\renewcommand{\bibfont}{\raggedright}
+
+\usepackage[
+  colorlinks = true,
+  linkcolor  = blue!60!black,
+  citecolor  = blue!60!black,
+  urlcolor   = blue!60!black,
+  pdftitle   = {The Tax Base Decides: Why Global Minimum Tax Revenue Estimates Disagree},
+  pdfauthor  = {Maurits de Haan and Peter Gerbrands},
+]{hyperref}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\setlength{\headheight}{14pt}
+\fancyhead[L]{\small\itshape\nouppercase{\leftmark}}
+\fancyhead[R]{\small\itshape de Haan and Gerbrands (2026)}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\sectionmark}[1]{\markboth{\thesection\quad #1}{}}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\small\thepage}\renewcommand{\headrulewidth}{0pt}}
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\raggedright}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries\raggedright}{\thesubsection}{1em}{}
+\titlespacing*{\section}{0pt}{12pt plus 2pt minus 2pt}{4pt plus 1pt minus 1pt}
+\titlespacing*{\subsection}{0pt}{8pt plus 2pt minus 2pt}{2pt plus 1pt minus 1pt}
+
+\newcommand{\EUR}{\texteuro}
+\newcommand{\usd}{US\$}
+\newcommand{\draftstub}[1]{\textit{[To be drafted in #1.]}}
+
+\begin{document}
+
+\thispagestyle{plain}
+\begin{center}
+  {\LARGE\bfseries The Tax Base Decides:\\[0.2em] Why Global Minimum Tax\\[0.1em] Revenue Estimates Disagree%
+  \footnote{Working titles under discussion among the authors: \emph{Measurement before Behaviour: Decomposing Uncertainty in Europe's Global Minimum Tax Revenue} and \emph{Who Collects the Minimum Tax? Measurement, Accounting and Allocation in Public Country-by-Country Data}. The paper builds on the first author's MSc thesis at Utrecht University School of Economics; we thank Adriaan Kalwij for comments on that thesis. All data are public. The replication package, with pinned input extracts, code and a map from every exhibit to its inputs, is described in \texttt{REPLICATION.md}.}}\\[1.2em]
+  {\large Maurits de Haan \qquad Peter Gerbrands}\\[0.3em]
+  % Placeholder: Javier Garcia-Bernardo (Utrecht University, Methodology and Statistics), pending discussion.
+  {\small Utrecht University School of Economics}\\[0.3em]
+  {\small Draft, November 2026}
+\end{center}
+
+\begin{abstract}
+\noindent European governments have budgeted revenue from the Global Minimum Tax, yet published estimates for the same country differ by multiples. We trace that disagreement to its sources. Using public OECD country-by-country data for 2017–2023, we compute European revenue under every combination of six modelling decisions and attribute the variance across estimates to each decision. Two decisions dominate: how profit taxed below 15\% is measured and how accounting profit is translated into the minimum-tax base. Together they explain 84.7–91.8\% of the variance. Statistical uncertainty in estimated parameters accounts for 1.71\% or less, and profit-shifting responses shrink once a division bias in effective tax rates is removed. After the accounting adjustments, the model tracks national budget forecasts for real-economy collectors. Under the 2026 Side-by-Side package, repealing a domestic top-up tax becomes a tax cut for US-parented groups: 85.9\% of Ireland's forgone revenue reaches firms.
+
+\medskip
+\noindent\textbf{JEL codes:} H25, H87, F23, C54\\
+\textbf{Keywords:} global minimum tax; Pillar Two; country-by-country reporting; revenue estimation; profit shifting; tax competition
+\end{abstract}
+
+%% ===
+\section{Introduction}\label{sec:introduction}
+
+European governments have already written revenue from the new global minimum tax on multinational profits into their budgets, yet nobody can tell them which part of that forecast is solid. The Global Minimum Tax (GMT), agreed in October 2021 by 137 jurisdictions under the Inclusive Framework of the Organisation for Economic Co-operation and Development (OECD), sets a floor of 15\% on the effective tax rate (ETR) of multinational enterprises (MNEs) with consolidated revenue above \EUR750 million. Where the ETR in a country falls below the floor, a top-up tax closes the gap. The reform targets four decades of profit shifting, whose scale is itself estimated at \usd300–850 billion a year \citep{torslov2023,garcia-bernardo2024}. Member States of the European Union have applied the rules since fiscal year 2024 and count on the proceeds. The Dutch case shows how fragile the resulting forecasts are. The government first projected \EUR466 million a year, 86\% of it from reduced profit shifting \citep{36369_3}, and then lowered the projection by \EUR122 million when the January 2026 Side-by-Side package changed a single allocation rule \citep{1028}. Published academic estimates for the same country differ by multiples, and a finance ministry that compares them cannot see why.
+
+Every revenue estimate rests on a short list of modelling decisions, and the size of the estimate depends on how each one is made. An analyst has to decide which profit counts as taxed below 15\%, how much of that profit the rules exempt because it reflects real activity, which exemption rates apply, how firms relocate profit once the floor binds, which government collects the tax, and how the accounting profit in the data maps into the legal tax base. We treat these six decisions as switches. By switching each decision on or off and computing revenue for the 27 Member States of the European Union (EU27) under every combination, we measure how much each decision moves the answer. The variance across the resulting scenarios is then attributed to main effects and interactions with a factorial design, in the spirit of Oaxaca–Blinder decompositions and Shapley attribution \citep{oaxaca1973,blinder1973,shorrocks2013}. The data are the public Country-by-Country Reporting (CbCR) statistics of the OECD for 2017–2023, which cover the last fiscal year before the tax took effect in the European Union.
+
+Two of the six decisions account for almost all of the disagreement between estimates. In the 64-scenario design, the way effective tax rates are aggregated carries a Shapley share of 42.5–50.2\% of the variance in EU27 revenue, and the translation of accounting profit into the minimum-tax base carries 39.7–44.7\%. Jointly they explain 84.7–91.8\% across the 2017–2023 and 2019–2023 windows, and more than 93\% in 2021–2023, the window in which direct bracket data carry most of the measurement. The allocation regime, the substance exemption and the behavioural response share the remainder. The spread is large in absolute terms: across the 32 scenarios without the accounting decision, cumulative EU27 revenue over 2017–2023 ranges from \usd144.3 billion to \usd584.9 billion. Statistical uncertainty in the estimated parameters is negligible by comparison. It accounts for 1.71\% of total variance over 2017–2023 and 0.36\% over 2019–2023. Disagreement about revenue is therefore disagreement about the tax base. For a finance ministry the implication is practical: agreeing on how low-taxed profit is measured and how accounts map into the legal base narrows the range of defensible forecasts far more than refining the assumed behavioural response.
+
+Three further results show that the ranking survives the most obvious objections to the method. The first concerns measurement. Fitting a distribution to published ETR percentiles overstates low-taxed profit in large domestic cells when the upper percentile exceeds 100\%; capping the percentiles at the statutory rate halves the validation error against directly observed data, from 3.85 to 1.74 percentage points. The second concerns behaviour. The steep profit-shifting responses that logarithmic specifications produce at low tax rates (semi-elasticities of 9.33–11.20 at an ETR of 5\%) largely reflect a division bias, because profit appears in the denominator of the ETR. Lagged and leave-one-parent-out tax rates reduce them to 2.51–3.94. The third concerns external validity. After the accounting adjustments, modelled 2023 revenue for Germany, France, Belgium, Austria, Slovakia and Ireland lies within \EUR0.5 billion of the figure in each national budget.
+
+The decisions that matter for the total also decide which treasuries receive the money. Five Member States collect nothing in the preferred scenario, yet profit booked in them generates \usd11.94 billion of top-up tax over 2017–2023 that is collected abroad or extinguished by the Side-by-Side package. That package also changes the incentive to keep a domestic top-up tax. Under the original rules a state that repeals its tax hands the revenue to other governments, and multinationals gain nothing. Under Side-by-Side, repeal becomes a tax cut for groups parented in the United States: in Ireland 85.9\% of the forgone revenue reaches firms. A capped incentive tied to payroll and tangible assets, which the rules also permit, delivers relief in all 27 states without any revenue flowing abroad. Behaviour has a distributional counterpart as well. Profit that leaves low-tax countries lowers direct EU27 top-up tax by \usd58.1 billion over 2017–2023 and raises ordinary corporate tax where it lands by \usd65.3 billion before source-country losses, so a forecast that counts only the lost top-up tax misstates the fiscal effect of behaviour.
+
+Earlier studies each fix most of these decisions and vary one, so their estimates cannot be compared. \citet{barake2022} provide the first global revenue estimate from CbCR data, but they use jurisdiction-average ETRs, which treat all profit in a country as lying on one side of the floor. \citet{hugger2026} show with confidential data that more than half of low-taxed profit sits in countries whose average ETR exceeds 15\%; their data cannot be accessed by other researchers, and they stop short of revenue by collecting state. We deliver a distributional measure from public data and validate it against direct observations. \citet{godar2024} and \citet{tuinsma2025} document what country-by-country reports reveal and where they mislead, without carrying those limits through to a revenue estimate. We carry them through by correcting double-counted profit and by testing the fitted distributions against bracket data. \citet{devereux2023} quantify the substance carve-out and \citet{schjelderup2024} analyse its incentive effects, each holding measurement fixed. We vary the carve-out jointly with measurement and find its contribution small once the base is measured distributionally. \citet{hanlon2023} explains why accounting profit departs from the legal tax base but offers no quantification, which our accounting bridge supplies. The behavioural literature ranges from a consensus semi-elasticity of 0.8 \citep{heckemeyer2017} to far steeper responses at low rates \citep{dowd2017,garcia-bernardo2024}, and none of these studies separates the response from the division bias that we correct. \citet{boukal2026} come closest to our design by decomposing revenue for Slovakia into top-up tax and reduced shifting; their decomposition covers one country and two channels. Ours covers 27 states and six decisions, and it attributes the interactions between them. Finally, \citet{devereux2022} and \citet{jean2026} analyse adoption and enforcement incentives in theory, which we test on all Member States under the 2026 rules. Four elements are introduced in this paper: the six-factor design that includes the accounting bridge, a four-level ladder of ETR aggregation, a ratio $\Lambda$ that compares scenario disagreement with parameter uncertainty, and a ledger that sets the liability each state generates against the revenue it collects.
+
+The paper follows multinational profit from the public reports to the treasury that collects the tax. Section \ref{sec:institutions} sets out how the minimum tax turns low-taxed profit into revenue and which modelling decisions that process requires. Section \ref{sec:data} describes the data. Section \ref{sec:measurement} measures each filter, Section \ref{sec:decomposition} decomposes the disagreement between scenarios, Section \ref{sec:allocation} turns to collectors and their incentives, and Section \ref{sec:conclusion} concludes.
+
+%% ===
+\section{How the minimum tax raises revenue}\label{sec:institutions}
+
+This section explains how the minimum tax converts profit into revenue, because every modelling decision studied later corresponds to one step in that conversion. Section \ref{sec:rules} describes the rules, Section \ref{sec:filters} writes revenue as a sequence of filters, and Section \ref{sec:disagree} shows where published estimates part ways.
+
+\subsection{The collection rules}\label{sec:rules}
+
+The minimum tax adds a top-up charge wherever a multinational pays less than fifteen per cent, and a fixed order of rules decides which government collects it. The order matters because the country where low-taxed profit is booked, the country where the group is headquartered and the other countries where the group operates all have a claim, and only one of them can be first. The model rules of the OECD give the host country the first claim through a qualified domestic minimum top-up tax (QDMTT). If the host does not levy one, the parent country collects through the income inclusion rule (IIR). If neither applies, other countries in which the group operates collect through the undertaxed profits rule (UTPR), a backstop \citep{oecd2025}. \citet{devereux2022} show that this ordering reverses the original parent-first logic and gives every host an incentive to enact a domestic top-up tax.
+
+Two provisions shrink the base before any government collects. The substance-based income exclusion (SBIE) removes a fixed return on payroll and tangible assets, on the reasoning that profit backed by real activity is less likely to have been shifted. The exclusion rates start high and decline over a ten-year transition. The second provision is a safe harbour for substance-based tax incentives (SBTI), which lets qualifying incentives tied to payroll or tangible assets count towards the minimum up to a cap. Both provisions lower the effective floor below 15\% for groups with local substance.
+
+The January 2026 Side-by-Side (SbS) package changes who collects without changing how much profit is low-taxed. Groups headquartered in a jurisdiction with a qualifying regime, at present only the United States, are removed from the IIR and the UTPR \citep{oecd2026}. Their low-taxed profit generates revenue only where the host levies a QDMTT; elsewhere the liability lapses. We take the qualification status of each jurisdiction from the OECD Central Record \citep{oecdCentralRecord2026}.
+
+\subsection{Revenue as a sequence of filters}\label{sec:filters}
+
+Revenue for any European state can be written as reported profit passed through a short sequence of reductions and then divided among governments. Figure \ref{fig:v2_filters} shows the sequence. The accounting bridge converts reported profit into the minimum-tax base. Three filters then isolate the part taxed below 15\%, remove the part shielded by substance, and subtract the part that firms move in response. What remains is the top-up tax, which the collection rules assign to a treasury.
+
+\input{figures/fig_v2_filters.tex}
+
+The two equations below formalise the figure. They take corrected profit and a vector of modelling decisions as inputs, produce the top-up liability of each cell and the revenue of each collecting state, and are evaluated under every combination of decisions in Section \ref{sec:decomposition}. A cell is a parent jurisdiction $p$, an affiliate jurisdiction $j$ and a year $t$. For a vector of decisions $x=(x_1,\dots,x_6)$, the liability of a cell and the revenue of collecting state $c$ are
+\begin{align}
+L_{pjt}(x) &= \bar g_{pjt}(x_1)\,\max\bigl\{0,\; s_{pjt}(x_1)\,B_{pjt}(x_6)\,\lambda_{pjt}(x_5)-\mathrm{SBIE}_{pjt}(x_2,x_3)\bigr\}, \label{eq:liability}\\
+R_c(x) &= \sum_{p,j,t} a_{c\mid pjt}(x_4)\,L_{pjt}(x). \label{eq:revenue}
+\end{align}
+$B_{pjt}$ is the minimum-tax base, obtained from corrected profit $\pi^{*}_{pjt}$ through the accounting bridge. $s_{pjt}$ is the share of that base taxed below 15\% and $\bar g_{pjt}$ the average gap between 15\% and the ETR on that share. $\lambda_{pjt}$ is the fraction of low-taxed profit that stays after firms respond, $\mathrm{SBIE}_{pjt}$ the substance exclusion, and $a_{c\mid pjt}$ the share of the liability that the rules assign to state $c$. Under SbS these shares need not sum to one, since part of the liability is extinguished.
+
+Each switch selects one of two treatments. $x_1$ chooses between jurisdiction-average and distributional measurement of ETRs. $x_2$ chooses between an aggregate carve-out and a sectoral carve-out with the SBTI safe harbour, and $x_3$ between initial and long-run exclusion rates. $x_4$ chooses between the original universal allocation and SbS. $x_5$ switches the behavioural response on, and $x_6$ switches the accounting bridge on. The first five switches give 32 scenarios, the design of the thesis on which this paper builds; adding $x_6$ gives 64. The six-factor design and the bridge $B_{pjt}$ are introduced in this paper.
+
+\subsection{Why published estimates disagree}\label{sec:disagree}
+
+Published estimates differ because each study makes the same six decisions in a different way and reports only its preferred combination. \citet{barake2022} set $x_1$ to jurisdiction averages, apply the carve-out at fixed rates, assume no behavioural response and use reported profit as the base; their global figure of about \EUR179 billion is therefore one point in the scenario space, and the averaging choice alone understates the base.\footnote{\citet{barake2022} use jurisdiction averages because the bracket-level tables that reveal the within-country distribution were first published for fiscal year 2021. The choice was forced by the data available to them.} \citet{hugger2026} switch $x_1$ to distributional measurement with confidential data and find that 53.2\% of low-taxed profit lies in countries with average ETRs above 15\%, but they report the base and leave allocation ($x_4$) and behaviour ($x_5$) aside. \citet{devereux2023} vary the carve-out ($x_2$, $x_3$) and show that it pulls the effective floor well below 15\%, holding the measurement of low-taxed profit fixed. \citet{boukal2026} vary behaviour ($x_5$) for Slovakia and project a rise of 4.3–5.3\% in corporate tax revenue, about half of it from reduced outward shifting; the other switches stay at one setting and one collecting state is covered.
+
+Finance ministries make the same decisions with less documentation. The Dutch forecast combined a small direct top-up with a large behavioural effect and was revised when the allocation switch $x_4$ moved to SbS \citep{36369_3,1028}. None of the studies or forecasts applies an explicit bridge from accounting profit to the legal base ($x_6$), although \citet{hanlon2023} identifies the gap as material.
+
+One-at-a-time comparisons cannot explain a gap between two estimates that differ on several switches at once. The effect of one decision depends on the settings of the others: a behavioural response removes more revenue when distributional measurement has enlarged the base on which it operates. Attributing the gap requires all combinations on one dataset, which no existing study provides, and it requires separating the spread across decisions from the statistical noise in estimated inputs. Section \ref{sec:data} describes the public data that make this joint treatment possible.
+
+%% ===
+\section{Data}\label{sec:data}
+
+This section describes the public data behind the analysis and the corrections they need, since every later result inherits their strengths and limits. Section \ref{sec:cbcr} presents the panel, Section \ref{sec:doublecounting} the correction for double-counted profit, and Section \ref{sec:otherdata} the supporting sources.
+
+\subsection{Public country-by-country reports as a bilateral panel}\label{sec:cbcr}
+
+Large multinationals report their profit, tax and activity country by country to tax authorities, and these reports are published in aggregated form for most of the world's economies. The reporting threshold of \EUR750 million in consolidated revenue coincides with the scope of the minimum tax, so the OECD statistics cover the population the tax targets \citep{oecd2026cbcr}. The statistics comprise six tables. Table I is the backbone: for each pair of parent and affiliate jurisdiction and each year it reports profit before tax, tax accrued, revenue, tangible assets and employees, and in recent vintages selected percentiles of the ETR distribution across subsidiaries. Table IV groups the same variables by ETR bracket and so reveals directly how much profit is taxed below 15\%. Tables II, III, V and VI report interquartile means, group-level ETR brackets and the size distribution of groups; they support the validation exercises and extensions in the Online Appendix.
+
+The unit of observation is a parent–affiliate–year cell $(p,j,t)$. The affiliate side is where low-taxed profit and substance are observed. The parent side has to be kept because it determines which country collects residual top-up tax and whether SbS applies. A panel aggregated to host countries would lose both.
+
+Table \ref{tab:tab_v2_main_table1_sample_and_coverage} documents the construction. The 1,367,305 raw Table I records reshape into 20,111 cells, of which 18,954 fall in the 2017–2023 analytical window, spanning 63 parent and 232 affiliate jurisdictions. We omit 2016 because filing was transitional. ETRs and top-up gaps are measured on the 14,108 cells with positive profit, and 4,330 cells have an EU27 affiliate. The behavioural regressions use 10,611 cells, because estimation in logarithms needs positive profit, assets and payroll and at least two observations per pair. Corrected positive profit sums to \usd41.91 trillion, of which \usd18.22 trillion is low-taxed under distributional measurement. Fiscal year 2023, added in the July 2026 release, contributes 3,186 cells and is the last year before the tax applied in the European Union.
+
+\input{generated/paper_v2_tables/tab_v2_main_table1_sample_and_coverage.tex}
+
+\subsection{Correcting double-counted profit}\label{sec:doublecounting}
+
+Profit that passes through holding companies can appear in the reports of both the subsidiary and its parent, which inflates the base on which tax is computed. Consider a German group that owns a Dutch holding company, which owns an Irish operating subsidiary. The Irish profit is reported once in Ireland and can be reported again in the Netherlands as dividend or participation income. Because the tax is recorded only once, the measured ETR falls and low-taxed profit is overstated. \citet{blouin2023} establish that this double counting mechanically depresses ETRs. \citet{garcia-bernardo2022a} and \citet{hugger2026} correct it with tax-return and confidential data that public users do not have. Our correction uses public information only.
+
+The equation below defines the corrected profit that enters every later calculation. Its inputs are reported profit $\pi_{pjt}$, the adjusted profit $\pi^{adj}_{pjt}$ that some jurisdictions publish, and an estimated parent-year correction rate $\hat\rho_{pt}$; its output $\pi^{*}_{pjt}$ is the starting point of equation \eqref{eq:liability}:
+\begin{equation}\label{eq:profit_correction}
+\pi^{*}_{pjt} =
+\begin{cases}
+\pi^{adj}_{pjt}, & \text{if } \pi^{adj}_{pjt} \text{ is observed},\\
+(1-\hat\rho_{pt})\,\pi_{pjt}, & \text{if } p=j \text{ and } \pi^{adj}_{pjt} \text{ is unobserved},\\
+\pi_{pjt}, & \text{if } p\neq j.
+\end{cases}
+\end{equation}
+The correction applies to domestic cells ($p=j$), where dividend and participation income from foreign subsidiaries enters the accounts of the parent. Foreign cells stay unchanged, since public data do not reveal dividend flows along ownership chains.\footnote{This choice is conservative. Conduit jurisdictions also record pass-through income in foreign-parented cells, which the accounting bridge in Section \ref{sec:measurement} addresses through the dividend adjustment.} The rate $\hat\rho_{pt}$ combines four signals in a shrinkage model: adjusted-profit cells, official country notes, the macro reconciliation for the United States in \citet{garcia-bernardo2022a}, and a low-weight comparison of domestic and foreign ETRs.
+
+The correction removes 24.9\% of reported positive profit, lowering it from \usd55.78 trillion to \usd41.91 trillion. Three quarters of the reduction comes from domestic cells in which the rate is estimated by the model, and one fifth from cells with an external anchor. In a holdout exercise each of the 37 high-credibility signals is removed in turn and predicted from the others; the mean absolute error lies between 8.4 and 15.1 percentage points of the correction rate, depending on the type of signal. Appendix \ref{app:data} gives the model and the validation in full.
+
+\subsection{Activity, sector and budget data}\label{sec:otherdata}
+
+Three further groups of sources measure the real activity that the rules exempt, the tax rules in force and the revenue that governments expect. The first group concerns substance. The country-by-country statistics report employees and tangible assets, but the carve-out is defined on payroll. We reconstruct payroll by multiplying employees by a country-year wage, taken from OECD average annual wages and, where these are missing, from earnings data of the International Labour Organization (ILO). Sectoral composition, which the country-by-country statistics lack, comes from the inward Foreign Affiliates Statistics (FATS) of Eurostat and from the EUKLEMS \& INTANProd capital accounts \citep{eurostat2025fats,euklemsintanprod2025}. These sources allocate the EU27 country aggregates across sectors for 2021–2023, the years in which the FATS classification is consistent.
+
+The second group describes the tax environment. OECD statutory corporate tax rates cap the fitted ETR distributions in Section \ref{sec:measurement} and supply a lagged instrument; the forward-looking effective average tax rates of the OECD supply a second instrument for the behavioural regressions. The legal status of each jurisdiction (QDMTT, IIR, UTPR and SbS qualification) comes from the OECD Central Record as of 1 May 2026 \citep{oecdCentralRecord2026}, supplemented by the elections of Member States to defer application under Article 50 of the EU minimum tax directive.
+
+The third group provides an external benchmark. We collect the official revenue forecasts of eight Member States (the Netherlands, Germany, France, Ireland, Luxembourg, Belgium, Austria and Slovakia) from budget documents and parliamentary papers, recording for each the forecast period, the scope and whether it predates SbS. These forecasts do not enter any estimate. They serve only in the backtest of Section \ref{sec:decomposition}. Section \ref{sec:measurement} now turns these inputs into the measured filters of equation \eqref{eq:liability}.
+
+%% ===
+\section{Measuring the revenue filters}\label{sec:measurement}
+\draftstub{Pass 2}
+
+\section{Where the disagreement comes from}\label{sec:decomposition}
+\draftstub{Pass 3}
+
+\section{Who collects and who gives up revenue}\label{sec:allocation}
+\draftstub{Pass 4}
+
+\section{Conclusion}\label{sec:conclusion}
+\draftstub{Pass 5}
+
+\bibliographystyle{apalike}
+\bibliography{paper_v2_refs}
+
+\clearpage
+\appendix
+\section{Data, profit reconciliation and notation}\label{app:data}
+\draftstub{Pass 5}
+
+\section{Measuring low-taxed profit, substance and the tax base}\label{app:measurement}
+\draftstub{Pass 5}
+
+\section{Behavioural estimation}\label{app:behaviour}
+\draftstub{Pass 5}
+
+\section{Factorial decomposition, uncertainty and country results}\label{app:decomposition}
+\draftstub{Pass 5}
+
+\section{Allocation law, the repeal game and replication}\label{app:allocation}
+\draftstub{Pass 5}
+
+\end{document}
