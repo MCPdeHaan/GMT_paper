@@ -1,0 +1,125 @@
+% Supervisor pitch memo: Thesis v1 to Paper v2
+% Compile with: xelatex supervisor_pitch_memo.tex (run twice)
+% Every number is taken from writing/generated/paper_v2_tables/, writing/generated/results_tables/
+% or data/processed/diagnostics/ at tag v2.0-empirical-freeze.
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[a4paper,top=1.7cm,bottom=1.7cm,left=2.0cm,right=2.0cm,footskip=0.8cm]{geometry}
+\usepackage{fontspec}
+\setmainfont{TeX Gyre Pagella}
+\setsansfont{TeX Gyre Heros}
+\usepackage[british]{babel}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{colortbl}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{navy}{HTML}{1F3A5F}
+\definecolor{rule}{HTML}{8A9BB0}
+\definecolor{shade}{HTML}{EEF2F7}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3.2pt}
+\linespread{1.02}
+
+\titleformat{\section}{\sffamily\bfseries\color{navy}\normalsize}{\thesection}{0.6em}{}
+\titlespacing*{\section}{0pt}{7pt}{2pt}
+\titleformat{\subsection}[runin]{\bfseries\color{navy}}{}{0pt}{}[.]
+\titlespacing*{\subsection}{0pt}{3.5pt}{0.5em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[L]{\footnotesize\sffamily\color{rule}De Haan · Pitch memo · Global Minimum Tax paper v2}
+\fancyfoot[R]{\footnotesize\sffamily\color{rule}\thepage\ of 3}
+
+\newcommand{\usd}{US\$}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\begin{document}
+
+{\sffamily
+\begin{tabular}{@{}p{1.95cm}l@{}}
+\textbf{To} & Dr Peter Gerbrands, Utrecht University School of Economics \\
+\textbf{Shareable} & Dr Adriaan Kalwij (second reader), with your agreement \\
+\textbf{From} & Maurits de Haan \\
+\textbf{Date} & 14 November 2026 \\
+\textbf{Subject} & From MSc thesis to journal article: proposal for a co-authored paper \\
+\end{tabular}}
+
+\vspace{3pt}
+{\color{navy}\rule{\textwidth}{0.8pt}}
+
+\section{The proposal}
+
+I propose that we turn my MSc thesis, \emph{Decomposition of Global Minimum Tax revenue using CbCR data}, into a co-authored article for \emph{International Tax and Public Finance} or the \emph{Journal of Public Economics}. A working paper would circulate this winter and the submission would follow in spring 2027. The paper is also the foundation for the external PhD position I plan to start in summer 2027, and a co-authored submission under review by then is the strongest evidence I can offer a selection committee.
+
+The question has not changed since June. European governments have written revenue from the Global Minimum Tax into their budgets, yet published estimates for the same country differ by multiples. The paper explains why. Any revenue estimate rests on a handful of modelling decisions: how to find profit taxed below 15\%, how much of it the rules exempt for real activity, how firms react, which government collects the tax, and how accounting profit maps into the tax base. By switching each decision on or off and computing revenue under every combination, the paper measures how much each decision moves the answer. The headline result is sharper than in the thesis. Two decisions explain 84.7–91.8\% of the disagreement: how low-taxed profit is measured, and how published accounting profit is translated into the tax base the rules actually use. Firm behaviour and the statistical uncertainty in estimated parameters are second-order.
+
+Since June I have rebuilt the empirical work on a 2017–2023 panel and refactored the code into a 13-module pipeline that regenerates every exhibit from pinned public extracts and checks 359 outputs against frozen hashes. Six upgrades follow; the scorecard on page 3 sets them against the thesis.
+
+\section{Six upgrades in Version 2.0}
+
+\subsection{Upgrade 1: one more year of data and a longer validation window}
+The OECD's July 2026 release added fiscal year 2023 country-by-country reports (CbCR) and matching foreign affiliate statistics. The analytical panel now holds 18,954 parent–affiliate pair-years, of which 14,108 report positive profit, covering \usd41.91 trillion of corrected profit across 63 parent and 232 affiliate jurisdictions (thesis: 15,758 pair-years and \usd34.84 trillion). The added year matters most for validation. The window in which aggregate and subsidiary-level tax data overlap, and in which the measurement model can therefore be tested directly, grows from two years to three (2021–2023).
+
+\subsection{Upgrade 2: a measurement bias found and fixed, and a four-level ladder}
+Public CbCR data reveal, for each pair of headquarters and host country, only the spread of effective tax rates (ETRs) across subsidiaries, so the paper fits a smooth Beta distribution to the reported percentiles to recover how much profit is taxed below 15\%. That fit failed in large domestic cells. When the reported 95th percentile exceeds 100\% (Germany to Germany in 2023 at 122.5\%; France to France at 102.0\%), the fitted distribution turns U-shaped and places 64–67\% of profit below 15\%, while the direct subsidiary data put the share between 25\% and 50\%. Capping each percentile at the host statutory rate plus a loss-offset allowance removes the distortion. On the matched validation samples the mean absolute error in the liability rate halves, from 3.85 to 1.74 percentage points (sample S2) and from 3.50 to 1.84 (S3), and the calibration $R^2$ rises from 0.34–0.40 to 0.52–0.55. The measurement choice is now an explicit four-step ladder: host average (L1), bilateral average (L2), pooled host distribution (L3) and bilateral distribution anchored to Table~I (L4). Moving from L1 to L4 doubles global post-carve-out liability for 2017–2023, from \usd872.9 billion to \usd1,753.7 billion.
+
+\subsection{Upgrade 3: from accounting profit to the tax base, tested against national budgets}
+CbCR profit is an accounting figure, whereas the minimum tax applies to a defined tax base that excludes most dividends, nets losses within a group and deducts losses carried forward, a gap analysed by Hanlon (2023). I model each adjustment and add the resulting bridge as a sixth switch in the scenario design. In the 64-scenario design, ETR aggregation accounts for 42.5–50.2\% of the Shapley-attributed variance and the accounting bridge for 39.7–44.7\%; jointly they explain 84.7–91.8\% across the 2017–2023 and 2019–2023 windows and both distributional ladders. The bridge also reconciles the model with the official budget forecasts of eight member states. Dutch FY2023 collector revenue falls from €6.68 billion in raw CbCR terms to €0.42 billion after the dividend, loss, tax-envelope and 2026 safe-harbour adjustments, against a structural budget figure of €0.18 billion. The remaining conduit wedge is a vintage effect: low-taxed profit booked in the Netherlands and Luxembourg fell by 64.7\% between 2018 and 2023, so a 2019–2023 base still leaves a Dutch gap of €3.18 billion. For the six real-economy collectors (Germany, France, Belgium, Austria, Slovakia and Ireland) every FY2023 gap after the same adjustments is below €0.5 billion; Ireland lands at €3.54 billion against a budgeted €3.20 billion.
+
+\subsection{Upgrade 4: separating scenario disagreement from statistical noise}
+A referee will ask whether the spread across scenarios is simply the noise of estimated parameters. I answer with 500 joint Monte Carlo draws of the three estimated inputs (the behavioural coefficient $\hat\beta_3$, the profit-correction rate $\rho_{pt}$ and the Beta-fit residuals), each run through all 32 scenarios, and split total variance with the law of total variance. Parameter uncertainty accounts for 1.71\% of EU27 variance in 2017–2023 and 0.36\% in 2019–2023. The spread across modelling decisions is 6.93 and 14.99 times the width of the 90\% parameter interval ($\Lambda$), whose widths are \usd63.6 billion and \usd20.7 billion. Parameter noise matters only for small collectors in the long window, with Austria the clearest case.
+
+\subsection{Upgrade 5: removing division bias and counting the tax that behaviour brings home}
+The ETR is tax divided by profit, so any error in measured profit sits on both sides of a regression of profit on the ETR and manufactures a steep response at low rates. This explains the extreme logarithmic semi-elasticities at a 5\% ETR in the fixed-effect Poisson and weighted estimators (9.33–11.20). Replacing the current ETR with its lag or with a leave-one-parent-out jackknife ETR attenuates them to 2.51–3.94, and the joint tests lose significance ($p$ between 0.085 and 0.393). Behaviour also has a fiscal counterpart that the thesis ignored. Under the destination rule (Rule B), relocated profit cuts direct EU27 top-up tax by \usd58.1 billion over 2017–2023 in the preferred Side-by-Side scenario and raises ordinary corporate income tax (CIT) by \usd65.3 billion gross. For the Netherlands this yields €431–678 million a year on the 2019–2023 average, against the Ministry of Finance estimate of €397–451 million.
+
+\subsection{Upgrade 6: a fiscal flow ledger and a game-theoretic test}
+Clustering 27 countries with $k$-means gave unstable groups and filled the missing features of the five states with zero receipts with medians. The paper replaces it with a ledger that records, for each member state, the liability its profit generates and the revenue its treasury collects. The five zero-collector states (Cyprus, Malta, Estonia, Lithuania and Latvia) generate \usd11.94 billion of liability in 2017–2023: \usd4.44 billion is collected by foreign parent-country rules, \usd0.51 billion by foreign backstop rules and \usd6.99 billion is extinguished by the Side-by-Side safe harbour (SbS). The ledger supports a direct test of Devereux et al.~(2022), who predict that every host country adopts a qualified domestic minimum top-up tax (QDMTT). Across 216 unilateral repeal cases (27 states, two allocation regimes, two ETR ladders, two windows), repeal under the universal regime gives multinationals no relief in any case: the forgone revenue flows to foreign collectors, so adoption is dominant. Under SbS, repeal becomes a tax cut for US-parented groups: in Ireland 85.9\% of forgone QDMTT reaches firms (87.0\% in FY2023). A capped substance-based tax incentive (SBTI) delivers its relief with zero foreign leakage in all 27 states and gives more relief than repeal in 18 of them.
+
+\section{Why the upgrades make the paper publishable}
+
+The thesis answered which modelling decision matters most; the paper now also shows that the answer survives the three objections a referee in public finance raises first. The measurement result could have been an artefact of a misbehaving distribution fit; Upgrade 2 finds the artefact, fixes it and validates the fix on three years of direct data. The scenario spread could have been statistical noise; Upgrade 4 shows that noise accounts for less than 2\% of it. The model could have been disconnected from fiscal reality; Upgrade 3 reconciles it with eight national budgets and explains the one large gap that remains. The contribution is therefore a usable diagnostic for finance ministries: before arguing about firm behaviour, agree on the tax base.
+
+\newpage
+\section{Scorecard: Thesis v1 against Paper v2}
+
+{\small
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\textwidth}{@{}P{3.0cm}LLP{1.75cm}@{}}
+\toprule
+\rowcolor{shade}\textbf{Dimension} & \textbf{Thesis v1 (2017–2022)} & \textbf{Paper v2 (2017–2023)} & \textbf{Paper} \\
+\midrule
+Panel size & 15,758 pair-years; 11,872 positive-profit cells; \usd34.84tn corrected profit; 58 parents & 18,954 pair-years; 14,108 positive-profit cells; \usd41.91tn corrected profit; 63 parents & Sec.~3, Tab.~1 \\
+Validation overlap & Table I/IV overlap 2021–2022 (two years) & 2021–2023 (three years), three validation samples & Sec.~4.2 \\
+ETR measurement & Average versus distributional; uncapped Beta fit & Four-level ladder L1–L4; statutory cap; S2 liability MAE 3.85 to 1.74 pp, $R^2$ 0.34 to 0.55 & Sec.~4.1–4.2, Tab.~2 \\
+EU27 scenario range & \usd127.7–517.4bn (32 scenarios) & \usd144.3–584.9bn (32 scenarios) & Sec.~5.1 \\
+ETR share of variance & 69\% (pooled main effect) & 71.5\% main, 74.3\% Shapley (core 32) & Sec.~5.1, Fig.~2 \\
+Accounting bridge & Not modelled & Dividends, current and prior losses, tax envelope; 39.7–44.7\% Shapley share; jointly with ETR 84.7–91.8\% & Sec.~4.5, 5.1 \\
+Budget backtest & Not performed & Eight national benchmarks, two windows; real-economy FY2023 gaps below €0.5bn & Sec.~5.3, Tab.~6, Fig.~3 \\
+Uncertainty & Single-source exercises (profit correction, coefficient) & 500 joint draws $\times$ 32 scenarios; parameter share 1.71\% and 0.36\%; $\Lambda$ = 6.93 and 14.99 & Sec.~5.2, Tab.~5 \\
+Behavioural estimate & Linear fixed-effect semi-elasticity 1.50, selected by BIC & Linear 1.47; log forms 9.33–11.20 at 5\% fall to 2.51–3.94 after division-bias correction & Sec.~4.4, Tab.~4 \\
+Fiscal effect of behaviour & Lost top-up tax only & Rule B: $-$\usd58.1bn top-up, $+$\usd65.3bn gross CIT; NL €431–678m against €397–451m & Sec.~6.2 \\
+Country heterogeneity & Principal components and $k$-means, four clusters ($N=27$) & Source–collector ledger, four institutional groups; zero collectors export \usd11.94bn & Sec.~6.1, Tab.~7, Fig.~4 \\
+Strategic incentives & Not tested & 216 repeal cases; universal relief 0.0\%; SbS Ireland 85.9\%; SBTI zero leakage in 27 of 27 & Sec.~6.3, Tab.~8, Fig.~5 \\
+Reproducibility & Stage scripts without a frozen output manifest & 13-module pipeline, 359 hash-verified outputs; 7 min 28 s with cached Stage 1 draws & Replication package \\
+\bottomrule
+\end{tabularx}}
+
+\vspace{2pt}
+{\footnotesize Notes. Monetary amounts in current US dollars unless stated; euro amounts are annual and converted at 1.0813 USD per EUR. ``Shapley'' attributes interaction variance across factors. $\Lambda$ divides the scenario spread by the width of the preferred scenario's 90\% parameter interval. The Dutch benchmark range is the October 2026 Ministry of Finance estimate. Sources: \texttt{writing/generated/paper\_v2\_tables/} and \texttt{data/processed/diagnostics/master\_paper\_v2\_scorecard.csv}.}
+
+\section{What I ask of you}
+
+I would value your answer on four points. First, whether you are willing to co-author the article, and on what division of roles; I would draft every section and maintain the code, and your judgement on positioning, the tax-law detail and the referee strategy would make the paper stronger. Second, a meeting of about 45 minutes in the week of 30 November to agree on the target journal and the title. Third, whether I may share this memo with Dr Kalwij, whose view on the variance decomposition and the division-bias argument (Upgrades 4 and 5) would be especially useful. Fourth, your advice on external PhD programmes in empirical business taxation and whether you would support my application.
+
+The timetable is short and realistic. A complete draft of Sections 1–7 and the Online Appendix will be ready by 18 December 2026. After one round of comments in January, the working paper would circulate in February 2027, and the submission would follow in March 2027. The detailed manuscript blueprint, with section-by-section content and the exhibit map, is available on request.
+
+\end{document}
