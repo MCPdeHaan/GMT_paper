@@ -732,6 +732,16 @@ write_data_descriptive_tables <- function() {
   )
 }
 
+stage3_sample_label <- function(x) {
+  recode(x, balanced_pairs = "Balanced pairs", baseline = "Baseline",
+    exclude_2020_2021 = "Exclude 2020–2021", exclude_stale_wages = "Exclude stale wages")
+}
+
+profit_source_label <- function(x) {
+  x <- str_replace_all(x, c("public_etr_parity" = "public ETR parity", "_" = " "))
+  paste0(toupper(substr(x, 1, 1)), substring(x, 2))
+}
+
 write_profit_correction_table <- function() {
   correction <- read_diag("step2_profit_correction_by_year.csv") |>
     filter(year %in% MAIN_YEARS) |>
@@ -814,6 +824,9 @@ write_profit_correction_table <- function() {
     ))
   }
 
+  sensitivity <- read_diag("step02a_profit_correction_revenue_sensitivity.csv")
+  sensitivity_profit <- setNames(sensitivity$positive_profit, sensitivity$specification)
+
   lines <- assemble_inline_table(
     col_spec = ">{\\raggedright\\arraybackslash}p{4.2cm}rrrrrr",
     caption_lines = c(
@@ -822,7 +835,15 @@ write_profit_correction_table <- function() {
     ),
     header_lines = "Category & Cells & Reported & Corrected & Reduction & Rate (\\%) & Share (\\%) \\\\",
     body_lines = row_lines,
-    notes = "Positive-profit cells, USD bn; share is share of total profit reduction.",
+    notes = paste0(
+      "Positive-profit cells, USD bn; share is share of total profit reduction. ",
+      "The table conditions on cells with positive reported profit (US\\$", fmt_bn(total$uncorrected_profit, 1),
+      " bn reported, US\\$", fmt_bn(total$corrected_profit, 1), " bn corrected), whereas Tables ",
+      "\\ref{tab:tab_v2_main_table1_sample_and_coverage} and \\ref{tab:profit_correction_revenue_sensitivity} ",
+      "sum all analytical cells with positive corrected profit (US\\$",
+      fmt_bn(sensitivity_profit[["profit_uncorrected"]], 1), " bn reported, US\\$",
+      fmt_bn(sensitivity_profit[["profit_preferred"]], 1), " bn corrected)."
+    ),
     size = "\\footnotesize",
     tabcolsep = "3pt"
   )
@@ -2525,9 +2546,9 @@ write_country_typology_tables <- function() {
     notes = paste(
       "Four clusters are selected because the jitter stability score is",
       paste0(fmt_pct(selected_stability$stability_score, 1), "\\%,"),
-      "the smallest cluster contains one country, and the four-cluster solution separates conduit hubs (T1), QDMTT-protected smaller states (T2), residual IIR/UTPR exposure states (T3) and states with latent exposure masked by sparse CbCR data (T4).",
+      "the smallest cluster contains one country, and the four-cluster solution separates conduit hubs (T1), QDMTT-protected smaller states (T2), residual IIR/UTPR exposure states (T3) and states with zero baseline collector receipts (T4).",
       "Rev.\\ is preferred behavioural SbS revenue in US dollars, billions.",
-      "For T4, zero Rev.\\ and missing channel shares reflect sparse CbCR coverage rather than absent exposure.",
+      "For T4, zero Rev.\\ and missing channel shares reflect non-adoption of qualified QDMTT and IIR rules: Cyprus had no qualified domestic top-up tax in the Central Record, and Estonia, Latvia, Lithuania and Malta deferred the rules under Article 50.",
       "Rev./CIT uses OECD T\\_1200 where available; cluster means ignore missing denominators.",
       "Res.\\ is residual IIR/UTPR exposure; SbS ext.\\ is the share of CIT revenue extinguished under the SbS regime; Imp.\\ is the high-risk imputation share.",
       ""
@@ -2666,7 +2687,7 @@ write_hypothesis_summary_table <- function() {
       "Supported.",
       "Supported. SbS is the second-largest variance source and materially changes collection channels.",
       "Supported in its cautious form: the panel supports a negative tax-profit relationship, but not a sharply nonlinear lower-tail specification.",
-      "Supported. Member States separate into high-salience conduit hubs, QDMTT-protected smaller exposures, residual IIR/UTPR exposure states and states whose exposure is masked by sparse CbCR data."
+      "Supported. Member States separate into high-salience conduit hubs, QDMTT-protected smaller exposures, residual IIR/UTPR exposure states and states whose zero baseline receipts reflect non-adoption of qualified QDMTT or IIR rules and Article 50 deferral."
     ))
   )
 
@@ -2742,8 +2763,8 @@ write_appendix_tables <- function() {
       `$\\hat{\\rho}$ (\\%)` = fmt_pct(rho_hat, 1),
       `Low (\\%)` = fmt_pct(rho_lo, 1),
       `High (\\%)` = fmt_pct(rho_hi, 1),
-      `Main source` = latex_escape(str_replace_all(main_sources, "_", " ")),
-      Support = latex_escape(str_replace_all(support_class, "_", " "))
+      `Main source` = latex_escape(profit_source_label(main_sources)),
+      Support = latex_escape(profit_source_label(support_class))
     )
 
   write_appendix_latex_table(
@@ -3081,7 +3102,8 @@ write_appendix_tables <- function() {
   asset_sensitivity <- read_diag("step4_stage2_sectoral_asset_sensitivity.csv") |>
     transmute(
       `Rate scenario` = latex_escape(normalise_factor_label(rate_scenario)),
-      `Asset sensitivity` = latex_escape(str_replace_all(asset_sensitivity, "_", " ")),
+      `Asset sensitivity` = recode(asset_sensitivity,
+        minus_25 = "$-25\\%$", baseline = "Baseline", plus_25 = "$+25\\%$"),
       `Asset scale` = fmt_num(asset_component_scale, 2),
       `Weighted phi (\\%)` = fmt_pct(weighted_phi, 1),
       `Average floor (\\%)` = fmt_pct(weighted_floor_average, 1),
@@ -3095,16 +3117,15 @@ write_appendix_tables <- function() {
     "llrrrr",
     c(
       "Rate scenario", "Asset sensitivity", "Asset scale",
-      "Weighted phi (\\%)", "Average floor (\\%)", "Distributional floor (\\%)"
+      "Weighted $\\phi$ (\\%)", "Average floor (\\%)", "Distributional floor (\\%)"
     ),
     asset_sensitivity,
     ""
   )
 
   sample_summary <- read_diag("step5_stage3_estimation_sample_summary.csv") |>
-    mutate(sample = str_replace_all(sample, "_", " ")) |>
     transmute(
-      Sample = latex_escape(str_to_sentence(sample)),
+      Sample = latex_escape(stage3_sample_label(sample)),
       Rows = fmt_int(rows),
       Pairs = fmt_int(pairs),
       Affiliates = fmt_int(affiliates),
@@ -3162,12 +3183,13 @@ write_appendix_tables <- function() {
 
   spec_tests <- read_diag("step5_stage3_specification_tests.csv") |>
     transmute(
-      Test = latex_escape(str_replace_all(test, "_", " ")),
+      Test = latex_escape(recode(test, vuong_gaussian_observation_ll = "Vuong log-likelihood",
+        clarke_sign = "Clarke sign test", davidson_mackinnon_j = "Davidson–MacKinnon J-test")),
       `Model A` = latex_escape(str_to_sentence(model_a)),
       `Model B` = latex_escape(str_to_sentence(model_b)),
       Statistic = fmt_num(statistic, 3),
       `$p$-value` = fmt_p(p_value),
-      Interpretation = latex_escape(interpretation)
+      Interpretation = latex_escape(paste0(toupper(substr(interpretation, 1, 1)), substring(interpretation, 2)))
     )
 
   write_appendix_latex_table(
@@ -3184,7 +3206,8 @@ write_appendix_tables <- function() {
     filter(inference == "parent_affiliate_clustered") |>
     transmute(
       Model = latex_escape(normalise_model_label(model_spec)),
-      `Tax terms` = latex_escape(terms),
+      `Tax terms` = recode(terms, "tau" = "$\\tau$", "tau + tau_sq" = "$\\tau, \\tau^2$",
+        "tau + log_tau" = "$\\tau, \\ln(\\tau+t_0)$"),
       `df num.` = fmt_int(df_num),
       `df den.` = fmt_int(df_den),
       `$F$-statistic` = fmt_num(f_statistic, 2),
@@ -3211,7 +3234,7 @@ write_appendix_tables <- function() {
   robustness <- read_diag("step5_stage3_model_robustness.csv") |>
     arrange(sample, bic_rank) |>
     transmute(
-      Sample = latex_escape(str_to_sentence(str_replace_all(sample, "_", " "))),
+      Sample = latex_escape(stage3_sample_label(sample)),
       Model = latex_escape(normalise_model_label(model_spec)),
       `$N$` = fmt_int(n),
       `Within $R^2$` = fmt_num(within_r_squared, 4),
@@ -3316,9 +3339,13 @@ write_appendix_tables <- function() {
 
   behavioural_design <- read_diag("step5_stage3_behavioural_identification_design.csv") |>
     transmute(
-      Component = latex_escape(str_to_sentence(str_replace_all(component, "_", " "))),
-      `Baseline treatment` = latex_escape(baseline_treatment),
-      `Identification status` = latex_escape(identification_status),
+      Component = latex_escape(recode(component, low_etr_nonlinearity = "Low-ETR nonlinearity",
+        sesh_notch_bunching = "SESH notch bunching",
+        .default = str_to_sentence(str_replace_all(component, "_", " ")))),
+      `Baseline treatment` = latex_escape(str_replace_all(baseline_treatment,
+        "Garcia-Bernardo and Jansky", "Garcia-Bernardo and Janský")),
+      `Identification status` = latex_escape(str_replace_all(identification_status,
+        "2017-2022 public CbCR panel", "2017–2023 public CbCR panel")),
       `Data for structural extension` =
         latex_escape(data_needed_for_structural_extension)
     )
@@ -3337,17 +3364,32 @@ write_appendix_tables <- function() {
     fit_width = TRUE
   )
 
+  stage45_labels <- c(
+    factorial_scenarios = "Factorial scenarios",
+    eu27_country_year_revenue_rows = "EU27 country-year revenue rows",
+    global_allocation_conservation_max_abs_gap = "Global allocation conservation, maximum absolute gap",
+    utpr_parent_year_weight_rows = "UTPR parent-year weight rows",
+    utpr_fallback_weight_rows = "UTPR fallback weight rows",
+    h4_mean_delta_sbs_minus_universal = "H4 mean delta (SbS minus Universal)",
+    h4_median_delta_sbs_minus_universal = "H4 median delta (SbS minus Universal)",
+    h4_wilcoxon_less_p_value = "H4 Wilcoxon p-value",
+    max_iir_ambiguous_parent_flag_share = "Max IIR ambiguous parent share",
+    max_utpr_ambiguous_collector_share = "Max UTPR ambiguous collector share",
+    eu_revenue_min_scenario = "EU27 revenue minimum scenario (US$ bn)",
+    eu_revenue_max_scenario = "EU27 revenue maximum scenario (US$ bn)"
+  )
   stage45_summary <- read_diag("step6_stage4_5_summary.csv") |>
     mutate(
+      value = as.numeric(value),
       value_fmt = case_when(
-        str_detect(metric, "revenue|delta|scenario") & !str_detect(metric, "rows|factorial") ~
-          fmt_bn(as.numeric(value), 3),
-        TRUE ~ fmt_num(as.numeric(value), 3)
-      ),
-      metric = str_replace_all(metric, "_", " ")
+        str_detect(metric, "rows|factorial") ~ fmt_int(value),
+        str_detect(metric, "p_value") ~ fmt_p(value),
+        str_detect(metric, "revenue|delta|scenario") ~ fmt_bn(value, 3),
+        TRUE ~ fmt_num(value, 3)
+      )
     ) |>
     transmute(
-      Metric = latex_escape(str_to_sentence(metric)),
+      Metric = latex_escape(coalesce(unname(stage45_labels[metric]), metric)),
       Value = value_fmt
     )
 
@@ -3406,11 +3448,16 @@ write_appendix_tables <- function() {
   )
 
   h4_reg <- read_diag("step6_stage4_5_h4_regression.csv") |>
-    mutate(term = str_replace_all(term, "_", " ")) |>
+    mutate(
+      scale = if_else(term == "preferred_scenario_revenue", 1, 1e9),
+      term = recode(term, "(Intercept)" = "Intercept", source_qdmttTRUE = "Source QDMTT enacted",
+        source_us_parented_topup_share = "US-parented share of source top-up",
+        preferred_scenario_revenue = "Preferred collector revenue")
+    ) |>
     transmute(
       Term = latex_escape(term),
-      Estimate = fmt_num(estimate, 4),
-      SE = fmt_num(std_error, 4),
+      Estimate = fmt_num(estimate / scale, 4),
+      SE = fmt_num(std_error / scale, 4),
       Statistic = fmt_num(statistic, 2),
       `$p$-value` = fmt_p(p_value),
       `$R^2$` = fmt_num(r_squared, 3)
@@ -3423,7 +3470,11 @@ write_appendix_tables <- function() {
     "lrrrrr",
     c("Term", "Estimate", "SE", "Statistic", "$p$-value", "$R^2$"),
     h4_reg,
-    ""
+    paste(
+      "The dependent variable is the SbS minus Universal revenue change.",
+      "The dependent variable and the first three terms are in US\\$ bn; the revenue slope is in USD per USD.",
+      ""
+    )
   )
 
   scenario_summary <- read_diag("step7_stage4_6_scenario_summary.csv") |>
@@ -4377,9 +4428,8 @@ make_preferred_channel_plot <- function() {
     ) +
     ggplot2::scale_x_continuous(
       labels = function(x) paste0("US$", x, "bn"),
-      limits = c(0, 585),
       breaks = seq(0, 500, by = 100),
-      expand = ggplot2::expansion(mult = c(0, 0.02))
+      expand = ggplot2::expansion(mult = c(0, 0.18))
     ) +
     ggplot2::scale_fill_manual(
       values = c(
@@ -4396,7 +4446,7 @@ make_preferred_channel_plot <- function() {
     theme_thesis(base_size = 8.2) +
     ggplot2::theme(
       legend.box = "horizontal",
-      plot.margin = ggplot2::margin(2, 4, 2, 2)
+      plot.margin = ggplot2::margin(4, 12, 4, 4)
     )
 }
 
@@ -4480,9 +4530,16 @@ paper_p <- function(x) {
 paper_pct <- function(x, digits = 2) paper_number(100 * x, digits)
 paper_bn <- function(x, digits = 2) paper_number(x / 1e9, digits)
 
+PAPER_RAW_PREFIX <- "<raw>"
+paper_raw <- function(x) paste0(PAPER_RAW_PREFIX, x)
+
 paper_bic <- function(x) {
-  ifelse(abs(x) >= 1e7, formatC(x, format = "e", digits = 4), paper_number(x, 1))
+  exponent <- floor(log10(abs(x)))
+  scientific <- paste0("$", formatC(x / 10^exponent, format = "f", digits = 2), "\\times 10^{", exponent, "}$")
+  ifelse(abs(x) >= 1e7, paper_raw(scientific), paper_number(x, 1))
 }
+
+paper_rates <- function(x) recode(x, initial = "Initial", long_run = "Long-run")
 
 paper_panel <- function(columns, rows) {
   stopifnot(ncol(rows) == length(columns), nrow(rows) > 0L)
@@ -4494,7 +4551,9 @@ paper_table_rows <- function(data) {
   cells <- as.matrix(data)
   cells[is.na(cells)] <- "--"
   apply(cells, 1, function(row) {
+    raw <- startsWith(row, PAPER_RAW_PREFIX)
     formatted <- latex_escape(row)
+    formatted[raw] <- substring(row[raw], nchar(PAPER_RAW_PREFIX) + 1L)
     formatted[formatted == "infinity"] <- paste0("$", bs, "infty$")
     formatted[formatted == "-infinity"] <- paste0("$-", bs, "infty$")
     formatted[formatted == "<0.001"] <- "$<0.001$"
@@ -4566,19 +4625,19 @@ write_paper_substance_table <- function() {
   shield <- paper_read("step4_stage2_sbti_vs_sectoral_sbie_decomposition") |>
     filter(affiliate == "EU27", etr_measurement == "distributional") |>
     arrange(year, rate_scenario) |>
-    transmute(year, rate_scenario, aggregate = paper_pct(aggregate_sbie_per_profit),
+    transmute(year, rate_scenario = paper_rates(rate_scenario), aggregate = paper_pct(aggregate_sbie_per_profit),
       sector = paper_pct(sectoral_sbie_per_profit), sbti = paper_pct(sectoral_sbie_sbti_per_profit),
       coverage = paper_pct(comparable_profit_share, 1))
   bracket <- paper_read("audit_step4_stage2_bracket_substance") |>
     filter(section == "paired_tests", scope %in% c("Global", "EU27"),
       t4_sample == "exclude_BRA_parent_FY2021") |>
     transmute(scope, cell = if_else(level == "bilateral", "Bilateral", "Host-year"),
-      rate_scenario, pairs = fmt_int(n_pairs), low = paper_pct(mean_phi_low, 1),
+      rate_scenario = paper_rates(rate_scenario), pairs = fmt_int(n_pairs), low = paper_pct(mean_phi_low, 1),
       high = paper_pct(mean_phi_high, 1), wilcoxon = paper_p(wilcoxon_p_two_sided),
       fe = paper_pct(fe_estimate), p = paper_p(fe_clustered_p))
   h5 <- paper_read("step4_stage2_sectoral_h5_panel_regression") |>
     filter(sample == "pooled_2021_2023") |>
-    transmute(rate_scenario, weights = if_else(model_variant == "profit_weighted", "Profit", "Equal"),
+    transmute(rate_scenario = paper_rates(rate_scenario), weights = if_else(model_variant == "profit_weighted", "Profit", "Equal"),
       coef = paper_number(estimate, 4), se = paper_number(std_error, 4),
       p = paper_p(p_value), n = fmt_int(n_obs), clusters = fmt_int(n_clusters))
   panels <- list(
@@ -4788,17 +4847,23 @@ write_paper_nash_table <- function() {
     "FY2023, L3, full EU27 adoption benchmark, US$ bn unless shown otherwise. Repeal holds the deviator's IIR and UTPR status fixed. The critical welfare weight uses net domestic tax foregone and retained profit. The SBTI overlay represents a capacity proxy. Its relief efficiency is distinct from the fiscal cost of new qualifying incentives.")
 }
 
+paper_scope_label <- function(x) {
+  recode(x, EU27_hosts = "EU27 hosts", EU27_parents = "EU27 parents", USA_parents = "US parents",
+    USA_EU27 = "US–EU27")
+}
+
 write_paper_cbcr_table <- function() {
   blending <- paper_read("step14_table3_vs_table4_blending_wedge") |>
     filter(record == "matched_summary", resolution == "bilateral", sample == "matched_observed_partitions",
       window == "2019–2023", scope %in% c("Global", "EU27", "USA_EU27", PAPER_BUDGET_COUNTRIES)) |>
-    transmute(scope, n = fmt_int(matched_pair_years), group = paper_pct(group_share_common),
+    filter(!is.na(group_share_common)) |>
+    transmute(scope = paper_scope_label(scope), n = fmt_int(matched_pair_years), group = paper_pct(group_share_common),
       juris = paper_pct(juris_share_common), gap = paper_pct(juris_share_common - group_share_common),
       low = paper_bn(hidden_lb_share_times_weight_usd), high = paper_bn(hidden_ub_share_times_weight_usd))
   size <- paper_read("step14_table6_mne_size_incidence") |>
     filter(record == "size_summary", sample == "complete_fine", window == "2022–2023",
-      scope %in% c("Global", "EU27_hosts", "USA_parents", "EU27_parents")) |>
-    transmute(scope, size = recode(size_class, size_less_2_5 = "Below 2.5", size_2_5_5 = "2.5–5",
+      scope %in% c("Global", "EU27_hosts", "USA_parents", "EU27_parents"), !is.na(positive_cell_profit_usd_share)) |>
+    transmute(scope = paper_scope_label(scope), size = recode(size_class, size_less_2_5 = "Below 2.5", size_2_5_5 = "2.5–5",
       size_5_10 = "5–10", size_greater_10 = "Above 10"),
       profit = paper_pct(positive_cell_profit_usd_share, 1), etr = paper_pct(positive_cell_etr, 1),
       shield = paper_pct(phi_initial, 1), topup = paper_pct(post_sbie_initial_rate))
@@ -4809,10 +4874,12 @@ write_paper_cbcr_table <- function() {
       tails = paper_pct(outer_both_tails_weighted_proxy, 1),
       low = paper_pct(upper_tail_weighted_lb_conditional, 1), high = paper_pct(upper_tail_weighted_ub_conditional, 1))
   activity <- paper_read("step14_business_activity_drivers") |>
-    filter(record == "activity_regression", term == "act_holding_panelai", fixed_effects == "affiliate^year") |>
-    transmute(scope, outcome = toupper(outcome), estimate = paper_number(outcome_pp_per_10pp_activity, 3),
+    filter(record == "activity_regression", term == "act_holding_panelai", fixed_effects == "affiliate^year",
+      !is.na(outcome_pp_per_10pp_activity)) |>
+    transmute(scope = paper_scope_label(scope),
+      outcome = if_else(toupper(outcome) == "PHI", paper_raw("Shield ratio ($\\phi$)"), toupper(outcome)), estimate = paper_number(outcome_pp_per_10pp_activity, 3),
       se = paper_number(se_pp_per_10pp_activity, 3), p = paper_p(p_value_holm_within_model))
-  write_paper_table("tab_v2_cbcr_tables_2_3_6_extensions", "CbCR blending, size, skewness and holding activity", list(
+  write_paper_float_table("tab_v2_cbcr_tables_2_3_6_extensions", "CbCR blending, size, skewness and holding activity", list(
     "A. Group versus jurisdictional blending" = paper_panel(c("Scope", "Pair-years", "Group (%)",
       "Jurisdiction (%)", "Gap (pp)", "Hidden lower", "Hidden upper"), blending),
     "B. Size-class incidence" = paper_panel(c("Scope", "Size", "Profit share (%)",
@@ -4820,7 +4887,10 @@ write_paper_cbcr_table <- function() {
     "C. Table II interquartile core" = paper_panel(c("Scope", "Cells", "ETR gap (pp)",
       "Outer tails (%)", "Top quartile low (%)", "Top quartile high (%)"), iqm),
     "D. Holding-activity slopes" = paper_panel(c("Scope", "Outcome", "Effect (pp)", "SE", "Holm p"), activity)),
-    "Panel A uses common bilateral weights and reports Frechet bounds on hidden profit in US$ bn. The joint allocation across margins is unobserved. Panel B uses complete fine partitions, with consolidated turnover bins in EUR bn and initial carve-outs. Panel C uses conditional bounds on the top quartile. Panel D reports changes per 10 percentage points of holding activity with host-year fixed effects.")
+    paste("Panel A uses common bilateral weights and reports Fréchet bounds on hidden profit in US$ bn. The joint allocation across margins is unobserved. Panel B uses complete fine partitions, with consolidated turnover bins in EUR bn and initial carve-outs. Panel C uses conditional bounds on the top quartile. Panel D reports changes per 10 percentage points of holding activity with host-year fixed effects.",
+      "US-parent rows are absent from public Tables III and VI, so the US–EU27 blending row and the US-parent size rows are omitted. Host-year fixed effects absorb the host-pooled L3 rate in Panel D, so its L3 rows are omitted."),
+    align = list("B. Size-class incidence" = "llrrrr", "D. Holding-activity slopes" = "llrrr"),
+    placement = "H")
 }
 
 make_paper_waterfall_figure <- function() {
@@ -4852,13 +4922,11 @@ make_paper_waterfall_figure <- function() {
     ggplot2::facet_grid(scope ~ panel, scales = "free", space = "free_x") +
     ggplot2::scale_linetype_manual(values = c("Budget benchmark" = "dashed"), name = NULL) +
     ggplot2::expand_limits(y = 0) +
-    ggplot2::labs(title = "From CbCR liability to budget benchmarks", x = NULL, y = "Collector revenue (EUR bn)",
-      caption = paste("A: FY2023 preferred SbS scenario, sequential adjustments through the 2026 safe-harbour proxy.",
-        "B: Annual preferred SbS model output, 2018 to 2023. Benchmarks refer to separate fiscal periods and definitions.", sep = "\n")) +
-    ggplot2::theme_minimal(base_size = 10) +
+    ggplot2::labs(x = NULL, y = "Collector revenue (EUR bn)") +
+    ggplot2::theme_minimal(base_size = 10, base_family = "serif") +
     ggplot2::theme(panel.grid.minor = ggplot2::element_blank(), panel.grid.major.x = ggplot2::element_blank(),
       axis.text.x = ggplot2::element_text(angle = 36, hjust = 1), strip.text = ggplot2::element_text(face = "bold"),
-      legend.position = "top", plot.caption = ggplot2::element_text(hjust = 0))
+      legend.position = "top", plot.margin = ggplot2::margin(10, 16, 12, 10))
 }
 
 make_paper_nash_figure <- function() {
@@ -4881,13 +4949,10 @@ make_paper_nash_figure <- function() {
     ggplot2::scale_shape_manual(values = c("QDMTT repeal under SbS" = 16, "Capped SBTI overlay" = 17), name = NULL) +
     ggplot2::scale_x_continuous(labels = scales::label_percent(), breaks = seq(0, 1, .25),
       expand = ggplot2::expansion(add = .025)) +
-    ggplot2::labs(title = "Tax relief per unit of top-up revenue foregone",
-      x = "Relief efficiency", y = NULL,
-      caption = paste("FY2023, L3 pooled, full EU27 adoption benchmark. The SBTI overlay is a capacity proxy.",
-        "The comparison excludes the cost of funding new qualifying incentives.", sep = "\n")) +
-    ggplot2::theme_minimal(base_size = 10) +
+    ggplot2::labs(x = "Relief efficiency", y = NULL) +
+    ggplot2::theme_minimal(base_size = 10, base_family = "serif") +
     ggplot2::theme(panel.grid.minor = ggplot2::element_blank(), panel.grid.major.y = ggplot2::element_blank(),
-      legend.position = "top", plot.caption = ggplot2::element_text(hjust = 0))
+      legend.position = "top", plot.margin = ggplot2::margin(10, 16, 12, 10))
 }
 
 # Single-page float for main-text tables: one table counter step and one caption.
@@ -4985,14 +5050,11 @@ make_paper_shapley_figure <- function() {
     ggplot2::scale_fill_manual(values = c("2017–2023" = "#2A6DB0", "2019–2023" = "#B5543A"), name = NULL) +
     ggplot2::scale_x_continuous(labels = scales::label_percent(), limits = c(0, 1),
       breaks = seq(0, .8, .2), expand = ggplot2::expansion(mult = c(0, .02))) +
-    ggplot2::labs(title = "Shapley shares of EU27 revenue variance by modelling decision",
-      x = "Share of pooled country-year variance", y = NULL,
-      caption = paste("Core design: five factors, 32 scenarios. Accounting bridge: six factors, 64 scenarios, by distributional ETR level.",
-        "Shapley shares allocate interaction variance across factors. The core design has no accounting factor.", sep = "\n")) +
-    ggplot2::theme_minimal(base_size = 10) +
+    ggplot2::labs(x = "Share of pooled country-year variance", y = NULL) +
+    ggplot2::theme_minimal(base_size = 10, base_family = "serif") +
     ggplot2::theme(panel.grid.minor = ggplot2::element_blank(), panel.grid.major.y = ggplot2::element_blank(),
       strip.text = ggplot2::element_text(face = "bold"), legend.position = "top",
-      plot.caption = ggplot2::element_text(hjust = 0), panel.spacing.x = grid::unit(1.2, "lines"))
+      panel.spacing.x = grid::unit(1.2, "lines"), plot.margin = ggplot2::margin(10, 16, 12, 10))
 }
 
 write_paper_v2_exhibits <- function() {
