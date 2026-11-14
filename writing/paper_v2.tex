@@ -71,7 +71,7 @@
 \thispagestyle{plain}
 \begin{center}
   {\LARGE\bfseries The Tax Base Decides:\\[0.2em] Why Global Minimum Tax\\[0.1em] Revenue Estimates Disagree%
-  \footnote{Working titles under discussion among the authors: \emph{Measurement before Behaviour: Decomposing Uncertainty in Europe's Global Minimum Tax Revenue} and \emph{Who Collects the Minimum Tax? Measurement, Accounting and Allocation in Public Country-by-Country Data}. The paper builds on the first author's MSc thesis at Utrecht University School of Economics; we thank Adriaan Kalwij for comments on that thesis. All data are public. The replication package, with pinned input extracts, code and a map from every exhibit to its inputs, is described in \texttt{REPLICATION.md}.}}\\[1.2em]
+  \footnote{Working titles under discussion among the authors: \emph{Measurement before Behaviour: Decomposing Uncertainty in Europe's Global Minimum Tax Revenue} and \emph{Who Collects the Minimum Tax? Measurement, Accounting and Allocation in Public Country-by-Country Data}. The paper builds on the first author's MSc thesis at Utrecht University School of Economics. All data are public. The replication package, with pinned input extracts, code and a map from every exhibit to its inputs, is described in \texttt{REPLICATION.md}.}}\\[1.2em]
   {\large Maurits de Haan \qquad Peter Gerbrands}\\[0.3em]
   % Placeholder: Javier Garcia-Bernardo (Utrecht University, Methodology and Statistics), pending discussion.
   {\small Utrecht University School of Economics}\\[0.3em]
@@ -181,7 +181,103 @@ The third group provides an external benchmark. We collect the official revenue 
 
 %% ===
 \section{Measuring the revenue filters}\label{sec:measurement}
-\draftstub{Pass 2}
+
+This section measures each filter of the revenue calculation in turn, because the choices made here are the modelling decisions whose influence the rest of the paper compares. It follows the order of Figure \ref{fig:v2_filters}, except that the accounting bridge comes last, since it adjusts quantities that the earlier subsections define.
+
+\subsection{How much profit is taxed below fifteen per cent}\label{sec:etr_ladder}
+
+The first and largest decision is how to find the profit that is taxed below the fifteen per cent floor. A single average rate for a host country cannot do this. A country whose average ETR is 22\% can contain subsidiaries taxed at 5\%, and the minimum tax applies to them; \citet{hugger2026} show that such cases hold more than half of all low-taxed profit. The opposite simplification has its own cost. The direct evidence on the within-country distribution, the ETR brackets of Table IV, is dominated by groups parented in the United States, which hold 81.3\% of the positive profit reported for EU27 hosts in 2023. Pooling these brackets by host country projects the tax profile of US multinationals onto domestic and European groups. How finely ETRs are aggregated is therefore a genuine choice, with a bias on either side.
+
+Three quantities summarise the outcome of that choice for each cell, and they enter equation \eqref{eq:liability} directly. With $\theta_{pjt}$ the tax accrued and $F_{pjt}$ the distribution of profit across ETRs within the cell, they are
+\begin{equation}\label{eq:stage1}
+\tau_{pjt}=\frac{\theta_{pjt}}{\pi^{*}_{pjt}},\qquad
+s_{pjt}=F_{pjt}(0.15),\qquad
+\bar g_{pjt}=0.15-\mathbb{E}_{F_{pjt}}\!\left[\tau \mid \tau<0.15\right].
+\end{equation}
+The cell ETR $\tau_{pjt}$ is computed on positive corrected profit and bounded to the unit interval. The low-taxed share $s_{pjt}$ is the fraction of profit below the floor, and $\bar g_{pjt}$ is the average distance to the floor within that fraction. Their product $s_{pjt}\bar g_{pjt}$ is the liability rate before any carve-out.
+
+We organise the possible treatments as a ladder of four levels, which is introduced in this paper. Level 1 (L1) applies the rule of \citet{barake2022}: all profit in a host-year is low-taxed if the profit-weighted host average $\bar\tau_{jt}$ lies below 15\%, and none otherwise. Level 2 (L2) applies the same binary rule to each parent–affiliate cell, $\mathbb{1}\{\tau_{pjt}<0.15\}$, which keeps the variation across parents and discards the dispersion within a cell. Level 3 (L3) is distributional at the host level and is our preferred specification. It takes the pooled Table IV bracket below 15\% where it exists (2019–2023), fits a distribution to the Table I percentiles where it does not (2021–2023), transports the shape of the 2019–2020 distributions back to 2017–2018 with a validated bracket-share imputation, and falls back to L1 otherwise. Level 4 (L4) is distributional and parent-specific. It uses the exact bilateral Table IV brackets first and bilateral percentile fits anchored to $\tau_{pjt}$ second. For the remaining cells an anchored variant applies the fitted dispersion at the cell's own mean, and a strict variant falls back to L2.
+
+\input{generated/paper_v2_tables/tab_v2_etr_ladder_and_crossval.tex}
+
+Panel A of Table \ref{tab:tab_v2_etr_ladder_and_crossval} shows how much the choice of level matters. Over 2017–2023, moving from L1 to L3 raises the EU27 liability rate from 2.91\% to 4.93\% of profit and the top-up tax after the carve-out from \usd200.42 billion to \usd328.15 billion. The parent-specific level gives \usd291.64 billion in its strict variant and \usd336.65 billion in its anchored variant, so the two distributional levels bracket each other. Globally the effect is larger: liability after the carve-out nearly doubles, from \usd872.92 billion under L1 to \usd1,586.13 billion under L3 and \usd1,753.69 billion under anchored L4.
+
+\subsection{Testing the fitted distribution against direct data}\label{sec:etr_validation}
+
+Where subsidiary-level brackets and published percentiles overlap, the fitted distribution can be checked against what is directly observed. The check matters because the fit supplies $s_{pjt}$ and $\bar g_{pjt}$ for every cell that has percentiles but no brackets.
+
+The fit chooses the two shape parameters of a Beta distribution so that its quantiles match the five published percentiles, while its mean equals the observed cell ETR. Its inputs are the percentiles $q_{k,pjt}$ of Table I and a ceiling $\bar\tau^{\max}_{jt}$; its output is the distribution $F_{pjt}$ used in equation \eqref{eq:stage1}:
+\begin{equation}\label{eq:betafit}
+(\hat\alpha_{pjt},\hat\beta_{pjt})=\arg\min_{\alpha,\beta>0}\sum_{k\in\{5,25,50,75,95\}}\Bigl[F^{-1}_{\mathrm{Beta}}\bigl(\tfrac{k}{100};\alpha,\beta\bigr)-\min\{q_{k,pjt},\bar\tau^{\max}_{jt}\}\Bigr]^2
+\quad\text{s.t.}\quad \frac{\alpha}{\alpha+\beta}=\tau_{pjt}.
+\end{equation}
+
+The ceiling repairs a distortion in the upper tail. In large domestic cells, loss offsets and timing differences push the 95th percentile above 100\%: it stands at 122.5\% for German groups in Germany and at 102.0\% for French groups in France in 2023, while the medians are 24.4\% and 22.0\%. If such a percentile is clipped only at 100\% and the mean is held near 20\%, least squares can reconcile the two only with both shape parameters below one. The fitted density is then U-shaped, with mass piled at zero and at one, and it places 64.4\% and 67.1\% of profit below 15\% although the bracket data locate that share between 25\% and 50\%. We therefore cap each percentile at the statutory rate of the host plus an allowance of five percentage points for loss offsets, $\bar\tau^{\max}_{jt}=\min\{\tau^{\mathrm{stat}}_{jt}+0.05,\,1\}$.
+
+Panel B of Table \ref{tab:tab_v2_etr_ladder_and_crossval} compares capped and uncapped fits with Table IV on the three samples in which both sources exist for 2021–2023: unmatched host-years (S1, 361 observations), host-years restricted to the same parents (S2, 70) and exact bilateral cells (S3, 81). The cap removes the U-shaped fits. The median bias in the low-taxed share falls from $+13.15$ percentage points to zero in S1 and from $+21.61$ to $+3.03$ in S2. The mean absolute error of the liability rate halves, from 3.85 to 1.74 percentage points in S2 and from 3.50 to 1.84 in S3, and the calibration $R^2$ rises from 0.339 and 0.404 to 0.549 and 0.520. The remaining error has a structural source. Table I percentiles are computed over subgroups, each counted once, whereas Table IV brackets are weighted by profit, so the two differ whenever low-taxed subgroups hold larger profit pools. Appendix \ref{app:measurement} reports the rank-consistency checks and the holdout test of the bracket-share imputation.
+
+\subsection{The exemption for real activity}\label{sec:substance}
+
+The rules exempt a fixed return on wages and tangible assets, so firms with real operations in low-tax countries pay less top-up tax than their profit alone suggests. The size of this exemption depends on where payroll and assets sit relative to low-taxed profit, which is an empirical matter.
+
+Three expressions translate the exemption into the terms of equation \eqref{eq:liability}. They take payroll $\hat W_{pjt}$, reconstructed from employees and wages, and tangible assets $A_{pjt}$ as inputs and produce the floor that a group effectively faces:
+\begin{equation}\label{eq:sbie}
+\mathrm{SBIE}_{pjt}=\sigma_W(t)\,\hat W_{pjt}+\sigma_A(t)\,A_{pjt},\qquad
+\phi_{pjt}=\min\Bigl\{1,\frac{\mathrm{SBIE}_{pjt}}{\pi^{*}_{pjt}}\Bigr\},\qquad
+\tau^{\mathrm{P2}}_{pjt}=0.15-\bar g_{pjt}\,\phi_{pjt}.
+\end{equation}
+$\sigma_W(t)$ and $\sigma_A(t)$ are the exclusion rates, which decline over the transition; switch $x_3$ selects their initial or long-run values. The shield ratio $\phi_{pjt}$ expresses the carve-out relative to profit. It adapts the absolute exclusion in \citet{devereux2023} and \citet{hugger2026} to a ratio so that cells of different size can be compared, and the bound at one reflects that the exclusion cannot exceed profit.
+
+Switch $x_2$ replaces the aggregate carve-out with a sectoral one. Eurostat FATS and EUKLEMS allocate host payroll, tangible capital and profit across 40 sectors for 2021–2023, so that the bound at one applies sector by sector. The sectoral treatment also carries the safe harbour for substance-based tax incentives of January 2026 \citep{oecd2026}. We proxy its capacity in host $j$, sector $q$ and year $t$ by $\kappa_{jqt}=\max\{0.055\,W_{jqt},\,0.01\,A_{jqt}\}/\pi_{jqt}$, the larger of 5.5\% of payroll and 1\% of tangible assets relative to profit. The proxy measures the room that the rules give to incentives of the kind discussed by \citet{ferreiraliotti2022} and \citet{schjelderup2024}; actual take-up is unobserved.
+
+\input{generated/paper_v2_tables/tab_v2_main_table3_substance_and_sbti.tex}
+
+Panel A of Table \ref{tab:tab_v2_main_table3_substance_and_sbti} separates the two components. Moving from the aggregate to the sectoral carve-out without the safe harbour slightly raises the EU27 liability rate, from 3.23\% to 3.36\% of profit in 2023 at initial rates. The reason is that payroll and tangible assets are concentrated in high-tax manufacturing, where the carve-out already exceeds profit and the bound wastes the excess, whereas low-taxed profit sits in asset-light sectors. Adding the safe harbour lowers the rate to 2.76\%, a reduction of 0.60 percentage points.
+
+Panel B tests the premise directly. Within the same EU27 host and year, Table IV subsidiaries in the bracket below 15\% have a shield ratio of 36.0\%, against 47.8\% in the brackets above it. The difference of $-11.78$ percentage points with host-year fixed effects is significant ($p=0.004$, 114 pairs), and it holds within bilateral cells ($-7.70$ points, $p=0.028$).\footnote{The global bilateral difference is smaller and insignificant ($-1.10$ points, $p=0.636$). Appendix \ref{app:measurement} reports the regressions of the floor reduction on capital intensity, which are significant in the profit-weighted specification ($p<10^{-7}$ across 2,653 country-sector-years).} Low-taxed profit in Europe is thus backed by less substance than other profit, which limits how much the exemption can remove.
+
+\subsection{How firms respond, once a mechanical bias is removed}\label{sec:behaviour}
+
+Firms that face a higher tax on profit booked in low-tax countries report less profit there, and the size of that response decides how much of the base survives. The literature measures the response with a semi-elasticity, the percentage fall in reported profit when the tax rate rises by one percentage point.
+
+The regression below estimates that semi-elasticity, and the expression after it converts the estimate into the retention factor $\lambda_{pjt}$ of equation \eqref{eq:liability}. Following \citet{hines1994}, log profit is regressed on a function of the ETR with pair effects $\mu_{pj}$, year effects $\gamma_t$ and controls $X_{pjt}$ (log tangible assets, log payroll, log GDP per capita and log population):
+\begin{equation}\label{eq:hinesrice}
+\ln\pi^{*}_{pjt}=\mu_{pj}+\gamma_t+f(\tau_{pjt})+X_{pjt}'\delta+\varepsilon_{pjt},
+\qquad
+\lambda_{pjt}=
+\begin{cases}
+0, & 0.13\le 0.15-\bar g_{pjt}<0.15,\\
+\exp\bigl(\hat\beta_1\,\bar g_{pjt}\bigr), & 0.15-\bar g_{pjt}<0.13.
+\end{cases}
+\end{equation}
+The sample holds 10,611 cells in 2,031 pairs over 2017–2023, and standard errors are clustered by parent and by affiliate. Three forms of $f$ are compared: linear ($\beta_1\tau$), quadratic ($\beta_1\tau+\beta_2\tau^2$, as in \citealp{dowd2017}) and logarithmic ($\beta_1\tau+\beta_3\ln(t_0+\tau)$ with $t_0=0.1528$, as in \citealp{garcia-bernardo2024}). The retention factor applies the linear slope to the gap that the floor closes. Cells whose low-taxed ETR lies within two points of the floor are assigned to the Simplified ETR Safe Harbour and generate no top-up tax.
+
+One feature of this regression produces a bias that is mechanical. The ETR divides tax by current profit. A positive shock to profit, or an error in measuring it, raises the dependent variable and at the same time pushes the ETR towards zero. Profit and the ETR then move in opposite directions even if firms do not respond to taxes at all. The problem grows when observations are weighted by profit, as in weighted least squares (WLS) and Poisson pseudo-maximum likelihood (PPML), and when the ETR enters inside a logarithm, because both give most influence to large cells with ETRs near zero. The result is an artificially steep slope in the low-tax tail.
+
+\input{generated/paper_v2_tables/tab_v2_stage3_division_bias_and_ppml.tex}
+
+Table \ref{tab:tab_v2_stage3_division_bias_and_ppml} documents the bias and its removal. In Panel A, unweighted fixed-effect least squares selects the linear form by the Bayesian information criterion, with $\hat\beta_1=-1.465$ (standard error 0.243, $p=2.4\times10^{-7}$). With the current ETR, the two weighted estimators select the logarithmic form and imply semi-elasticities at an ETR of 5\% of 11.20 and 9.33. Panel B replaces the current ETR, on the same cells, with regressors that do not contain the cell's own current profit. One is the ETR of the previous year. The other is a leave-one-parent-out ETR, introduced in this paper, which measures the tax rate in host $j$ from all other parents: $\tau_{-p,jt}=\sum_{p'\neq p}\theta_{p'jt}/\sum_{p'\neq p}\pi^{*}_{p'jt}$. The semi-elasticity at 5\% falls from 11.87 to 3.94 and from 11.20 to 3.19 under WLS, and from 9.94 to 3.22 and from 9.33 to 2.51 under PPML, and the joint tests of the tax terms lose significance ($p$ between 0.085 and 0.393). Lagging assets and payroll while keeping the current ETR leaves the estimates unchanged (11.85 and 9.95), so the denominator is the source.
+
+Panel C adds two instruments based on the tax code, the forward-looking effective average tax rate of the OECD (first-stage $F=10.81$) and the lagged statutory rate ($F=7.31$). Both preserve the negative sign ($-2.245$ and $-1.182$) and neither is precise ($p=0.156$ and $0.438$). We therefore use the linear slope of 1.465 as a disciplined scenario parameter, and we make no claim that it is a causal point forecast.\footnote{\citet{dowd2017} estimate steep responses at low rates from US tax returns, in which the tax rate is statutory and does not share a denominator with the outcome. Our finding concerns ETRs constructed from the same accounts as profit and does not contradict theirs.}
+
+\subsection{From accounting profit to the minimum-tax base}\label{sec:accounting_bridge}
+
+The profit in the public reports is an accounting figure, while the minimum tax applies to a defined base that excludes most dividends and offsets losses. Two features of the statistics make reported profit larger than that base. The main panel sums only the subgroups that are profitable in a country, so losses of other subgroups in the same country are left out, and the bracket tables include dividends received from other group members \citep{hanlon2023,oecd2025}.
+
+The bridge below removes these items in three steps. It takes corrected profit and produces the base $B_{pjt}$ that enters equation \eqref{eq:liability} when switch $x_6$ is on:
+\begin{equation}\label{eq:bridge}
+B_{pjt}=\max\bigl\{0,\;\pi^{*}_{pjt}-D_{pjt}-\ell^{\mathrm{cur}}_{pjt}-\ell^{\mathrm{prior}}_{pjt}\bigr\}.
+\end{equation}
+The first step removes excluded dividends and equity gains $D_{pjt}$. Participation dividends are exempt in most countries and therefore sit in the lowest bracket at a tax rate of zero, where they inflate low-taxed profit. With $\rho^{\mathrm{IV}}_{pjt}$ the dividend share of profit in the bracket data, the low-taxed share and the ETR within the bracket become
+\begin{equation}\label{eq:purge}
+s'_{pjt}=\max\Bigl\{0,\frac{s_{pjt}-\rho^{\mathrm{IV}}_{pjt}}{1-\rho^{\mathrm{IV}}_{pjt}}\Bigr\},\qquad
+e'_{pjt}=\frac{e_{pjt}}{1-\rho^{\mathrm{IV}}_{pjt}/s_{pjt}},
+\end{equation}
+where $e_{pjt}$ is the ETR on low-taxed profit before the adjustment. In conduit jurisdictions, foreign holding-company cells are scaled by the share of holding entities that the statistics report.
+
+The second step nets current losses $\ell^{\mathrm{cur}}_{pjt}$. The rules compute income by jurisdiction, so the losses of some subgroups offset the profit of others in the same country and year. This step alone reduces EU27 positive profit over 2017–2023 from \usd7.32 trillion to \usd5.55 trillion and collector revenue in the preferred scenario from \usd343.77 billion to \usd247.20 billion. The third step deducts prior losses $\ell^{\mathrm{prior}}_{pjt}$. We track the cumulative net loss of each jurisdiction from 2016 and set it against later profit, which brings revenue to \usd235.45 billion, or \usd214.06 billion when combined with the dividend adjustment. The bridge is introduced in this paper and is built from public aggregates, so each step approximates a rule that is applied firm by firm.
+
+Two further adjustments concern timing and the transition. Section \ref{sec:decomposition} evaluates a covered-tax envelope that takes the larger of tax accrued and tax paid, and the tests of the transitional safe harbour for 2024–2026, when it compares the model with national budgets. With every filter measured, Section \ref{sec:decomposition} asks which of them drives the spread across revenue estimates.
 
 \section{Where the disagreement comes from}\label{sec:decomposition}
 \draftstub{Pass 3}
