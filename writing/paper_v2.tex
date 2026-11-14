@@ -27,6 +27,9 @@
 \usepackage{array}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage{adjustbox}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 \usepackage{xcolor}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta, positioning}
@@ -182,11 +185,11 @@ The third group provides an external benchmark. We collect the official revenue 
 %% ===
 \section{Measuring the revenue filters}\label{sec:measurement}
 
-This section measures each filter of the revenue calculation in turn, because the choices made here are the modelling decisions whose influence the rest of the paper compares. It follows the order of Figure \ref{fig:v2_filters}, except that the accounting bridge comes last, since it adjusts quantities that the earlier subsections define.
+This section measures each filter of the revenue calculation in turn, because the choices made here are the modelling decisions whose influence the rest of the paper compares. It follows Figure \ref{fig:v2_filters}, except that the accounting bridge comes last because it adjusts quantities defined earlier.
 
 \subsection{How much profit is taxed below fifteen per cent}\label{sec:etr_ladder}
 
-The first and largest decision is how to find the profit that is taxed below the fifteen per cent floor. A single average rate for a host country cannot do this. A country whose average ETR is 22\% can contain subsidiaries taxed at 5\%, and the minimum tax applies to them; \citet{hugger2026} show that such cases hold more than half of all low-taxed profit. The opposite simplification has its own cost. The direct evidence on the within-country distribution, the ETR brackets of Table IV, is dominated by groups parented in the United States, which hold 81.3\% of the positive profit reported for EU27 hosts in 2023. Pooling these brackets by host country projects the tax profile of US multinationals onto domestic and European groups. How finely ETRs are aggregated is therefore a genuine choice, with a bias on either side.
+The first and largest decision is how to find the profit that is taxed below the fifteen per cent floor. A single average rate for a host country cannot do this. A country whose average ETR is 22\% can contain subsidiaries taxed at 5\%, and the minimum tax applies to them; \citet{hugger2026} show that such cases hold more than half of all low-taxed profit. Yet the direct evidence on the within-country distribution, the ETR brackets of Table IV, is dominated by US-parented groups, which hold 81.3\% of the positive profit reported for EU27 hosts in 2023, so pooling them by host projects the tax profile of US multinationals onto domestic and European groups. How finely ETRs are aggregated is therefore a genuine choice, with a bias on either side.
 
 Three quantities summarise the outcome of that choice for each cell, and they enter equation \eqref{eq:liability} directly. With $\theta_{pjt}$ the tax accrued and $F_{pjt}$ the distribution of profit across ETRs within the cell, they are
 \begin{equation}\label{eq:stage1}
@@ -200,11 +203,11 @@ We organise the possible treatments as a ladder of four levels, which is introdu
 
 \input{generated/paper_v2_tables/tab_v2_etr_ladder_and_crossval.tex}
 
-Panel A of Table \ref{tab:tab_v2_etr_ladder_and_crossval} shows how much the choice of level matters. Over 2017–2023, moving from L1 to L3 raises the EU27 liability rate from 2.91\% to 4.93\% of profit and the top-up tax after the carve-out from \usd200.42 billion to \usd328.15 billion. The parent-specific level gives \usd291.64 billion in its strict variant and \usd336.65 billion in its anchored variant, so the two distributional levels bracket each other. Globally the effect is larger: liability after the carve-out nearly doubles, from \usd872.92 billion under L1 to \usd1,586.13 billion under L3 and \usd1,753.69 billion under anchored L4.
+Panel A of Table \ref{tab:tab_v2_etr_ladder_and_crossval} shows how much the choice of level matters. Over 2017–2023, moving from L1 to L3 raises the EU27 liability rate from 2.91\% to 4.93\% of profit and the top-up tax after the carve-out from \usd200.42 billion to \usd328.15 billion; the strict and anchored variants of L4 give \usd291.64 billion and \usd336.65 billion, so the two distributional levels bracket each other.
 
 \subsection{Testing the fitted distribution against direct data}\label{sec:etr_validation}
 
-Where subsidiary-level brackets and published percentiles overlap, the fitted distribution can be checked against what is directly observed. The check matters because the fit supplies $s_{pjt}$ and $\bar g_{pjt}$ for every cell that has percentiles but no brackets.
+Where subsidiary-level brackets and published percentiles overlap, the fitted distribution can be checked against what is directly observed. This matters because the fit supplies $s_{pjt}$ and $\bar g_{pjt}$ wherever percentiles exist without brackets.
 
 The fit chooses the two shape parameters of a Beta distribution so that its quantiles match the five published percentiles, while its mean equals the observed cell ETR. Its inputs are the percentiles $q_{k,pjt}$ of Table I and a ceiling $\bar\tau^{\max}_{jt}$; its output is the distribution $F_{pjt}$ used in equation \eqref{eq:stage1}:
 \begin{equation}\label{eq:betafit}
@@ -212,9 +215,9 @@ The fit chooses the two shape parameters of a Beta distribution so that its quan
 \quad\text{s.t.}\quad \frac{\alpha}{\alpha+\beta}=\tau_{pjt}.
 \end{equation}
 
-The ceiling repairs a distortion in the upper tail. In large domestic cells, loss offsets and timing differences push the 95th percentile above 100\%: it stands at 122.5\% for German groups in Germany and at 102.0\% for French groups in France in 2023, while the medians are 24.4\% and 22.0\%. If such a percentile is clipped only at 100\% and the mean is held near 20\%, least squares can reconcile the two only with both shape parameters below one. The fitted density is then U-shaped, with mass piled at zero and at one, and it places 64.4\% and 67.1\% of profit below 15\% although the bracket data locate that share between 25\% and 50\%. We therefore cap each percentile at the statutory rate of the host plus an allowance of five percentage points for loss offsets, $\bar\tau^{\max}_{jt}=\min\{\tau^{\mathrm{stat}}_{jt}+0.05,\,1\}$. The rate $\tau^{\mathrm{stat}}_{jt}$ is the central-government corporate income tax rate of host $j$ in year $t$ from the OECD Corporate Tax Statistics database, taken at the targeted rate where the database reports one alongside the standard rate. In 2023 it is 15.8\% in Germany and 15.0\% in France, which gives ceilings of 20.8\% and 20.0\%.
+The ceiling repairs a distortion in the upper tail. In large domestic cells, loss offsets and timing differences push the 95th percentile above 100\%: in 2023 it stands at 122.5\% for German groups in Germany and 102.0\% for French groups in France. If such a percentile is clipped only at 100\% and the mean is held near 20\%, least squares needs both shape parameters below one. The fitted density is then U-shaped and places 64.4\% and 67.1\% of profit below 15\% although the bracket data locate that share between 25\% and 50\%. We therefore cap each percentile at the statutory rate of the host plus an allowance of five percentage points for loss offsets, $\bar\tau^{\max}_{jt}=\min\{\tau^{\mathrm{stat}}_{jt}+0.05,\,1\}$. With OECD statutory rates, targeted where reported (Appendix \ref{app:measurement}), the 2023 ceilings are 20.8\% in Germany and 20.0\% in France.
 
-Panel B of Table \ref{tab:tab_v2_etr_ladder_and_crossval} compares capped and uncapped fits with Table IV on the three samples in which both sources exist for 2021–2023: unmatched host-years (S1, 361 observations), host-years restricted to the same parents (S2, 70) and exact bilateral cells (S3, 81). The cap removes the U-shaped fits. The median bias in the low-taxed share falls from $+13.15$ percentage points to zero in S1 and from $+21.61$ to $+3.03$ in S2. The mean absolute error of the liability rate halves, from 3.85 to 1.74 percentage points in S2 and from 3.50 to 1.84 in S3, and the calibration $R^2$ rises from 0.339 and 0.404 to 0.549 and 0.520. The remaining error has a structural source. Table I percentiles are computed over subgroups, each counted once, whereas Table IV brackets are weighted by profit, so the two differ whenever low-taxed subgroups hold larger profit pools. Appendix \ref{app:measurement} reports the rank-consistency checks and the holdout test of the bracket-share imputation.
+Panel B of Table \ref{tab:tab_v2_etr_ladder_and_crossval} compares capped and uncapped fits with Table IV on the three samples in which both sources exist for 2021–2023: unmatched host-years (S1, 361 observations), host-years restricted to the same parents (S2, 70) and exact bilateral cells (S3, 81). The median bias in the low-taxed share falls from $+13.15$ percentage points to zero in S1 and from $+21.61$ to $+3.03$ in S2. The mean absolute error of the liability rate roughly halves in S2 and S3, and the calibration $R^2$ rises above one half. The remaining error has a structural source. Table I percentiles are computed over subgroups, each counted once, whereas Table IV brackets are weighted by profit, so the two differ whenever low-taxed subgroups hold larger profit pools. Appendix \ref{app:measurement} reports the rank-consistency checks and the holdout test of the bracket-share imputation.
 
 \subsection{The exemption for real activity}\label{sec:substance}
 
@@ -226,15 +229,15 @@ Three expressions translate the exemption into the terms of equation \eqref{eq:l
 \phi_{pjt}=\min\Bigl\{1,\frac{\mathrm{SBIE}_{pjt}}{\pi^{*}_{pjt}}\Bigr\},\qquad
 \tau^{\mathrm{P2}}_{pjt}=0.15-\bar g_{pjt}\,\phi_{pjt}.
 \end{equation}
-$\sigma_W(t)$ and $\sigma_A(t)$ are the exclusion rates, which decline over the transition; switch $x_3$ selects their initial or long-run values. The shield ratio $\phi_{pjt}$ expresses the carve-out relative to profit. It adapts the absolute exclusion in \citet{devereux2023} and \citet{hugger2026} to a ratio so that cells of different size can be compared, and the bound at one reflects that the exclusion cannot exceed profit.
+$\sigma_W(t)$ and $\sigma_A(t)$ are the exclusion rates, which decline over the transition; switch $x_3$ selects their initial or long-run values. The shield ratio $\phi_{pjt}$ adapts the absolute exclusion in \citet{devereux2023} and \citet{hugger2026} to a ratio, so that cells of different size can be compared; it is bounded at one because the exclusion cannot exceed profit.
 
-Switch $x_2$ replaces the aggregate carve-out with a sectoral one. Eurostat FATS and EUKLEMS allocate host payroll, tangible capital and profit across 40 sectors for 2021–2023, so that the bound at one applies sector by sector. The sectoral treatment also carries the safe harbour for substance-based tax incentives of January 2026 \citep{oecd2026}. We proxy its capacity in host $j$, sector $q$ and year $t$ by $\kappa_{jqt}=\max\{0.055\,W_{jqt},\,0.01\,A_{jqt}\}/\pi_{jqt}$, the larger of 5.5\% of payroll and 1\% of tangible assets relative to profit. The proxy measures the room that the rules give to incentives of the kind discussed by \citet{ferreiraliotti2022} and \citet{schjelderup2024}; actual take-up is unobserved.
+Switch $x_2$ replaces the aggregate carve-out with a sectoral one. Eurostat FATS and EUKLEMS allocate host payroll, tangible capital and profit across 40 sectors for 2021–2023, so that the bound at one applies sector by sector. The sectoral treatment also carries the safe harbour for substance-based tax incentives of January 2026 \citep{oecd2026}. We proxy its capacity in host $j$, sector $q$ and year $t$ by $\kappa_{jqt}=\max\{0.055\,W_{jqt},\,0.01\,A_{jqt}\}/\pi_{jqt}$. The proxy measures the room that the rules give to incentives of the kind discussed by \citet{ferreiraliotti2022} and \citet{schjelderup2024}; actual take-up is unobserved.
 
 \input{generated/paper_v2_tables/tab_v2_main_table3_substance_and_sbti.tex}
 
-Panel A of Table \ref{tab:tab_v2_main_table3_substance_and_sbti} separates the two components. Moving from the aggregate to the sectoral carve-out without the safe harbour slightly raises the EU27 liability rate, from 3.23\% to 3.36\% of profit in 2023 at initial rates. The reason is that payroll and tangible assets are concentrated in high-tax manufacturing, where the carve-out already exceeds profit and the bound wastes the excess, whereas low-taxed profit sits in asset-light sectors. Adding the safe harbour lowers the rate to 2.76\%, a reduction of 0.60 percentage points.
+Panel A of Table \ref{tab:tab_v2_main_table3_substance_and_sbti} separates the two components. Moving from the aggregate to the sectoral carve-out without the safe harbour slightly raises the EU27 liability rate, from 3.23\% to 3.36\% of profit in 2023 at initial rates. Payroll and tangible assets are concentrated in high-tax manufacturing, where the carve-out already exceeds profit and the bound wastes the excess, whereas low-taxed profit sits in asset-light sectors. Adding the safe harbour lowers the rate to 2.76\%.
 
-Panel B tests the premise directly. Within the same EU27 host and year, Table IV subsidiaries in the bracket below 15\% have a shield ratio of 36.0\%, against 47.8\% in the brackets above it. The difference of $-11.78$ percentage points with host-year fixed effects is significant ($p=0.004$, 114 EU27 host-year pairs over 2019–2023), and it holds within bilateral cells ($-7.70$ points, $p=0.028$).\footnote{The global bilateral difference is smaller and insignificant ($-1.10$ points, $p=0.636$). Appendix \ref{app:measurement} reports the regressions of the floor reduction on capital intensity, which are significant in the profit-weighted specification ($p<10^{-7}$ across 2,653 country-sector-years).} Low-taxed profit in Europe is thus backed by less substance than other profit, which limits how much the exemption can remove.
+Panel B tests the premise directly. Within the same EU27 host and year, Table IV subsidiaries in the bracket below 15\% have a shield ratio of 36.0\%, against 47.8\% in the brackets above it. The difference of $-11.78$ percentage points with host-year fixed effects is significant ($p=0.004$, 114 EU27 host-year pairs over 2019–2023), and it holds within bilateral cells ($-7.70$ points, $p=0.028$).\footnote{The global bilateral difference is smaller and insignificant ($-1.10$ points, $p=0.636$). Appendix \ref{app:measurement} reports regressions of the floor reduction on capital intensity.} Low-taxed profit in Europe is thus backed by less substance than other profit, which limits how much the exemption can remove.
 
 \subsection{How firms respond, once a mechanical bias is removed}\label{sec:behaviour}
 
@@ -252,32 +255,32 @@ The regression below estimates that semi-elasticity, and the expression after it
 \end{equation}
 The sample holds 10,611 cells in 2,031 pairs over 2017–2023, and standard errors are clustered by parent and by affiliate. Three forms of $f$ are compared: linear ($\beta_1\tau$), quadratic ($\beta_1\tau+\beta_2\tau^2$, as in \citealp{dowd2017}) and logarithmic ($\beta_1\tau+\beta_3\ln(t_0+\tau)$ with $t_0=0.1528$, as in \citealp{garcia-bernardo2024}). The retention factor applies the linear slope to the gap that the floor closes. Cells whose low-taxed ETR lies within two points of the floor are assigned to the Simplified ETR Safe Harbour and generate no top-up tax.
 
-One feature of this regression produces a bias that is mechanical. The ETR divides tax by current profit. A positive shock to profit, or an error in measuring it, raises the dependent variable and at the same time pushes the ETR towards zero. Profit and the ETR then move in opposite directions even if firms do not respond to taxes at all. The problem grows when observations are weighted by profit, as in weighted least squares (WLS) and Poisson pseudo-maximum likelihood (PPML), and when the ETR enters inside a logarithm, because both give most influence to large cells with ETRs near zero. The result is an artificially steep slope in the low-tax tail.
+One feature of this regression produces a mechanical bias. The ETR divides tax by current profit, so a positive shock to profit, or an error in measuring it, raises the dependent variable and pushes the ETR towards zero, even if firms do not respond to taxes at all. Weighting by profit, as in weighted least squares (WLS) and Poisson pseudo-maximum likelihood (PPML), and entering the ETR inside a logarithm both give most influence to large cells with ETRs near zero, which steepens the slope in the low-tax tail.
 
 \input{generated/paper_v2_tables/tab_v2_stage3_division_bias_and_ppml.tex}
 
-Table \ref{tab:tab_v2_stage3_division_bias_and_ppml} documents the bias and its removal. In Panel A, unweighted fixed-effect least squares selects the linear form by the Bayesian information criterion, with $\hat\beta_1=-1.465$ (standard error 0.243, $p=2.4\times10^{-7}$). With the current ETR, the two weighted estimators select the logarithmic form and imply semi-elasticities at an ETR of 5\% of 11.20 and 9.33. Panel B replaces the current ETR, on the same cells, with regressors that do not contain the cell's own current profit. One is the ETR of the previous year. The other is a leave-one-parent-out ETR, introduced in this paper, which measures the tax rate in host $j$ from all other parents: $\tau_{-p,jt}=\sum_{p'\neq p}\theta_{p'jt}/\sum_{p'\neq p}\pi^{*}_{p'jt}$. The semi-elasticity at 5\% falls from 11.87 to 3.94 and from 11.20 to 3.19 under WLS, and from 9.94 to 3.22 and from 9.33 to 2.51 under PPML, and the joint tests of the tax terms lose significance ($p$ between 0.085 and 0.393). Lagging assets and payroll while keeping the current ETR leaves the estimates unchanged (11.85 and 9.95), so the denominator is the source.
+Table \ref{tab:tab_v2_stage3_division_bias_and_ppml} documents the bias and its removal. In Panel A, unweighted fixed-effect least squares selects the linear form by the Bayesian information criterion, with $\hat\beta_1=-1.465$ (standard error 0.243, $p=2.4\times10^{-7}$). With the current ETR, the two weighted estimators select the logarithmic form and imply semi-elasticities at an ETR of 5\% of 11.20 and 9.33. Panel B replaces the current ETR, on the same cells, with two regressors that exclude the cell's own current profit: the ETR of the previous year and a leave-one-parent-out ETR, introduced in this paper, which measures the tax rate in host $j$ from all other parents, $\tau_{-p,jt}=\sum_{p'\neq p}\theta_{p'jt}/\sum_{p'\neq p}\pi^{*}_{p'jt}$. Under both weighted estimators the semi-elasticity at 5\% falls to between 2.51 and 3.94, and the joint tests of the tax terms lose significance ($p$ between 0.085 and 0.393). Lagging assets and payroll while keeping the current ETR leaves the estimates unchanged, so the denominator is the source.
 
-Panel C adds two instruments based on the tax code, the forward-looking effective average tax rate of the OECD (first-stage $F=10.81$) and the lagged statutory rate ($F=7.31$). Both preserve the negative sign ($-2.245$ and $-1.182$) and neither is precise ($p=0.156$ and $0.438$). We therefore use the linear slope of 1.465 as a disciplined scenario parameter, and we make no claim that it is a causal point forecast.\footnote{\citet{dowd2017} estimate steep responses at low rates from US tax returns, in which the tax rate is statutory and does not share a denominator with the outcome. Our finding concerns ETRs constructed from the same accounts as profit and does not contradict theirs.}
+Panel C adds two instruments based on the tax code, the forward-looking effective average tax rate of the OECD (first-stage $F=10.81$) and the lagged statutory rate ($F=7.31$). Both keep the negative sign, and neither is precise ($p=0.156$ and $0.438$). We therefore use the linear slope of 1.465 as a disciplined scenario parameter rather than a causal point forecast.\footnote{\citet{dowd2017} estimate steep responses at low rates from US tax returns, where the statutory rate shares no denominator with profit, so our finding does not contradict theirs.}
 
 \subsection{From accounting profit to the minimum-tax base}\label{sec:accounting_bridge}
 
-The profit in the public reports is an accounting figure, while the minimum tax applies to a defined base that excludes most dividends and offsets losses. Two features of the statistics make reported profit larger than that base. The main panel sums only the subgroups that are profitable in a country, so losses of other subgroups in the same country are left out, and the bracket tables include dividends received from other group members \citep{hanlon2023,oecd2025}.
+The profit in the public reports is an accounting figure, while the minimum tax applies to a defined base that excludes most dividends and offsets losses. Reported profit exceeds that base because the main panel sums only the subgroups that are profitable in a country, omitting the losses of the others, and because the bracket tables include dividends received from other group members \citep{hanlon2023,oecd2025}.
 
 The bridge below removes these items in three steps. It takes corrected profit and produces the base $B_{pjt}$ that enters equation \eqref{eq:liability} when switch $x_6$ is on:
 \begin{equation}\label{eq:bridge}
 B_{pjt}=\max\bigl\{0,\;\pi^{*}_{pjt}-D_{pjt}-\ell^{\mathrm{cur}}_{pjt}-\ell^{\mathrm{prior}}_{pjt}\bigr\}.
 \end{equation}
-The first step removes excluded dividends and equity gains $D_{pjt}$. Participation dividends are exempt in most countries and therefore sit in the lowest bracket at a tax rate of zero, where they inflate low-taxed profit. With $\rho^{\mathrm{IV}}_{pjt}$ the dividend share of profit in the bracket data, the low-taxed share and the ETR within the bracket become
+The first step removes excluded dividends and equity gains $D_{pjt}$. Participation dividends, exempt in most countries, sit in the lowest bracket at a zero rate and inflate low-taxed profit. With $\rho^{\mathrm{IV}}_{pjt}$ the dividend share of profit in the bracket data, the low-taxed share and the ETR within the bracket become
 \begin{equation}\label{eq:purge}
 s'_{pjt}=\max\Bigl\{0,\frac{s_{pjt}-\rho^{\mathrm{IV}}_{pjt}}{1-\rho^{\mathrm{IV}}_{pjt}}\Bigr\},\qquad
 e'_{pjt}=\frac{e_{pjt}}{1-\rho^{\mathrm{IV}}_{pjt}/s_{pjt}},
 \end{equation}
-where $e_{pjt}$ is the ETR on low-taxed profit before the adjustment. In conduit jurisdictions, foreign holding-company cells are scaled by the share of holding entities that the statistics report.
+where $e_{pjt}$ is the ETR on low-taxed profit before the adjustment.
 
-The second step nets current losses $\ell^{\mathrm{cur}}_{pjt}$. The rules compute income by jurisdiction, so the losses of some subgroups offset the profit of others in the same country and year. This step alone reduces EU27 positive profit over 2017–2023 from \usd7.32 trillion to \usd5.55 trillion and collector revenue in the preferred scenario from \usd343.77 billion to \usd247.20 billion. The third step deducts prior losses $\ell^{\mathrm{prior}}_{pjt}$. We track the cumulative net loss of each jurisdiction from 2016 and set it against later profit, which brings revenue to \usd235.45 billion, or \usd214.06 billion when combined with the dividend adjustment. The bridge is introduced in this paper and is built from public aggregates, so each step approximates a rule that is applied firm by firm.
+The second step nets current losses $\ell^{\mathrm{cur}}_{pjt}$, since the rules compute income by jurisdiction. This step alone reduces EU27 positive profit over 2017–2023 from \usd7.32 trillion to \usd5.55 trillion and preferred collector revenue from \usd343.77 billion to \usd247.20 billion. The third step deducts prior losses $\ell^{\mathrm{prior}}_{pjt}$, tracked as the cumulative net loss of each jurisdiction from 2016, which brings revenue to \usd235.45 billion, or \usd214.06 billion with the dividend adjustment. The bridge, introduced in this paper, is built from public aggregates, so each step approximates a rule applied firm by firm.
 
-Two further adjustments concern timing and the transition. Section \ref{sec:decomposition} evaluates a covered-tax envelope that takes the larger of tax accrued and tax paid, and the tests of the transitional safe harbour for 2024–2026, when it compares the model with national budgets. With every filter measured, Section \ref{sec:decomposition} asks which of them drives the spread across revenue estimates.
+Adjustments for tax timing and the transitional safe harbour enter in Section \ref{sec:backtest}, where the model meets national budgets. With every filter measured, Section \ref{sec:decomposition} asks which of them drives the spread across revenue estimates.
 
 \section{Where the disagreement comes from}\label{sec:decomposition}
 
@@ -352,7 +355,7 @@ Second, the sequence lowers Dutch FY2023 collector revenue by 93.7\%, from \EUR6
 
 \section{Who collects and who gives up revenue}\label{sec:allocation}
 
-Once the size of the top-up liability is settled, the legal order of claims and the relocation of profit by firms decide which treasuries receive it, and whether a host state has any reason to keep its own domestic top-up tax. Section \ref{sec:ledger} sets the liability generated in each Member State against the revenue its treasury collects, Section \ref{sec:cit_recovery} adds the ordinary corporate tax that relocated profit pays, and Section \ref{sec:repeal_game} tests whether any state gains by repealing its domestic top-up tax.
+Once the size of the top-up liability is settled, the legal order of claims and the relocation of profit by firms decide which treasuries receive it, and whether a host state has any reason to keep its own domestic top-up tax. The three subsections take these questions in turn.
 
 \subsection{Liability generated and revenue collected}\label{sec:ledger}
 
@@ -363,15 +366,15 @@ The waterfall below takes the post-behaviour liability $L_{pjt}$ of equation \eq
 L_{pjt} &= L^{Q}_{pjt} + L^{I}_{pjt} + L^{U}_{pjt} + L^{S}_{pjt}, \label{eq:waterfall}\\
 R_c &= \sum_{p,j,t}\Bigl(\mathbb{1}\{j=c\}\,L^{Q}_{pjt} + \mathbb{1}\{p=c\}\,L^{I}_{pjt} + \omega^{U}_{cpt}\,L^{U}_{pjt}\Bigr). \label{eq:collectors}
 \end{align}
-The host pool $L^{Q}_{pjt}$ takes the whole liability when host $j$ levies a qualified QDMTT; failing that, the parent pool $L^{I}_{pjt}$ takes it when parent state $p$ applies a qualified IIR. $L^{S}_{pjt}$ holds the liability of US-parented groups in hosts without a QDMTT, which SbS extinguishes. The remainder $L^{U}_{pjt}$ goes to the states that apply a UTPR and host the group, weighted equally by its employees and tangible assets there ($\omega^{U}_{cpt}$). Legal status follows the sources in Section \ref{sec:otherdata}.
+The host pool $L^{Q}_{pjt}$ takes the whole liability when host $j$ levies a qualified QDMTT; failing that, the parent pool $L^{I}_{pjt}$ takes it when parent state $p$ applies a qualified IIR. $L^{S}_{pjt}$ holds the liability of US-parented groups in hosts without a QDMTT, which SbS extinguishes. The remainder $L^{U}_{pjt}$ goes to the states that apply a UTPR and host the group, weighted equally by its employees and tangible assets there ($\omega^{U}_{cpt}$).
 
-Applied to every Member State, the waterfall yields a source–collector fiscal flow ledger, introduced in this paper, which sets the liability that profit booked in each state generates against the revenue its treasury collects. Four institutional regime groups, also our own, sort the states by the legal position behind the gap. High-salience sources (group 1) generate liability above a quarter of their cumulative corporate income tax (CIT) revenue. QDMTT-protected collectors (group 2) raise at least three quarters of their receipts through the QDMTT, and residual IIR and UTPR collectors (group 3) rely more on the other rules. Article 50 fiscal exporters (group 4) deferred the IIR and UTPR without enacting a QDMTT.\footnote{The thesis grouped the states by four-cluster $k$-means on the principal components of their revenue channel shares. With 27 observations the clusters were unstable, and the shares of the five states that collect nothing are undefined and had to be filled with medians. Appendix \ref{app:allocation} reports the legacy components and cluster stability tables.}
+Applied to every Member State, the waterfall yields a source–collector fiscal flow ledger, introduced in this paper. Four institutional regime groups, also our own, sort the states by the legal position behind the gap. High-salience sources (group 1) generate liability above a quarter of their cumulative corporate income tax (CIT) revenue. QDMTT-protected collectors (group 2) raise at least three quarters of their receipts through the QDMTT, and residual IIR and UTPR collectors (group 3) rely more on the other rules. Article 50 fiscal exporters (group 4) deferred the IIR and UTPR without enacting a QDMTT.\footnote{The thesis grouped the states by $k$-means on their revenue channel shares, which are undefined for the five states that collect nothing and were filled with medians; with 27 observations the grouping also changes with the number of clusters (Appendix \ref{app:allocation}).}
 
 \input{generated/paper_v2_tables/tab_v2_main_table7_source_collector_ledger.tex}
 
 Over 2017–2023, in the preferred behavioural SbS scenario, profit booked in EU27 affiliates generates \usd280.10 billion of top-up liability, while EU27 treasuries collect \usd343.77 billion: \usd268.15 billion through QDMTTs, \usd36.82 billion through IIRs and \usd38.80 billion through UTPRs. The Union is thus a net importer of \usd63.67 billion. Under universal allocation, collector revenue rises to \usd478.86 billion, with \usd173.89 billion from UTPRs.
 
-Five Member States collect nothing (Cyprus, Malta, Estonia, Lithuania and Latvia), although they host \usd117.73 billion of corrected positive profit over 2017–2023. That profit generates \usd11.94 billion of liability: \usd6.51 billion in Cyprus, \usd4.94 billion in Malta, \usd0.25 billion in Estonia, \usd0.14 billion in Lithuania and \usd0.11 billion in Latvia. Foreign IIRs collect \usd4.44 billion of it, foreign UTPRs \usd0.51 billion, and SbS extinguishes \usd6.99 billion. The cause is legal. Estonia, Latvia, Lithuania and Malta elected the six-year deferral of the IIR and UTPR under Article 50 of the EU minimum tax directive and enacted no QDMTT. Cyprus enacted an IIR and a domestic top-up tax in Law 151(I)/2024, which had not completed transitional qualification in the Central Record of 1 May 2026. Its 2023 liability equals 177.86\% of its CIT revenue, and treating the law as qualified would keep \usd5.74 billion in Cyprus (Appendix \ref{app:allocation}).
+Five Member States collect nothing (Cyprus, Malta, Estonia, Lithuania and Latvia), although they host \usd117.73 billion of corrected positive profit over 2017–2023. That profit generates \usd11.94 billion of liability, almost all of it in Cyprus and Malta (Panel A). Foreign IIRs collect \usd4.44 billion of it, foreign UTPRs \usd0.51 billion, and SbS extinguishes \usd6.99 billion. The cause is legal. Estonia, Latvia, Lithuania and Malta elected the six-year deferral of the IIR and UTPR under Article 50 of the EU minimum tax directive and enacted no QDMTT. Cyprus enacted an IIR and a domestic top-up tax in Law 151(I)/2024, which had not completed transitional qualification in the Central Record of 1 May 2026. Treating the law as qualified would keep \usd5.74 billion in Cyprus (Appendix \ref{app:allocation}).
 
 \begin{figure}[htbp]
 \centering
@@ -380,11 +383,11 @@ Five Member States collect nothing (Cyprus, Malta, Estonia, Lithuania and Latvia
 \label{fig:v2_country_salience}
 \end{figure}
 
-Panel A and Figure \ref{fig:v2_country_salience} show how far receipts and liability diverge. Where the QDMTT is in force, group 1 keeps its liability, and the sums are large relative to its budget: receipts equal 207.45\% of CIT revenue in Luxembourg, 35.48\% in the Netherlands and 31.99\% in Hungary, with scenario spreads of the same order. Malta and Cyprus collect nothing, although the liability booked there equals 82.68\% and 55.99\% of their CIT revenue. In group 2 (Austria, Belgium, Denmark, Finland, Greece, Ireland and Slovakia) the QDMTT keeps at least three quarters of receipts at home; Ireland's liability, at 24.93\% of CIT revenue, lies just below the salience threshold. Group 3 hosts the parents and the real activity on which the IIR and UTPR draw, and so collects more than its own profit generates: Germany \usd51.26 billion against \usd28.20 billion, a net import of \usd23.06 billion, and France \usd22.28 billion against \usd13.05 billion. The Baltic states of group 4 export all of their liability. Firms' responses move profit between these states, and the next subsection counts the ordinary tax that the move brings.
+Panel A and Figure \ref{fig:v2_country_salience} show how far receipts and liability diverge. Where the QDMTT is in force, group 1 keeps its liability, and the sums are large relative to its budget: receipts equal 207.45\% of CIT revenue in Luxembourg, 35.48\% in the Netherlands and 31.99\% in Hungary. Malta and Cyprus collect nothing, although the liability booked there equals 82.68\% and 55.99\% of their CIT revenue. Ireland belongs to group 2 because its liability, at 24.93\% of CIT revenue, lies just below the salience threshold. Group 3 hosts the parents and the real activity on which the IIR and UTPR draw, and so collects more than its own profit generates: Germany collects \usd51.26 billion against \usd28.20 billion, a net import of \usd23.06 billion. The Baltic states of group 4 export all of their liability. Firms' responses move profit between these states, and the next subsection counts the ordinary tax that the move brings.
 
 \subsection{What behaviour costs and what it brings home}\label{sec:cit_recovery}
 
-When firms move profit out of low-tax countries, the lost top-up tax is partly replaced by ordinary corporate tax wherever the profit lands. Profit that leaves an affiliate taxed below 15\% stops generating top-up tax but pays CIT where it is booked, and the source loses the low ordinary tax it levied, so counting only the forgone top-up tax misstates what behaviour costs.
+When firms move profit out of low-tax countries, the lost top-up tax is partly replaced by ordinary corporate tax wherever the profit lands. The source also loses the low ordinary tax it levied, so counting only the forgone top-up tax misstates what behaviour costs.
 
 The destination of relocated profit is unobserved, so a rule must assign it. Rule B sends it to where the same group has real activity and adapts the formulary weights of \citet{garcia-bernardo2024} in two ways: destinations are restricted to affiliates of the same parent, and eligibility follows from tax rates alone, without a list of conduit countries. The equations below take the profit $\Delta\pi_{pjt}$ that leaves low-taxed cell $(p,j,t)$, assign it to destinations $d$ and give each state's gross and net ordinary tax recovery (Panel B of Table \ref{tab:tab_v2_main_table7_source_collector_ledger}):
 \begin{gather}
@@ -394,27 +397,27 @@ The destination of relocated profit is unobserved, so a rule must assign it. Rul
 \end{gather}
 $E$, $W$ and $Y$ are the employees, payroll and unrelated-party revenue of parent $p$'s affiliate in $d$. The eligible set $D_{pjt}$ contains the parent's other affiliates whose host has a statutory rate $\tau^{\mathrm{stat}}_{dt}$ of at least 15\% and an ETR above that of the source. The second term of the net recovery is the ordinary tax that source $c$ loses at the low ETR $\tau_{pct}$ of the departing profit.\footnote{Where a parent has no eligible affiliate, the profit is allocated by the global activity of eligible destinations in the same year. Appendix \ref{app:allocation} compares Rule B with Rule A, which pools each parent's relocated profit and excludes a list of conduit countries, and with Rule C, which sends half of it to the parent's headquarters.}
 
-Across the EU27 over 2017–2023, in the preferred SbS scenario, switching on the behavioural response lowers direct top-up tax by \usd58.09 billion, from \usd401.86 billion to \usd343.77 billion. Relocated profit raises gross ordinary CIT in EU27 destinations by \usd65.27 billion, a gross fiscal change of $+$\usd7.18 billion. Low-tax EU27 affiliates lose \usd17.11 billion of ordinary CIT on the profit that leaves, so net recovery is \usd48.15 billion and the net fiscal change is $-$\usd9.94 billion.
+Across the EU27 over 2017–2023, in the preferred SbS scenario, switching on the behavioural response lowers direct top-up tax by \usd58.09 billion. Relocated profit raises gross ordinary CIT in EU27 destinations by \usd65.27 billion, a gross fiscal change of $+$\usd7.18 billion. Low-tax EU27 affiliates lose \usd17.11 billion of ordinary CIT on the profit that leaves, so net recovery is \usd48.15 billion and the net fiscal change is $-$\usd9.94 billion.
 
-The incidence is sharply asymmetric. Large destination economies gain on balance: Germany loses \usd7.53 billion of top-up tax and \usd2.50 billion of source CIT but gains \usd16.56 billion of ordinary CIT, a net \usd6.53 billion, and the net gains are \usd5.66 billion in Italy, \usd5.14 billion in France, \usd4.00 billion in Belgium and \usd3.51 billion in Spain. Low-tax hubs lose. The Netherlands loses \usd18.71 billion of top-up tax and \usd3.30 billion of source CIT against \usd3.49 billion of induced CIT, a net \usd18.52 billion; Luxembourg loses \usd13.06 billion and Ireland, whose 12.5\% statutory rate excludes it as a destination, \usd7.14 billion.
+The incidence is sharply asymmetric. Large destination economies gain on balance: Germany nets \usd6.53 billion, because \usd16.56 billion of induced CIT outweighs \usd10.03 billion of lost top-up and source tax, and Italy, France, Belgium and Spain each gain between \usd3.51 billion and \usd5.66 billion. Low-tax hubs lose. The Netherlands loses \usd18.71 billion of top-up tax and \usd3.30 billion of source CIT against \usd3.49 billion of induced CIT, a net \usd18.52 billion; Luxembourg loses \usd13.06 billion and Ireland, whose 12.5\% statutory rate excludes it as a destination, \usd7.14 billion.
 
-The rule passes an outside check. Over 2019–2023 the Netherlands recovers \EUR431 million a year of gross ordinary CIT under SbS and \EUR678 million under universal allocation. The first figure lies inside the range of \EUR397–451 million a year that the Dutch Ministry of Finance estimated in October 2026 for behavioural CIT. Allocation rules also change each government's incentive to keep its domestic top-up tax, which the next subsection tests.
+The rule can be checked against the Dutch costing of the 2026 package, which estimates the ordinary CIT that inward profit shifting brings at \EUR451 million a year before the package and \EUR397 million after it, part of a structural loss of \EUR108 million (\EUR73 million from the SbS safe harbour and \EUR35 million from qualifying incentives) \citep{37025_6}. Over 2019–2023, Rule B gives the Netherlands \EUR431 million a year under SbS, within 9\% of the post-package figure, and \EUR678 million under universal allocation. Allocation rules also change each government's incentive to keep its domestic top-up tax, which the next subsection tests.
 
 \subsection{Does any state gain from repealing its domestic top-up tax?}\label{sec:repeal_game}
 
-A state that drops its own top-up tax either hands the revenue to another government or hands it back to firms, and the rules decide which. \citet{devereux2022} show that under the original rules the parent's IIR or other states' UTPRs collect whatever a host forgoes, so multinationals pay the same and enacting a QDMTT is a dominant strategy. SbS removes groups parented in the United States from both backstops, so for them repeal cancels the tax and becomes a tax cut.
+A state that drops its own top-up tax either hands the revenue to another government or hands it back to firms, and the rules decide which. \citet{devereux2022} show that under the original rules the parent's IIR or other states' UTPRs collect whatever a host forgoes, so multinationals pay the same and enacting a QDMTT is a dominant strategy. SbS removes US-parented groups from both backstops, so for them repeal becomes a tax cut.
 
-We test the prediction with a unilateral deviation experiment of our own. Starting from a benchmark in which all 27 Member States levy a QDMTT and an IIR, one state at a time repeals its QDMTT while keeping its IIR and UTPR status. Each repeal is evaluated under both allocation regimes, the L3 and strict L4 measurement levels, and two windows (2017–2023 and FY2023), which gives 216 repeal cases; Appendix \ref{app:allocation} adds 216 cases in which the state opts out of all three rules. Two ratios, reported in Table \ref{tab:tab_v2_main_table8_qdmtt_repeal_game} and Figure \ref{fig:v2_qdmtt_game}, summarise who receives the forgone revenue and how highly the state must value retained profit for repeal to pay:
+We test the prediction with a unilateral deviation experiment of our own. From a benchmark in which all 27 Member States levy a QDMTT and an IIR, one state at a time repeals its QDMTT while keeping its IIR and UTPR status. Each repeal is evaluated under both allocation regimes, the L3 and strict L4 levels, and two windows (2017–2023 and FY2023), which gives 216 repeal cases; Appendix \ref{app:allocation} adds 216 cases in which the state opts out of all three rules. Two ratios, reported in Table \ref{tab:tab_v2_main_table8_qdmtt_repeal_game} and Figure \ref{fig:v2_qdmtt_game}, summarise who receives the forgone revenue and how highly the state must value retained profit for repeal to pay:
 \begin{equation}\label{eq:repeal}
 e_c=\frac{\Delta T^{\mathrm{MNE}}_c}{Q^{\mathrm{net}}_c},\qquad w^{\star}_c=\frac{N_c}{\Pi^{\mathrm{ret}}_c}.
 \end{equation}
-$\Delta T^{\mathrm{MNE}}_c$ is the top-up tax that multinationals save, and $Q^{\mathrm{net}}_c$ the domestic top-up revenue forgone net of what the state's own IIR and UTPR recapture, so the tax-cut efficiency $e_c$ is the share of net forgone revenue that reaches firms. $N_c$ is the net domestic tax cost of repeal after deducting the ordinary CIT on the profit $\Pi^{\mathrm{ret}}_c$ that US-parented groups keep in $c$ once repeal removes their minimum-tax exposure. Following \citet{johannesen2022}, a government that values each unit of retained reported profit at $\omega_c$ gains from repeal when $\omega_c$ exceeds the critical welfare weight $w^{\star}_c$.
+$\Delta T^{\mathrm{MNE}}_c$ is the top-up tax that multinationals save, and $Q^{\mathrm{net}}_c$ the domestic top-up revenue forgone net of what the state's own IIR and UTPR recapture, so the tax-cut efficiency $e_c$ is the share of net forgone revenue that reaches firms. $N_c$ is the net domestic cost of repeal after the ordinary CIT on the profit $\Pi^{\mathrm{ret}}_c$ that US-parented groups keep in $c$ once their minimum-tax exposure ends. Following \citet{johannesen2022}, a government that values each unit of retained reported profit at $\omega_c$ gains from repeal when $\omega_c$ exceeds the critical welfare weight $w^{\star}_c$.
 
 \input{generated/paper_v2_tables/tab_v2_main_table8_qdmtt_repeal_game.tex}
 
-Under universal allocation the prediction holds exactly. In all 108 universal repeal cases $e_c=0$: multinationals save nothing, and summed over the 27 separate repeals, foreign collectors absorb \usd197.41 billion of forgone QDMTT over 2017–2023 while the deviating states' own IIRs and UTPRs recapture \usd81.42 billion. The critical weight $w^{\star}_c$ is infinite everywhere.
+Under universal allocation the prediction holds exactly. In all 108 universal repeal cases $e_c=0$ and $w^{\star}_c$ is infinite: summed over the 27 separate repeals, foreign collectors absorb \usd197.41 billion of forgone QDMTT over 2017–2023 and the deviating states' own IIRs and UTPRs recapture \usd81.42 billion.
 
-Under SbS, repeal becomes a tax cut. Summed over the 27 separate repeals, multinationals save \usd100.14 billion over 2017–2023 (\usd12.66 billion in FY2023 under L3) and keep \usd159.27 billion of reported profit in the deviating states (\usd19.87 billion), which pays \usd6.22 billion of ordinary source CIT (\usd1.12 billion). Retained CIT never offsets the forgone QDMTT, so $N_c>0$ in all 27 states, and for a government that maximises revenue, keeping the QDMTT remains a strict Nash equilibrium under SbS. A government that values retained profit faces very different terms across states (Panel A). In Ireland, 85.9\% of net forgone revenue reaches US-parented groups over 2017–2023 and 87.0\% in FY2023, with critical weights of 0.666 and 0.655 (73.9\% and 0.789 under strict L4 over 2017–2023). Efficiency also exceeds 60\% in at least one window in Cyprus (87.3\% in FY2023, 59.8\% over 2017–2023), Lithuania (69.6\% and 77.0\%) and Malta (63.3\% and 49.3\%), and only these four states have a critical weight below one in FY2023. In the larger economies efficiency stays below two fifths in FY2023, at 37.3\% in the Netherlands, 36.3\% in Germany, 29.3\% in France and 24.3\% in Luxembourg (56.8\% over 2017–2023), because their own IIRs recapture part of the forgone tax and foreign IIRs and UTPRs collect much of the rest.
+Under SbS, repeal becomes a tax cut. Summed over the 27 separate repeals, multinationals save \usd100.14 billion over 2017–2023 and keep \usd159.27 billion of reported profit in the deviating states, which pays \usd6.22 billion of ordinary source CIT. Retained CIT never offsets the forgone QDMTT, so $N_c>0$ in all 27 states, and for a revenue-maximising government keeping the QDMTT remains a strict Nash equilibrium. A government that values retained profit faces very different terms (Panel A). In FY2023, 87.0\% of Irish net forgone revenue reaches US-parented groups, with a critical weight of 0.655. Efficiency also reaches 87.3\% in Cyprus, 69.6\% in Lithuania and 63.3\% in Malta, and only these four states have a critical weight below one. In the larger economies it stays below two fifths, from 24.3\% in Luxembourg to 37.3\% in the Netherlands, because their own and foreign IIRs and UTPRs recapture much of the forgone tax.
 
 \begin{figure}[htbp]
 \centering
@@ -423,7 +426,7 @@ Under SbS, repeal becomes a tax cut. Summed over the 27 separate repeals, multin
 \label{fig:v2_qdmtt_game}
 \end{figure}
 
-The alternative to repeal is to keep the QDMTT and grant qualifying incentives up to the SBTI cap introduced in January 2026, the instrument through which \citet{janeba2023} and \citet{schjelderup2024} expect tax competition to continue. Because qualifying incentives raise the covered taxes used in every collector's computation, no other government can claim what the host forgoes: the overlay reaches firms at 100\% efficiency with zero foreign leakage in all 27 states. It delivers \usd5.64 billion of relief in FY2023 under L3 and \usd16.52 billion over 2021–2023, and it exceeds the relief from repeal in 18 of 27 states in FY2023 under L3 (19 of 27 under strict L4 over 2021–2023).\footnote{The SBTI overlay is a capacity proxy built from sectoral payroll and carrying-value caps allocated to low-taxed profit. Its efficiency measures who receives the relief and excludes the fiscal cost of funding new qualifying incentives.} Repeal delivers more where US-parented profit is large relative to physical substance. In Ireland, FY2023 repeal gives firms \usd4.57 billion against \usd0.44 billion under the overlay, and Cyprus, Malta, Luxembourg, the Netherlands and Hungary show the same ordering; in Croatia, Denmark and Lithuania the two differ by less than \usd3 million. Section \ref{sec:conclusion} draws these results together into an answer for finance ministries and for the literature.
+The alternative to repeal is to keep the QDMTT and grant qualifying incentives up to the SBTI cap introduced in January 2026, the instrument through which \citet{janeba2023} and \citet{schjelderup2024} expect tax competition to continue. Qualifying incentives count as covered taxes in every collector's computation, so no other government can claim what the host forgoes and the overlay reaches firms at 100\% efficiency in all 27 states. It delivers \usd5.64 billion of relief in FY2023 under L3 and exceeds the relief from repeal in 18 of 27 states in FY2023 under L3.\footnote{The SBTI overlay is a capacity proxy built from sectoral payroll and carrying-value caps allocated to low-taxed profit. Its efficiency measures who receives the relief and excludes the fiscal cost of funding new qualifying incentives.} Repeal delivers more where US-parented profit is large relative to physical substance. In Ireland, FY2023 repeal gives firms \usd4.57 billion against \usd0.44 billion under the overlay, and Cyprus, Malta, Luxembourg, the Netherlands and Hungary show the same ordering. Section \ref{sec:conclusion} draws these results together into an answer for finance ministries and for the literature.
 
 \section{Conclusion}\label{sec:conclusion}
 
@@ -448,19 +451,346 @@ Each limit has a remedy as new data arrive. The GloBE Information Returns that g
 
 \clearpage
 \appendix
+\counterwithin{table}{section}
+\counterwithin{figure}{section}
+\counterwithin{equation}{section}
+\begin{center}
+{\Large\bfseries Online Appendix}
+\end{center}
+
 \section{Data, profit reconciliation and notation}\label{app:data}
-\draftstub{Pass 5}
 
+This appendix documents how the public reports become the analytical panel and how double-counted profit is removed. Section \ref{app:notation} collects the notation, Section \ref{app:sources} lists the sources and describes the panel, and Section \ref{app:reconciliation} sets out the model that estimates the correction for double counting.
+
+\subsection{Notation}\label{app:notation}
+
+The symbols used across the paper are gathered here so that each can be looked up in one place. Table \ref{tab:app_notation} lists them with the section that defines them. Cells are indexed throughout by parent jurisdiction $p$, affiliate jurisdiction $j$ and year $t$, and amounts are in US dollars unless marked otherwise.
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Notation}\label{tab:app_notation}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+Symbol & Meaning & Defined in \\
+\midrule
+$\pi_{pjt}$, $\pi^{*}_{pjt}$ & Reported profit and profit corrected for double counting & Section \ref{sec:doublecounting} \\
+$\hat\rho_{pt}$ & Estimated double-counting rate of domestic profit, parent $p$ and year $t$ & Appendix \ref{app:reconciliation} \\
+$\theta_{pjt}$, $\tau_{pjt}$ & Tax accrued and cell ETR on corrected profit & Section \ref{sec:etr_ladder} \\
+$s_{pjt}$, $\bar g_{pjt}$ & Share of profit taxed below 15\% and average gap to 15\% within that share & Section \ref{sec:etr_ladder} \\
+$\mathrm{SBIE}_{pjt}$, $\phi_{pjt}$ & Substance-based income exclusion and shield ratio $\min\{1,\mathrm{SBIE}/\pi^{*}\}$ & Section \ref{sec:substance} \\
+$\kappa_{jqt}$ & Capacity of the safe harbour for substance-based tax incentives, host $j$, sector $q$ & Section \ref{sec:substance} \\
+$\lambda_{pjt}$, $\hat\beta_1$ & Fraction of low-taxed profit retained after the response, and the linear tax slope & Section \ref{sec:behaviour} \\
+$B_{pjt}$ & Minimum-tax base after the accounting bridge & Section \ref{sec:accounting_bridge} \\
+$\ell^{\mathrm{cur}}_{pjt}$, $\ell^{\mathrm{prior}}_{pjt}$ & Current losses netted within the jurisdiction and prior losses carried forward & Appendix \ref{app:cbcr_extensions} \\
+$L_{pjt}$, $R_c$, $a_{c\mid pjt}$ & Cell liability, revenue of collecting state $c$, and the share of a liability assigned to $c$ & Section \ref{sec:filters} \\
+$x_1$ & ETR measurement: jurisdiction average (0) or distributional (1) & Section \ref{sec:filters} \\
+$x_2$ & Substance: aggregate carve-out (0) or sectoral carve-out with the incentive safe harbour (1) & Section \ref{sec:filters} \\
+$x_3$ & Carve-out rates: initial, 10\% of payroll and 8\% of assets (0), or long-run, 5\% and 5\% (1) & Section \ref{sec:filters} \\
+$x_4$ & Allocation: original universal rules (0) or the Side-by-Side package (1) & Section \ref{sec:filters} \\
+$x_5$ & Behaviour: mechanical (0) or behavioural response (1) & Section \ref{sec:filters} \\
+$x_6$ & Accounting bridge: off (0) or on (1) & Section \ref{sec:filters} \\
+$\eta^2_e$ & Share of scenario variance due to the set of decisions $e$ & Section \ref{sec:factorial} \\
+$\Lambda$, $\Lambda_c$ & Proposal ratio: scenario range over the 90\% parameter interval, EU27 and state $c$ & Section \ref{sec:uncertainty} \\
+$\omega^{U}_{c\mid pt}$ & Share of a parent-year's UTPR liability assigned to state $c$ & Appendix \ref{app:allocation_detail} \\
+$e_c$ & Tax-cut efficiency: share of the revenue state $c$ forgoes that reaches firms & Section \ref{sec:repeal_game} \\
+$w^{\star}_c$ & Critical welfare weight at which repeal of the domestic top-up tax breaks even & Section \ref{sec:repeal_game} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Sources, access dates and the analytical panel}\label{app:sources}
+
+Every input comes from a public portal, and this subsection records where each was obtained and when. The country-by-country statistics are the six aggregate tables of the OECD Corporate Tax Statistics, downloaded as CSV from the OECD SDMX endpoint (\url{https://sdmx.oecd.org/public/rest/data}) under the dataflows \texttt{DSD\_CBCR@DF\_CBCRI} to \texttt{DSD\_CBCR@DF\_CBCRVI}, version 1.1, on 12 November 2026, with fiscal year 2023 where published \citep{oecd2026cbcr}. The same endpoint supplies statutory corporate tax rates (\texttt{DSD\_TAX\_CIT@DF\_CIT}, version 2.0), the forward-looking effective tax rates used as an instrument (\texttt{DSD\_ETR@DF\_ETR\_BASELINE}, version 2.0), average annual wages (\texttt{DSD\_EARNINGS@AV\_AN\_WAGE}, version 1.0) and corporate tax revenue (item \texttt{T\_1200} of the revenue statistics), all fetched on the same day.
+
+The remaining sources fill in activity, sectors, budgets and legal status. Eurostat inward FATS (\texttt{fats\_g1b\_08} and \texttt{fats\_activ}) come from the Eurostat SDMX 2.1 dissemination API (\url{https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data}) \citep{eurostat2025fats}, and ILO monthly earnings (\texttt{DF\_EAR\_EMTA\_SEX\_ECO\_CUR\_NB}) from the ILO SDMX API (\url{https://sdmx.ilo.org/rest/data}); both are pinned vintages that already contain 2023. Sectoral capital comes from the EUKLEMS \& INTANProd release files \citep{euklemsintanprod2025}, GDP per capita (\texttt{NY.GDP.PCAP.CD}) and population (\texttt{SP.POP.TOTL}) from the World Bank bulk files fetched on 12 November 2026, and the activity of US-owned affiliates from the public workbooks of the Bureau of Economic Analysis. The Cypriot tax denominator uses Eurostat \texttt{gov\_10a\_taxag}, converted with the ECB annual rate \texttt{EXR.A.USD.EUR.SP00.A}. Legal status follows a transcription of the OECD Central Record of 1 May 2026 \citep{oecdCentralRecord2026}. An input manifest records a SHA-256 hash for every extract (Appendix \ref{app:repeal_detail}).
+
+\input{generated/results_tables/data_summary_statistics.tex}
+
+Table \ref{tab:data_summary_statistics} describes the 14,108 cells with positive corrected profit over 2017–2023 that carry the analysis. Profit is heavily skewed: the median cell holds \usd79.0 million and the mean \usd2,970.6 million. The bounded ETR has a median of exactly 15.0\%. The distributional low-taxed share averages 48.3\%, against 44.9\% under the average rule, which places either all or none of a cell's profit below the floor. Direct Table IV brackets support 67.9\% of cells, shape transport 22.2\%, percentile fits 4.5\% and the jurisdiction-average fallback 5.4\%. Figure \ref{fig:app_profit_employee_etr} relates profit per employee to the ETR by host. Hubs such as Ireland and Luxembourg combine high profit per employee with low ETRs, which is the pattern that the correction below and the carve-out in Section \ref{sec:substance} address.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.82\textwidth]{generated/figures/fig_profit_employee_etr_bubble.pdf}
+\caption{Corrected profit per employee and profit-weighted bounded ETR by host jurisdiction, 2017–2023. Bubble size is corrected profit, colour marks the position of the host relative to the 15\% floor, and the dashed line marks the floor.}
+\label{fig:app_profit_employee_etr}
+\end{figure}
+
+\subsection{The profit reconciliation model}\label{app:reconciliation}
+
+The share of domestic profit that is counted twice is estimated for each parent country and year by combining every available piece of public evidence on it. No single source covers all parent-years: adjusted-profit cells exist for few jurisdictions, external anchors for a handful of countries, and the ETR comparison introduced below for many but with noise. A model that weights each signal by its precision and falls back on a prior where none exists uses all of them without letting the noisiest dominate. The model applies to domestic cells only, where dividends from foreign subsidiaries are added to the profit of the parent.
+
+Four kinds of signal enter. Adjusted-profit cells, in which some jurisdictions report profit net of intra-group dividends \citep{oecd2025a}, give the rate directly. The macro reconciliation of \citet{garcia-bernardo2022a} anchors the United States, and the official country notes collected by \citet{godar2024} anchor further jurisdictions. The fourth signal, introduced in this paper, compares ETRs. If domestic profit is inflated by income already taxed abroad, the ETR of domestic groups at home falls below that of foreign-parented affiliates in the same country and year, and one minus the ratio of the two measures the inflation. It is computed only where at least three foreign parents report together at least \usd1 billion of profit and domestic profit exceeds \usd10 million, it is capped at 55.5\%, and it enters with low precision because real differences in tax incentives also open the gap. The median correction for ultimate parent entities in \citet{hugger2026} serves as a fallback signal. On the rate scale the signals carry standard errors of 0.045 for observed adjusted cells, 0.060 for the macro anchor, 0.075 for parent-level adjusted rows, 0.100 for country notes, 0.160 for the fallback and 0.220 for the ETR comparison.
+
+The equations below map each signal $\rho_k$, with standard error $\sigma_k$, to a bounded logit scale, fit a prior to the signals and combine the two; their output is the rate $\hat\rho_{pt}$ that enters the correction in Section \ref{sec:doublecounting}:
+\begin{gather}
+y_k=\ln\frac{\rho_k/\bar\rho}{1-\rho_k/\bar\rho},\qquad
+\varsigma_k=\sigma_k\Bigl(\frac{1}{\rho_k}+\frac{1}{\bar\rho-\rho_k}\Bigr),\qquad \bar\rho=0.85,\label{eq:app_logit}\\
+y_k=z_{pt}'\gamma+u_k\quad\text{(weights }\varsigma_k^{-2}\text{)},\label{eq:app_prior}\\
+\hat y_{pt}=\frac{\hat y^{0}_{pt}/\varsigma_{0}^{2}+\sum_{k\in K_{pt}}y_k/\varsigma_k^{2}}{1/\varsigma_{0}^{2}+\sum_{k\in K_{pt}}1/\varsigma_k^{2}},\qquad
+\hat\rho_{pt}=\frac{\bar\rho}{1+e^{-\hat y_{pt}}}.\label{eq:app_posterior}
+\end{gather}
+The bound $\bar\rho$ keeps every correction below 85\%, and the standard error on the logit scale, obtained by the delta method, is clamped to $[0.08,3.50]$. The prior in equation \eqref{eq:app_prior} is a weighted least-squares fit of the signals on a parent type (large parent, investment hub, low-tax parent or other), year effects, the logarithms of domestic profit, assets and employees, the domestic share of holding entities and the parent's statutory rate; its prediction is $\hat y^{0}_{pt}$, and its uncertainty $\varsigma_0$ is the residual standard deviation, clamped to $[0.80,1.50]$. The ETR comparison is excluded from this fit, so the prior does not rest on the noisiest signal. Equation \eqref{eq:app_posterior} is inverse-variance shrinkage over the set $K_{pt}$ of signals for the parent-year: a precise anchor keeps the rate close to its own value, whereas a parent-year with only the ETR comparison moves most of the way to its prior. The posterior standard deviation is $(1/\varsigma_0^{2}+\sum_{k}1/\varsigma_k^{2})^{-1/2}$, and 500 draws from it (seed 20260613) feed the uncertainty analysis of Section \ref{sec:uncertainty}.
+
+\input{generated/results_tables/profit_correction_effects.tex}
+\input{generated/results_tables/profit_correction_evidence_table.tex}
+
+Tables \ref{tab:profit_correction_effects} and \ref{tab:profit_correction_evidence_table} show where the correction comes from. It lowers positive profit by 24.9\% overall, from \usd55,765.1 billion to \usd41,890.5 billion over 2017–2023, and leaves the 18,578 foreign cells untouched. Domestic cells corrected by the model with an ETR signal account for 75.6\% of the reduction, those with an external anchor for 20.6\%, those with observed adjusted profit for 1.7\% and those on the fallback for 2.0\%.
+
+\input{generated/results_tables/profit_correction_validation_holdout.tex}
+\input{generated/results_tables/profit_correction_revenue_sensitivity.tex}
+
+Table \ref{tab:profit_correction_validation_holdout} holds out each precise signal in turn and predicts it from the rest. The mean absolute error is 8.4 percentage points for observed adjusted cells, 11.5 for country notes and 15.1 for the macro anchors, whose errors are all negative: without the anchors, the model would under-correct the United States. Table \ref{tab:profit_correction_revenue_sensitivity} carries the choice through to revenue. Cumulative EU27 revenue in the preferred behavioural SbS scenario is \usd402.4 billion without any correction, \usd379.3 billion with the low variant, \usd343.8 billion with the preferred posterior and \usd298.9 billion with the high variant. Across the 500 posterior draws it stays within \usd336.6–348.0 billion, so the choice of correction moves revenue far more than the noise in the preferred correction does.
+
+\input{generated/results_tables/profit_correction_parent_year_top20.tex}
+\input{generated/results_tables/profit_correction_foreign_holding_chain_sensitivity.tex}
+
+Table \ref{tab:profit_correction_parent_year_top20} lists the twenty parent-years with the largest corrections. Foreign cells can also double count when profit passes through holding companies in conduit jurisdictions. Table \ref{tab:profit_correction_foreign_holding_chain} tests this by flagging foreign cells in eight conduit hosts (the Netherlands, Luxembourg, Ireland, Switzerland, Singapore, Hong Kong, Bermuda and the Cayman Islands) whose holding entities make up at least 30\% of the entities reported and whose related-party revenue is at least half of revenue, with profit of at least \usd1 million per employee or at least the value of tangible assets. Scaling the 46 flagged cells of 16 parents, with \usd125.1 billion of profit, down by 10\% lowers EU27 revenue by only \usd0.2 billion, so the preferred correction leaves foreign cells unadjusted.
+
+\clearpage
 \section{Measuring low-taxed profit, substance and the tax base}\label{app:measurement}
-\draftstub{Pass 5}
 
+This appendix gives the full detail of the measurement steps summarised in Section \ref{sec:measurement}. Section \ref{app:stage1_detail} covers the distribution of effective tax rates, Section \ref{app:stage2_detail} the carve-out for substance and Section \ref{app:cbcr_extensions} the bridge to the tax base and the further public tables.
+
+\subsection{The distribution of effective tax rates}\label{app:stage1_detail}
+
+The share of profit taxed below 15\% is read from the most detailed source available for each cell, and the rules below make the sources consistent with one another. Table \ref{tab:stage1_source_updated} counts the sources. Of the 18,954 cells in 2017–2023, 12,058 use direct Table IV brackets, 1,286 a Beta fit to the Table I percentiles, 3,899 shape transport from the bracket-share profile and 1,462 the jurisdiction average, while 249 report no usable ETR.
+
+\input{generated/results_tables/stage1_source_coverage.tex}
+
+Reported tax ratios need bounds, since losses, refunds and prior-year adjustments produce ratios below zero or far above any statutory rate. Each cell ETR is bounded below at zero and above at the statutory rate of the host plus five percentage points, with a ceiling of 100\%. The statutory rate is the central-government rate of the OECD Corporate Tax Statistics, taken at the targeted rate where the database reports one alongside the standard rate. In 2023 it is 15.8\% in Germany and 15.0\% in France; the French figure is the reduced rate, against a standard rate of 25.8\%, so the French ceiling is tighter than the standard rate would imply. The percentiles of Table I are bounded in the same way and then forced to be non-decreasing, so that a percentile clipped at the ceiling cannot fall below the one before it. Table \ref{tab:stage1_rates_updated} reports the resulting rates.
+
+\input{generated/results_tables/stage1_rates.tex}
+
+The Beta fit in equation \eqref{eq:betafit} needs quantiles of distributions whose shape parameters can be very small, and standard routines lose precision there. When the residual of the standard quantile exceeds $10^{-8}$, the quantile is recomputed as the root of the equation below, which takes a probability $u$ and the shape parameters and returns the quantile on the log-odds scale:
+\begin{equation}\label{eq:app_beta_root}
+I_{\left(1+e^{-z}\right)^{-1}}(\alpha,\beta)-u=0,\qquad z\in[-746,746],\qquad \hat q(u)=\frac{1}{1+e^{-\hat z}},
+\end{equation}
+where $I$ is the regularised incomplete Beta function. The search runs to a tolerance of $10^{-10}$, and upper-tail quantiles are found by reflection, as lower-tail quantiles of the Beta distribution with $\alpha$ and $\beta$ exchanged, so that probabilities close to one keep full precision.
+
+The upper-tail cap of Section \ref{sec:etr_validation} was checked against the rank information in the published percentiles. If 15\% lies between two percentiles, the low-taxed share must lie between their ranks. In 2023 Germany has a 25th percentile of 10.8\%, a median of 24.3\% and a 95th percentile of 122.5\%, against a ceiling of 20.8\%, so the share must lie in $[0.25,0.50]$. The uncapped fit gives 64.4\% and violates the bound, the capped fit gives 36.7\%, and a fit forced to respect the ranks gives 25.0\%; Table IV observes 31.5\%. The QDMTT of the anchored L4 variant falls from \EUR4.52 billion uncapped to \EUR1.29 billion capped and \EUR0.56 billion rank-bounded. France follows the same pattern, with 67.1\%, 39.4\% and 25.0\% against an observed 16.4\%. The cap is no universal improvement. In the Netherlands the 95th percentile is missing, so no cell-level fit exists and the anchored variant borrows the host-year shape; the uncapped share of 54.5\% is then closer to the observed 56.6\% than the capped 25.5\%. In Luxembourg the bound is $[0.75,0.95]$, and all three fits (91.5\%, 95.0\% and 92.4\%) exceed the observed 69.2\%. Table \ref{tab:app_stage1_crossval} reports the overall comparison for the unmatched sample: a median gap in the low-taxed share of zero, a mean absolute error of 0.252 and a calibration slope of 0.61.
+
+\input{generated/results_tables/stage1_crossval.tex}
+
+Shape transport fills 2017–2018, for which no bracket tables exist, by carrying the bracket profile of 2019–2020 back to the earlier years. The test holds out 2021–2023: the 2019–2020 profile of each host is compared with the profile observed in the later years by their total-variation distance, half the sum of absolute differences across the four brackets. Hosts above a distance of 0.39 are flagged and fall back to the jurisdiction average in 2017–2018. Two of 27 EU27 hosts are flagged, Lithuania (0.61) and Croatia (0.43), and the median distance is 0.112 with a 90th percentile of 0.332 (Tables \ref{tab:stage1_bspi_updated} and \ref{tab:app_stage1_bspi_tv}). Outside the EU, 9 of 92 hosts are flagged and the median is 0.078.
+
+\input{generated/results_tables/stage1_bspi_validation.tex}
+\input{generated/results_tables/appendix_stage1_bspi_summary.tex}
+\input{generated/results_tables/appendix_stage1_conditioning.tex}
+
+Table \ref{tab:app_stage1_conditioning} shows how often the bounds bind. In 2021–2023, between 108 and 121 of roughly 190 affiliate-years a year have at least one percentile outside the bounds, between 131 and 139 are conditioned, and the mean absolute error of the Beta fit against the conditioned percentiles lies between 0.069 and 0.090. Table \ref{tab:stage1_measurement_error_interval} carries the remaining error into revenue by redrawing the fitted shares from the validation residuals with the scenario held fixed. Preferred behavioural SbS revenue of \usd343.8 billion has a simulated median of \usd323.8 billion and a 90\% interval of \usd279.7–364.7 billion; the interval for mechanical revenue under universal allocation is \usd151.4 billion wide.
+
+\input{generated/results_tables/stage1_measurement_error_interval.tex}
+
+Pooled Table IV leaves some cells blank, and a completeness check measures how much this matters. Treating the 21 EU27 host-years with incomplete brackets as unsupported, so that they fall back to the next source, lowers EU27 liability over 2017–2023 by \usd0.44 billion, or 0.12\% of \usd360.49 billion, and by at most 0.55\% in a single year (2023). Extending the check to the transport anchors that rely on those host-years raises the change to \usd1.27 billion (0.35\%). In the global 2023 cross-section three non-EU host-years lack the tax accrued in the lowest bracket, and the change there reaches 2.15\%.
+
+\subsection{The substance carve-out by sector}\label{app:stage2_detail}
+
+The carve-out is computed sector by sector because payroll and tangible assets cluster in sectors different from those where low-taxed profit sits. Table \ref{tab:stage2_aggregate_updated} first reports the aggregate version. At initial rates the EU27 carve-out equals 11.5\% of profit and lowers the liability rate from 2.91\% to 2.74\% under average measurement and from 4.93\% to 4.48\% under distributional measurement; at long-run rates it equals 6.9\% and the distributional rate is 4.66\%.
+
+\input{generated/results_tables/stage2_aggregate.tex}
+
+The equations below split each host's totals across sectors, apply the carve-out and its bound sector by sector, and then subtract the capacity of the incentive safe harbour. They take host payroll, assets and profit with sectoral shares $h_{jqt}$ from FATS and EUKLEMS and return the floor that a sector effectively faces:
+\begin{gather}
+W_{jqt}=h^{W}_{jqt}W_{jt},\qquad A_{jqt}=h^{A}_{jqt}A_{jt},\qquad \pi_{jqt}=h^{\pi}_{jqt}\pi_{jt},\label{eq:app_sector_split}\\
+\phi_{jqt}=\min\Bigl\{1,\frac{\sigma_W(t)W_{jqt}+\sigma_A(t)A_{jqt}}{\pi_{jqt}}\Bigr\},\qquad
+\tau^{\mathrm{P2}}_{jqt}=0.15-\bar g_{jt}\,\phi_{jqt},\label{eq:app_sector_floor}\\
+\tau^{\mathrm{SBTI}}_{jqt}=\tau^{\mathrm{P2}}_{jqt}-\min\bigl\{\max(\kappa_{jqt},0),\,\tau^{\mathrm{P2}}_{jqt}\bigr\},\qquad
+\kappa_{jqt}=\frac{\max\{0.055\,W_{jqt},\,0.01\,A_{jqt}\}}{\pi_{jqt}}.\label{eq:app_sbti}
+\end{gather}
+The capacity $\kappa_{jqt}$ follows the cap on qualifying incentives in the January 2026 package \citep{oecd2026}: the larger of 5.5\% of eligible payroll (Method 1) and 1\% of the carrying value of tangible assets (Method 2). The exclusion rates $\sigma_W(t)$ and $\sigma_A(t)$ decline linearly from 10\% and 8\% to 5\% over the transition. The capacity is bounded so that the safe harbour cannot push the floor below zero.
+
+\input{generated/results_tables/stage2_sectoral_sbti.tex}
+
+Table \ref{tab:stage2_sectoral_sbti} applies the equations to 2022 at initial rates. In the EU27 the sectoral shield ratio is 10.6\%, the incentive capacity 3.8\% of profit, and the floor falls from 14.1\% to 11.8\%. The reduction is largest where payroll and assets are large relative to profit, at 3.4 points in Germany and 3.6 in France, and smallest in the hubs, at 0.9 in the Netherlands, 1.0 in Ireland and 0.5 in Luxembourg. Table \ref{tab:tab_v2_app_table3_h5_regression} regresses the reduction on capital intensity with affiliate-by-year effects. The profit-weighted slope is $-0.0019$ ($p<0.001$) and the equal-weighted slope is close to zero ($p=0.061$), so the safe harbour does not favour capital-intensive sectors; the payroll method usually sets the cap.
+
+\input{generated/paper_v2_tables/tab_v2_app_table3_h5_regression.tex}
+\input{generated/results_tables/appendix_stage2_asset_sensitivity.tex}
+\input{generated/results_tables/appendix_stage2_payroll_fallback.tex}
+
+Two checks address the inputs. Scaling sectoral assets by 25\% up or down moves the EU27 shield ratio between 9.4\% and 11.7\% at initial rates, while the floors barely move (Table \ref{tab:app_stage2_asset_sensitivity}). Payroll cannot be built where no wage is available, and those cells receive no payroll carve-out. They number between 197 and 242 a year and hold 8.6–15.1\% of the top-up tax before the carve-out (Table \ref{tab:app_stage2_payroll_fallback}), so the carve-out is understated and liability overstated for that share.
+
+\subsection{The accounting bridge and further public tables}\label{app:cbcr_extensions}
+
+Two of the bridge's three steps deal with losses, which the public tables record separately for profitable and loss-making subgroups. Panel A of Table I covers all subgroups and Panel A-I only those with positive profit. The expressions below take net profit $N_{pjt}$ from Panel A and positive profit $P_{pjt}$ from Panel A-I and return the two loss deductions of equation \eqref{eq:bridge}:
+\begin{gather}
+\ell^{\mathrm{cur}}_{pjt}=r_{pjt}\,\pi^{*}_{pjt},\qquad r_{pjt}=\min\Bigl\{1,\max\Bigl\{0,\,1-\frac{\max\{0,N_{pjt}\}}{P_{pjt}}\Bigr\}\Bigr\},\label{eq:app_lcur}\\
+\ell^{\mathrm{prior}}_{pjt}=\min\bigl\{C_{pj,t-1},\;\pi^{*}_{pjt}-\ell^{\mathrm{cur}}_{pjt}\bigr\},\qquad
+C_{pjt}=C_{pj,t-1}+\max\{0,-N_{pjt}\}-\ell^{\mathrm{prior}}_{pjt}.\label{eq:app_lprior}
+\end{gather}
+The ratio $r_{pjt}$ is the share of positive profit absorbed by losses elsewhere in the same jurisdiction. The stock $C_{pjt}$ of unused losses starts at zero in 2016, grows with net losses and is drawn down against later profit, so 2016 supplies the initial conditions for the window.
+
+The bridge also applies the Transitional CbCR Safe Harbour to 2024–2026 in the back-test of Section \ref{sec:backtest}. A jurisdiction-year passes, and owes no top-up tax, if any of three tests holds. Under the de minimis test, revenue per subgroup is below \EUR10 million and profit below \EUR1 million. Under the simplified ETR test, the ETR reaches 15\%, 16\% and 17\% in the three years. Under the routine profits test, profit is non-positive or no larger than a carve-out at the transitional rates of 9.8\%, 9.6\% and 9.4\% of payroll and 7.8\%, 7.6\% and 7.4\% of assets. Thresholds are converted at \usd1.0813 per euro.
+
+\input{generated/paper_v2_tables/tab_v2_cbcr_tables_2_3_6_extensions.tex}
+
+Table \ref{tab:tab_v2_cbcr_tables_2_3_6_extensions} draws on the public tables not used in the main analysis. Panel A compares Table III, which classifies profit by the ETR of the whole group, with Table IV, which classifies it by the ETR in each jurisdiction. Blending across a group's jurisdictions hides low-taxed profit: 31.7\% of global profit lies below 15\% by group, against 34.4\% by jurisdiction, and the gap reaches 35.4 points in the Netherlands and 34.7 in Belgium. Panel B uses Table VI, which sorts groups by consolidated turnover. Groups above \EUR10 billion hold 62.0\% of profit in EU27 hosts and generate 64.6\% of EU27 top-up tax after the carve-out in 2022–2023. Within the same parent, their median shield ratio is 23.9 points lower than that of smaller groups worldwide (618 pairs, $p=6.1\times10^{-4}$), while the EU27 difference of 5.3 points is not significant ($p=0.14$). Panel C uses the interquartile means of Table II. The middle half of subgroups has nearly the same ETR as the whole population, with gaps of $-0.39$ points worldwide and 1.25 points in the EU27, yet the outer quartiles hold 82.7\% and 85.7\% of profit. Panel D relates holding activity to measurement. Ten more percentage points of holding entities raise the parent-specific liability rate by 0.32 points worldwide and 0.55 points in the EU27, and lower the EU27 shield ratio by 2.07 points (Holm-adjusted $p$ of 0.001 or less, 0.018 and 0.023).
+
+\clearpage
 \section{Behavioural estimation}\label{app:behaviour}
-\draftstub{Pass 5}
 
+This appendix reports every behavioural specification behind the response used in the simulations. Section \ref{app:beh_models} presents the models and their robustness, and Section \ref{app:division_bias} the formal argument for the bias that Section \ref{sec:behaviour} removes.
+
+\subsection{Models, sample and robustness}\label{app:beh_models}
+
+The response is estimated on the cells that report profit in several years, so that the fixed effects can absorb what is permanent about each pair. Tables \ref{tab:app_stage3_sample_summary} and \ref{tab:app_stage3_behavioural_design} describe the sample and the design. The baseline holds 10,611 rows in 2,031 pairs, with 153 affiliates and 48 parents; the balanced panel keeps 5,110 rows, dropping 2020–2021 leaves 7,164 and dropping stale wage observations 10,206.
+
+\input{generated/results_tables/appendix_stage3_sample_summary.tex}
+\input{generated/results_tables/appendix_stage3_behavioural_design.tex}
+
+A fitted response becomes a retention factor by integrating it between the cell's current ETR and the floor. The expression below takes the estimated function $f$ and the ETR $e_{pjt}=0.15-\bar g_{pjt}$ on low-taxed profit and returns the factor $\lambda_{pjt}$ of equation \eqref{eq:liability} for each functional form:
+\begin{equation}\label{eq:app_integral}
+\ln\lambda_{pjt}=f(0.15)-f(e_{pjt}),\qquad
+f(\tau)=\begin{cases}
+\hat\beta_1\tau & \text{linear},\\
+\hat\beta_1\tau+\hat\beta_2\tau^{2} & \text{quadratic},\\
+\hat\beta_1\tau+\hat\beta_3\ln(t_0+\tau) & \text{logarithmic}.
+\end{cases}
+\end{equation}
+The semi-elasticity is $-f'(\tau)$. It is constant at 1.465 in the linear form, $1.833-1.264\,\tau$ in the quadratic form and $0.739+0.275/(0.1528+\tau)$ in the logarithmic form. The linear form gives equation \eqref{eq:hinesrice}, $\lambda=\exp(\hat\beta_1\bar g)$, and removes 13.6\% of profit booked at an ETR of 5\%. The Simplified ETR Safe Harbour adds a notch: cells whose low-taxed ETR lies in $[0.13,0.15)$ owe no top-up tax and so face no incentive to move profit.
+
+\input{generated/results_tables/stage3_main_regression.tex}
+\input{generated/results_tables/stage3_model_comparison.tex}
+\input{generated/results_tables/appendix_stage3_tax_coefficients.tex}
+
+Tables \ref{tab:stage3_main_regression} to \ref{tab:app_stage3_tax_coefficients} report the three forms. The linear slope is $-1.465$ (standard error 0.243). The quadratic form gives $-1.833$ and $0.632$, and the logarithmic form $-0.739$ and $-0.275$, with no term individually significant beyond the linear one. The Bayesian information criterion prefers the linear form, by 2.53 over the logarithmic and 5.81 over the quadratic.
+
+\input{generated/results_tables/appendix_stage3_specification_tests.tex}
+\input{generated/results_tables/appendix_stage3_wald_tests.tex}
+
+The non-nested tests in Table \ref{tab:app_stage3_specification_tests} favour the logarithmic over the quadratic form in the sign test of Clarke ($p=5.3\times10^{-62}$), while the Vuong test ($p=0.276$) and both $J$-tests ($p=0.163$ and $0.280$) do not separate them. None of the tests overturns the linear choice. The tax terms are jointly significant in all three forms, with $F=36.37$ for the linear term (Table \ref{tab:app_stage3_wald_tests}).
+
+\input{generated/results_tables/stage3_semielasticity.tex}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{generated/figures/fig_stage3_semielasticity_estimated.pdf}
+\caption{Estimated semi-elasticity of reported profit by pre-reform ETR for the linear, quadratic and logarithmic forms. The dashed line marks the 15\% floor.}
+\label{fig:app_semielasticity}
+\end{figure}
+
+Table \ref{tab:stage3_semielasticity} and Figure \ref{fig:app_semielasticity} show where the forms diverge. They agree near the floor, and at an ETR of 5\% the logarithmic semi-elasticity reaches 2.10 against 1.47 for the linear form. The data say little about that region. Table \ref{tab:app_stage3_etr_tail_support} shows that ETRs below 5\% account for 17.1\% of rows but only 9.3\% of profit, so the curvature of the low tail rests on few large cells.
+
+\input{generated/results_tables/appendix_stage3_etr_tail_support.tex}
+\input{generated/results_tables/appendix_stage3_robustness.tex}
+\input{generated/results_tables/appendix_stage3_behaviour_by_year.tex}
+
+The linear form is preferred in three of the four samples in Table \ref{tab:app_stage3_robustness}; the balanced panel, which keeps only pairs observed in every year, selects the logarithmic form. Table \ref{tab:app_stage3_behaviour_by_year} applies the response year by year. The profit-weighted share of low-taxed profit that moves is between 11.3\% and 12.4\%, and between 1 and 13 affiliate-years a year fall inside the safe-harbour notch.
+
+\subsection{Why the current ETR biases the slope}\label{app:division_bias}
+
+When the tax rate is computed from the same profit that the regression explains, any surprise in profit moves both sides of the equation together. Write observed log profit as $y=y^{\circ}+u$, where $u$ is a transitory shock or a measurement error independent of the true values, and the ETR as $\tau=\theta/\pi=\tau^{\circ}e^{-u}\approx\tau^{\circ}(1-u)$. The expression below takes this structure and returns the probability limit of the least-squares slope of $y$ on $\tau$:
+\begin{equation}\label{eq:app_division_bias}
+\operatorname*{plim}\hat\beta=\frac{\operatorname{Cov}(y,\tau)}{\operatorname{Var}(\tau)}
+=\beta+\frac{\operatorname{Cov}(u,\tau)}{\operatorname{Var}(\tau)},\qquad
+\operatorname{Cov}(u,\tau)\approx-\,\mathbb{E}[\tau^{\circ}]\operatorname{Var}(u)<0.
+\end{equation}
+The bias is negative, so the estimated response is steeper than the true one, and it exists even when $\beta=0$. Weighting by profit strengthens it, because cells with positive shocks have both more weight and lower measured ETRs, and the logarithmic form strengthens it further in the tail near zero, where $\ln(t_0+\tau)$ is steepest. Both regressors of Panel B in Table \ref{tab:tab_v2_stage3_division_bias_and_ppml} break the link. The lagged ETR $\theta_{pj,t-1}/\pi_{pj,t-1}$ contains no current shock, so $\operatorname{Cov}(u_t,\tau_{t-1})=0$ if shocks are not serially correlated. The leave-one-parent-out ETR $\tau_{-p,jt}$ excludes the cell's own profit altogether and is correlated with $u_{pjt}$ only through shocks common to all parents in a host-year. Neither condition holds exactly, which is why Panel C adds instruments from the tax code.
+
+\input{generated/results_tables/stage3_iv_diagnostics.tex}
+\input{generated/results_tables/stage3_econometric_scorecard.tex}
+
+Table \ref{tab:stage3_iv_diagnostics} reports the instrument diagnostics. The forward-looking effective average tax rate enters the first stage with a coefficient of 0.264 ($F=10.81$), and its reduced form on log profit is $-0.593$ ($p=0.214$); the lagged statutory rate gives 0.217 ($F=7.31$). The instruments are relevant but too imprecise to replace the fixed-effect estimate. Table \ref{tab:stage3_econometric_scorecard} gathers the diagnostics. Dropping one jurisdiction at a time keeps the semi-elasticity between 1.37 and 1.56 and the preferred form unchanged in 26 of 27 cases.
+
+\clearpage
 \section{Factorial decomposition, uncertainty and country results}\label{app:decomposition}
-\draftstub{Pass 5}
 
+This appendix shows that the variance ranking holds across windows, designs, countries and influential jurisdictions. Section \ref{app:factorial_ext} extends the factorial design, and Section \ref{app:country_uncertainty} repeats the uncertainty decomposition state by state.
+
+\subsection{Further designs, windows and influential jurisdictions}\label{app:factorial_ext}
+
+The ranking of Section \ref{sec:factorial} could depend on the window, on how the decisions are grouped or on a few large jurisdictions, and each possibility is tested here. Tables \ref{tab:stage4_6_anova_updated} and \ref{tab:stage4_6_factor_decomposition} report the 32-scenario design behind the main text. ETR measurement explains 71.5\% of the variance, SbS 14.4\%, behaviour 4.5\%, substance 3.6\% and the interaction of ETR measurement with SbS 3.1\%. The main effect of distributional measurement is \usd230.6 billion, that of SbS $-$\usd98.6 billion, of behaviour $-$\usd50.4 billion and of the sectoral carve-out $-$\usd43.9 billion.
+
+\input{generated/results_tables/stage4_6_anova.tex}
+\input{generated/results_tables/stage4_6_factor_decomposition.tex}
+\input{generated/results_tables/stage46_measurement_sample_decomposition.tex}
+
+The ranking strengthens as the data improve (Table \ref{tab:stage46_measurement_sample_decomposition}). The Shapley share of ETR measurement is 74.3\% over 2017–2023, 82.4\% over 2019–2023, when direct brackets replace shape transport, and 86.8\% over 2021–2023, when Table I and Table IV overlap. Over 2017–2022, the window of the thesis, it is 72.5\%.
+
+\input{generated/results_tables/appendix_stage46_country_anova.tex}
+\input{generated/results_tables/appendix_stage46_top_scenarios.tex}
+
+Country by country, ETR measurement leads in Germany (83.9\%), France (73.0\%) and the Netherlands (76.0\%), while SbS leads in Ireland (38.1\%) and Luxembourg (57.8\%), where US-parented groups dominate (Table \ref{tab:app_stage46_country_anova}). The highest-revenue scenario combines distributional measurement, the aggregate carve-out at long-run rates, universal allocation and no response, at \usd584.9 billion (Table \ref{tab:app_stage46_top_scenarios}).
+
+\input{generated/results_tables/appendix_jurisdiction_influence_summary.tex}
+\input{generated/results_tables/appendix_jurisdiction_influence_decomposition.tex}
+
+Tables \ref{tab:app_jurisdiction_influence_summary} and \ref{tab:app_jurisdiction_influence_decomposition} drop one parent or affiliate jurisdiction at a time. Dropping the United States as parent lowers preferred revenue by 27.5\%, and dropping the Netherlands as affiliate by 26.5\%, yet in every case ETR measurement keeps the largest effect. Its share ranges from 63.8\% to 89.1\%, while that of SbS ranges from zero to 20.5\%.
+
+The remaining designs split or add decisions. The 64-scenario design of Panel A in Table \ref{tab:tab_v2_app_table5_country_uncertainty} separates the sectoral carve-out from the incentive safe harbour. Over 2017–2023, ETR measurement takes 72.75\% of the variance, SbS 15.82\%, the safe harbour 6.20\%, behaviour 4.81\%, and the sectoral carve-out without the safe harbour only 0.24\%; the share of the safe harbour falls to 3.84\% over 2019–2023 and 1.88\% over 2021–2023. Panel B adds the accounting bridge $x_6$ and holds the carve-out rates at their initial values, giving 32 scenarios. At L3 over 2017–2023, ETR measurement takes 44.31\% and the bridge 40.46\%, with a main effect of $-$\usd151.80 billion. Under strict L4 the order reverses, at 44.58\% for the bridge against 41.83\% for ETR measurement, so the two base decisions together dominate whichever comes first.
+
+\input{generated/paper_v2_tables/tab_v2_app_table5_country_uncertainty.tex}
+
+The four levels of the ETR ladder can be compared with three contrasts, each isolating one step of the measurement. The expressions below take revenue at L1, L2, L4 and L3, in that order, and return orthonormal contrasts for the move from host averages to cell averages, the move to the dispersion within cells, and the move from parent-specific brackets to pooled host brackets:
+\begin{equation}\label{eq:app_helmert}
+c_{1a}=\tfrac{1}{\sqrt2}(-1,1,0,0),\qquad
+c_{1b}=\tfrac{1}{\sqrt6}(-1,-1,2,0),\qquad
+c_{1c}=\tfrac{1}{\sqrt{12}}(-1,-1,-1,3).
+\end{equation}
+In the anchored 2017–2023 design, ETR measurement takes 85.13\% of the variance, of which the dispersion within cells contributes 76.96 points, the pooling step 5.73 and the move between parents 2.43, over a scenario range of \usd144.27–865.74 billion. In the strict variant the dispersion within cells contributes 49.57 points and parent selection 24.46. Over 2021–2023 the anchored contribution of the dispersion within cells rises to 84.44 points. Recognising that profit within a cell is spread across tax rates matters most.
+
+\input{generated/results_tables/preferred_channel.tex}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{generated/figures/fig_preferred_channel_composition.pdf}
+\caption{Cumulative EU27 revenue by collection channel in the mechanical preferred core, 2017–2023, under universal allocation and under SbS.}
+\label{fig:app_preferred_channel}
+\end{figure}
+
+Table \ref{tab:preferred_channel_updated} and Figure \ref{fig:app_preferred_channel} decompose mechanical revenue in the preferred core by channel. Under universal allocation the QDMTT raises \usd315.2 billion, the IIR \usd42.3 billion and the UTPR \usd202.3 billion, a total of \usd559.7 billion. SbS cuts the UTPR to \usd44.4 billion and the total to \usd401.9 billion. Table \ref{tab:hypothesis_result_summary} restates the hypotheses of the thesis on this panel; the country typology on which its last row rests is reassessed in Appendix \ref{app:repeal_detail}.
+
+\input{generated/results_tables/hypothesis_summary.tex}
+
+\subsection{Uncertainty and salience by Member State}\label{app:country_uncertainty}
+
+The comparison of scenario disagreement with statistical noise in Section \ref{sec:uncertainty} is repeated for each Member State, because a ministry forecasts its own receipts. For each state $c$ the law of total variance in equation \eqref{eq:totalvariance} is applied to its cumulative revenue, and $\Lambda_c$ compares the range of its revenue across the 32 scenarios with the 90\% parameter interval of its preferred scenario. Panels C and D of Table \ref{tab:tab_v2_app_table5_country_uncertainty} report the results for the 22 states that collect revenue. Over 2017–2023 scenario variance exceeds parameter variance everywhere except Austria, where the parameter share is 52.89\%, and $\Lambda_c$ ranges from 1.24 in Austria to 5.69 in Poland. Over 2019–2023 every state's parameter share falls below 27\%, and $\Lambda_c$ reaches 41.32 in Slovakia.
+
+\input{generated/results_tables/country_revenue_diagnostic.tex}
+
+Table \ref{tab:country_revenue_diagnostic} sets the spread against the size of each budget. In Luxembourg preferred revenue equals 207.5\% of corporate tax revenue and the spread across scenarios 162.0\%, so the choice of scenario alone exceeds the whole of its corporate tax. The Netherlands, Hungary and Ireland follow with spreads of 25.1–39.6\% of corporate tax revenue. In the large economies the spread is smaller relative to revenue, at 15.4\% in Germany and 11.7\% in France, but larger in absolute terms, at \usd91.6 billion and \usd52.3 billion.
+
+\clearpage
 \section{Allocation law, the repeal game and replication}\label{app:allocation}
-\draftstub{Pass 5}
+
+This appendix sets out the legal allocation rules as modelled, the full set of repeal cases and the replication package. Section \ref{app:allocation_detail} covers the allocation rules and their sensitivities, and Section \ref{app:repeal_detail} the repeal cases, the country typology and the replication package.
+
+\subsection{Allocation rules as modelled}\label{app:allocation_detail}
+
+Each liability is assigned to a collecting state by the order of the rules, and the model follows that order cell by cell. A qualified domestic top-up tax in the low-tax host collects first. What remains goes to the IIR of the parent jurisdiction, and what is still left goes to the UTPR states in which the group operates. Table \ref{tab:app_stage45_summary} checks the bookkeeping: across the 32 scenarios and 6,048 country-year rows, liability allocated equals liability generated up to \usd0.001 billion.
+
+\input{generated/results_tables/appendix_stage45_summary.tex}
+
+The UTPR divides the residual among the states that apply it in proportion to the group's employees and tangible assets there. The expression below takes the employees $E_{pct}$ and tangible assets $A_{pct}$ of parent $p$'s affiliates in each UTPR state $c$ of the set $\mathcal U_{pt}$ and returns the weight of each state:
+\begin{equation}\label{eq:app_utpr}
+\omega^{U}_{c\mid pt}=\frac12\,\frac{E_{pct}}{\sum_{c'\in\mathcal U_{pt}}E_{pc't}}+\frac12\,\frac{A_{pct}}{\sum_{c'\in\mathcal U_{pt}}A_{pc't}},\qquad c\in\mathcal U_{pt}.
+\end{equation}
+The weights sum to one across $\mathcal U_{pt}$ and are computed for 6,587 parent-years. Where a parent-year has no activity in any UTPR state, 308 rows, the weights fall back to the activity of all UTPR collectors in that year.
+
+\input{generated/results_tables/appendix_stage45_sbs_source_exposure.tex}
+\input{generated/results_tables/appendix_stage45_h4_regression.tex}
+
+SbS exempts US-parented groups from the IIR and the UTPR, so its effect depends on who owns the profit in each source state. Table \ref{tab:app_stage45_sbs_source_exposure} shows that US-parented groups account for 39.7 of the Netherlands' \usd104.1 billion of preferred top-up tax, 24.8 of Ireland's \usd30.9 billion and 29.6 of Luxembourg's \usd63.9 billion, against 4.8 of \usd32.3 billion in Germany. Across states, the revenue change from SbS falls with preferred revenue, by 2.0 cents per dollar ($p=1.5\times10^{-7}$, $R^2=0.771$), while the QDMTT status of the source and its US-parented share add nothing once revenue is controlled for (Table \ref{tab:app_stage45_h4_regression}).
+
+\input{generated/paper_v2_tables/tab_v2_app_table7_regime_sensitivities.tex}
+
+Table \ref{tab:tab_v2_app_table7_regime_sensitivities} varies the legal status of the states that do not collect. The baseline R1 follows the Central Record and gives \usd343.765 billion for the EU27. R2 recognises the Cypriot domestic top-up tax under Law 151(I)/2024, which brings Cyprus \usd5.738 billion and the EU27 total to \usd348.746 billion. R3 assumes full adoption of the QDMTT and IIR across the EU27, adding \usd4.449 billion for Malta and \usd0.49 billion together for Estonia, Lithuania and Latvia, for a total of \usd351.880 billion.
+
+The relocation of profit in Section \ref{sec:cit_recovery} needs a destination, and three rules supply one. Rule B, the preferred rule, sends relocated profit to the affiliates of the same parent in hosts with a statutory rate of at least 15\%, in proportion to a quarter employees, a quarter payroll and half unrelated-party revenue. Rule A pools each parent's relocated profit and excludes a fixed list of conduit countries. Rule C sends half of the profit to the headquarters when the parent's statutory rate is at least 15\% and the other half under Rule B. In the preferred scenario over 2017–2023, the EU27 recovers \usd67.92 billion of ordinary CIT under Rule A, \usd65.27 billion under Rule B and \usd71.25 billion under Rule C, against \usd17.11 billion of CIT lost at the sources, for net fiscal effects of $-$\usd7.29 billion, $-$\usd9.94 billion and $-$\usd3.95 billion. The Netherlands recovers nothing under Rule A, which excludes it as a conduit, \usd3.49 billion under Rule B and \usd5.41 billion under Rule C.
+
+\subsection{Repeal cases, the country typology and replication}\label{app:repeal_detail}
+
+The repeal game of Section \ref{sec:repeal_game} is reported there under the Side-by-Side package for repeal of the domestic top-up tax alone, and this subsection completes it with the other cases. Panel A of Table \ref{tab:tab_v2_app_table8_universal_and_optout} repeats the repeal under universal allocation for fiscal year 2023. Efficiency is zero in every state, since the foreign IIRs and UTPRs collect whatever the state gives up: the Netherlands forgoes \usd5.900 billion of QDMTT revenue, foreign rules collect \usd4.482 billion and its own rules the rest, and no group pays less. Panel B adds the 216 opt-out cases in which a state also switches off its own IIR and UTPR. Under SbS, efficiency is highest in Cyprus (87.3\%), Ireland (79.5\%), Malta (63.3\%) and Lithuania (52.7\%), and the critical weight lies below one only in Cyprus (0.697), Ireland (0.727) and Malta (0.960). Elsewhere it is far lower, with 23.6\% in the Netherlands, 16.3\% in Luxembourg and 10.2\% in Germany, and repeal costs the state more than it saves its firms.
+
+\input{generated/paper_v2_tables/tab_v2_app_table8_universal_and_optout.tex}
+
+The thesis grouped the Member States with a statistical clustering, and the ledger of Section \ref{sec:ledger} replaces it for three reasons. Tables \ref{tab:country_typology_pca} to \ref{tab:app_country_typology_cluster_stability} reproduce the clustering. The first two principal components of the standardised features explain 49.1\% and 22.9\% of their variation, and $k$-means with four clusters separates Luxembourg alone, nine states, twelve states and the five states that collect nothing. First, the channel shares of those five states are undefined and enter with median values, so the procedure places them on assumed data. Second, the grouping depends on the number of clusters. The four-cluster solution is fully stable under 200 small perturbations of the features, but one of its clusters holds a single state, and with three clusters stability falls to 85.5\%, with a minimum of 66.7\%. Third, the clusters summarise outcomes without naming the legal position behind them. The ledger groups instead follow rules that a ministry can verify: the salience threshold, the QDMTT share of receipts and the Article 50 election.
+
+\input{generated/results_tables/country_typology_pca.tex}
+\input{generated/results_tables/country_typology_clusters.tex}
+\input{generated/results_tables/appendix_country_typology_features.tex}
+\input{generated/results_tables/appendix_country_typology_cluster_stability.tex}
+
+The replication package reproduces every number in the paper from the public extracts. It consists of thirteen numbered R modules and two companion modules, 02a for the profit reconciliation and 07a for uncertainty, run in fifteen stages by a single script after the R environment is restored from a lockfile. Modules 01 to 03 clean the data, estimate the profit correction and measure the ETR distributions. Modules 04 to 07 compute the carve-out, the behavioural response, the allocation to collecting states and the decomposition, and 07a draws the uncertainty. Modules 08 to 11 add the measurement extensions, the fiscal ledger and budget back-test, the accounting bridge and the repeal game. Module 12 builds a scorecard against the archived thesis results, and module 13 writes every table and figure. A SHA-256 manifest verifies the raw inputs before a run, a golden-file test rejects any missing, extra or altered output, and the seeds are 20260503 for measurement error, 20260613 for the profit correction and 20261113 for the joint uncertainty. The full run took 7 minutes 28 seconds on the verification host with the cached measurement-error draws, and about 40 minutes without them. \texttt{REPLICATION.md} documents the environment, the sources and the map from each exhibit to its code.
 
 \end{document}

@@ -914,7 +914,7 @@ write_stage1_rates_table <- function() {
   make_scope_rows <- function(scope_id, scope_label) {
     dat <- scenario |> filter(scope == scope_id)
     bind_rows(
-      tibble(row = paste0("\\multicolumn{7}{l}{\\textit{", scope_label, "}}")),
+      tibble(row = paste0("\\multicolumn{", length(years) + 1L, "}{l}{\\textit{", scope_label, "}}")),
       tibble(
         row = c(
           "Average rule, low-taxed share",
@@ -966,7 +966,7 @@ write_stage1_rates_table <- function() {
   }
 
   lines <- assemble_inline_table(
-    col_spec = "lrrrrrr",
+    col_spec = paste0("l", strrep("r", length(years))),
     caption_lines = c(
       "\\caption[Stage 1 rates, EU27 and global]{Stage 1 rates before SBIE and behavioural responses. Low-taxed share is low-taxed profit divided by positive corrected profit. The top-up gap is the profit-weighted average distance to the 15 per cent threshold on the measured low-taxed profit mass. Liability rate is aggregate Stage 1 top-up divided by positive corrected profit. All entries are percentages.}",
       "\\label{tab:stage1_rates_updated}"
@@ -2574,7 +2574,8 @@ write_country_typology_tables <- function() {
       "Revenue, spread and main-effect columns are cumulative over 2017 to 2023 and expressed in US dollars, billions.",
       "Main effects are signed into policy-exposure magnitudes: distributional minus average ETR measurement, universal minus SbS revenue loss, aggregate minus sectoral substance exposure and mechanical minus behavioural revenue.",
       ""
-    )
+    ),
+    fit_width = TRUE
   )
 
   stability_rows <- stability |>
@@ -2678,7 +2679,7 @@ write_hypothesis_summary_table <- function() {
     header = c("Hypothesis", "Main result", "Interpretation"),
     rows = rows,
     notes = paste(
-      "The table summarises the evidence reported in the Stage 1 to Stage 4.6 diagnostics and the country fiscal-exposure calculations in Section \\ref{sec:results_sbs}.",
+      "The table summarises the evidence reported in the Stage 1 to Stage 4.6 diagnostics and the country fiscal-exposure calculations.",
       ""
     )
   )
@@ -2699,11 +2700,13 @@ write_appendix_tables <- function() {
         "fallback_prior" = "Fallback prior",
         .default = str_to_sentence(str_replace_all(signal_type, "_", " "))
       ),
-      scope_label = str_to_sentence(str_replace_all(scope, "_", " "))
+      scope_label = str_to_sentence(str_replace_all(scope, "_", " ")) |>
+        str_replace_all(c("\\bupe\\b" = "UPE", "\\birs\\b" = "IRS", "\\bcbcr\\b" = "CbCR",
+          "\\bcompustat\\b" = "Compustat", "\\betr\\b" = "ETR"))
     ) |>
     transmute(
       Evidence = latex_escape(evidence_label),
-      Source = latex_escape(source_citation_key),
+      Source = paste0("\\citet{", source_citation_key, "}"),
       Scope = latex_escape(scope_label),
       Rows = fmt_int(rows),
       Parents = fmt_int(parents),
@@ -2727,7 +2730,8 @@ write_appendix_tables <- function() {
       "Each row summarises one type of signal entering the parent-year correction model.",
       "The fallback prior is the Hugger et al. median UPE correction; the public ETR-parity signal is capped at 55.5\\% and enters with low precision.",
       ""
-    )
+    ),
+    fit_width = TRUE
   )
 
   parent_year_top20 <- read_diag("step02a_profit_correction_parent_year_top20.csv") |>
@@ -2738,8 +2742,8 @@ write_appendix_tables <- function() {
       `$\\hat{\\rho}$ (\\%)` = fmt_pct(rho_hat, 1),
       `Low (\\%)` = fmt_pct(rho_lo, 1),
       `High (\\%)` = fmt_pct(rho_hi, 1),
-      `Main source` = latex_escape(main_sources),
-      Support = latex_escape(support_class)
+      `Main source` = latex_escape(str_replace_all(main_sources, "_", " ")),
+      Support = latex_escape(str_replace_all(support_class, "_", " "))
     )
 
   write_appendix_latex_table(
@@ -2756,7 +2760,8 @@ write_appendix_tables <- function() {
       "Rows are the twenty parent jurisdictions with the largest positive domestic profit over 2017 to 2023.",
       "Rates are domestic-profit-weighted averages of parent-year predictions.",
       ""
-    )
+    ),
+    fit_width = TRUE
   )
 
   holdout_summary <- read_diag("step02a_profit_correction_validation_holdout.csv") |>
@@ -2915,7 +2920,8 @@ write_appendix_tables <- function() {
       "The final SbS column propagates the same parent-year draws through the preferred behavioural Stage 4.6 panel while holding distributional low-tax shares, behavioural filters and legal allocation weights fixed.",
       "It is therefore a conditional profit-correction interval, reported separately from the main factorial revenue decomposition.",
       ""
-    )
+    ),
+    fit_width = TRUE
   )
 
   holding_chain_path <- file.path(
@@ -3327,7 +3333,8 @@ write_appendix_tables <- function() {
       "Data for structural extension"
     ),
     behavioural_design,
-    ""
+    "",
+    fit_width = TRUE
   )
 
   stage45_summary <- read_diag("step6_stage4_5_summary.csv") |>
