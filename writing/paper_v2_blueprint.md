@@ -1,6 +1,6 @@
 # Paper v2 blueprint: from thesis to journal manuscript
 
-**Target file:** `writing/paper_v2.tex` · **Outlets:** *International Tax and Public Finance* (ITPF) or *Journal of Public Economics* (JPubE) · **Length:** about 9,050 words of main text, 8 tables, 5 figures, Online Appendix A–E · **Empirical vintage:** tag `v2.0-empirical-freeze`, FY2017–2023 OECD public country-by-country reporting (CbCR).
+**Target file:** `writing/paper_v2.tex` · **Primary target:** *International Tax and Public Finance* (ITAX) · **Secondary options:** *Fiscal Studies*, *Journal of Public Economics* (JPubE) · **Preceded by:** a U.S.E. Working Paper · **Length:** about 9,050 words of main text, 8 tables, 5 figures, Online Appendix A–E · **Empirical vintage:** tag `v2.0-empirical-freeze`, FY2017–2023 OECD public country-by-country reporting (CbCR).
 
 Every number quoted below is copied from `writing/generated/paper_v2_tables/`, `writing/generated/results_tables/` or `data/processed/diagnostics/master_paper_v2_scorecard.csv`. Where the brief for Step 20 stated a number that the frozen outputs do not support, this blueprint uses the frozen value and flags the change in Section 9.
 
@@ -10,11 +10,13 @@ Every number quoted below is copied from `writing/generated/paper_v2_tables/`, `
 
 1. **The Tax Base Decides: Why Global Minimum Tax Revenue Estimates Disagree** (recommended). Short, states the finding, and works for both a policy reader and a referee.
 2. **Measurement before Behaviour: Decomposing Uncertainty in Europe's Global Minimum Tax Revenue.** Puts the ranking of the two candidate explanations in the title.
-3. **Who Collects the Minimum Tax? Measurement, Accounting and Allocation in Public Country-by-Country Data.** Leads with the distributional question; better suited to ITPF if the referee strategy emphasises the collector ledger and the repeal game.
+3. **Who Collects the Minimum Tax? Measurement, Accounting and Allocation in Public Country-by-Country Data.** Leads with the distributional question; the strongest option if the ITAX referees respond most to the collector ledger and the repeal game, which connect to the journal's tax-competition literature.
 
 ## 2. Front matter
 
 **Target abstract (148 words).** European governments have budgeted revenue from the Global Minimum Tax, yet published estimates for the same country differ by multiples. We trace that disagreement to its sources. Using public OECD country-by-country data for 2017–2023, we compute European revenue under every combination of six modelling decisions and attribute the variance across estimates to each decision. Two decisions dominate: how profit taxed below 15% is measured and how accounting profit is translated into the minimum-tax base. Together they explain 84.7–91.8% of the variance. Statistical uncertainty in estimated parameters accounts for 1.71% or less, and profit-shifting responses shrink once a division bias in effective tax rates is removed. After the accounting adjustments, the model tracks national budget forecasts for real-economy collectors. Under the 2026 Side-by-Side package, repealing a domestic top-up tax becomes a tax cut for US-parented groups: 85.9% of Ireland's forgone revenue reaches firms.
+
+**Journal positioning.** ITAX is the primary target because the empirical conversation the paper joins takes place there: Hugger, Gonzalez Cabral and O'Reilly (2026) on within-country low-taxed profit, Boukal, Janský and Palanský (2026) on single-country minimum tax decomposition, Schjelderup and Stähler (2024) on the economics of the minimum tax, Godar et al. (2024) and Tuinsma et al. (2025) on what country-by-country reports reveal, and Hindriks and Nishimura (2026) on enforcement. *Fiscal Studies* is the natural alternative because Devereux, Paraknewitz and Simmler (2023) on the substance carve-out and Hanlon (2023) on accounting information in the tax base appeared there, and the accounting bridge in Section 4.5 answers Hanlon's concerns directly. JPubE remains a secondary option if the co-authors judge the variance decomposition and the division-bias result general enough for a broad public economics readership. The manuscript follows ITAX conventions: an abstract of at most 150 words, author–year referencing, and an Online Appendix for derivations and robustness. The introduction cites the ITAX and *Fiscal Studies* papers above in its first literature paragraph so that editors can place the contribution at once.
 
 **JEL:** H25, H87, F23, C54. **Keywords:** global minimum tax; Pillar Two; country-by-country reporting; revenue estimation; profit shifting; tax competition.
 
@@ -37,6 +39,7 @@ These rules come from `docs/archive/thesis-handbook.md` (March 2026 supervisor f
 | Originality flags | Every new notation, design or diagnostic is labelled as the paper's own; adapted formulas state what changed |
 | Navigation | Each major section ends with one sentence on what was established and what comes next |
 | No bullets | Main text and appendices are prose only; tables carry lists |
+| Verified openings | All section and subsection openings in Sections 5 and 6 of this blueprint were checked against these rules on 14 November 2026; the openings of Introduction P4 and Section 3.1 were revised (one contained an abbreviation, one a contrast template) |
 
 ## 4. Word budget and exhibit plan
 
@@ -79,7 +82,7 @@ The introduction is planned paragraph by paragraph. It states the answer in para
 (b) *Content:* ETR aggregation 42.5–50.2% and the accounting bridge 39.7–44.7% of Shapley-attributed variance; jointly 84.7–91.8% (2017–2023 and 2019–2023 windows, L3 and L4 strict). Parameter uncertainty 1.71% (2017–2023) and 0.36% (2019–2023). EU27 cumulative 2017–2023 range US$144.3–584.9 billion across the 32 core scenarios.
 
 **P4. Three supporting results.**
-(a) *Opening:* "Three further results show that the ranking reflects economics and not an artefact of the method."
+(a) *Opening:* "Three further results show that the ranking survives the most obvious objections to the method."
 (b) *Content:* The Beta-fit rank violation and its fix (validation MAE 3.85 to 1.74 pp); division bias in log semi-elasticities (9.33–11.20 at a 5% ETR, falling to 2.51–3.94); the budget backtest (real-economy FY2023 gaps below €0.5 billion after the accounting bridge).
 
 **P5. Distribution and incentives.**
@@ -88,7 +91,7 @@ The introduction is planned paragraph by paragraph. It states the answer in para
 
 **P6. Literature and contribution.**
 (a) *Opening:* "Earlier studies each fix most of these decisions and vary one, so their estimates cannot be compared."
-(b) *Content:* One sentence of contribution and one of limitation per paper, positioned against each other: Baraké et al. (2022) jurisdiction averages and the averaging bias that Hugger et al. (2026) document with confidential data; Devereux et al. (2023) on the substance carve-out floor; Heckemeyer and Overesch (2017), Dowd et al. (2017) and Garcia-Bernardo and Janský (2024) on the semi-elasticity; Hanlon (2023) on accounting information in the base; Devereux et al. (2022) on the adoption game; Boukal et al. (2026) single-country decomposition. Contributions stated with strong verbs: the paper *delivers* a public-data distributional measure validated against direct data, *decomposes* scenario variance with a factorial and Shapley design, *separates* scenario from parameter uncertainty, *corrects* the division bias, *reconciles* the model with national budgets, and *tests* the adoption game under the 2026 rules. The six-factor design with the accounting bridge, the four-level ETR ladder, the proposal ratio $\Lambda$ and the source–collector ledger are flagged as original.
+(b) *Content:* One sentence of contribution and one of limitation per paper, positioned against each other, starting with the ITAX and *Fiscal Studies* papers listed under journal positioning: Baraké et al. (2022) jurisdiction averages and the averaging bias that Hugger et al. (2026) document with confidential data; Godar et al. (2024) and Tuinsma et al. (2025) on the content and limits of country-by-country reports; Schjelderup and Stähler (2024) on the economics of the minimum tax; Hindriks and Nishimura (2026) on enforcement; Devereux et al. (2023) on the substance carve-out floor; Heckemeyer and Overesch (2017), Dowd et al. (2017) and Garcia-Bernardo and Janský (2024) on the semi-elasticity; Hanlon (2023) on accounting information in the base; Devereux et al. (2022) on the adoption game; Boukal et al. (2026) single-country decomposition. Contributions stated with strong verbs: the paper *delivers* a public-data distributional measure validated against direct data, *decomposes* scenario variance with a factorial and Shapley design, *separates* scenario from parameter uncertainty, *corrects* the division bias, *reconciles* the model with national budgets, and *tests* the adoption game under the 2026 rules. The six-factor design with the accounting bridge, the four-level ETR ladder, the proposal ratio $\Lambda$ and the source–collector ledger are flagged as original.
 (c) *Footnote:* Torslov et al. (2023) and Garcia-Bernardo and Janský (2024) scale estimates of shifted profit.
 
 **P7. Roadmap.**
@@ -128,7 +131,7 @@ $B_{pjt}$ is the minimum-tax base after the accounting bridge applied to $\pi^*_
 
 #### 3.1 Public country-by-country reports as a bilateral panel
 
-(a) *Opening:* "Large multinationals report their profit, tax and activity country by country to tax authorities, and the OECD publishes these reports in aggregated form."
+(a) *Opening:* "Large multinationals report their profit, tax and activity country by country to tax authorities, and these reports are published in aggregated form for most of the world's economies."
 (b) *Argument:* Six OECD CbCR tables, reshaped from 1,367,305 raw Table I records into 20,111 parent–affiliate–year cells and an analytical panel of 18,954 pair-years (63 parent and 232 affiliate jurisdictions), 14,108 with positive profit and US$41.91 trillion of corrected profit. The FY2023 vintage from the July 2026 release adds 3,186 pair-years. EU27 slice 4,330 pair-years; behavioural sample 10,611. Why bilateral: the parent country determines which collection rules and safe harbours apply.
 (c) *Exhibit:* **Table 1** (sample construction Panel A; coverage by year Panel B).
 (d) *Closing:* "Aggregated reports count some profit twice, and the next subsection removes it."
@@ -332,17 +335,20 @@ E.1 Allocation waterfall and SbS exposure. E.2 Qualification and adoption sensit
 
 ## 9. Corrections to the Step 20 brief
 
-The frozen outputs differ from three statements in the brief. The memo and this blueprint use the frozen values.
+The frozen outputs differ from three statements in the brief, and one bibliography entry needs correcting. The research note and this blueprint use the frozen values and the correct citation.
 
 1. **SBTI overlay.** The brief states 100% no-leakage efficiency "in 20 of 27 EU states". In `step13_qdmtt_vs_sbti_strategy_comparison.csv` the overlay efficiency is 100% with zero leakage in **all 27** states, for every ladder and window. The overlay delivers more relief than SbS repeal in **18 of 27** states (L3, FY2023 and 2021–2023; 18 for L4 strict FY2023 and 19 for L4 strict 2021–2023). No cut of the data yields 20.
 2. **Ireland's repeal efficiency.** 85.9% is the L3 value for 2017–2023. Table 8 (FY2023) shows 87.0%. The text cites both with their windows.
 3. **Joint variance share.** The brief's rounded "42%–50%", "40%–44%" and "85% to 92%" correspond to exact Shapley shares of 42.5–50.2% (ETR), 39.7–44.7% (accounting) and 84.7–91.8% (joint) across the 2017–2023 and 2019–2023 windows and the L3 and L4 strict designs. In 2021–2023 the joint share reaches 93.3% (L3) and 93.6% (L4 strict).
 
+4. **Hindriks and Nishimura (2026).** The bibliography entry `jean2026` stores the authors' first names as surnames ("Jean, Hindriks and Yukihiro, Nishimura"). The article is by Jean Hindriks and Yukihiro Nishimura and should be cited as Hindriks and Nishimura (2026); the entry needs correcting before `paper_v2.tex` is compiled.
+
 The "216 unilateral QDMTT deviations" count is confirmed as the QDMTT-repeal subset of the 432-row deviation matrix (27 states × 2 regimes × 2 ladders × 2 windows); the matrix holds a further 216 full opt-out cases. The "65% conduit unwind" is the 64.7% fall in combined Dutch and Luxembourg low-taxed profit between 2018 and 2023.
 
 ## 10. Questions to settle with the co-author
 
-1. Journal order: JPubE first (broader audience, higher bar on identification) or ITPF first (closer fit for the allocation and repeal-game material).
+1. Journal choice: ITAX first (closest fit with the papers the manuscript engages), *Fiscal Studies* as the alternative, or JPubE if the co-authors see a broader audience for the variance decomposition.
 2. Title choice among the three options in Section 1.
 3. Whether the repeal game stays in the main text or becomes a companion policy note.
-4. Working-paper series and timing: draft by 18 December 2026, comments in January, circulation in February 2027, submission in March 2027.
+4. Timing: full draft early in 2027, U.S.E. Working Paper in spring 2027, submission before summer 2027.
+5. Whether to invite dr. Adriaan Kalwij as a co-author, given his econometric perspective on Sections 5.2 and 4.4.

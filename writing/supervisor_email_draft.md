@@ -1,25 +1,43 @@
-# Email draft to Dr Peter Gerbrands
+# Email drafts to dr. Peter Gerbrands
 
-**To:** Dr Peter Gerbrands
-**Subject:** Turning the Global Minimum Tax thesis into a co-authored journal paper
-**Attachment:** `supervisor_pitch_memo.pdf` (3 pages)
+Attachment for both versions: `supervisor_pitch_memo.pdf` (Research Note and Publication Plan, 4 pages).
 
----
+## Nederlandse versie
+
+**Onderwerp:** Vervolg op mijn scriptie over de Global Minimum Tax
+
+Beste Peter,
+
+Ik hoop dat alles goed met je gaat. Allereerst nogmaals hartelijk dank voor je begeleiding bij mijn scriptie dit voorjaar. Ik heb er veel van geleerd en er met veel plezier aan gewerkt.
+
+Dat plezier is eigenlijk niet meer weggegaan. Het werken aan de scriptie heeft me laten inzien dat ik graag verder wil in dit vakgebied. Ik zou rond de zomer van 2027 graag als buitenpromovendus beginnen aan een promotietraject in de empirische internationale bedrijfsbelastingen, naast mijn werk.
+
+Daarom ben ik de afgelopen maanden met het onderzoek doorgegaan. In juli heeft de OECD de CbCR-gegevens over 2023 gepubliceerd. Ik heb de pipeline uitgebreid naar 2017–2023 en heb de methodologische beperkingen opgepakt die we in juni bespraken, zoals het verschil tussen boekhoudkundige winst en de grondslag van de minimumbelasting en de betrouwbaarheid van de gedragsschatting. De hoofdconclusie van de scriptie blijft overeind, en de uitkomsten liggen nu ook veel dichter bij de begrotingsramingen van een aantal lidstaten. In de bijgevoegde notitie van vier pagina's zet ik de uitbreidingen en de nieuwe resultaten op een rij.
+
+Ik zou het heel mooi vinden om hier samen met jou een artikel van te maken, met *International Tax and Public Finance* of *Fiscal Studies* als doel. Daarnaast hoor ik graag je advies over hoe ik een extern promotietraject het beste kan aanpakken. Heb je in de komende weken tijd voor een kop koffie of een korte afspraak?
+
+Hartelijke groet,
+
+Maurits
+
+## English version
+
+**Subject:** Following up on my thesis on the Global Minimum Tax
 
 Dear Peter,
 
-I would like to turn my thesis into a journal article, and I would very much like to write it with you. The target is *International Tax and Public Finance* or the *Journal of Public Economics*, with a working paper out this winter. The paper is also the basis for the external PhD position I plan to start in summer 2027.
+I hope you are well. First of all, thank you again for supervising my thesis this spring. I learnt a great deal from it and very much enjoyed the work.
 
-Since June I have rebuilt the analysis on the new 2017–2023 OECD data and repaired the weaknesses a referee would find first. The main result is now sharper. Two modelling decisions explain 85 to 92 per cent of the disagreement between revenue estimates: how low-taxed profit is measured, and how accounting profit in the public data is translated into the tax base the rules actually use. Firm behaviour and statistical noise in the estimated parameters matter much less. The model now also reconciles with the official budget forecasts of eight member states, including the Dutch one.
+That enjoyment has stayed with me. Working on the thesis made me realise that I would love to continue in this field, and I would like to start an external PhD in empirical international business taxation around summer 2027, alongside my work.
 
-The attached three-page memo sets out the six upgrades and compares the thesis with the new version in a single table. I wrote it so that it can also go to Adriaan, whose view on the variance decomposition and the division-bias argument would help a great deal, but I will only share it with him if you agree.
+So I have kept working on the research over the past months. In July the OECD released the 2023 country-by-country reporting data. I extended the pipeline to 2017–2023 and worked on the methodological limitations we discussed in June, such as the gap between accounting profit and the minimum tax base and the reliability of the behavioural estimate. The main conclusion of the thesis holds, and the results now also come much closer to the budget forecasts of several member states. The attached four-page note sets out the extensions and the new results.
 
-Would you have 45 minutes in the week of 30 November to discuss whether you would like to co-author, which journal to aim for, and the timetable? I plan to have a full draft ready by 18 December.
+I would really like to turn this into a joint paper with you, aiming for *International Tax and Public Finance* or *Fiscal Studies*. I would also be grateful for your advice on how best to approach an external PhD. Would you have time for a coffee or a short meeting in the coming weeks?
 
-Best wishes,
+Kind regards,
 
 Maurits
 
 ---
 
-*Notes for sending (delete before sending).* The salutation assumes first-name terms; switch to "Dear Dr Gerbrands" if that fits your correspondence better. The rounded "85 to 92 per cent" matches the memo's exact range of 84.7–91.8%.
+*Note before sending (delete this line):* both versions assume you are on first-name terms; use "Beste meneer Gerbrands" or "Dear dr. Gerbrands" otherwise.
