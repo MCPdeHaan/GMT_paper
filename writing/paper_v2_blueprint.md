@@ -24,14 +24,14 @@ Every number quoted below is copied from `writing/generated/paper_v2_tables/`, `
 
 ## 3. Writing rules applied to every section
 
-These rules come from `docs/archive/thesis-handbook.md` (March 2026 supervisor feedback and the note on Dr Kalwij's perspective) and from the Step 20 brief. Each subsection draft is checked against them before it enters `paper_v2.tex`.
+These rules come from `docs/archive/thesis-handbook.md` (March 2026 supervisor feedback and the note on writing for the general reader) and from the Step 20 brief. Each subsection draft is checked against them before it enters `paper_v2.tex`.
 
 | Rule | Operational check |
 |---|---|
 | British English | analyse, behavioural, modelled, centrepiece, programme, standardised, favour |
 | No em-dashes or double hyphens as punctuation | `grep -n -- "--\|—" paper_v2.tex` returns only number ranges written with `–` |
 | Opening sentence of each section and subsection | Plain language; no formula, no abbreviation, no citation; states what the part does and why the reader should care |
-| Explain *why* before *how* | The economic reason for each step precedes any acronym or equation (Kalwij test: "and why then?") |
+| Explain *why* before *how* | The economic reason for each step precedes any acronym or equation (general reader and policy-officer clarity rule: "and why then?") |
 | Declarative voice | No "aims to", "can be seen as", "it is worth noting", "may suggest", and no "not X, but Y" contrast template |
 | Abbreviations | Full term at first use in running text; repeated in full after a long gap; also listed in Appendix A notation table |
 | Equation chains | One-line map before each chain: what it produces, its inputs, where it is used downstream |
@@ -54,9 +54,9 @@ These rules come from `docs/archive/thesis-handbook.md` (March 2026 supervisor f
 | 7 Conclusion | 750 | | |
 | **Total** | **9,050** | **8** | **5** |
 
-**Main-text tables.** Table 1 sample construction and coverage (`results_tables/data_sample_construction.tex` Panel A with `results_tables/data_panel_coverage.tex` Panel B). Table 2 `paper_v2_tables/tab_v2_etr_ladder_and_crossval.tex`. Table 3 `paper_v2_tables/tab_v2_stage2_sbti_and_bracket_substance.tex` (Panels A and B). Table 4 `paper_v2_tables/tab_v2_stage3_division_bias_and_ppml.tex`. Table 5 `paper_v2_tables/tab_v2_factorial_globe_and_total_variance.tex` (main profile, see Section 8). Table 6 `paper_v2_tables/tab_v2_budget_backtest_and_hanlon_waterfall.tex`. Table 7 `paper_v2_tables/tab_v2_source_collector_ledger_and_regimes.tex` (Panels A and B). Table 8 `paper_v2_tables/tab_v2_qdmtt_nash_deviation_game.tex` (Side-by-Side rows of Panel A and all of Panel B).
+**Main-text tables.** All main-text fragments sit in `writing/generated/paper_v2_tables/`. Table 1 `tab_v2_main_table1_sample_and_coverage.tex`. Table 2 `tab_v2_etr_ladder_and_crossval.tex`. Table 3 `tab_v2_main_table3_substance_and_sbti.tex`. Table 4 `tab_v2_stage3_division_bias_and_ppml.tex`. Table 5 `tab_v2_main_table5_variance_and_uncertainty.tex`. Table 6 `tab_v2_budget_backtest_and_hanlon_waterfall.tex`. Table 7 `tab_v2_main_table7_source_collector_ledger.tex`. Table 8 `tab_v2_main_table8_qdmtt_repeal_game.tex`. The full multi-panel versions keep their original filenames for the scorecard and tests.
 
-**Main-text figures.** Figure 1 revenue as successive filters (TikZ, adapted from the thesis figure `fig:gmt_mechanics_intro`, extended with the accounting bridge and the collector stage; new file `writing/figures/fig_v2_filters.tex`). Figure 2 `figures/fig_stage46_shapley_variance.pdf`. Figure 3 `paper_v2_figures/fig_v2_cbcr_to_budget_waterfall.pdf`. Figure 4 `figures/fig_country_salience_uncertainty.pdf`. Figure 5 `paper_v2_figures/fig_v2_qdmtt_deviation_efficiency_vs_sbti.pdf`.
+**Main-text figures.** Figure 1 revenue as successive filters (TikZ, adapted from the thesis figure `fig:gmt_mechanics_intro`, extended with the accounting bridge and the collector stage; new file `writing/figures/fig_v2_filters.tex`). Figure 2 `paper_v2_figures/fig_v2_shapley_variance_core_and_accounting.pdf`. Figure 3 `paper_v2_figures/fig_v2_cbcr_to_budget_waterfall.pdf`. Figure 4 `figures/fig_country_salience_uncertainty.pdf`. Figure 5 `paper_v2_figures/fig_v2_qdmtt_deviation_efficiency_vs_sbti.pdf`.
 
 **Notation used throughout.** Parent jurisdiction $p$, affiliate (host) jurisdiction $j$, year $t$, collecting state $c$. Corrected profit $\pi^*_{pjt}$; profit-correction rate $\rho_{pt}$; effective tax rate (ETR) $\tau$; within-cell ETR distribution $F_{pjt}(\tau)$; low-taxed share $s_{pjt}=F_{pjt}(0.15)$; average top-up gap on low-taxed profit $\bar g_{pjt}$; substance carve-out to profit ratio $\phi_{pjt}$; scenario vector $x=(x_1,\dots,x_6)$ for ETR, substance, carve-out rates, Side-by-Side, behaviour and accounting. Appendix A.1 holds the single notation table (Table A1).
 
@@ -202,8 +202,8 @@ with bracket-level dividend purging, Panel A-II current subgroup loss netting an
 #### 5.1 Switching the decisions on and off
 
 (a) *Opening:* "To learn which decision matters most, the model computes revenue under every combination of choices and measures how much each choice moves the result."
-(b) *Argument:* Kalwij framing first, then the design: a full factorial over $x\in\{0,1\}^5$ (32 scenarios) and $\{0,1\}^6$ (64 scenarios with accounting). Map: inputs are the 32 or 64 values of $R_{\text{EU27}}(x)$ by country-year; outputs are main-effect shares $\eta^2_k$ and Shapley shares that split interactions; used in 5.2 and 7. Core 32, 2017–2023: ETR 71.46% main (74.31% Shapley), SbS 14.44%, behaviour 4.52%, substance 3.59%, rates 0.14%. Accounting 64: ETR 41.80–50.20% main and 45.02–54.27% Shapley (L3); accounting 35.17–41.34% main. Joint Shapley ETR plus accounting: 84.68% (L3, 2017–2023), 91.75% (L3, 2019–2023), 86.31% and 91.41% (L4 strict). Oaxaca–Blinder analogy in one sentence. The six-factor design is original.
-(c) *Exhibit:* **Figure 2** (Shapley bars; see Section 8 for the six-factor update) and **Table 5, Panels A1–A2** (main profile).
+(b) *Argument:* Plain-language framing first, then the design: a full factorial over $x\in\{0,1\}^5$ (32 scenarios) and $\{0,1\}^6$ (64 scenarios with accounting). Map: inputs are the 32 or 64 values of $R_{\text{EU27}}(x)$ by country-year; outputs are main-effect shares $\eta^2_k$ and Shapley shares that split interactions; used in 5.2 and 7. Core 32, 2017–2023: ETR 71.46% main (74.31% Shapley), SbS 14.44%, behaviour 4.52%, substance 3.59%, rates 0.14%. Accounting 64: ETR 41.80–50.20% main and 45.02–54.27% Shapley (L3); accounting 35.17–41.34% main. Joint Shapley ETR plus accounting: 84.68% (L3, 2017–2023), 91.75% (L3, 2019–2023), 86.31% and 91.41% (L4 strict). Oaxaca–Blinder analogy in one sentence. The six-factor design is original.
+(c) *Exhibit:* **Figure 2** (Shapley shares for the core and accounting designs) and **Table 5, Panels A1–A2**.
 (d) *Closing:* "A large spread across scenarios matters only if it exceeds the noise in the estimated parameters, which the next subsection checks."
 
 #### 5.2 Scenario disagreement versus statistical noise
@@ -212,7 +212,7 @@ with bracket-level dividend purging, Panel A-II current subgroup loss netting an
 (b) *Argument:* Map: 500 joint draws of $(\hat\beta_3,\rho_{pt},\text{Beta residuals})$, each run through 32 scenarios; output is the variance split and $\Lambda$. Law of total variance:
 $$\operatorname{Var}(R)=\underbrace{\operatorname{Var}_x\!\big(\mathbb E_\theta[R\mid x]\big)}_{\text{scenario}}+\underbrace{\mathbb E_x\!\big[\operatorname{Var}_\theta(R\mid x)\big]}_{\text{parameter}},\qquad \Lambda=\frac{\max_x\hat R(x)-\min_x\hat R(x)}{W_{90}(x^\star)} .$$
 EU27: parameter share 1.71% (2017–2023) and 0.36% (2019–2023); $\Lambda=6.93$ and 14.99; 90% widths US$63.61 billion and US$20.71 billion. Country exceptions in the long window: Austria 52.89%, Sweden 31.46%. Draw diagnostics and seeds to Appendix D. $\Lambda$ is the paper's own statistic.
-(c) *Exhibit:* **Table 5, Panels B1–B2** (EU27 rows in main text; country rows in Appendix D).
+(c) *Exhibit:* **Table 5, Panel B** (EU27 rows; member-state rows in Appendix D).
 (d) *Closing:* "Scenario disagreement dominates, so the remaining test is whether any scenario reproduces what governments expect to collect."
 
 #### 5.3 Back-testing against national budgets
@@ -283,7 +283,7 @@ A.1 Notation table (new, Table A1). A.2 Sources, URLs and access dates; study-to
 
 (a) *Opening:* "This appendix gives the full detail of the measurement steps summarised in Section 4."
 B.1 Source tiers and coverage. B.2 Beta fit, statutory cap and rank-consistency **[derivation]**, focal cells (DEU, FRA, ITA, LUX, NLD). B.3 Shape transport to earlier vintages and Stage 1 measurement error. B.4 Substance carve-out, SBTI and capital intensity. B.5 Accounting bridge: dividend purge, loss stock, tax timing **[derivation]**. B.6 CbCR Tables II, III and VI extensions.
-*Exhibits:* `results_tables/stage1_source_coverage.tex`, `results_tables/stage1_rates.tex`, `results_tables/stage1_crossval.tex`, `results_tables/stage1_bspi_validation.tex`, `results_tables/appendix_stage1_bspi_summary.tex`, `results_tables/appendix_stage1_conditioning.tex`, `results_tables/stage1_measurement_error_interval.tex`, `results_tables/stage2_aggregate.tex`, `results_tables/stage2_sectoral_sbti.tex`, `results_tables/stage2_h5_regression.tex`, `results_tables/appendix_stage2_asset_sensitivity.tex`, `results_tables/appendix_stage2_payroll_fallback.tex`, Table 3 Panel C, `paper_v2_tables/tab_v2_cbcr_tables_2_3_6_extensions.tex`.
+*Exhibits:* `results_tables/stage1_source_coverage.tex`, `results_tables/stage1_rates.tex`, `results_tables/stage1_crossval.tex`, `results_tables/stage1_bspi_validation.tex`, `results_tables/appendix_stage1_bspi_summary.tex`, `results_tables/appendix_stage1_conditioning.tex`, `results_tables/stage1_measurement_error_interval.tex`, `results_tables/stage2_aggregate.tex`, `results_tables/stage2_sectoral_sbti.tex`, `results_tables/stage2_h5_regression.tex`, `results_tables/appendix_stage2_asset_sensitivity.tex`, `results_tables/appendix_stage2_payroll_fallback.tex`, `paper_v2_tables/tab_v2_app_table3_h5_regression.tex`, `paper_v2_tables/tab_v2_cbcr_tables_2_3_6_extensions.tex`.
 
 ### Appendix C. Behavioural estimation
 
@@ -295,13 +295,13 @@ C.1 Sample and identification design. C.2 Functional forms, BIC and non-nested t
 
 (a) *Opening:* "This appendix shows that the variance ranking holds across windows, designs, countries and influential jurisdictions."
 D.1 ANOVA identity and Shapley attribution **[derivation]**. D.2 Split-SBTI and 32-scenario accounting designs (remaining rows of Table 5 Panel A). D.3 Measurement-sample decomposition. D.4 Country ANOVA, scenario spread and fiscal salience. D.5 Joint Monte Carlo: draws, seeds, country rows of Table 5 Panel B. D.6 Jurisdiction influence. D.7 Preferred channel composition. D.8 Thesis hypotheses crosswalk.
-*Exhibits:* `results_tables/stage4_6_anova.tex`, `results_tables/stage4_6_factor_decomposition.tex`, `results_tables/stage46_measurement_sample_decomposition.tex`, `results_tables/appendix_stage46_measurement_sample_decomposition.tex`, `results_tables/appendix_stage46_country_anova.tex`, `results_tables/appendix_stage46_top_scenarios.tex`, `results_tables/country_revenue_diagnostic.tex`, `results_tables/appendix_country_revenue_diagnostic.tex`, `results_tables/appendix_jurisdiction_influence_summary.tex`, `results_tables/appendix_jurisdiction_influence_decomposition.tex`, `results_tables/preferred_channel.tex`, `figures/fig_preferred_channel_composition.pdf`, `results_tables/hypothesis_summary.tex`, Table 5 remaining rows.
+*Exhibits:* `results_tables/stage4_6_anova.tex`, `results_tables/stage4_6_factor_decomposition.tex`, `results_tables/stage46_measurement_sample_decomposition.tex`, `results_tables/appendix_stage46_measurement_sample_decomposition.tex`, `results_tables/appendix_stage46_country_anova.tex`, `results_tables/appendix_stage46_top_scenarios.tex`, `results_tables/country_revenue_diagnostic.tex`, `results_tables/appendix_country_revenue_diagnostic.tex`, `results_tables/appendix_jurisdiction_influence_summary.tex`, `results_tables/appendix_jurisdiction_influence_decomposition.tex`, `results_tables/preferred_channel.tex`, `figures/fig_preferred_channel_composition.pdf`, `results_tables/hypothesis_summary.tex`, `paper_v2_tables/tab_v2_app_table5_country_uncertainty.tex`.
 
 ### Appendix E. Allocation law, the repeal game and replication
 
 (a) *Opening:* "This appendix sets out the legal allocation rules as modelled, the full set of repeal cases and the replication package."
 E.1 Allocation waterfall and SbS exposure. E.2 Qualification and adoption sensitivities (R1–R3, Cyprus Law 151(I)/2024). E.3 Reallocation destination rules A, B and C. E.4 Full repeal and opt-out matrix, including all universal-regime rows. E.5 Why the institutional ledger replaces clustering (legacy PCA and $k$-means exhibits). E.6 Replication: pipeline, runtimes, seeds, hashes.
-*Exhibits:* `results_tables/appendix_stage45_summary.tex`, `results_tables/appendix_stage45_sbs_source_exposure.tex`, `results_tables/appendix_stage45_h4_regression.tex`, Table 7 Panel C, Table 8 universal rows, `results_tables/country_typology_pca.tex`, `results_tables/country_typology_clusters.tex`, `results_tables/appendix_country_typology_features.tex`, `results_tables/appendix_country_typology_cluster_stability.tex`.
+*Exhibits:* `results_tables/appendix_stage45_summary.tex`, `results_tables/appendix_stage45_sbs_source_exposure.tex`, `results_tables/appendix_stage45_h4_regression.tex`, `paper_v2_tables/tab_v2_app_table7_regime_sensitivities.tex`, `paper_v2_tables/tab_v2_app_table8_universal_and_optout.tex`, `results_tables/country_typology_pca.tex`, `results_tables/country_typology_clusters.tex`, `results_tables/appendix_country_typology_features.tex`, `results_tables/appendix_country_typology_cluster_stability.tex`.
 
 **Not included in the manuscript.** `data_descriptive_tables.tex`, `results_main_tables_manifest.tex` and `results_appendix_tables.tex` are build wrappers; `stage4_6_results_tables.tex` is the legacy monolithic thesis export (audit A19). All 54 fragments in `results_tables/` and all 8 in `paper_v2_tables/` are mapped above.
 
@@ -312,26 +312,26 @@ E.1 Allocation waterfall and SbS exposure. E.2 Qualification and adoption sensit
 | Exhibit | Source fragment | Section |
 |---|---|---|
 | Figure 1 | `writing/figures/fig_v2_filters.tex` (new TikZ) | 2.2 |
-| Table 1 | `results_tables/data_sample_construction.tex` + `data_panel_coverage.tex` | 3.1 |
+| Table 1 | `paper_v2_tables/tab_v2_main_table1_sample_and_coverage.tex` | 3.1 |
 | Table 2 | `paper_v2_tables/tab_v2_etr_ladder_and_crossval.tex` | 4.1–4.2 |
-| Table 3 | `paper_v2_tables/tab_v2_stage2_sbti_and_bracket_substance.tex` (A, B) | 4.3 |
+| Table 3 | `paper_v2_tables/tab_v2_main_table3_substance_and_sbti.tex` | 4.3 |
 | Table 4 | `paper_v2_tables/tab_v2_stage3_division_bias_and_ppml.tex` | 4.4 |
-| Table 5 | `paper_v2_tables/tab_v2_factorial_globe_and_total_variance.tex` (main profile) | 5.1–5.2 |
-| Figure 2 | `figures/fig_stage46_shapley_variance.pdf` | 5.1 |
+| Table 5 | `paper_v2_tables/tab_v2_main_table5_variance_and_uncertainty.tex` | 5.1–5.2 |
+| Figure 2 | `paper_v2_figures/fig_v2_shapley_variance_core_and_accounting.pdf` | 5.1 |
 | Table 6 | `paper_v2_tables/tab_v2_budget_backtest_and_hanlon_waterfall.tex` | 5.3 |
 | Figure 3 | `paper_v2_figures/fig_v2_cbcr_to_budget_waterfall.pdf` | 5.3 |
-| Table 7 | `paper_v2_tables/tab_v2_source_collector_ledger_and_regimes.tex` (A, B) | 6.1–6.2 |
+| Table 7 | `paper_v2_tables/tab_v2_main_table7_source_collector_ledger.tex` | 6.1–6.2 |
 | Figure 4 | `figures/fig_country_salience_uncertainty.pdf` | 6.1 |
-| Table 8 | `paper_v2_tables/tab_v2_qdmtt_nash_deviation_game.tex` (SbS rows of A, B) | 6.3 |
+| Table 8 | `paper_v2_tables/tab_v2_main_table8_qdmtt_repeal_game.tex` | 6.3 |
 | Figure 5 | `paper_v2_figures/fig_v2_qdmtt_deviation_efficiency_vs_sbti.pdf` | 6.3 |
 
-## 8. Code changes needed before drafting
+## 8. Exhibit preparation (completed in Step 21)
 
-1. **Main and appendix profiles for multi-panel fragments.** `code/13_generate_exhibits.R` writes each Paper v2 table as one fragment. Add a `profile = c("main", "appendix")` argument to `write_paper_variance_table()`, `write_paper_substance_table()`, `write_paper_ledger_table()` and `write_paper_nash_table()` so that the main-text versions of Tables 3, 5, 7 and 8 carry only the panels and rows listed above.
-2. **Six-factor Figure 2.** Extend `make_decomposition_plot()` to draw the Accounting 64 Shapley shares for L3 and L4 strict alongside the core 32 bars, reading `step15_globe_accounting_factorial_anova.csv`.
-3. **Figure 1.** Port the thesis TikZ filter figure into `writing/figures/fig_v2_filters.tex` and add the accounting and collector stages.
-4. **Table 1.** Merge the two descriptive fragments into one two-panel table with a shared caption.
-5. **Golden tests.** Rerun `tests/verify_golden_step15.R` after each change; exhibit-only changes should leave all 359 frozen outputs untouched.
+1. **Main and appendix profiles.** `code/13_generate_exhibits.R` now writes compact fragments next to the full tables: `tab_v2_main_table3_substance_and_sbti` and `tab_v2_app_table3_h5_regression`; `tab_v2_main_table5_variance_and_uncertainty` (core 32 and Accounting 64 for 2017–2023 and 2019–2023, EU27 law of total variance) and `tab_v2_app_table5_country_uncertainty` (split SBTI, Accounting 32, Accounting 64 for 2021–2023, member-state rows); `tab_v2_main_table7_source_collector_ledger` and `tab_v2_app_table7_regime_sensitivities`; `tab_v2_main_table8_qdmtt_repeal_game` and `tab_v2_app_table8_universal_and_optout`. A test checks that each main and appendix pair reproduces exactly the rows of the full table.
+2. **Figure 2.** `make_paper_shapley_figure()` writes `paper_v2_figures/fig_v2_shapley_variance_core_and_accounting.pdf` from `step7_decomposition_architecture_stress_test.csv` and `step15_globe_accounting_factorial_anova.csv`.
+3. **Figure 1.** `writing/figures/fig_v2_filters.tex` holds the TikZ filter diagram with the accounting bridge and the collector waterfall.
+4. **Table 1.** `write_paper_main_table1()` writes `tab_v2_main_table1_sample_and_coverage` from the same objects as the two descriptive tables. It needs the local-only raw Table I extract (`data/raw/oecd_cbcr/cbcr_table1_aggregate_totals.csv`), so a full module 13 run must happen on a machine that holds it.
+5. **Verification.** All 360 frozen processed files keep their hashes, the test suite passes (412 expectations), and every new fragment compiles in a stand-alone harness without errors, warnings or overfull boxes.
 
 ## 9. Corrections to the Step 20 brief
 
@@ -341,7 +341,7 @@ The frozen outputs differ from three statements in the brief, and one bibliograp
 2. **Ireland's repeal efficiency.** 85.9% is the L3 value for 2017–2023. Table 8 (FY2023) shows 87.0%. The text cites both with their windows.
 3. **Joint variance share.** The brief's rounded "42%–50%", "40%–44%" and "85% to 92%" correspond to exact Shapley shares of 42.5–50.2% (ETR), 39.7–44.7% (accounting) and 84.7–91.8% (joint) across the 2017–2023 and 2019–2023 windows and the L3 and L4 strict designs. In 2021–2023 the joint share reaches 93.3% (L3) and 93.6% (L4 strict).
 
-4. **Hindriks and Nishimura (2026).** The bibliography entry `jean2026` stores the authors' first names as surnames ("Jean, Hindriks and Yukihiro, Nishimura"). The article is by Jean Hindriks and Yukihiro Nishimura and should be cited as Hindriks and Nishimura (2026); the entry needs correcting before `paper_v2.tex` is compiled.
+4. **Hindriks and Nishimura (2026).** The bibliography entry `jean2026` stores the authors' first names as surnames ("Jean, Hindriks and Yukihiro, Nishimura"). The article is by Jean Hindriks and Yukihiro Nishimura and is cited as Hindriks and Nishimura (2026). Fixed in Step 21: the key `jean2026` is kept so the thesis still compiles, and `hindriks2026` is added as an alias.
 
 The "216 unilateral QDMTT deviations" count is confirmed as the QDMTT-repeal subset of the 432-row deviation matrix (27 states × 2 regimes × 2 ladders × 2 windows); the matrix holds a further 216 full opt-out cases. The "65% conduit unwind" is the 64.7% fall in combined Dutch and Luxembourg low-taxed profit between 2018 and 2023.
 
@@ -351,4 +351,4 @@ The "216 unilateral QDMTT deviations" count is confirmed as the QDMTT-repeal sub
 2. Title choice among the three options in Section 1.
 3. Whether the repeal game stays in the main text or becomes a companion policy note.
 4. Timing: full draft early in 2027, U.S.E. Working Paper in spring 2027, submission before summer 2027.
-5. Whether to invite dr. Adriaan Kalwij as a co-author, given his econometric perspective on Sections 5.2 and 4.4.
+5. Whether to invite dr. Javier Garcia-Bernardo (Department of Methodology and Statistics, Utrecht University) to join the paper, and whether this could connect to supervision of an external PhD at Utrecht University. The pipeline builds directly on four of his country-by-country reporting papers: the US macro profit-reconciliation anchors for 2017–2019 in `data/manual/profit_correction_anchors.csv` come from Garcia-Bernardo, Janský and Zucman (2022); the logarithmic profit-shifting specification and the activity-weighted (formulary) destination rule behind Rule B follow Garcia-Bernardo and Janský (2024); and the CbCR effective tax rate methodology follows Garcia-Bernardo, Janský and Tørsløv (2021, 2023). His involvement alongside dr. Peter Gerbrands would join U.S.E.'s tax policy expertise with UU Methodology and Statistics and connect the paper to the core CbCR research network.

@@ -1,0 +1,74 @@
+% Figure 1 of paper_v2.tex: revenue as successive filters on the profit pool.
+% Adapted from the thesis figure fig:gmt_mechanics_intro (writing/thesisv4.tex),
+% extended with the CbCR-to-GloBE accounting bridge and the collector waterfall.
+% Requires: tikz (libraries arrows.meta, positioning), xcolor, graphicx.
+\providecolor{thesisNavy}{HTML}{1F3A5F}
+\providecolor{thesisTeal}{HTML}{2A7F8C}
+\providecolor{thesisOrange}{HTML}{D97706}
+\providecolor{thesisRed}{HTML}{C44536}
+\providecolor{thesisGreen}{HTML}{4A7C59}
+\providecolor{thesisGrey}{HTML}{6B7280}
+\providecolor{thesisLight}{HTML}{F3F4F6}
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[font=\small,
+  bar/.style={draw=thesisNavy!70, line width=0.5pt},
+  link/.style={draw=thesisNavy!50, line width=0.4pt},
+  lab/.style={font=\footnotesize, anchor=west, align=left},
+  alloc/.style={draw=thesisTeal, line width=0.7pt, rounded corners=2pt, fill=thesisTeal!10,
+    minimum height=1.15cm, text width=2.0cm, align=center, font=\scriptsize},
+  flow/.style={-{Latex[length=2mm]}, draw=thesisNavy, line width=0.7pt}]
+  \def\h{0.8}
+  % Corrected profit pool
+  \fill[thesisLight, bar] (0,6.5) rectangle (12,6.5+\h);
+  \node[font=\scriptsize] at (6,6.5+\h/2) {Corrected CbCR profit $\pi^{*}_{pjt}$ (Table I, double counting removed)};
+  \node[lab] at (12.2,6.5+\h/2) {Reported profit pool};
+  % Filter 1: accounting bridge
+  \fill[thesisGrey!30, bar] (0,5.2) rectangle (2.2,5.2+\h);
+  \fill[thesisLight, bar] (2.2,5.2) rectangle (12,5.2+\h);
+  \node[font=\scriptsize, align=center] at (1.1,5.2+\h/2) {Dividends,\\losses};
+  \node[font=\scriptsize] at (7.1,5.2+\h/2) {Minimum-tax base $B_{pjt}$};
+  \node[lab] at (12.2,5.2+\h/2) {Filter 1: accounting bridge ($x_6$)};
+  % Filter 2: ETR measurement
+  \fill[thesisGreen!25, bar] (2.2,3.9) rectangle (7.4,3.9+\h);
+  \fill[thesisRed!40, bar] (7.4,3.9) rectangle (12,3.9+\h);
+  \node[font=\scriptsize] at (4.8,3.9+\h/2) {Taxed at 15\% or more};
+  \node[font=\scriptsize] at (9.7,3.9+\h/2) {Low-taxed $s_{pjt}B_{pjt}$};
+  \node[lab] at (12.2,3.9+\h/2) {Filter 2: ETR measurement ($x_1$)};
+  % Filter 3: substance carve-out and SBTI
+  \fill[thesisTeal!30, bar] (7.4,2.6) rectangle (9.5,2.6+\h);
+  \fill[thesisRed!55, bar] (9.5,2.6) rectangle (12,2.6+\h);
+  \node[font=\scriptsize, align=center] at (8.45,2.6+\h/2) {SBIE and\\SBTI shield};
+  \node[font=\scriptsize] at (10.75,2.6+\h/2) {Excess profit};
+  \node[lab] at (12.2,2.6+\h/2) {Filter 3: substance carve-out\\and SBTI ($x_2$, $x_3$)};
+  % Filter 4: behavioural response
+  \fill[thesisOrange!55, bar] (9.5,1.3) rectangle (10.5,1.3+\h);
+  \fill[thesisRed!75, bar] (10.5,1.3) rectangle (12,1.3+\h);
+  \node[font=\scriptsize] at (10,1.3+\h/2) {Moved};
+  \node[font=\scriptsize, text=white] at (11.25,1.3+\h/2) {\textbf{$L_{pjt}$}};
+  \node[lab] at (12.2,1.3+\h/2) {Filter 4: behavioural response ($x_5$)};
+  % Links between rows
+  \foreach \x/\top/\bot in {2.2/5.2/4.7, 7.4/3.9/3.4, 9.5/2.6/2.1, 10.5/1.3/0.8} {
+    \draw[link] (\x,\top) -- (\x,\bot);
+  }
+  \draw[link] (2.2,6.5) -- (2.2,6.0);
+  % Allocation waterfall
+  \node[alloc, fill=thesisRed!15, draw=thesisRed, text width=1.3cm] (L) at (0.75,-0.75) {Top-up tax\\$L_{pjt}$};
+  \node[alloc] (Q) at (3.3,-0.75) {QDMTT\\collected by\\the host state};
+  \node[alloc] (I) at (6.5,-0.75) {IIR\\collected by\\the parent state};
+  \node[alloc] (U) at (9.7,-0.75) {UTPR\\collected by\\other group states};
+  \node[alloc, fill=thesisGrey!15, draw=thesisGrey, text width=3.1cm] (S) at (9.7,-2.75) {Side-by-Side: IIR and UTPR switched off for US-parented groups};
+  \draw[flow] (11.25,1.3) |- (0.75,0.25) -- (L.north);
+  \draw[flow] (L) -- (Q);
+  \draw[flow] (Q) -- node[above, font=\tiny] {residual} (I);
+  \draw[flow] (I) -- node[above, font=\tiny] {residual} (U);
+  \draw[flow, dashed, draw=thesisGrey] (I.south) |- (S.west);
+  \draw[flow, dashed, draw=thesisGrey] (U) -- (S);
+  \node[lab] at (12.2,-0.75) {Allocation to collectors ($x_4$)};
+  \node[lab, text=thesisGrey] at (12.2,-2.75) {Extinguished liability};
+\end{tikzpicture}%
+}
+\caption[Global Minimum Tax revenue as successive filters on the profit pool]{The figure follows reported profit from the public country-by-country tables to the treasury that collects the tax. The accounting bridge first converts corrected profit into the minimum-tax base. Three filters then isolate profit taxed below 15\%, remove the share shielded by real activity, and subtract the profit that firms move in response. The remaining top-up tax $L_{pjt}$ is collected by the host, the parent state or other states of the group, in that order; under the Side-by-Side package the parent-state and backstop charges lapse for US-parented groups. Each filter corresponds to one factor $x_k$ in the scenario design.}
+\label{fig:v2_filters}
+\end{figure}

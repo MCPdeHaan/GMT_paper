@@ -14,7 +14,7 @@ Dat plezier is eigenlijk niet meer weggegaan. Het werken aan de scriptie heeft m
 
 Daarom ben ik de afgelopen maanden met het onderzoek doorgegaan. In juli heeft de OECD de CbCR-gegevens over 2023 gepubliceerd. Ik heb de pipeline uitgebreid naar 2017–2023 en heb de methodologische beperkingen opgepakt die we in juni bespraken, zoals het verschil tussen boekhoudkundige winst en de grondslag van de minimumbelasting en de betrouwbaarheid van de gedragsschatting. De hoofdconclusie van de scriptie blijft overeind, en de uitkomsten liggen nu ook veel dichter bij de begrotingsramingen van een aantal lidstaten. In de bijgevoegde notitie van vier pagina's zet ik de uitbreidingen en de nieuwe resultaten op een rij.
 
-Ik zou het heel mooi vinden om hier samen met jou een artikel van te maken, met *International Tax and Public Finance* of *Fiscal Studies* als doel. Daarnaast hoor ik graag je advies over hoe ik een extern promotietraject het beste kan aanpakken. Heb je in de komende weken tijd voor een kop koffie of een korte afspraak?
+Ik zou het heel mooi vinden om hier samen met jou een artikel van te maken, met *International Tax and Public Finance* of *Fiscal Studies* als doel. Daarnaast hoor ik graag je advies over hoe ik een extern promotietraject het beste kan aanpakken. Ik ben ook benieuwd hoe jij erover denkt om Javier Garcia-Bernardo (Methodology & Statistics, UU) erbij te betrekken, omdat het paper zo nauw voortbouwt op zijn CbCR-werk. Heb je in de komende weken tijd voor een kop koffie of een korte afspraak?
 
 Hartelijke groet,
 
@@ -32,7 +32,7 @@ That enjoyment has stayed with me. Working on the thesis made me realise that I 
 
 So I have kept working on the research over the past months. In July the OECD released the 2023 country-by-country reporting data. I extended the pipeline to 2017–2023 and worked on the methodological limitations we discussed in June, such as the gap between accounting profit and the minimum tax base and the reliability of the behavioural estimate. The main conclusion of the thesis holds, and the results now also come much closer to the budget forecasts of several member states. The attached four-page note sets out the extensions and the new results.
 
-I would really like to turn this into a joint paper with you, aiming for *International Tax and Public Finance* or *Fiscal Studies*. I would also be grateful for your advice on how best to approach an external PhD. Would you have time for a coffee or a short meeting in the coming weeks?
+I would really like to turn this into a joint paper with you, aiming for *International Tax and Public Finance* or *Fiscal Studies*. I would also be grateful for your advice on how best to approach an external PhD, and I would love to hear your thoughts on whether it could make sense to involve Javier Garcia-Bernardo from Methodology and Statistics at UU, given how closely the paper builds on his CbCR work. Would you have time for a coffee or a short meeting in the coming weeks?
 
 Kind regards,
 

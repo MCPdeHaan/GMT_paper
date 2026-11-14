@@ -73,14 +73,47 @@ test_that("the Paper v2 publication tables and figures are complete", {
     "tab_v2_source_collector_ledger_and_regimes.tex",
     "tab_v2_budget_backtest_and_hanlon_waterfall.tex",
     "tab_v2_qdmtt_nash_deviation_game.tex",
-    "tab_v2_cbcr_tables_2_3_6_extensions.tex"
+    "tab_v2_cbcr_tables_2_3_6_extensions.tex",
+    "tab_v2_main_table1_sample_and_coverage.tex",
+    "tab_v2_main_table3_substance_and_sbti.tex",
+    "tab_v2_main_table5_variance_and_uncertainty.tex",
+    "tab_v2_main_table7_source_collector_ledger.tex",
+    "tab_v2_main_table8_qdmtt_repeal_game.tex",
+    "tab_v2_app_table3_h5_regression.tex",
+    "tab_v2_app_table5_country_uncertainty.tex",
+    "tab_v2_app_table7_regime_sensitivities.tex",
+    "tab_v2_app_table8_universal_and_optout.tex"
   ))
   figures <- file.path(generated_path("paper_v2_figures"), c(
     "fig_v2_cbcr_to_budget_waterfall.pdf",
-    "fig_v2_qdmtt_deviation_efficiency_vs_sbti.pdf"
+    "fig_v2_qdmtt_deviation_efficiency_vs_sbti.pdf",
+    "fig_v2_shapley_variance_core_and_accounting.pdf"
   ))
   expect_true(all(file.exists(figures)))
   expect_true(all(vapply(figures, function(path) {
     identical(rawToChar(readBin(path, "raw", n = 5L)), "%PDF-")
   }, logical(1))))
+})
+
+test_that("main-text and appendix fragments partition the full Paper v2 tables", {
+  read_table <- function(name) readLines(file.path(generated_path("paper_v2_tables"), paste0(name, ".tex")))
+  body_rows <- function(lines) {
+    rows <- grep("\\\\\\\\$", lines, value = TRUE)
+    rows[!grepl("^(\\\\caption|\\\\multicolumn)|& .*\\(%\\)|^(ISO|Window|Scope|Year|Rates|Sample) &", rows)]
+  }
+  for (pair in list(
+    c("tab_v2_stage2_sbti_and_bracket_substance", "tab_v2_main_table3_substance_and_sbti", "tab_v2_app_table3_h5_regression"),
+    c("tab_v2_source_collector_ledger_and_regimes", "tab_v2_main_table7_source_collector_ledger", "tab_v2_app_table7_regime_sensitivities"),
+    c("tab_v2_factorial_globe_and_total_variance", "tab_v2_main_table5_variance_and_uncertainty", "tab_v2_app_table5_country_uncertainty")
+  )) {
+    full <- body_rows(read_table(pair[1]))
+    split <- c(body_rows(read_table(pair[2])), body_rows(read_table(pair[3])))
+    expect_setequal(split, full)
+    expect_equal(length(split), length(full))
+  }
+  main8 <- read_table("tab_v2_main_table8_qdmtt_repeal_game")
+  expect_false(any(grepl("& Universal &", main8, fixed = TRUE)))
+  expect_length(grep("& Universal &", readLines(file.path(generated_path("paper_v2_tables"),
+    "tab_v2_app_table8_universal_and_optout.tex")), fixed = TRUE), 27L)
+  expect_length(grep("^IRL & ", main8), 2L)
 })
