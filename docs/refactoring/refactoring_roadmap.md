@@ -33,11 +33,15 @@ For each science slice, state the observed data, proxy and alternative, the esti
 - **Depends on:** R03 and R04. **Delivered:** Stage 08 verifies the L1/L3 partition and publishes channel-matched core, conditional L3 and documented-policy comparisons. Table 6 and Appendix D show their different scenario supports. Section 5.3 uses national budget benchmarking on historical bases. The waterfall and Figure 3 retain their numerical inputs.
 - **Verified:** Independent factorial, interval, channel, window and tie fixtures. The [country comparison and reproducibility record](r04b_budget_benchmarking.md) documents the revised interpretation and additive reference. [S09](scientific_issue_register.md#s09-table-6s-scenario-range-is-conditional-on-l3) records the historical error and remaining comparability limits.
 
-### R05. Audit and revise legal collector eligibility
+### R05a. Establish UTPR evidence and shadow the collector map
 
-- **Depends on:** R04. **Files:** 05/06 flags and allocation, affected 07a/09/10/11 studies, tests and paper §§2.1/6.1/6.3 and Appendix E.
-- **Change and benefit:** Resolve S03 with a dated national/qualification evidence table and provenance for unknowns. Measure the effects of the IIR→UTPR inference, member deferrals and fallback pooling. Determine whether a documented proxy, source-based eligibility, or bounded scenarios best support the claim. Keep R1, R2 and R3 restrictions explicit.
-- **Risk, tests and completion:** Source/collector country switches, effective dates, repeal and unsupported mass can change receipts markedly while global conservation holds. Test verified rule dates and classes, qualification versus enactment, authority of ambiguous cases, route eligibility, channel and country totals, repeal spillovers and decomposition. Publish scope/delta tables and revised legal exposition; if the adopted specification changes results, create a separate freeze after review.
+- **Depends on:** R04 and R04b. **Delivered:** The [dated national-rule register and method](r05a_utpr_legal_basis.md) and [shadow results and decision memorandum](r05a_utpr_shadow_results.md). The 1 January 2026 map separates national applicability, Article 50 and OECD qualification. The shadow holds each R1 and R3 source panel fixed while checking collector incidence, fallback and two opt-out cases. The R04b production reference is intact.
+
+### R05b. Decide eligibility and propagate the approved policy
+
+- **Depends on:** R05a. **Files:** Stage 05 and 06 flags and routes, dependent 07a/09/10/11 studies, tests and paper §§2.1/6.1/6.3 and Appendix E.
+- **Change and benefit:** Adopt an independently dated collector map and decide whether pooled fallback belongs in the point estimate or a separate sensitivity. Preserve R1, R2 and R3 source predicates unless explicitly revised. Establish a common residual-accounting contract for detailed, collapsed and sparse collectors.
+- **Risk, tests and completion:** Recompute the full factorials and affected uncertainty outputs, invalidating affected caches. Rebuild both levels of collector weights and rerun the full L3 and L4 repeal and opt-out game. Test legally distinct scope, conservation with unsupported residual, country and channel effects, spillovers and welfare ratios. Publish before/after results and revise the affected manuscript passages. Version an approved new reference after review.
 
 ### R06. Separate behavioural bunching and legal safe harbours
 
@@ -119,4 +123,4 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ## Recommended next task
 
-Execute R05. Build a dated evidence table for UTPR eligibility with separate provenance for enactment, effective date, qualification and proxy. Compare it with the frozen map before deciding how to account for unsupported pools in each law and opt-out arm.
+Decide the R05b specification using the [R05a results and decision memorandum](r05a_utpr_shadow_results.md). Record the collector map, support convention and intended empirical output changes before altering the production pipeline.
