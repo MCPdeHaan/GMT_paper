@@ -3,8 +3,12 @@ testthat::test_that("R modules can be sourced into an isolated environment", {
   dir.create(fixture)
   withr::defer(unlink(fixture, recursive = TRUE))
   dir.create(file.path(fixture, "code"))
-  scripts <- list.files(repo_path("code"), "\\.[Rr]$", full.names = TRUE)
-  stopifnot(all(file.copy(scripts, file.path(fixture, "code"))))
+  scripts <- list.files(repo_path("code"), "\\.[Rr]$", recursive = TRUE)
+  for (script in scripts) {
+    target <- file.path(fixture, "code", script)
+    dir.create(dirname(target), recursive = TRUE, showWarnings = FALSE)
+    stopifnot(file.copy(repo_path("code", script), target))
+  }
 
   probe <- file.path(fixture, "probe.R")
   writeLines(c(
@@ -16,7 +20,7 @@ testthat::test_that("R modules can be sourced into an isolated environment", {
     "  namespaces <- sort(loadedNamespaces())",
     "  packages <- search()",
     "  session_options <- options()",
-    "  for (script in list.files('code', '[.]R$', full.names = TRUE)) {",
+    "  for (script in list.files('code', '[.][Rr]$', full.names = TRUE, recursive = TRUE)) {",
     "    source(script, local = new.env(parent = globalenv()))",
     "    stopifnot(identical(ls(globalenv(), all.names = TRUE), bindings),",
     "      identical(sort(loadedNamespaces()), namespaces),",

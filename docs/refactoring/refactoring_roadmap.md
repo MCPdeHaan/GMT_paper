@@ -18,9 +18,9 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ### R03. Extract one exhibit family
 
-- **Depends on:** R02. **Files:** 13, new publication module for paper budget/waterfall, tests/guide as needed.
-- **Change and benefit:** Move `paper_budget_rows`, `paper_waterfall_rows`, `write_paper_budget_table` and `make_paper_waterfall_figure` together. Pass input tables and the destination explicitly. Establish a repeatable seam between loading, shaping and rendering before attempting the appendix mega-function.
-- **Risk, tests and completion:** Preserve labels, ordering, units, table aliases and plot layout. Exhibit-only run regenerates 80 identical TeX files and eight PDFs equal after timestamp normalisation, full document builds, source-safety passes, and the moved family has no ambient output paths in calculation functions.
+- **Depends on:** R02. **Files:** Stage 13, `code/publication/budget_waterfall.R` and the targeted, manuscript and source-safety suites.
+- **Delivered:** The [budget and waterfall module](../architecture/current_architecture.md#r03-budget-and-accounting-waterfall-exhibits) separates input checks, reusable data selections and presentation. Stage 13 passes the existing reader, formatter, writer and output path, and saves the figure and numbered alias. The historical scenario-range label is tracked separately as [S09](scientific_issue_register.md#s09-table-6s-scenario-range-is-conditional-on-l3).
+- **Verified:** 746 expectations passed on both the checkout and isolated replay, with no warnings or skips. The replay matched 360 frozen outputs and 80 TeX files, including the independent Stage 07 overview. All eight figure PDFs matched after date normalisation, and the paper built with the existing table and figure references.
 
 ### R04. Characterise dense, sparse and collapsed routing
 
@@ -114,4 +114,4 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ## Recommended next task
 
-Execute R02. Update the single stale memo reference in the lint and the corresponding build instructions, then run the full suite against checkout and redirected outputs. That is the smallest verifiable intervention and makes R03 and R04 reviewable against a passing baseline. Preserve explicit tests around 02/03 joins and ETR support, 05/06 amounts and allocation, and 11 dense–sparse point parity before changing those interfaces.
+Execute R04. Start with one routing fixture exercised by the detailed, sparse and collapsed projections. Include the case where parent-year weights exist and have zero EU share so the fixture can distinguish that case from fallback on missing parent-year weights. Retain the current production parity checks before changing those interfaces.

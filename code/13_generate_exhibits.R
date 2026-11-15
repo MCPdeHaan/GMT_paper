@@ -1,6 +1,7 @@
 # Manuscript tables and figures.
 
 source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "00_helpers.R"), local = TRUE)
+source(file.path(GMT_PROJECT_ROOT, "code", "publication", "budget_waterfall.R"), local = TRUE)
 
 # LaTeX tables
 
@@ -4515,19 +4516,6 @@ run_generate_results_figures <- function() {
 
 PAPER_TABLES_DIR <- file.path(GENERATED_DIR, "paper_v2_tables")
 PAPER_FIGURES_DIR <- file.path(GENERATED_DIR, "paper_v2_figures")
-PAPER_BUDGET_COUNTRIES <- c("NLD", "DEU", "FRA", "IRL", "LUX", "BEL", "AUT", "SVK")
-PAPER_BUDGET_LABELS <- c(
-  "Dutch October 2026 direct after package", "Mindeststeuergesetz cash estimate",
-  "Projet de loi de finances 2026", "Department of Finance estimate, reported by IFAC",
-  "Luxembourg 2026 budget Pillar Two minimum tax", "Belgian 2024 budget",
-  "Austrian MinBestG impact assessment", "Slovakia 2026 state budget Pillar Two line"
-)
-PAPER_BRIDGE_STEPS <- c(
-  "00_baseline" = "Baseline", "01_step8_dividends" = "Dividends",
-  "02_current_losses" = "Current losses", "03_prior_loss_carryforward" = "Prior losses",
-  "04_envelope_tax" = "Tax envelope", "05_safe_harbour_2026" = "2026 screen"
-)
-
 paper_read <- function(stem) {
   read_csv(file.path(DIAGNOSTICS_DIR, paste0(stem, ".csv")),
     show_col_types = FALSE, guess_max = Inf)
@@ -4785,42 +4773,6 @@ write_paper_ledger_table <- function() {
     "Cumulative 2017–2023, US$ bn, preferred behavioural SbS scenario. Net is collected minus source liability. Rule B CIT is gross induced ordinary CIT. Groups are high-salience sources (1), QDMTT-protected collectors (2), residual IIR/UTPR collectors (3), and Article 50 fiscal exporters (4). CYP, EST, LTU, LVA and MLT have zero baseline collector receipts. R2 activates Cyprus under Law 151(I)/2024. R3 assumes full EU27 QDMTT and IIR adoption.")
 }
 
-paper_budget_rows <- function(window) {
-  data <- paper_read("step9_ladder_budget_backtest") |>
-    filter(level == "L3_Host_Pooled_Distributional", .data$window == .env$window,
-      benchmark %in% PAPER_BUDGET_LABELS) |>
-    arrange(match(country, PAPER_BUDGET_COUNTRIES))
-  stopifnot(identical(data$country, PAPER_BUDGET_COUNTRIES))
-  data
-}
-
-paper_waterfall_rows <- function() {
-  paper_read("step12_cbcr_to_budget_waterfall_bridge") |>
-    filter(record_type == "waterfall", scope %in% PAPER_BUDGET_COUNTRIES,
-      window %in% c("FY2023", "2019–2023"), step %in% names(PAPER_BRIDGE_STEPS)) |>
-    mutate(stage = factor(unname(PAPER_BRIDGE_STEPS[step]), levels = unname(PAPER_BRIDGE_STEPS)))
-}
-
-write_paper_budget_table <- function() {
-  backtest <- bind_rows(paper_budget_rows("FY2023"), paper_budget_rows("2019–2023")) |>
-    transmute(country, window, forecast_period, benchmark = paper_number(official_low_eur_bn, 3),
-      minimum = paper_number(scenario_min_eur_bn, 3), maximum = paper_number(scenario_max_eur_bn, 3),
-      closest_scenario, model = paper_number(closest_scenario_eur_bn, 3))
-  waterfall <- paper_waterfall_rows() |>
-    arrange(match(scope, PAPER_BUDGET_COUNTRIES)) |>
-    select(scope, window, stage, collector_annualised_eur_bn) |>
-    pivot_wider(names_from = stage, values_from = collector_annualised_eur_bn, names_expand = TRUE) |>
-    mutate(across(-c(scope, window), ~ paper_number(.x, 3)))
-  write_paper_float_table("tab_v2_budget_backtest_and_hanlon_waterfall", "Budget backtest and accounting waterfall", list(
-    "A. Official benchmark and 32-scenario collector range" = paper_panel(c("ISO", "Window", "Vintage",
-      "Benchmark", "Min.", "Max.", "Closest", "Model"), backtest),
-    "B. Preferred SbS collector revenue after each adjustment" = paper_panel(c("ISO", "Window",
-      unname(PAPER_BRIDGE_STEPS)), waterfall)),
-    "EUR bn per year, converted at 1.0813 USD per EUR. The Belgian estimate is net of implementation costs. The Dutch after-package amount is inferred from published components. Budget vintages and cash timing differ from the model. The cumulative 2026 screen is a proxy on net Panel A and the tax envelope. The diagnostic also reports a variant preserving QDMTT. Benchmark sources and scopes are recorded in the input CSV.",
-    align = list("A. Official benchmark and 32-scenario collector range" = "lllrrrlr",
-      "B. Preferred SbS collector revenue after each adjustment" = "llrrrrrr"))
-}
-
 write_paper_nash_table <- function() {
   matrix <- paper_read("step13_unilateral_qdmtt_deviation_matrix") |>
     filter(level == "L3_pooled", window == "FY2023")
@@ -4908,42 +4860,6 @@ write_paper_cbcr_table <- function() {
     placement = "H")
 }
 
-make_paper_waterfall_figure <- function() {
-  countries <- c("NLD", "LUX", "IRL")
-  budget <- paper_budget_rows("FY2023") |>
-    filter(country %in% countries) |>
-    transmute(scope = country, benchmark = official_low_eur_bn)
-  waterfall <- paper_waterfall_rows() |>
-    filter(window == "FY2023", scope %in% countries) |>
-    transmute(scope, x = as.integer(stage), revenue = collector_annualised_eur_bn, panel = "A  Accounting bridge")
-  trend <- paper_read("step12_conduit_unwinding_time_series_2017_2026") |>
-    filter(record_type == "annual_observation", parent == "ALL", affiliate %in% countries, year %in% 2018:2023) |>
-    transmute(scope = affiliate, x = year - 2017L, revenue = collector_eur_bn, panel = "B  Historical unwind")
-  steps <- unname(PAPER_BRIDGE_STEPS)
-  labels <- tibble(x = rep(seq_len(6L), 2L), panel = rep(c("A  Accounting bridge", "B  Historical unwind"), each = 6L),
-    label = c(steps, as.character(2018:2023)))
-  data <- bind_rows(waterfall, trend) |>
-    left_join(labels, by = c("x", "panel"), relationship = "many-to-one") |>
-    mutate(axis = factor(label, levels = c(steps, as.character(2018:2023))),
-      scope = factor(scope, levels = countries))
-  budgets <- data |> distinct(scope, panel) |>
-    left_join(budget, by = "scope", relationship = "many-to-one") |>
-    mutate(scope = factor(scope, levels = countries))
-  ggplot2::ggplot(data, ggplot2::aes(axis, revenue, group = 1)) +
-    ggplot2::geom_hline(data = budgets, ggplot2::aes(yintercept = benchmark, linetype = "Budget benchmark"),
-      colour = "#A54633", linewidth = .55) +
-    ggplot2::geom_line(colour = "#174C70", linewidth = .7) +
-    ggplot2::geom_point(colour = "#174C70", size = 1.8) +
-    ggplot2::facet_grid(scope ~ panel, scales = "free", space = "free_x") +
-    ggplot2::scale_linetype_manual(values = c("Budget benchmark" = "dashed"), name = NULL) +
-    ggplot2::expand_limits(y = 0) +
-    ggplot2::labs(x = NULL, y = "Collector revenue (EUR bn)") +
-    ggplot2::theme_minimal(base_size = 10, base_family = "serif") +
-    ggplot2::theme(panel.grid.minor = ggplot2::element_blank(), panel.grid.major.x = ggplot2::element_blank(),
-      axis.text.x = ggplot2::element_text(angle = 36, hjust = 1), strip.text = ggplot2::element_text(face = "bold"),
-      legend.position = "top", plot.margin = ggplot2::margin(10, 16, 12, 10))
-}
-
 make_paper_nash_figure <- function() {
   data <- paper_read("step13_qdmtt_vs_sbti_strategy_comparison") |>
     filter(level == "L3_pooled", window == "FY2023") |>
@@ -4972,7 +4888,7 @@ make_paper_nash_figure <- function() {
 
 # Single-page float for main-text tables: one table counter step and one caption.
 write_paper_float_table <- function(filename, title, panels, notes, align = list(),
-                                    placement = "htbp", size = "footnotesize") {
+                                    placement = "htbp", size = "footnotesize", output_dir = PAPER_TABLES_DIR) {
   bs <- intToUtf8(92L)
   end_row <- paste0(" ", bs, bs)
   body <- purrr::imap(panels, function(data, panel) {
@@ -4989,7 +4905,7 @@ write_paper_float_table <- function(filename, title, panels, notes, align = list
     paste0(bs, "begin{minipage}{", bs, "textwidth}", bs, "footnotesize", bs, "raggedright", bs,
       "textit{Notes.} ", latex_escape(notes), bs, "end{minipage}"),
     paste0(bs, "end{table}"))
-  writeLines(lines, file.path(PAPER_TABLES_DIR, paste0(filename, ".tex")), useBytes = TRUE)
+  writeLines(lines, file.path(output_dir, paste0(filename, ".tex")), useBytes = TRUE)
 }
 
 write_paper_main_table1 <- function(sample_rows, coverage_rows) {
@@ -5100,12 +5016,17 @@ write_paper_v2_exhibits <- function() {
   write_paper_econometrics_table()
   write_paper_variance_table()
   write_paper_ledger_table()
-  write_paper_budget_table()
+  budget_inputs <- read_budget_waterfall_inputs(paper_read)
+  backtest <- paper_budget_rows(budget_inputs$backtest)
+  waterfall <- paper_waterfall_rows(budget_inputs$waterfall)
+  write_paper_budget_table(backtest, waterfall, output_dir = PAPER_TABLES_DIR,
+    format_number = paper_number, write_table = write_paper_float_table)
   write_paper_nash_table()
   write_paper_cbcr_table()
   write_paper_fragment_aliases()
   ggplot2::ggsave(file.path(PAPER_FIGURES_DIR, "fig_v2_cbcr_to_budget_waterfall.pdf"),
-    make_paper_waterfall_figure(), width = 10, height = 6.5, device = grDevices::pdf)
+    make_paper_waterfall_figure(backtest, waterfall, budget_inputs$trend),
+    width = 10, height = 6.5, device = grDevices::pdf)
   ggplot2::ggsave(file.path(PAPER_FIGURES_DIR, "fig_v2_qdmtt_deviation_efficiency_vs_sbti.pdf"),
     make_paper_nash_figure(), width = 7.4, height = 7.8, device = grDevices::pdf)
   ggplot2::ggsave(file.path(PAPER_FIGURES_DIR, "fig_v2_shapley_variance_core_and_accounting.pdf"),

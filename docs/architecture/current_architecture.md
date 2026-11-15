@@ -1,6 +1,20 @@
 # Current architecture
 
-R01 audit of `16dc40d`, the clean tip of `publication-rework` on 15 November 2026. Line numbers in this report are for that revision. [Baseline verification](../refactoring/baseline_verification.md) records what ran. [The scientific register](../refactoring/scientific_issue_register.md) distinguishes implementation findings, empirical assumptions and duplication. [REPLICATION.md](../../REPLICATION.md) remains the replicator-facing source and exhibit guide.
+R01 audit of `16dc40d`, the clean tip of `publication-rework` on 15 November 2026. The inventory and line numbers below describe that revision. [Baseline verification](../refactoring/baseline_verification.md) records what ran. [The scientific register](../refactoring/scientific_issue_register.md) distinguishes implementation findings, empirical assumptions and duplication. [REPLICATION.md](../../REPLICATION.md) remains the replicator-facing source and exhibit guide.
+
+## R03. Budget and accounting-waterfall exhibits
+
+Stage 13 sources [`code/publication/budget_waterfall.R`](../../code/publication/budget_waterfall.R) once in its own environment. `write_paper_v2_exhibits()` supplies the existing CSV reader, prepares the budget and bridge selections once, and passes them to the table writer and the figure builder. The stage retains the CLI, common formatting, output directories, PDF device and alias copying. The CbCR extension table uses the same eight-country vector owned by the module.
+
+| Input diagnostic in `data/processed/diagnostics/` | Contract and use |
+|---|---|
+| `step9_ladder_budget_backtest.csv` | `paper_budget_rows(data)` expects one selected L3 benchmark per country and modelling window. It orders FY2023 before the annual average over 2019–2023, then follows the fixed eight-country order. Table 6 reports the benchmark amount and its forecast vintage separately from the model window and scenario revenue. Figure 3 repeats the FY2023 comparison benchmark across panels. |
+| `step12_cbcr_to_budget_waterfall_bridge.csv` | `paper_waterfall_rows(data)` selects the separate waterfall records by collector, window and step. Duplicate selected keys fail explicitly. The six factor levels fix the stage order. Missing amounts or individual steps retain the existing blank table cells. |
+| `step12_conduit_unwinding_time_series_2017_2026.csv` | Figure 3 uses the all-parent annual series for the Netherlands, Luxembourg and Ireland over 2018–2023. These are modelled collector revenues on historical CbCR, in EUR billions. The module consumes the upstream conversion and annualisation. |
+
+`read_budget_waterfall_inputs(read_diagnostic)` reads the three diagnostics once and checks required columns and numeric types. `write_paper_budget_table(backtest, waterfall, output_dir, format_number, write_table)` formats the two panels through stage 13's three-decimal formatter and delegates TeX I/O to its shared float-table writer. `make_paper_waterfall_figure(backtest, waterfall, history)` returns a ggplot object constructed from the selected data. The original fragment, numbered Table 6 alias and Figure 3 PDF retain their names and labels.
+
+[Fixture tests](../../tests/testthat/test-budget-waterfall.R) cover input structure, the selection and missingness contracts, table cells, and plot data and mappings. [Manuscript integration tests](../../tests/testthat/test-manuscript-exhibits.R) verify the canonical fragment, alias bytes and figure reference. [Source safety](../../tests/testthat/test-source-safety.R) also checks the module independently.
 
 ## Execution and economic lineage
 

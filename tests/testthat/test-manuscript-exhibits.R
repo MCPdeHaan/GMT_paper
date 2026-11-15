@@ -80,7 +80,16 @@ test_that("all numbered paper fragments match a fresh generator run", {
   devices <- grDevices::dev.list()
   env$run_generate_exhibits()
   expect_identical(grDevices::dev.list(), devices)
+  read_bytes <- function(path) readBin(path, "raw", n = file.size(path))
   references <- manuscript_dependencies(repo_path("writing", "paper_v2.tex"))
+  budget_tex <- "paper_v2_tables/tab_v2_budget_backtest_and_hanlon_waterfall.tex"
+  table6 <- "paper_v2_tables/tab_v2_main_table6_budget_backtest_and_waterfall.tex"
+  figure3 <- "paper_v2_figures/fig_v2_cbcr_to_budget_waterfall.pdf"
+  expect_true(all(repo_path("writing", "generated", c(table6, figure3)) %in% references))
+  expect_true(file.exists(file.path(output, figure3)))
+  expect_identical(read_bytes(file.path(output, budget_tex)),
+    read_bytes(repo_path("writing", "generated", budget_tex)))
+  expect_identical(read_bytes(file.path(output, budget_tex)), read_bytes(file.path(output, table6)))
   numbered <- references[grepl("/tab_v2_(main_table[1-8]_|app_table[3-8]_|cbcr_tables_2_3_6)", references)]
   expect_length(numbered, 15L)
   expect_setequal(sub("^tab_v2_main_table([1-8])_.*", "\\1", basename(numbered[grepl("main_table", numbered)])), as.character(1:8))
@@ -92,8 +101,7 @@ test_that("all numbered paper fragments match a fresh generator run", {
     regenerated <- file.path(output, relative)
     expect_true(file.exists(regenerated), info = relative)
     if (file.exists(regenerated)) {
-      expect_identical(readBin(path, "raw", n = file.info(path)$size),
-        readBin(regenerated, "raw", n = file.info(regenerated)$size), info = relative)
+      expect_identical(read_bytes(path), read_bytes(regenerated), info = relative)
     }
   }
 })
