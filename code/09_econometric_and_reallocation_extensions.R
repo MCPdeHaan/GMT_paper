@@ -1553,6 +1553,7 @@ build_vintage_window_comparison <- function(revenue) {
 }
 
 build_source_routing <- function(source, weights) {
+  validate_utpr_weights(weights, EU27_ISO3)
   # UTPR can return to the source itself when it is an eligible collector.
   # Match the same parent-year or fallback weights as the allocator.
   parent_keys <- weights$parent_year_weights |>
@@ -1562,11 +1563,16 @@ build_source_routing <- function(source, weights) {
     transmute(parent, year, affiliate = collector, own_parent_weight = utpr_weight)
   fallback_own <- weights$fallback_weights |>
     transmute(year, affiliate = collector, own_fallback_weight = utpr_weight)
-  source |>
+  routed <- source |>
     filter(affiliate %in% EU27_ISO3) |>
     left_join(parent_keys, by = c("parent", "year"), relationship = "many-to-one") |>
     left_join(parent_own, by = c("parent", "year", "affiliate"), relationship = "many-to-one") |>
-    left_join(fallback_own, by = c("year", "affiliate"), relationship = "many-to-one") |>
+    left_join(fallback_own, by = c("year", "affiliate"), relationship = "many-to-one")
+  unsupported <- is.na(routed$has_parent_weights) & !(routed$year %in% weights$fallback_weights$year)
+  if (any(unsupported & routed$stage4_utpr_pool > 0)) {
+    stop("Source ledger has a positive UTPR pool with no supported collector route", call. = FALSE)
+  }
+  routed |>
     mutate(
       own_utpr_weight = if_else(coalesce(has_parent_weights, FALSE),
         coalesce_zero(own_parent_weight), coalesce_zero(own_fallback_weight)

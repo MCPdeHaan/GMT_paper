@@ -8,6 +8,7 @@
 # UTPR allocation.
 
 source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "00_helpers.R"), local = TRUE)
+source(file.path(GMT_PROJECT_ROOT, "code", "allocation", "collector_routes.R"), local = TRUE)
 
 
 compute_utpr_raw_weight <- function(employee_share, asset_share) {
@@ -194,31 +195,18 @@ build_parent_year_utpr_weights <- function(collector_activity) {
       utpr_weight_source
     )
 
-  parent_year_check <- parent_year_weights |>
-    group_by(parent, year) |>
-    summarise(weight_sum = sum(utpr_weight, na.rm = TRUE), .groups = "drop")
-
-  fallback_check <- fallback_weights |>
-    group_by(year) |>
-    summarise(weight_sum = sum(utpr_weight, na.rm = TRUE), .groups = "drop")
-
-  if (any(abs(parent_year_check$weight_sum - 1) > 1e-8, na.rm = TRUE)) {
-    stop("Parent-year UTPR weights do not sum to one")
-  }
-
-  if (any(abs(fallback_check$weight_sum - 1) > 1e-8, na.rm = TRUE)) {
-    stop("Fallback UTPR weights do not sum to one")
-  }
-
-  list(
+  weights <- list(
     parent_year_weights = parent_year_weights,
     fallback_weights = fallback_weights
   )
+  validate_utpr_weights(weights, EU27_ISO3)
+  weights
 }
 
 # Final collector waterfall. In contrast to the Stage 3 source proxy, UTPR is
 # assigned to collectors using parent-year substance and the year fallback.
 allocate_stage4_revenue <- function(source_panel, utpr_weights) {
+  validate_utpr_weights(utpr_weights, EU27_ISO3)
   qdmtt_allocation <- source_panel |>
     filter(stage4_qdmtt_liability > 0) |>
     group_by(across(all_of(SCENARIO_VARS)),
@@ -255,32 +243,13 @@ allocate_stage4_revenue <- function(source_panel, utpr_weights) {
       .groups = "drop"
     )
 
-  parent_year_keys <- utpr_weights$parent_year_weights |>
-    distinct(parent, year)
+  utpr_routes <- expand_utpr_routes(utpr_pool, utpr_weights)
+  if (anyNA(utpr_routes$collector)) {
+    stop("Stage 4.5 has a positive UTPR pool with no supported collector route", call. = FALSE)
+  }
+  utpr_routes <- utpr_routes |> mutate(revenue = utpr_pool * utpr_weight)
 
-  utpr_parent_year <- utpr_pool |>
-    semi_join(parent_year_keys, by = c("parent", "year")) |>
-    # Intended expansion: one parent-year UTPR pool is split across all
-    # collecting jurisdictions with positive parent-year substance weights.
-    left_join(
-      utpr_weights$parent_year_weights,
-      by = c("parent", "year"),
-      relationship = "many-to-many"
-    ) |>
-    mutate(revenue = utpr_pool * utpr_weight)
-
-  utpr_fallback <- utpr_pool |>
-    anti_join(parent_year_keys, by = c("parent", "year")) |>
-    # Intended expansion: when parent-year weights are unavailable, the pool is
-    # split across year-level fallback collectors with positive substance weights.
-    left_join(
-      utpr_weights$fallback_weights,
-      by = "year",
-      relationship = "many-to-many"
-    ) |>
-    mutate(revenue = utpr_pool * utpr_weight)
-
-  utpr_pool_check <- bind_rows(utpr_parent_year, utpr_fallback) |>
+  utpr_pool_check <- utpr_routes |>
     group_by(across(all_of(SCENARIO_VARS)), parent, year) |>
     summarise(
       allocated_utpr_pool = sum(revenue, na.rm = TRUE),
@@ -289,11 +258,11 @@ allocate_stage4_revenue <- function(source_panel, utpr_weights) {
     left_join(utpr_pool, by = c(SCENARIO_VARS, "parent", "year")) |>
     mutate(utpr_pool_gap = allocated_utpr_pool - utpr_pool)
 
-  if (max(abs(utpr_pool_check$utpr_pool_gap), na.rm = TRUE) > 1e-3) {
+  if (any(abs(utpr_pool_check$utpr_pool_gap) > 1e-3, na.rm = TRUE)) {
     stop("Stage 4.5 UTPR expansion does not conserve the UTPR pool")
   }
 
-  utpr_allocation <- bind_rows(utpr_parent_year, utpr_fallback) |>
+  utpr_allocation <- utpr_routes |>
     group_by(across(all_of(SCENARIO_VARS)),
       country = collector, country_name = collector_name, year,
       allocation_weight_source = utpr_weight_source,

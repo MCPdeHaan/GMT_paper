@@ -23,6 +23,9 @@ build_utpr_eu_shares <- function(in_dir = PROCESSED_DIR) {
     file.path(in_dir, "stage4_5_utpr_fallback_weights.rds")
   )
 
+  validate_utpr_weights(list(parent_year_weights = parent_year_weights,
+    fallback_weights = fallback_weights), EU27_ISO3)
+
   parent_year <- parent_year_weights |>
     group_by(parent, year) |>
     summarise(
@@ -69,11 +72,8 @@ build_preferred_source_panel <- function(in_dir = PROCESSED_DIR) {
     left_join(utpr_shares$parent_year, by = c("parent", "year")) |>
     left_join(utpr_shares$fallback, by = "year") |>
     mutate(
-      eu27_utpr_share = coalesce(
-        eu27_utpr_share_parent_year,
-        eu27_utpr_share_fallback,
-        0
-      ),
+      # Zero can be a supported non-EU route. NA means neither tier exists.
+      eu27_utpr_share = coalesce(eu27_utpr_share_parent_year, eu27_utpr_share_fallback),
       parent_is_eu27 = parent %in% EU27_ISO3,
       affiliate_is_eu27 = affiliate %in% EU27_ISO3,
       sectoral_scale_selected = coalesce(sectoral_scale_selected, 1),
@@ -122,7 +122,7 @@ add_foreign_holding_chain_flags <- function(source_panel) {
 compute_preferred_revenue_from_profit <- function(source_panel, profit_value,
                                                   specification,
                                                   draw_id = NA_integer_) {
-  source_panel |>
+  liabilities <- source_panel |>
     mutate(
       profit_draw = pmax(coalesce(profit_value, 0), 0),
       phi_draw = compute_draw_phi(stage2_sbie, profit_draw),
@@ -135,28 +135,22 @@ compute_preferred_revenue_from_profit <- function(source_panel, profit_value,
       ),
       topup_after_behaviour_draw =
         pmax(topup_after_stage2_draw * behavioural_liability_filter, 0),
-      qdmtt_liability_draw =
-        if_else(qdmtt_flag, topup_after_behaviour_draw, 0),
-      iir_liability_draw = if_else(
-        !qdmtt_flag & parent_iir_utpr_flag & !sbs_exempt,
-        topup_after_behaviour_draw,
-        0
-      ),
-      utpr_pool_draw = if_else(
-        !qdmtt_flag & !parent_iir_utpr_flag & !sbs_exempt,
-        topup_after_behaviour_draw,
-        0
-      ),
-      sbs_extinguished_draw = if_else(
-        !qdmtt_flag & sbs_exempt,
-        topup_after_behaviour_draw,
-        0
-      ),
+      regime = allocation_regime(topup_after_behaviour_draw, qdmtt_flag,
+        parent_iir_utpr_flag, sbs_exempt),
+      qdmtt_liability_draw = if_else(regime == "qdmtt", topup_after_behaviour_draw, 0),
+      iir_liability_draw = if_else(regime == "iir", topup_after_behaviour_draw, 0),
+      utpr_pool_draw = if_else(regime == "utpr", topup_after_behaviour_draw, 0),
+      sbs_extinguished_draw = if_else(regime == "sbs_extinguished", topup_after_behaviour_draw, 0),
+      eu27_utpr_revenue_draw = utpr_pool_draw * coalesce_zero(eu27_utpr_share),
       eu27_revenue_draw =
         if_else(affiliate_is_eu27, qdmtt_liability_draw, 0) +
           if_else(parent_is_eu27, iir_liability_draw, 0) +
-          utpr_pool_draw * eu27_utpr_share
-    ) |>
+          eu27_utpr_revenue_draw
+    )
+  if (any(liabilities$utpr_pool_draw > 0 & is.na(liabilities$eu27_utpr_share))) {
+    stop("Profit-only draw has a positive UTPR pool with no supported collector route", call. = FALSE)
+  }
+  liabilities |>
     group_by(factor4_sbs) |>
     summarise(
       draw_id = draw_id,
@@ -173,7 +167,7 @@ compute_preferred_revenue_from_profit <- function(source_panel, profit_value,
         ),
       eu27_iir_revenue =
         sum(if_else(parent_is_eu27, iir_liability_draw, 0), na.rm = TRUE),
-      eu27_utpr_revenue = sum(utpr_pool_draw * eu27_utpr_share, na.rm = TRUE),
+      eu27_utpr_revenue = sum(eu27_utpr_revenue_draw, na.rm = TRUE),
       sbs_extinguished_revenue = sum(sbs_extinguished_draw, na.rm = TRUE),
       .groups = "drop"
     )

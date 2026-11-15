@@ -24,9 +24,9 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ### R04. Characterise dense, sparse and collapsed routing
 
-- **Depends on:** R02. **Files:** 06, 07a, 09, 11 and allocation/extension tests.
-- **Change and benefit:** Lock down source classification and route validation with a small fixture. Introduce one route-selection interface only where equivalence is established. Give unsupported cases explicit diagnostic expectations. Preserve inactive exposure, weighted fallback and zero-EU-share semantics. This is routing parity.
-- **Risk, tests and completion:** Repeated route keys, partial activity, no-route pools, US SbS with/without QDMTT, 0/NA liabilities and correct collector geography. Verify detailed channel totals, domestic share, EU and non-EU, residuals and sparse parity by scenario × country × year. Preserve frozen 06, 07a, 09 and 11 outputs byte-for-byte. Record any intentional off-support divergence as a tested known behaviour pending R05.
+- **Depends on:** R02. **Files:** `code/allocation/collector_routes.R`, 06, 07a, 09, 11 and the collector routing fixtures.
+- **Delivered:** The [routing contract](../architecture/current_architecture.md#r04-collector-routing-contract) defines validation and parent-first route selection. Detailed and sparse expansion share an implementation. The two collapsed projections preserve their own estimands and use the shared validator. Positive unsupported pools fail before being reported as allocated or exported, and zero EU share preserves parent-year routing. [S04](scientific_issue_register.md#s04-legacy-and-sparse-revenue-calculators) records earlier discrepancies and the implications for R05.
+- **Verified:** Hand-worked fixtures reconcile the detailed, domestic, EU and non-EU projections and distinguish unsupported residuals. The 15-stage replay recomputed all 500 Stage 07a measurement-error draws from an empty cache. All 360 frozen output hashes and 80 TeX files matched. The eight figures matched after date normalisation, and both publication PDFs built with their existing content.
 
 ### R05. Audit and revise legal collector eligibility
 
@@ -114,4 +114,4 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ## Recommended next task
 
-Execute R04. Start with one routing fixture exercised by the detailed, sparse and collapsed projections. Include the case where parent-year weights exist and have zero EU share so the fixture can distinguish that case from fallback on missing parent-year weights. Retain the current production parity checks before changing those interfaces.
+Execute R05. Build a dated evidence table for UTPR eligibility with separate provenance for enactment, effective date, qualification and proxy. Compare it with the frozen map before deciding how to account for unsupported pools in each law and opt-out arm.

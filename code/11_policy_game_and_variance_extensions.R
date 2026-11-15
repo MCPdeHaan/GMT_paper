@@ -495,6 +495,7 @@ step15_host_rate <- function(tax, profit, cap) {
 # Build a linear routing operator once for each legal regime. Every dollar
 # has one QDMTT/IIR collector, a normalized UTPR split, or SbS extinction.
 step15_route <- function(rows, weights) {
+  validate_utpr_weights(weights, EU27_ISO3)
   routed <- allocation_regime(rep(1, nrow(rows)), rows$qdmtt_flag,
                                rows$parent_iir_utpr_flag, rows$sbs_exempt)
   direct <- bind_rows(
@@ -503,15 +504,11 @@ step15_route <- function(rows, weights) {
   )
   utpr <- rows |> mutate(cell = row_number(), regime = routed) |>
     filter(regime == "utpr") |> select(cell, parent, year)
-  w <- weights$parent_year_weights |> select(parent, year, collector, utpr_weight)
-  f <- weights$fallback_weights |> select(year, collector, utpr_weight)
-  covered <- distinct(w, parent, year)
-  distributed <- bind_rows(
-    semi_join(utpr, covered, by = c("parent", "year")) |>
-      inner_join(w, by = c("parent", "year"), relationship = "many-to-many"),
-    anti_join(utpr, covered, by = c("parent", "year")) |>
-      inner_join(f, by = "year", relationship = "many-to-many")
-  ) |> transmute(cell, country = collector, share = utpr_weight)
+  routes <- expand_utpr_routes(utpr, weights)
+  if (anyNA(routes$collector)) {
+    stop("Sparse operator has a potential UTPR source with no supported collector route", call. = FALSE)
+  }
+  distributed <- routes |> transmute(cell, country = collector, share = utpr_weight)
   all <- bind_rows(direct, distributed)
   totals <- numeric(nrow(rows))
   routing_totals <- rowsum(all$share, all$cell)
