@@ -36,9 +36,10 @@ read_budget_waterfall_inputs <- function(read_diagnostic) {
   }
 
   list(
-    backtest = read_fields("step9_ladder_budget_backtest",
-      c("level", "country", "window", "benchmark", "forecast_period", "closest_scenario"),
-      c("official_low_eur_bn", "scenario_min_eur_bn", "scenario_max_eur_bn", "closest_scenario_eur_bn")),
+    budget = read_fields("step9_budget_benchmark_scenario_ranges_r04b",
+      c("scenario_scope", "country", "window", "benchmark", "forecast_period", "closest_scenario"),
+      c("official_low_eur_bn", "official_high_eur_bn", "scenario_min_eur_bn", "scenario_max_eur_bn",
+        "closest_scenario_eur_bn", "scenario_count", "stated_sbs_switch")),
     waterfall = read_fields("step12_cbcr_to_budget_waterfall_bridge",
       c("record_type", "scope", "window", "step"), "collector_annualised_eur_bn"),
     trend = read_fields("step12_conduit_unwinding_time_series_2017_2026",
@@ -46,9 +47,9 @@ read_budget_waterfall_inputs <- function(read_diagnostic) {
   )
 }
 
-paper_budget_rows <- function(data) {
+paper_budget_rows <- function(data, scope = "l3") {
   rows <- data |>
-    dplyr::filter(level == "L3_Host_Pooled_Distributional",
+    dplyr::filter(scenario_scope == scope,
       window %in% PAPER_BUDGET_WINDOWS, benchmark %in% PAPER_BUDGET_LABELS) |>
     dplyr::arrange(match(window, PAPER_BUDGET_WINDOWS), match(country, PAPER_BUDGET_COUNTRIES))
   if (!identical(rows$country, rep(PAPER_BUDGET_COUNTRIES, times = length(PAPER_BUDGET_WINDOWS))) ||
@@ -69,13 +70,26 @@ paper_waterfall_rows <- function(data) {
   rows
 }
 
-write_paper_budget_table <- function(backtest, waterfall, output_dir, format_number, write_table) {
-  budget_panel <- backtest |>
+paper_budget_range <- function(low, high, format_number) {
+  dplyr::case_when(
+    is.na(low) | is.na(high) ~ "--",
+    low == high ~ trimws(format_number(low, 4)),
+    TRUE ~ paste0(trimws(format_number(low, 4)), "–", trimws(format_number(high, 4)))
+  )
+}
+
+write_paper_budget_tables <- function(budget, waterfall, output_dir, format_number, write_table) {
+  range <- function(low, high) paper_budget_range(low, high, format_number)
+  l3 <- paper_budget_rows(budget, "l3")
+  core <- paper_budget_rows(budget, "core")
+  stopifnot(all(l3$scenario_count == 16L), all(core$scenario_count == 32L),
+    identical(l3[c("country", "window", "benchmark")], core[c("country", "window", "benchmark")]))
+  budget_panel <- l3 |>
     dplyr::transmute(
-      ISO = country, Window = window, Vintage = forecast_period,
-      Benchmark = format_number(official_low_eur_bn, 3),
-      Min. = format_number(scenario_min_eur_bn, 3), Max. = format_number(scenario_max_eur_bn, 3),
-      Closest = closest_scenario, Model = format_number(closest_scenario_eur_bn, 3)
+      ISO = country, Window = window, `Budget basis` = forecast_period,
+      Benchmark = range(official_low_eur_bn, official_high_eur_bn),
+      `L3 (16)` = range(scenario_min_eur_bn, scenario_max_eur_bn),
+      `Core (32)` = range(core$scenario_min_eur_bn, core$scenario_max_eur_bn)
     )
   waterfall_panel <- waterfall |>
     dplyr::arrange(match(scope, PAPER_BUDGET_COUNTRIES)) |>
@@ -83,12 +97,32 @@ write_paper_budget_table <- function(backtest, waterfall, output_dir, format_num
     tidyr::pivot_wider(names_from = stage, values_from = collector_annualised_eur_bn, names_expand = TRUE) |>
     dplyr::mutate(dplyr::across(-c(ISO, Window), ~ format_number(.x, 3)))
   stopifnot(nrow(budget_panel) > 0L, nrow(waterfall_panel) > 0L)
-  write_table("tab_v2_budget_backtest_and_hanlon_waterfall", "Budget backtest and accounting waterfall", list(
-    "A. Official benchmark and 32-scenario collector range" = budget_panel,
+  write_table("tab_v2_budget_backtest_and_hanlon_waterfall", "National budget benchmarks and accounting waterfall", list(
+    "A. Official benchmarks and modelled revenue ranges" = budget_panel,
     "B. Preferred SbS collector revenue after each adjustment" = waterfall_panel),
-    "EUR bn per year, converted at 1.0813 USD per EUR. The Belgian estimate is net of implementation costs. The Dutch after-package amount is inferred from published components. Budget vintages and cash timing differ from the model. The cumulative 2026 screen is a proxy on net Panel A and the tax envelope. The diagnostic also reports a variant preserving QDMTT. Benchmark sources and scopes are recorded in the input CSV.",
-    align = list("A. Official benchmark and 32-scenario collector range" = "lllrrrlr",
+    "EUR bn per year, converted at 1.0813 USD per EUR. Panel A spans both policy regimes. L3 fixes distributional ETR measurement, and the core adds the average ETR scenarios. Slovakia is QDMTT only. Belgium is QDMTT plus IIR, with the official amount net of costs. The Dutch after-package amount is inferred from published components. The two model windows apply later rules to historical activity. Panel B holds the scenario fixed. Its cumulative 2026 safe harbour screen uses the net CbCR profit and tax envelope.",
+    align = list("A. Official benchmarks and modelled revenue ranges" = "lllrrr",
       "B. Preferred SbS collector revenue after each adjustment" = "llrrrrrr"),
+    output_dir = output_dir)
+
+  matched_l3 <- paper_budget_rows(budget, "l3_policy")
+  matched_core <- paper_budget_rows(budget, "core_policy")
+  stopifnot(identical(matched_l3[c("country", "window", "benchmark")],
+    matched_core[c("country", "window", "benchmark")]))
+  policy_panel <- matched_l3 |>
+    dplyr::transmute(
+      ISO = country, Window = window,
+      Policy = dplyr::case_when(stated_sbs_switch == 0 ~ "Universal",
+        stated_sbs_switch == 1 ~ "SbS", TRUE ~ "Unknown"),
+      `L3 (8)` = range(scenario_min_eur_bn, scenario_max_eur_bn),
+      `Closest L3` = dplyr::coalesce(closest_scenario, "--"),
+      `Core (16)` = range(matched_core$scenario_min_eur_bn, matched_core$scenario_max_eur_bn),
+      `Closest core` = dplyr::coalesce(matched_core$closest_scenario, "--")
+    )
+  write_table("tab_v2_app_budget_policy_matched", "National budget benchmarks under matched policy regimes",
+    list("Scenario ranges at the documented policy setting" = policy_panel),
+    "Ranges use the benchmark amounts, channel definitions and EUR bn per year units of Table 6. Universal refers to the pre-SbS policy. A policy restriction matches the modelled SbS switch only. Closest is the scenario with the smallest distance to the benchmark interval. Ties are broken by scenario identifier. Unknown means no policy setting is assigned.",
+    align = list("Scenario ranges at the documented policy setting" = "lllrlrl"),
     output_dir = output_dir)
 }
 

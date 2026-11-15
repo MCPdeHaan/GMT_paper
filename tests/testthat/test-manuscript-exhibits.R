@@ -84,8 +84,9 @@ test_that("all numbered paper fragments match a fresh generator run", {
   references <- manuscript_dependencies(repo_path("writing", "paper_v2.tex"))
   budget_tex <- "paper_v2_tables/tab_v2_budget_backtest_and_hanlon_waterfall.tex"
   table6 <- "paper_v2_tables/tab_v2_main_table6_budget_backtest_and_waterfall.tex"
+  policy_tex <- "paper_v2_tables/tab_v2_app_budget_policy_matched.tex"
   figure3 <- "paper_v2_figures/fig_v2_cbcr_to_budget_waterfall.pdf"
-  expect_true(all(repo_path("writing", "generated", c(table6, figure3)) %in% references))
+  expect_true(all(repo_path("writing", "generated", c(table6, policy_tex, figure3)) %in% references))
   expect_true(file.exists(file.path(output, figure3)))
   expect_identical(read_bytes(file.path(output, budget_tex)),
     read_bytes(repo_path("writing", "generated", budget_tex)))
@@ -104,6 +105,24 @@ test_that("all numbered paper fragments match a fresh generator run", {
       expect_identical(read_bytes(path), read_bytes(regenerated), info = relative)
     }
   }
+})
+
+test_that("Table 6 labels and renders distinct L3 and full-core diagnostics", {
+  rows <- readr::read_csv(processed_path("diagnostics", "step9_budget_benchmark_scenario_ranges_r04b.csv"),
+    show_col_types = FALSE)
+  rows <- dplyr::filter(rows, window == "FY2023",
+    benchmark == "Dutch October 2026 direct after package", scenario_scope %in% c("l3", "core")) |>
+    dplyr::arrange(scenario_count)
+  expect_equal(rows$scenario_count, c(16, 32))
+  expect_lt(rows$scenario_min_eur_bn[2], rows$official_low_eur_bn[2])
+  expect_gt(rows$scenario_min_eur_bn[1], rows$official_high_eur_bn[1])
+  tex <- readLines(generated_path("paper_v2_tables", "tab_v2_main_table6_budget_backtest_and_waterfall.tex"))
+  expect_true(any(grepl("L3 (16) & Core (32)", tex, fixed = TRUE)))
+  dutch <- tex[startsWith(tex, "NLD & FY2023")][1L]
+  amounts <- sprintf("%.4f", c(rows$official_low_eur_bn[1], rows$scenario_min_eur_bn[1],
+    rows$scenario_max_eur_bn[1], rows$scenario_min_eur_bn[2], rows$scenario_max_eur_bn[2]))
+  expect_identical(regmatches(dutch, gregexpr("[0-9]+\\.[0-9]{4}", dutch))[[1L]],
+    amounts)
 })
 
 test_that("raw source metadata falls back only when the extract is absent", {

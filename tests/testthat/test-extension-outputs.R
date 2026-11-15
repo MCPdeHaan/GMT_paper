@@ -72,6 +72,7 @@ test_that("the Paper v2 publication tables and figures are complete", {
     "tab_v2_factorial_globe_and_total_variance.tex",
     "tab_v2_source_collector_ledger_and_regimes.tex",
     "tab_v2_budget_backtest_and_hanlon_waterfall.tex",
+    "tab_v2_app_budget_policy_matched.tex",
     "tab_v2_qdmtt_nash_deviation_game.tex",
     "tab_v2_cbcr_tables_2_3_6_extensions.tex",
     "tab_v2_main_table1_sample_and_coverage.tex",

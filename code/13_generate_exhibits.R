@@ -5017,15 +5017,15 @@ write_paper_v2_exhibits <- function() {
   write_paper_variance_table()
   write_paper_ledger_table()
   budget_inputs <- read_budget_waterfall_inputs(paper_read)
-  backtest <- paper_budget_rows(budget_inputs$backtest)
+  budget <- paper_budget_rows(budget_inputs$budget)
   waterfall <- paper_waterfall_rows(budget_inputs$waterfall)
-  write_paper_budget_table(backtest, waterfall, output_dir = PAPER_TABLES_DIR,
+  write_paper_budget_tables(budget_inputs$budget, waterfall, output_dir = PAPER_TABLES_DIR,
     format_number = paper_number, write_table = write_paper_float_table)
   write_paper_nash_table()
   write_paper_cbcr_table()
   write_paper_fragment_aliases()
   ggplot2::ggsave(file.path(PAPER_FIGURES_DIR, "fig_v2_cbcr_to_budget_waterfall.pdf"),
-    make_paper_waterfall_figure(backtest, waterfall, budget_inputs$trend),
+    make_paper_waterfall_figure(budget, waterfall, budget_inputs$trend),
     width = 10, height = 6.5, device = grDevices::pdf)
   ggplot2::ggsave(file.path(PAPER_FIGURES_DIR, "fig_v2_qdmtt_deviation_efficiency_vs_sbti.pdf"),
     make_paper_nash_figure(), width = 7.4, height = 7.8, device = grDevices::pdf)

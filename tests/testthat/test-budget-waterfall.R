@@ -9,17 +9,21 @@ budget_waterfall_fixture <- function() {
   )
   steps <- c("00_baseline", "01_step8_dividends", "02_current_losses",
     "03_prior_loss_carryforward", "04_envelope_tax", "05_safe_harbour_2026")
-  backtest <- tibble::tibble(
+  budget <- tibble::tibble(
     country = rep(countries, 2), window = rep(windows, each = 8), benchmark = rep(benchmarks, 2),
-    level = "L3_Host_Pooled_Distributional", forecast_period = "2026 cash",
+    scenario_scope = "l3", scenario_count = 16L, stated_sbs_switch = rep(c(1L, NA_integer_), 8),
+    forecast_period = "2026 cash",
     official_low_eur_bn = rep(c(.176, 1, .5, 3.2, .08, .634, .1, .0485), 2),
+    official_high_eur_bn = official_low_eur_bn,
     scenario_min_eur_bn = rep(c(1.2346, 2), each = 8), scenario_max_eur_bn = 9,
     closest_scenario = "x11011", closest_scenario_eur_bn = 2.5
   )
-  backtest <- dplyr::bind_rows(backtest[16:1, ],
-    dplyr::mutate(backtest[1, ], level = "L2_Bilateral_Cell_Average", official_low_eur_bn = 99),
-    dplyr::mutate(backtest[1, ], window = "2021–2023", official_low_eur_bn = 99),
-    dplyr::mutate(backtest[1, ], benchmark = "Unselected benchmark", official_low_eur_bn = 99))
+  budget <- dplyr::bind_rows(budget[16:1, ],
+    dplyr::mutate(budget, scenario_scope = "core", scenario_count = 32L, scenario_min_eur_bn = .1),
+    dplyr::mutate(budget, scenario_scope = "l3_policy", scenario_count = 8L),
+    dplyr::mutate(budget, scenario_scope = "core_policy", scenario_count = 16L, scenario_min_eur_bn = .2),
+    dplyr::mutate(budget[1, ], window = "2021–2023", official_low_eur_bn = 99),
+    dplyr::mutate(budget[1, ], benchmark = "Unselected benchmark", official_low_eur_bn = 99))
   waterfall <- tibble::tibble(
     scope = rep(countries, each = 12), window = rep(rep(windows, each = 6), 8),
     step = rep(rev(steps), 16), record_type = "waterfall",
@@ -40,13 +44,13 @@ budget_waterfall_fixture <- function() {
     dplyr::mutate(trend[1, ], year = 2017L),
     dplyr::mutate(trend[1, ], record_type = "trend_projection", year = 2026L),
     dplyr::mutate(trend[1, ], affiliate = "DEU"))
-  list(backtest = backtest, waterfall = waterfall, trend = trend)
+  list(budget = budget, waterfall = waterfall, trend = trend)
 }
 
 budget_waterfall_reader <- function(fixture) {
   function(stem) {
     switch(stem,
-      step9_ladder_budget_backtest = fixture$backtest,
+      step9_budget_benchmark_scenario_ranges_r04b = fixture$budget,
       step12_cbcr_to_budget_waterfall_bridge = fixture$waterfall,
       step12_conduit_unwinding_time_series_2017_2026 = fixture$trend,
       stop("Unexpected input ", stem))
@@ -69,23 +73,23 @@ test_that("the input reader loads each diagnostic once and checks its required f
     reader(stem)
   })
   expect_identical(data, fixture)
-  expect_identical(loaded, c("step9_ladder_budget_backtest", "step12_cbcr_to_budget_waterfall_bridge",
+  expect_identical(loaded, c("step9_budget_benchmark_scenario_ranges_r04b", "step12_cbcr_to_budget_waterfall_bridge",
     "step12_conduit_unwinding_time_series_2017_2026"))
   bad <- fixture
   bad$waterfall$collector_annualised_eur_bn <- NULL
   expect_error(env$read_budget_waterfall_inputs(budget_waterfall_reader(bad)),
     "step12_cbcr_to_budget_waterfall_bridge.csv is missing columns: collector_annualised_eur_bn", fixed = TRUE)
   bad <- fixture
-  bad$backtest$official_low_eur_bn <- "text"
+  bad$budget$official_low_eur_bn <- "text"
   expect_error(env$read_budget_waterfall_inputs(budget_waterfall_reader(bad)),
-    "step9_ladder_budget_backtest.csv requires numeric columns: official_low_eur_bn", fixed = TRUE)
-  bad$backtest$official_low_eur_bn <- NA
+    "step9_budget_benchmark_scenario_ranges_r04b.csv requires numeric columns: official_low_eur_bn", fixed = TRUE)
+  bad$budget$official_low_eur_bn <- NA
   expect_identical(env$read_budget_waterfall_inputs(budget_waterfall_reader(bad)), bad)
 })
 
 test_that("budget selection uses the eight ordered benchmarks in each modelling window", {
   env <- budget_waterfall_env()
-  rows <- env$paper_budget_rows(budget_waterfall_fixture()$backtest)
+  rows <- env$paper_budget_rows(budget_waterfall_fixture()$budget)
   annual <- dplyr::filter(rows, window == "FY2023")
   average <- dplyr::filter(rows, window == "2019–2023")
 
@@ -114,8 +118,8 @@ test_that("waterfall selection preserves the ordered labels and both windows", {
 test_that("missing or duplicate benchmark keys and duplicate waterfall keys are rejected", {
   env <- budget_waterfall_env()
   fixture <- budget_waterfall_fixture()
-  expect_error(env$paper_budget_rows(fixture$backtest[-16, ]), "one selected budget benchmark")
-  duplicate <- dplyr::bind_rows(fixture$backtest, fixture$backtest[16, ])
+  expect_error(env$paper_budget_rows(fixture$budget[-16, ]), "one selected budget benchmark")
+  duplicate <- dplyr::bind_rows(fixture$budget, fixture$budget[16, ])
   expect_error(env$paper_budget_rows(duplicate), "one selected budget benchmark")
   duplicate <- dplyr::bind_rows(fixture$waterfall, fixture$waterfall[1, ])
   expect_error(env$paper_waterfall_rows(duplicate), "Duplicate accounting waterfall rows")
@@ -127,35 +131,39 @@ test_that("the table preserves panels, rounding and missing values", {
   source_pipeline("13_generate_exhibits.R", stage)
   fixture <- budget_waterfall_fixture()
   fixture$waterfall <- fixture$waterfall[-2, ]
-  fixture$backtest$official_low_eur_bn[16] <- NA_real_
+  fixture$budget$official_low_eur_bn[16] <- NA_real_
+  tables <- list()
   record_table <- function(filename, title, panels, notes, align, output_dir) {
-    list(filename = filename, panels = panels, notes = notes, output_dir = output_dir)
+    tables[[filename]] <<- list(panels = panels, notes = notes, output_dir = output_dir)
   }
   output <- tempfile("gmt-budget-table-")
-  table <- env$write_paper_budget_table(env$paper_budget_rows(fixture$backtest),
+  env$write_paper_budget_tables(fixture$budget,
     env$paper_waterfall_rows(fixture$waterfall), output_dir = output,
     format_number = stage$paper_number, write_table = record_table)
-  expect_identical(table$filename, "tab_v2_budget_backtest_and_hanlon_waterfall")
+  table <- tables[["tab_v2_budget_backtest_and_hanlon_waterfall"]]
   expect_identical(table$output_dir, output)
-  expect_identical(names(table$panels), c("A. Official benchmark and 32-scenario collector range",
+  expect_identical(names(table$panels), c("A. Official benchmarks and modelled revenue ranges",
     "B. Preferred SbS collector revenue after each adjustment"))
   expect_identical(names(table$panels[[1]]),
-    c("ISO", "Window", "Vintage", "Benchmark", "Min.", "Max.", "Closest", "Model"))
+    c("ISO", "Window", "Budget basis", "Benchmark", "L3 (16)", "Core (32)"))
   expect_identical(unname(as.character(table$panels[[1]][1, ])),
-    c("NLD", "FY2023", "2026 cash", "--", "1.235", "9.000", "x11011", "2.500"))
-  expect_identical(table$panels[[1]]$Benchmark[[2]], "1.000")
+    c("NLD", "FY2023", "2026 cash", "--", "1.2346–9.0000", "0.1000–9.0000"))
+  expect_identical(table$panels[[1]]$Benchmark[[2]], "1.0000")
   expect_identical(names(table$panels[[2]]), c("ISO", "Window",
     "Baseline", "Dividends", "Current losses", "Prior losses", "Tax envelope", "2026 screen"))
   expect_identical(unname(as.character(table$panels[[2]][1, ])),
     c("NLD", "FY2023", " 6.000", " 5.000", " 4.000", " 3.000", "--", " 1.000"))
   expect_identical(table$panels[[2]]$Baseline[2], "16.000")
   expect_match(table$notes, "EUR bn per year, converted at 1.0813 USD per EUR", fixed = TRUE)
+  policy <- tables[["tab_v2_app_budget_policy_matched"]]$panels[[1]]
+  expect_identical(names(policy), c("ISO", "Window", "Policy", "L3 (8)", "Closest L3", "Core (16)", "Closest core"))
+  expect_identical(policy$Policy[1:2], c("SbS", "Unknown"))
 })
 
 test_that("the figure maps each panel to its own diagnostic and repeats FY2023 benchmarks", {
   env <- budget_waterfall_env()
   fixture <- budget_waterfall_fixture()
-  plot <- env$make_paper_waterfall_figure(env$paper_budget_rows(fixture$backtest),
+  plot <- env$make_paper_waterfall_figure(env$paper_budget_rows(fixture$budget),
     env$paper_waterfall_rows(fixture$waterfall), fixture$trend)
   expect_identical(levels(plot$data$scope), c("NLD", "LUX", "IRL"))
   expect_equal(nrow(plot$data), 36L)

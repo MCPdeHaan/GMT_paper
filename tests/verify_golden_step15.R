@@ -1,5 +1,5 @@
 # Usage from any directory:
-# Rscript /path/to/GMT_paper/tests/verify_golden_step15.R [output-root]
+# Rscript /path/to/GMT_paper/tests/verify_golden_step15.R [output-root] [r04b|r04]
 # SHA-256 checks exact bytes, independently of the R serialisation version.
 sha256_files <- function(paths, backend = c("auto", "system")) {
   backend <- match.arg(backend)
@@ -25,7 +25,8 @@ sha256_files <- function(paths, backend = c("auto", "system")) {
   }, character(1), USE.NAMES = FALSE)
 }
 
-verify_golden_step15 <- function(root, repo_root) {
+verify_golden_step15 <- function(root, repo_root, reference = c("r04b", "r04")) {
+  reference <- match.arg(reference)
   if (getRversion() < "4.3.0") stop("The verifier supports R >= 4.3.")
   if (getRversion() < "4.6.0" || getRversion() >= "4.7.0") {
     message("Note: running R ", getRversion(), "; the frozen outputs were produced with R 4.6.0. ",
@@ -34,8 +35,11 @@ verify_golden_step15 <- function(root, repo_root) {
   root <- normalizePath(root, mustWork = TRUE)
   manifest <- readRDS(file.path(repo_root, "tests", "golden_step15_manifest.rds"))$files
   step17 <- utils::read.csv(file.path(repo_root, "tests", "golden_step17_additions.csv"))
-  expected <- c(manifest$path, step17$path)
-  expected_hashes <- c(manifest$sha256, step17$sha256)
+  r04b <- if (reference == "r04b") {
+    utils::read.csv(file.path(repo_root, "tests", "golden_r04b_additions.csv"))
+  }
+  expected <- c(manifest$path, step17$path, r04b$path)
+  expected_hashes <- c(manifest$sha256, step17$sha256, r04b$sha256)
   actual <- file.path("data", "processed",
     list.files(file.path(root, "data", "processed"), "\\.(rds|csv)$", recursive = TRUE))
   stopifnot(!anyDuplicated(expected), !anyDuplicated(actual))
@@ -51,16 +55,17 @@ verify_golden_step15 <- function(root, repo_root) {
   report("Unexpected", extra)
   report("SHA-256 mismatch", expected[index][failed])
   if (length(missing) + length(extra) + sum(failed)) return(FALSE)
-  cat(sprintf("All %d processed files match their frozen SHA-256 hashes (%d Step 15, %d Step 17).\n",
-    length(expected), nrow(manifest), nrow(step17)))
+  cat(sprintf("All %d processed files match their frozen SHA-256 hashes (reference %s).\n",
+    length(expected), reference))
   TRUE
 }
 
 if (sys.nframe() == 0L) {
   args <- commandArgs(trailingOnly = TRUE)
-  if (length(args) > 1L) stop("Usage: Rscript tests/verify_golden_step15.R [output-root]")
+  if (length(args) > 2L) stop("Usage: Rscript tests/verify_golden_step15.R [output-root] [r04b|r04]")
   script <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE))
   repo_root <- file.path(dirname(normalizePath(script, mustWork = TRUE)), "..")
   root <- if (length(args)) args[[1L]] else repo_root
-  if (!verify_golden_step15(root, repo_root)) quit(status = 1L)
+  reference <- if (length(args) == 2L) args[[2L]] else "r04b"
+  if (!verify_golden_step15(root, repo_root, reference)) quit(status = 1L)
 }

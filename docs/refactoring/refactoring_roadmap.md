@@ -28,6 +28,11 @@ For each science slice, state the observed data, proxy and alternative, the esti
 - **Delivered:** The [routing contract](../architecture/current_architecture.md#r04-collector-routing-contract) defines validation and parent-first route selection. Detailed and sparse expansion share an implementation. The two collapsed projections preserve their own estimands and use the shared validator. Positive unsupported pools fail before being reported as allocated or exported, and zero EU share preserves parent-year routing. [S04](scientific_issue_register.md#s04-legacy-and-sparse-revenue-calculators) records earlier discrepancies and the implications for R05.
 - **Verified:** Hand-worked fixtures reconcile the detailed, domestic, EU and non-EU projections and distinguish unsupported residuals. The 15-stage replay recomputed all 500 Stage 07a measurement-error draws from an empty cache. All 360 frozen output hashes and 80 TeX files matched. The eight figures matched after date normalisation, and both publication PDFs built with their existing content.
 
+### R04b. Correct national budget benchmarking scope
+
+- **Depends on:** R03 and R04. **Delivered:** Stage 08 verifies the L1/L3 partition and publishes channel-matched core, conditional L3 and documented-policy comparisons. Table 6 and Appendix D show their different scenario supports. Section 5.3 uses national budget benchmarking on historical bases. The waterfall and Figure 3 retain their numerical inputs.
+- **Verified:** Independent factorial, interval, channel, window and tie fixtures. The [country comparison and reproducibility record](r04b_budget_benchmarking.md) documents the revised interpretation and additive reference. [S09](scientific_issue_register.md#s09-table-6s-scenario-range-is-conditional-on-l3) records the historical error and remaining comparability limits.
+
 ### R05. Audit and revise legal collector eligibility
 
 - **Depends on:** R04. **Files:** 05/06 flags and allocation, affected 07a/09/10/11 studies, tests and paper §§2.1/6.1/6.3 and Appendix E.

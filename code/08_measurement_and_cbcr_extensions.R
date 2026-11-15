@@ -792,8 +792,14 @@ ladder_rebuild_scenarios <- function(measurement, post_sbie, factorial, host_sta
     select(all_of(names(factorial)))
 }
 
-ladder_allocate <- function(panel, weights) {
+ladder_allocate <- function(panel, weights, archived_source = NULL) {
   source <- build_source_panel(panel)
+  if (!is.null(archived_source)) {
+    assert_core_budget_parity(source, archived_source,
+      c("scenario_id", LADDER_KEYS),
+      c("topup_after_behaviour", "stage4_qdmtt_liability", "stage4_iir_liability",
+        "stage4_utpr_pool", "stage4_sbs_extinguished_liability"))
+  }
   allocation <- allocate_stage4_revenue(source, weights)
   conservation <- build_conservation_diagnostics(source, allocation$revenue_by_channel_global)
   stopifnot(nrow(allocation$revenue_country_year_eu27) == length(EU27_ISO3) * length(MAIN_YEARS) * 16)
@@ -1010,14 +1016,14 @@ ladder_official_forecasts <- function() {
   bind_rows(forecasts, luxembourg, slovakia)
 }
 
-ladder_budget_backtest <- function(revenue, channels) {
+ladder_budget_annual <- function(revenue, channels, include_combined = FALSE) {
   scenario_keys <- c("level", "country", "year", "scenario_id")
   channel_totals <- channels |>
     filter(country %in% LADDER_BUDGET_COUNTRIES) |>
     summarise(qdmt = sum(revenue[channel == "QDMTT"]),
       iir = sum(revenue[channel == "IIR"]), .by = all_of(scenario_keys)
     )
-  matched <- revenue |>
+  annual <- revenue |>
     filter(country %in% LADDER_BUDGET_COUNTRIES) |>
     select(all_of(scenario_keys), all_of(FACTOR_COLS), direct = revenue) |>
     left_join(channel_totals, by = scenario_keys, relationship = "one-to-one") |>
@@ -1025,9 +1031,15 @@ ladder_budget_backtest <- function(revenue, channels) {
     ladder_windows(LADDER_WINDOWS[c("2019–2023", "FY2023")]) |>
     summarise(across(c(direct, qdmt, iir), ~ sum(.x) / first(years_in_window) / LADDER_EUR_USD / 1e9),
       .by = c(level, country, window, scenario_id, all_of(FACTOR_COLS))
-    ) |>
-    pivot_longer(c(direct, qdmt, iir), names_to = "model_scope", values_to = "annual_eur_bn") |>
-    inner_join(ladder_official_forecasts(), by = c("country", "model_scope"),
+    )
+  if (include_combined) annual <- mutate(annual, qdmt_iir = qdmt + iir)
+  pivot_longer(annual, any_of(c("direct", "qdmt", "iir", "qdmt_iir")),
+    names_to = "model_scope", values_to = "annual_eur_bn")
+}
+
+ladder_match_budgets <- function(annual, forecasts) {
+  annual |>
+    inner_join(forecasts, by = c("country", "model_scope"),
       relationship = "many-to-many"
     ) |>
     mutate(
@@ -1035,6 +1047,10 @@ ladder_budget_backtest <- function(revenue, channels) {
         annual_eur_bn - official_high_eur_bn, 0),
       preferred = x2_substance == 0 & x3_rates == 0 & x5_behaviour == 1
     )
+}
+
+ladder_budget_backtest <- function(revenue, channels) {
+  matched <- ladder_match_budgets(ladder_budget_annual(revenue, channels), ladder_official_forecasts())
   matched |>
     arrange(gap_to_benchmark_eur_bn, scenario_id) |>
     summarise(
@@ -1060,6 +1076,113 @@ ladder_budget_backtest <- function(revenue, channels) {
       )
     ) |>
     arrange(country, benchmark, window, level)
+}
+
+# Compare the exact Stage 06 key support first, then USD values. The one-tenth
+# cent threshold accommodates summation order only. Source rows are unsummed.
+assert_core_budget_parity <- function(actual, archived, keys, amounts, tolerance = 0) {
+  actual <- actual |> select(all_of(c(keys, amounts))) |> arrange(across(all_of(keys)))
+  archived <- archived |> select(all_of(c(keys, amounts))) |> arrange(across(all_of(keys)))
+  stopifnot(!anyDuplicated(actual[keys]), identical(actual[keys], archived[keys]))
+  for (amount in amounts) {
+    stopifnot(all(abs(actual[[amount]] - archived[[amount]]) <= tolerance))
+  }
+}
+
+ladder_budget_forecasts_r04b <- function() {
+  ladder_official_forecasts() |>
+    filter(!grepl("Numerical collector comparison only", comparison_scope, fixed = TRUE)) |>
+    mutate(
+      model_scope = case_when(
+        country == "SVK" & evidence == "official forecast" ~ "qdmt",
+        benchmark == "Belgian 2024 budget" ~ "qdmt_iir",
+        TRUE ~ model_scope
+      ),
+      revenue_scope = if_else(country == "SVK" & evidence == "official forecast",
+        "Domestic top-up tax under Act 507/2023, budget code 112004", revenue_scope),
+      comparison_scope = if_else(benchmark == "Belgian 2024 budget",
+        "Gross QDMTT plus IIR versus forecast net of implementation costs", comparison_scope),
+      source_url = case_when(
+        country == "SVK" & evidence == "official forecast" ~
+          "https://www.mfsr.sk/files/archiv/72/Priloha-2.pdf",
+        country == "LUX" ~ paste0("https://budget.public.lu/dam-assets/lb/budget2026/",
+          "links-dokumenter/bu-2026-volume-2-pour-web-v1.pdf"),
+        TRUE ~ source_url
+      )
+    )
+}
+
+summarise_budget_range <- function(rows) {
+  values <- rows$annual_eur_bn
+  gaps <- rows$gap_to_benchmark_eur_bn
+  closest_gap <- if (any(is.finite(gaps))) min(gaps) else NA_real_
+  # A millieuro tolerance treats summation-order noise as a tie.
+  tied <- which(abs(gaps - closest_gap) <= 1e-12)
+  closest <- first(tied[order(rows$scenario_id[tied], method = "radix")])
+  preferred <- rows$preferred & rows$x1_etr == 1
+  universal <- first(which(preferred & rows$x4_sbs == 0))
+  sbs <- first(which(preferred & rows$x4_sbs == 1))
+  tibble(
+    scenario_count = nrow(rows),
+    scenario_min_eur_bn = if (length(values)) min(values) else NA_real_,
+    scenario_max_eur_bn = if (length(values)) max(values) else NA_real_,
+    closest_scenario = rows$scenario_id[closest],
+    closest_scenario_eur_bn = values[closest],
+    closest_gap_eur_bn = closest_gap,
+    closest_tie_count = length(tied),
+    preferred_universal_scenario = rows$scenario_id[universal],
+    preferred_sbs_scenario = rows$scenario_id[sbs],
+    preferred_universal_eur_bn = values[universal],
+    preferred_sbs_eur_bn = values[sbs]
+  )
+}
+
+ladder_core_budget_ranges <- function(revenue, channels, forecasts = ladder_budget_forecasts_r04b()) {
+  core_levels <- LADDER_LEVELS[c(1, 3)]
+  core <- filter(revenue, level %in% core_levels)
+  design <- distinct(core, level, scenario_id, across(all_of(FACTOR_COLS)))
+  stopifnot(
+    nrow(design) == 2^length(FACTOR_COLS),
+    !anyDuplicated(design$scenario_id), !anyDuplicated(design[FACTOR_COLS]),
+    all(unlist(design[FACTOR_COLS], use.names = FALSE) %in% 0:1),
+    all(design$level == core_levels[design$x1_etr + 1L]),
+    all(design$scenario_id == do.call(paste0, c(list("x"), as.list(design[FACTOR_COLS]))))
+  )
+  years <- LADDER_WINDOWS[["2019–2023"]]
+  support <- core |> filter(year %in% years, country %in% forecasts$country) |>
+    count(country, year, scenario_id)
+  stopifnot(all(support$n == 1L),
+    nrow(support) == n_distinct(forecasts$country) * length(years) * nrow(design),
+    !anyDuplicated(forecasts[c("country", "benchmark", "model_scope")]),
+    all(is.na(forecasts$stated_sbs_switch) | forecasts$stated_sbs_switch %in% 0:1),
+    all(is.na(forecasts$official_low_eur_bn) == is.na(forecasts$official_high_eur_bn)),
+    all(forecasts$official_low_eur_bn <= forecasts$official_high_eur_bn, na.rm = TRUE))
+
+  matched <- ladder_match_budgets(ladder_budget_annual(core, channels, include_combined = TRUE), forecasts)
+  stopifnot(all(is.finite(matched$annual_eur_bn)),
+    nrow(matched) == nrow(forecasts) * 2L * nrow(design))
+  l3 <- filter(matched, x1_etr == 1L)
+  scopes <- list(l3 = l3, core = matched, l3_policy = l3, core_policy = matched)
+  bind_rows(scopes, .id = "scenario_scope") |>
+    group_by(window, scenario_scope, across(all_of(names(forecasts)))) |>
+    group_modify(function(rows, key) {
+      if (endsWith(key$scenario_scope, "_policy")) {
+        rows <- filter(rows, x4_sbs == key$stated_sbs_switch)
+      }
+      summarise_budget_range(rows)
+    }) |>
+    ungroup() |>
+    mutate(
+      comparison_status = case_when(
+        scenario_count == 0L ~ "policy_unknown",
+        is.na(official_low_eur_bn) ~ "unquantified",
+        TRUE ~ "compared"
+      ),
+      official_interval_overlaps_model_range =
+        official_high_eur_bn >= scenario_min_eur_bn & official_low_eur_bn <= scenario_max_eur_bn
+    ) |>
+    relocate(scenario_scope, .after = window) |>
+    arrange(country, benchmark, window, match(scenario_scope, names(scopes)))
 }
 
 ladder_binary_stage46 <- function(low, high) {
@@ -1213,6 +1336,10 @@ run_ladder_diagnostics <- function() {
     filter(model_spec == "linear", term == "tau", inference == "parent_affiliate_clustered") |>
     pull(estimate)
   stopifnot(length(beta) == 1, is.finite(beta))
+  core_levels <- levels[c(1, 3)]
+  archived_source <- ladder_read("stage4_5_allocation_source_panel") |>
+    select(scenario_id, all_of(LADDER_KEYS), x1_etr, topup_after_behaviour,
+      stage4_qdmtt_liability, stage4_iir_liability, stage4_utpr_pool, stage4_sbs_extinguished_liability)
   allocations <- set_names(map(levels, function(level_name) {
     message("  ", level_name)
     panel <- switch(level_name,
@@ -1221,15 +1348,17 @@ run_ladder_diagnostics <- function() {
       ladder_rebuild_scenarios(filter(measurements, level == level_name),
         post_sbie[[level_name]], factorial, host_stage1, sectors, beta)
     )
-    ladder_allocate(panel, weights)
+    archived <- if (level_name %in% core_levels) {
+      filter(archived_source, x1_etr == match(level_name, core_levels) - 1L)
+    }
+    ladder_allocate(panel, weights, archived_source = archived)
   }), levels)
 
-  archived <- ladder_read("stage4_5_revenue_country_year") |>
-    select(scenario_id, country, year, archived_revenue = revenue)
-  baseline_check <- bind_rows(allocations[[1]]$revenue, allocations[[3]]$revenue) |>
-    inner_join(archived, by = c("scenario_id", "country", "year"), relationship = "one-to-one")
-  stopifnot(nrow(baseline_check) == nrow(archived),
-    max(abs(baseline_check$revenue - baseline_check$archived_revenue)) < 1e-3)
+  collector_keys <- c("scenario_id", "country", "year")
+  assert_core_budget_parity(map_dfr(allocations[core_levels], "revenue"),
+    ladder_read("stage4_5_revenue_country_year"), collector_keys, "revenue", tolerance = 1e-3)
+  assert_core_budget_parity(map_dfr(allocations[core_levels], "channels"),
+    ladder_read("stage4_5_revenue_by_channel"), c(collector_keys, "channel"), "revenue", tolerance = 1e-3)
 
   collector_revenues <- imap_dfr(allocations, ~ mutate(.x$revenue, level = .y))
   channels <- imap_dfr(allocations, ~ mutate(.x$channels, level = .y))
@@ -1239,6 +1368,7 @@ run_ladder_diagnostics <- function() {
   parent_breakdown <- ladder_parent_breakdown(measurements, preferred_source, ladder$cells)
   sbs <- ladder_sbs_summary(preferred_source, preferred_revenue)
   backtest <- ladder_budget_backtest(collector_revenues, channels)
+  budget_ranges <- ladder_core_budget_ranges(collector_revenues, channels)
 
   message("Checking Stage 4.6 inputs and decomposing the factorial designs")
   binary_designs <- list(
@@ -1261,6 +1391,7 @@ run_ladder_diagnostics <- function() {
   ladder_write(parent_breakdown, "nld_lux_irl_parent_breakdown")
   ladder_write(sbs, "ladder_sbs_exposure")
   ladder_write(backtest, "ladder_budget_backtest")
+  ladder_write(budget_ranges, "budget_benchmark_scenario_ranges_r04b")
   ladder_write(anova, "ladder_anova_decomposition")
 }
 
