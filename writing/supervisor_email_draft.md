@@ -1,43 +1,16 @@
-# Email drafts to dr. Peter Gerbrands
-
-Attachments for both versions: `supervisor_pitch_memo.pdf` (Research Note and Publication Plan, 4 pages) and `paper_v2.pdf` (complete first draft of the paper and online appendix).
-
-## Nederlandse versie
-
-**Onderwerp:** Vervolg op mijn scriptie over de Global Minimum Tax
-
 Beste Peter,
 
-Ik hoop dat alles goed met je gaat. Allereerst nogmaals hartelijk dank voor je begeleiding bij mijn scriptie dit voorjaar. Ik heb er veel van geleerd en er met veel plezier aan gewerkt.
+Hopelijk gaat alles goed! Allereerst nogmaals hartelijk dank voor je begeleiding bij mijn scriptie afgelopen studiejaar. Ik heb er veel van geleerd en er met veel plezier aan gewerkt. Inmiddels heb ik ook het laatste vak van Economic Policy afgerond en ben ik begonnen aan mijn derde master International Business Law, waar ik nu ook weer bezig ben met een juridische & economische scriptie over efficiënties in overnames. 
 
-Dat plezier is eigenlijk niet meer weggegaan. Het werken aan de scriptie heeft me laten inzien dat ik graag verder wil in dit vakgebied. Ik zou rond de zomer van 2027 graag als buitenpromovendus beginnen aan een promotietraject in de empirische internationale bedrijfsbelastingen, naast mijn werk.
+Het plezier met mijn scriptie is eigenlijk niet meer weggegaan. Het werken aan de scriptie heeft me laten inzien dat ik graag verder wil in dit vakgebied. Daarom ben ik de afgelopen maanden met het onderzoek doorgegaan. In juli heeft de OECD de CbCR-gegevens over 2023 gepubliceerd. Ik heb de pipeline uitgebreid naar 2017-2023 en heb de methodologische beperkingen opgepakt, zoals het verschil tussen boekhoudkundige winst en de grondslag van de minimumbelasting en de betrouwbaarheid van de gedragsschatting. De hoofdconclusie van de scriptie blijft overeind, en de uitkomsten liggen nu ook veel dichter bij de begrotingsramingen van een aantal lidstaten. In de bijgevoegde notitie van enkele pagina's zet ik de uitbreidingen en de nieuwe resultaten op een rij. Ik heb ook de volledige eerste versie van de paper met de online appendix geschreven. Deze is bijna compleet anders, en veel logischer, dan mijn Master Scriptie. Deze kan ik ook delen, indien we hierop verder gaan. 
 
-Daarom ben ik de afgelopen maanden met het onderzoek doorgegaan. In juli heeft de OECD de CbCR-gegevens over 2023 gepubliceerd. Ik heb de pipeline uitgebreid naar 2017–2023 en heb de methodologische beperkingen opgepakt die we in juni bespraken, zoals het verschil tussen boekhoudkundige winst en de grondslag van de minimumbelasting en de betrouwbaarheid van de gedragsschatting. De hoofdconclusie van de scriptie blijft overeind, en de uitkomsten liggen nu ook veel dichter bij de begrotingsramingen van een aantal lidstaten. In de bijgevoegde notitie van vier pagina's zet ik de uitbreidingen en de nieuwe resultaten op een rij. Ik heb ook de volledige eerste versie van het paper met de online appendix bijgevoegd.
+Ik zou het heel mooi vinden om hier samen met jou een artikel van te maken die gepubliceerd kan worden. Daarnaast overleg ik ook graag hoe ik dit verder kan uitbreiden naar een vorm van een extern promotietraject eventueel. Zou je ervoor open staan om te verkennen of een gezamenlijke publicatie mogelijk is. 
 
-Ik zou het heel mooi vinden om hier samen met jou een artikel van te maken, met *International Tax and Public Finance* of *Fiscal Studies* als doel. Daarnaast hoor ik graag je advies over hoe ik een extern promotietraject het beste kan aanpakken. Ik ben ook benieuwd hoe jij erover denkt om Javier Garcia-Bernardo (Methodology & Statistics, UU) erbij te betrekken, omdat het paper zo nauw voortbouwt op zijn CbCR-werk. Heb je in de komende weken tijd voor een kop koffie of een korte afspraak?
+Heb je in de komende weken tijd voor een afspraak? Zo ja, deel gerust momenten die zouden uitkomen via Teams. Hopelijk tot snel!
 
-Hartelijke groet,
+Met vriendelijke groet, 
 
-Maurits
+Maurits de Haan
+maurits.cpdehaan@gmail.com +31657013100 
 
-## English version
-
-**Subject:** Following up on my thesis on the Global Minimum Tax
-
-Dear Peter,
-
-I hope you are well. First of all, thank you again for supervising my thesis this spring. I learnt a great deal from it and very much enjoyed the work.
-
-That enjoyment has stayed with me. Working on the thesis made me realise that I would love to continue in this field, and I would like to start an external PhD in empirical international business taxation around summer 2027, alongside my work.
-
-So I have kept working on the research over the past months. In July the OECD released the 2023 country-by-country reporting data. I extended the pipeline to 2017–2023 and worked on the methodological limitations we discussed in June, such as the gap between accounting profit and the minimum tax base and the reliability of the behavioural estimate. The main conclusion of the thesis holds, and the results now also come much closer to the budget forecasts of several member states. The attached four-page note sets out the extensions and the new results. I have also attached the complete first draft of the paper and online appendix.
-
-I would really like to turn this into a joint paper with you, aiming for *International Tax and Public Finance* or *Fiscal Studies*. I would also be grateful for your advice on how best to approach an external PhD, and I would love to hear your thoughts on whether it could make sense to involve Javier Garcia-Bernardo from Methodology and Statistics at UU, given how closely the paper builds on his CbCR work. Would you have time for a coffee or a short meeting in the coming weeks?
-
-Kind regards,
-
-Maurits
-
----
-
-*Note before sending (delete this line):* both versions assume you are on first-name terms; use "Beste meneer Gerbrands" or "Dear dr. Gerbrands" otherwise.
+P.S. ik stuur deze mail vanuit mijn persoonlijke mailbox, aangezien ik niet weet hoe lang mijn UU inbox blijft bestaan. Ik heb wel nog toegang tot alle academische papers ect. via mijn Tilburg University account. 
