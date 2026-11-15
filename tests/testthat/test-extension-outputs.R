@@ -75,12 +75,17 @@ test_that("the Paper v2 publication tables and figures are complete", {
     "tab_v2_qdmtt_nash_deviation_game.tex",
     "tab_v2_cbcr_tables_2_3_6_extensions.tex",
     "tab_v2_main_table1_sample_and_coverage.tex",
+    "tab_v2_main_table2_etr_ladder_and_crossval.tex",
     "tab_v2_main_table3_substance_and_sbti.tex",
+    "tab_v2_main_table4_division_bias_and_ppml.tex",
     "tab_v2_main_table5_variance_and_uncertainty.tex",
+    "tab_v2_main_table6_budget_backtest_and_waterfall.tex",
     "tab_v2_main_table7_source_collector_ledger.tex",
     "tab_v2_main_table8_qdmtt_repeal_game.tex",
     "tab_v2_app_table3_h5_regression.tex",
+    "tab_v2_app_table4_behavioural_robustness.tex",
     "tab_v2_app_table5_country_uncertainty.tex",
+    "tab_v2_app_table6_revenue_scenarios.tex",
     "tab_v2_app_table7_regime_sensitivities.tex",
     "tab_v2_app_table8_universal_and_optout.tex"
   ))

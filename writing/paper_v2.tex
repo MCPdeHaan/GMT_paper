@@ -201,7 +201,7 @@ The cell ETR $\tau_{pjt}$ is computed on positive corrected profit and bounded t
 
 We organise the possible treatments as a ladder of four levels, which is introduced in this paper. Level 1 (L1) applies the rule of \citet{barake2022}: all profit in a host-year is low-taxed if the profit-weighted host average $\bar\tau_{jt}$ lies below 15\%, and none otherwise. Level 2 (L2) applies the same binary rule to each parent–affiliate cell, $\mathbb{1}\{\tau_{pjt}<0.15\}$, which keeps the variation across parents and discards the dispersion within a cell. Level 3 (L3) is distributional at the host level and is our preferred specification. It takes the pooled Table IV bracket below 15\% where it exists (2019–2023), fits a distribution to the Table I percentiles where it does not (2021–2023), transports the shape of the 2019–2020 distributions back to 2017–2018 with a validated bracket-share imputation, and falls back to L1 otherwise. Level 4 (L4) is distributional and parent-specific. It uses the exact bilateral Table IV brackets first and bilateral percentile fits anchored to $\tau_{pjt}$ second. For the remaining cells an anchored variant applies the fitted dispersion at the cell's own mean, and a strict variant falls back to L2.
 
-\input{generated/paper_v2_tables/tab_v2_etr_ladder_and_crossval.tex}
+\input{generated/paper_v2_tables/tab_v2_main_table2_etr_ladder_and_crossval.tex}
 
 Panel A of Table \ref{tab:tab_v2_etr_ladder_and_crossval} shows how much the choice of level matters. Over 2017–2023, moving from L1 to L3 raises the EU27 liability rate from 2.91\% to 4.93\% of profit and the top-up tax after the carve-out from \usd200.42 billion to \usd328.15 billion; the strict and anchored variants of L4 give \usd291.64 billion and \usd336.65 billion, so the two distributional levels bracket each other.
 
@@ -257,7 +257,7 @@ The sample holds 10,611 cells in 2,031 pairs over 2017–2023, and standard erro
 
 One feature of this regression produces a mechanical bias. The ETR divides tax by current profit, so a positive shock to profit, or an error in measuring it, raises the dependent variable and pushes the ETR towards zero, even if firms do not respond to taxes at all. Weighting by profit, as in weighted least squares (WLS) and Poisson pseudo-maximum likelihood (PPML), and entering the ETR inside a logarithm both give most influence to large cells with ETRs near zero, which steepens the slope in the low-tax tail.
 
-\input{generated/paper_v2_tables/tab_v2_stage3_division_bias_and_ppml.tex}
+\input{generated/paper_v2_tables/tab_v2_main_table4_division_bias_and_ppml.tex}
 
 Table \ref{tab:tab_v2_stage3_division_bias_and_ppml} documents the bias and its removal. In Panel A, unweighted fixed-effect least squares selects the linear form by the Bayesian information criterion, with $\hat\beta_1=-1.465$ (standard error 0.243, $p=2.4\times10^{-7}$). With the current ETR, the two weighted estimators select the logarithmic form and imply semi-elasticities at an ETR of 5\% of 11.20 and 9.33. Panel B replaces the current ETR, on the same cells, with two regressors that exclude the cell's own current profit: the ETR of the previous year and a leave-one-parent-out ETR, introduced in this paper, which measures the tax rate in host $j$ from all other parents, $\tau_{-p,jt}=\sum_{p'\neq p}\theta_{p'jt}/\sum_{p'\neq p}\pi^{*}_{p'jt}$. Under both weighted estimators the semi-elasticity at 5\% falls to between 2.51 and 3.94, and the joint tests of the tax terms lose significance ($p$ between 0.085 and 0.393). Lagging assets and payroll while keeping the current ETR leaves the estimates unchanged, so the denominator is the source.
 
@@ -336,7 +336,7 @@ A Shapley attribution of the parameter variance shows where the remaining noise 
 
 National budgets give an outside check on the model, because finance ministries forecast what they expect to collect from the same rules. A model and a forecast can agree for the wrong reasons, so the comparison is made at each stage of the accounting bridge. It uses the forecasts of the eight Member States in Section \ref{sec:otherdata}, matched to the channel each covers where the source allows, and two windows: fiscal year 2023 and the annual average over 2019–2023.\footnote{National forecasts are cash or accrual estimates for specific budget years, some net of implementation costs, and they reflect elections and safe harbours that groups make firm by firm, which aggregated country-by-country cells cannot observe. The Dutch post-package figure is inferred from published components, and the safe harbour screen is a proxy. The comparison is therefore a structural diagnostic of where the gap arises and makes no claim to be a point forecast.}
 
-\input{generated/paper_v2_tables/tab_v2_budget_backtest_and_hanlon_waterfall.tex}
+\input{generated/paper_v2_tables/tab_v2_main_table6_budget_backtest_and_waterfall.tex}
 
 Panel A of Table \ref{tab:tab_v2_budget_backtest_and_hanlon_waterfall} sets each benchmark against the range of the 32 core scenarios; in FY2023 even the lowest scenario exceeds the benchmark everywhere except Slovakia. The first column of Panel B gives the preferred SbS scenario under L3 before any accounting adjustment, and it overshoots by multiples: \EUR6.68 billion against a direct post-package benchmark of \EUR0.18 billion for the Netherlands, \EUR4.25 billion against \EUR0.08 billion for Luxembourg, \EUR6.28 billion against \EUR1.00 billion in cash and \EUR0.20 billion in full-year effect for Germany, \EUR1.86 billion against \EUR0.50 billion for France and \EUR5.32 billion against \EUR3.20 billion for Ireland. Bilateral cell averages (L2), close to the coarse aggregation behind many ministry forecasts, land near the cash forecasts for Germany (\EUR0.995 billion against \EUR1.000 billion in FY2023) and Belgium (\EUR0.634 billion a year over 2019–2023 against \EUR0.634 billion). The agreement comes from offsetting errors: averaging hides low-taxed profit (Section \ref{sec:etr_ladder}), while the unadjusted base inflates it.
 
@@ -672,7 +672,7 @@ The non-nested tests in Table \ref{tab:app_stage3_specification_tests} favour th
 Table \ref{tab:stage3_semielasticity} and Figure \ref{fig:app_semielasticity} show where the forms diverge. They agree near the floor, and at an ETR of 5\% the logarithmic semi-elasticity reaches 2.10 against 1.47 for the linear form. The data say little about that region. Table \ref{tab:app_stage3_etr_tail_support} shows that ETRs below 5\% account for 17.1\% of rows but only 9.3\% of profit, so the curvature of the low tail rests on few large cells.
 
 \input{generated/results_tables/appendix_stage3_etr_tail_support.tex}
-\input{generated/results_tables/appendix_stage3_robustness.tex}
+\input{generated/paper_v2_tables/tab_v2_app_table4_behavioural_robustness.tex}
 \input{generated/results_tables/appendix_stage3_behaviour_by_year.tex}
 
 The linear form is preferred in three of the four samples in Table \ref{tab:app_stage3_robustness}; the balanced panel, which keeps only pairs observed in every year, selects the logarithmic form. Table \ref{tab:app_stage3_behaviour_by_year} applies the response year by year. The profit-weighted share of low-taxed profit that moves is between 11.3\% and 12.4\%, and between 1 and 13 affiliate-years a year fall inside the safe-harbour notch.
@@ -708,7 +708,7 @@ The ranking of Section \ref{sec:factorial} could depend on the window, on how th
 The ranking strengthens as the data improve (Table \ref{tab:stage46_measurement_sample_decomposition}). The Shapley share of ETR measurement is 74.3\% over 2017–2023, 82.4\% over 2019–2023, when direct brackets replace shape transport, and 86.8\% over 2021–2023, when Table I and Table IV overlap. Over 2017–2022, the window of the thesis, it is 72.5\%.
 
 \input{generated/results_tables/appendix_stage46_country_anova.tex}
-\input{generated/results_tables/appendix_stage46_top_scenarios.tex}
+\input{generated/paper_v2_tables/tab_v2_app_table6_revenue_scenarios.tex}
 
 Country by country, ETR measurement leads in Germany (83.9\%), France (73.0\%) and the Netherlands (76.0\%), while SbS leads in Ireland (38.1\%) and Luxembourg (57.8\%), where US-parented groups dominate (Table \ref{tab:app_stage46_country_anova}). The highest-revenue scenario combines distributional measurement, the aggregate carve-out at long-run rates, universal allocation and no response, at \usd584.9 billion (Table \ref{tab:app_stage46_top_scenarios}).
 

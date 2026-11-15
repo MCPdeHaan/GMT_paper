@@ -66,7 +66,7 @@ A public deposit should include the authorised input bytes or persistent referen
 | 10 accounting bridge and conduit wedge | Core and budget outputs | Conduit and dividend analysis, loss and tax timing bridge, safe harbour and trends | 42.0 |
 | 11 policy game and variance extensions | Core, fiscal flows, ladder and accounting bridge | QDMTT games, joint Monte Carlo, expanded factorial and influence diagnostics | 186.7 |
 | 12 master scorecard | Core, extension diagnostics and archived thesis fixtures | `master_paper_v2_scorecard.csv` | 12.1 |
-| 13 generate exhibits | Inputs listed below | Core and appendix LaTeX, eight Paper v2 tables and seven figures in total | 4.2 |
+| 13 generate exhibits | Inputs listed below | Core and appendix LaTeX, eight main-text tables and eight generated PDF figures | 4.2 |
 
 The 15 stages took 7 minutes 28 seconds in total on the verification host with the hash-verified Stage 1 cache. A previous full 500-draw Stage 1 run took roughly 40 minutes. Live acquisition and dependency installation are outside these timings.
 
@@ -77,70 +77,80 @@ Rscript --vanilla tests/verify_golden_step15.R
 Rscript -e "testthat::test_dir('tests/testthat')"
 ```
 
-For an isolated output tree, pass its path to the verifier and set `GMT_TEST_OUTPUT_ROOT` to that path before running the tests. The verifier rejects missing, extra and altered CSV or RDS files. The active reference set has 359 Step 15 files and the separately pinned Step 17 sensitivity CSV. The obsolete PwC RDS was retired from the reference set. The remaining hashes are the original frozen values. Table fragments are tested for well-formed labels and invalid numeric tokens. PDF metadata can include generation timestamps.
+For an isolated output tree, pass its path to the verifier and set `GMT_TEST_OUTPUT_ROOT` to that path before running the tests. The verifier rejects missing, extra and altered CSV or RDS files. The active reference set has 359 Step 15 files and the separately pinned Step 17 sensitivity CSV. The obsolete PwC RDS was retired from the reference set. The remaining hashes are the original frozen values. The byte verifier supports R >= 4.3: a runtime other than R 4.6 produces an informative note, with `tools::sha256sum()` where available and `sha256sum`, `shasum -a 256` or `openssl dgst -sha256` otherwise. Older R versions need not load and reserialise any analytical RDS file. The current test host is R 4.6; the system fallback is exercised independently.
+
+The manuscript tests follow every input and graphic, check non-empty files, reject raw code labels/scientific notation and prohibited dash punctuation, and regenerate every included table in a temporary directory for byte comparison. They also check all eight numbered main-text and six numbered appendix fragments plus the CbCR extension table. PDF metadata can include generation timestamps.
+
+
+## Exhibit-only reproduction and LaTeX builds
+
+Module 13 reads frozen processed inputs. If the local Table I extract exists under `data/raw/oecd_cbcr/` (or `data/raw/cbcr/`), it recomputes and checks the source counts: 1,367,305 records, 63 parents and 244 affiliates. If absent, it uses the frozen metadata in `raw_table1_counts()`, verified against the extract whose SHA-256 is `721a7b9d7d701f4f987890aee022f0e16e15e0aa48d4f2a163f6f0aac31788e4`. This exception permits exhibit-only reproduction from Git; a full cleaning replay still requires the pinned raw extracts.
+
+From the repository root, with the R library configured as above:
+
+```sh
+Rscript --vanilla code/13_generate_exhibits.R
+cd writing
+python3 make_paper_bib.py && pdflatex paper_v2 && bibtex paper_v2 && pdflatex paper_v2 && pdflatex paper_v2
+pdflatex supervisor_pitch_memo && pdflatex supervisor_pitch_memo
+```
+
+The paper PDF includes Online Appendices A–E. The supervisor memo is a separate four-page research note.
+
+## Optional statutory-rate cap diagnostic
+
+```sh
+Rscript --vanilla code/08a_standard_cit_cap_diagnostic.R
+```
+
+This standalone module writes only `docs/audit_standard_vs_targeted_cit_cap.csv`; it is not part of `run_all.R`. The raw statutory file is `data/raw/oecd_tax_rates/oecd_statutory_cit_rates.csv`, and the frozen processed object is `cit_statutory.rds`, not `cit_rates.rds`. In OECD `DSD_TAX_CIT@DF_CIT`, `TARGETING=ST` is standard and `TA` is targeted small-business taxation; `CIT/S1311` is central-government and `CIT_C/S13` is combined. The legacy `cit_top_all` field contains targeted central rates and is preferred by the frozen baseline. The diagnostic compares that selection with standard combined rates and, separately, standard central rates. Missing standard rates imply a 100% cap and are flagged, without silently substituting a targeted rate.
+
+The estimand is the **percentile-cap effect conditional on frozen mean ETRs**, corrected profits, Table IV, BSPI and SBIE shields. L3 uses the production constrained Beta fit; L4 retains the production rank-bounded estimator and strict/anchored source rules. Replayed baseline predictions and ladders must match the frozen outputs. Cross-validation retains S1 = 361, S2 = 70 and S3 = 81; calibration R-squared comes from an OLS regression of the direct outcome on the fitted outcome and year effects. Errors are fitted minus direct, in fractions. Revenue rows are total source liabilities in US$ billions over 2017–2023 or FY2023, with both initial and long-run SBIE rates. They are not annualised collector receipts.
+
+The CSV contains paired cross-validation, five FY2023 domestic cells, all L3/L4 scope/window totals and host-year rate coverage. In particular, it records where the frozen mean was already upper-clipped. A full correction of upstream mean ETRs, reconciliation, behavioural estimates and allocation would be a separate unfrozen specification. See `docs/post_manuscript_audit.md` for findings and verification.
 
 # Exhibit-to-code and data map
 
 Paths below are relative to `writing/generated/`. Unless specified otherwise, the generator is `code/13_generate_exhibits.R`. Bare CSV names resolve under `data/processed/diagnostics/` and bare RDS names under `data/processed/`. The consolidated Stage 4.6 overview is generated by module 07 from the objects also written to the four listed diagnostics. The data, main-table and appendix manifests contain the exact LaTeX inclusions. Historical thesis exhibits are separately archived. Paper v2 table fragments can be included with LaTeX's `\input` using `booktabs` and `longtable`.
 
-### Paper v2 tables and figures
+### Main text: Tables 1–8
 
-- `paper_v2_figures/fig_v2_cbcr_to_budget_waterfall.pdf`
-  - Generator `make_paper_waterfall_figure()`
-  - Inputs
-    - `step9_ladder_budget_backtest.csv`
-    - `step12_cbcr_to_budget_waterfall_bridge.csv`
-    - `step12_conduit_unwinding_time_series_2017_2026.csv`
-- `paper_v2_figures/fig_v2_qdmtt_deviation_efficiency_vs_sbti.pdf`
-  - Generator `make_paper_nash_figure()`
-  - Inputs
-    - `step13_qdmtt_vs_sbti_strategy_comparison.csv`
-- `paper_v2_tables/tab_v2_budget_backtest_and_hanlon_waterfall.tex`
-  - Generator `write_paper_budget_table()`
-  - Inputs
-    - `step9_ladder_budget_backtest.csv`
-    - `step12_cbcr_to_budget_waterfall_bridge.csv`
-- `paper_v2_tables/tab_v2_cbcr_tables_2_3_6_extensions.tex`
-  - Generator `write_paper_cbcr_table()`
-  - Inputs
-    - `step14_table3_vs_table4_blending_wedge.csv`
-    - `step14_table6_mne_size_incidence.csv`
-    - `step14_table2_interquartile_skewness.csv`
-    - `step14_business_activity_drivers.csv`
-- `paper_v2_tables/tab_v2_etr_ladder_and_crossval.tex`
-  - Generator `write_paper_etr_table()`
-  - Inputs
-    - `step9_ladder_stage1_stage2_summary.csv`
-    - `step3_stage1_crossval_summary.csv`
-- `paper_v2_tables/tab_v2_factorial_globe_and_total_variance.tex`
-  - Generator `write_paper_variance_table()`
-  - Inputs
-    - `step7_decomposition_architecture_stress_test.csv`
-    - `step15_globe_accounting_factorial_anova.csv`
-    - `step15_law_of_total_variance_decomposition.csv`
-- `paper_v2_tables/tab_v2_qdmtt_nash_deviation_game.tex`
-  - Generator `write_paper_nash_table()`
-  - Inputs
-    - `step13_unilateral_qdmtt_deviation_matrix.csv`
-    - `step13_qdmtt_vs_sbti_strategy_comparison.csv`
-- `paper_v2_tables/tab_v2_source_collector_ledger_and_regimes.tex`
-  - Generator `write_paper_ledger_table()`
-  - Inputs
-    - `step7_eu27_institutional_regime_matrix.csv`
-    - `step7_reallocation_destination_rules_comparison.csv`
-    - `step7_eu27_source_vs_collector_ledger_2017_2023.csv`
-    - `step7_cyprus_and_article50_sensitivity.csv`
-- `paper_v2_tables/tab_v2_stage2_sbti_and_bracket_substance.tex`
-  - Generator `write_paper_substance_table()`
-  - Inputs
-    - `step4_stage2_sbti_vs_sectoral_sbie_decomposition.csv`
-    - `audit_step4_stage2_bracket_substance.csv`
-    - `step4_stage2_sectoral_h5_panel_regression.csv`
-- `paper_v2_tables/tab_v2_stage3_division_bias_and_ppml.tex`
-  - Generator `write_paper_econometrics_table()`
-  - Inputs
-    - `step6_division_bias_and_curvature_audit.csv`
-    - `step5_stage3_tax_endogeneity_diagnostics.csv`
+All numbered fragments are in `paper_v2_tables/`. Numbered aliases retain the original table labels and bytes; they do not add or renumber tables in the PDF.
+
+| Table | Fragment | Generator | Frozen input objects/diagnostics |
+|---|---|---|---|
+| 1. Sample and coverage | `tab_v2_main_table1_sample_and_coverage.tex` | `write_data_descriptive_tables()`, `write_paper_main_table1()` | Verified raw metadata; `base_panel.rds`, `stage1_bilateral_panel.rds`, `stage3_estimation_sample.rds` |
+| 2. ETR ladder and validation | `tab_v2_main_table2_etr_ladder_and_crossval.tex` | `write_paper_etr_table()` | `step9_ladder_stage1_stage2_summary.csv`, `step3_stage1_crossval_summary.csv` |
+| 3. Substance and SBTI | `tab_v2_main_table3_substance_and_sbti.tex` | `write_paper_substance_table()` | `step4_stage2_sbti_vs_sectoral_sbie_decomposition.csv`, `audit_step4_stage2_bracket_substance.csv` |
+| 4. Division bias and semi-elasticities | `tab_v2_main_table4_division_bias_and_ppml.tex` | `write_paper_econometrics_table()` | `step6_division_bias_and_curvature_audit.csv`, `step5_stage3_tax_endogeneity_diagnostics.csv` |
+| 5. Variance and uncertainty | `tab_v2_main_table5_variance_and_uncertainty.tex` | `write_paper_variance_table()`, `write_paper_variance_profiles()` | `step7_decomposition_architecture_stress_test.csv`, `step15_globe_accounting_factorial_anova.csv`, `step15_law_of_total_variance_decomposition.csv` |
+| 6. Budget backtest and waterfall | `tab_v2_main_table6_budget_backtest_and_waterfall.tex` | `write_paper_budget_table()` | `step9_ladder_budget_backtest.csv`, `step12_cbcr_to_budget_waterfall_bridge.csv` |
+| 7. Source and collector ledger | `tab_v2_main_table7_source_collector_ledger.tex` | `write_paper_ledger_table()` | `step7_eu27_source_vs_collector_ledger_2017_2023.csv`, `step7_eu27_institutional_regime_matrix.csv`, `step7_reallocation_destination_rules_comparison.csv` |
+| 8. QDMTT repeal | `tab_v2_main_table8_qdmtt_repeal_game.tex` | `write_paper_nash_table()` | `step13_unilateral_qdmtt_deviation_matrix.csv`, `step13_qdmtt_vs_sbti_strategy_comparison.csv` |
+
+### Main text: Figures 1–5
+
+| Figure | File | Generator | Inputs |
+|---|---|---|---|
+| 1. Revenue filters | `writing/figures/fig_v2_filters.tex` (repository-relative) | Authored TikZ schematic | Conceptual stage definitions in the manuscript; no estimated values |
+| 2. Variance attribution | `paper_v2_figures/fig_v2_shapley_variance_core_and_accounting.pdf` | `make_paper_shapley_figure()` | `step7_decomposition_architecture_stress_test.csv`, `step15_globe_accounting_factorial_anova.csv` |
+| 3. Budget waterfall and time series | `paper_v2_figures/fig_v2_cbcr_to_budget_waterfall.pdf` | `make_paper_waterfall_figure()` | `step9_ladder_budget_backtest.csv`, `step12_cbcr_to_budget_waterfall_bridge.csv`, `step12_conduit_unwinding_time_series_2017_2026.csv` |
+| 4. Country fiscal salience | `figures/fig_country_salience_uncertainty.pdf` | `make_country_salience_plot()` | `stage4_6_fiscal_salience_country.rds`, `stage4_6_anova_by_country.rds` |
+| 5. Repeal efficiency and SBTI | `paper_v2_figures/fig_v2_qdmtt_deviation_efficiency_vs_sbti.pdf` | `make_paper_nash_figure()` | `step13_qdmtt_vs_sbti_strategy_comparison.csv` |
+
+### Online Appendices A–E
+
+The following map follows the final manuscript sections. The detailed core-table inventory below supplies the remaining file-level inputs. Appendix fragment numbers identify their corresponding main-text topic; displayed appendix table numbers follow LaTeX counters.
+
+| Appendix | Contents and exhibit entry points | Producing modules and main data |
+|---|---|---|
+| A. Data, profit reconciliation and notation | Data summary; profit/employee/ETR figure; correction, evidence, holdout, sensitivity and parent-year tables | 01, 02a, 02 and 13; base and Stage 1 panels; `step02a_*` and profit-correction diagnostics |
+| B. Low-taxed profit, substance and tax base | Stage 1 coverage/rates/validation/conditioning; measurement-error intervals; Stage 2 tables; `tab_v2_app_table3_h5_regression.tex`; `tab_v2_cbcr_tables_2_3_6_extensions.tex` | 03, 04, 07a, 08 and 13; `step3_*`, `step4_*`, `step14_table3_vs_table4_blending_wedge.csv`, `step14_table6_mne_size_incidence.csv`, `step14_table2_interquartile_skewness.csv`, `step14_business_activity_drivers.csv` |
+| C. Behavioural estimation | Sample, regression, specification, IV and tail diagnostics; semi-elasticity figure; `tab_v2_app_table4_behavioural_robustness.tex` | 05, 09 and 13; `step5_*`, including `step5_stage3_model_robustness.csv`; division-bias derivation in the manuscript |
+| D. Decomposition, uncertainty and country results | ANOVA, measurement windows, influence, channels and fiscal salience; `tab_v2_app_table5_country_uncertainty.tex`; `tab_v2_app_table6_revenue_scenarios.tex` | 07, 09, 11 and 13; `step7_*`, `step10_jurisdiction_influence_*`, `step15_*`; scenario appendix uses `step7_stage4_6_scenario_summary.csv` |
+| E. Allocation law, repeal game and replication | Allocation/SbS tables; `tab_v2_app_table7_regime_sensitivities.tex`; `tab_v2_app_table8_universal_and_optout.tex`; country typology | 06, 07, 09, 11 and 13; `step6_stage4_5_*`, `step7_cyprus_and_article50_sensitivity.csv`, `step13_unilateral_qdmtt_deviation_matrix.csv`, `step7_stage4_6_country_typology_*` |
+
+`write_paper_fragment_aliases()` supplies numbered aliases for main Tables 2, 4 and 6 and appendix fragments 4 and 6. Original filenames remain available to older drafts. The additional composite Paper v2 fragments are historical outputs, not extra main-text tables.
 
 ### Core figures
 

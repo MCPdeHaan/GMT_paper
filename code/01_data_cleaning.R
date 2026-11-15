@@ -167,6 +167,7 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
   read_xlsx_sheet_names <- function(xlsx_path) {
     tmp <- tempfile("xlsx_names_")
     dir.create(tmp)
+    on.exit(unlink(tmp, recursive = TRUE), add = TRUE)
     utils::unzip(xlsx_path, exdir = tmp)
     wb <- xml2::read_xml(file.path(tmp, "xl/workbook.xml"))
     ns <- xml2::xml_ns(wb)
@@ -176,6 +177,7 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
   read_xlsx_sheet_cells <- function(xlsx_path, sheet_index) {
     tmp <- tempfile("xlsx_cells_")
     dir.create(tmp)
+    on.exit(unlink(tmp, recursive = TRUE), add = TRUE)
     utils::unzip(xlsx_path, exdir = tmp)
 
     shared_path <- file.path(tmp, "xl/sharedStrings.xml")
@@ -214,15 +216,18 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
 
     out_dir <- tempfile("bea_xlsx_")
     dir.create(out_dir)
+    converted <- FALSE
+    on.exit(if (!converted) unlink(out_dir, recursive = TRUE), add = TRUE)
     system2(
       soffice,
-      c("--headless", "--convert-to", "xlsx", "--outdir", out_dir, path),
+      c("--headless", "--convert-to", "xlsx", "--outdir", shQuote(out_dir), shQuote(path)),
       stdout = TRUE,
       stderr = TRUE
     )
 
     out_path <- file.path(out_dir, str_replace(basename(path), "\\.xls$", ".xlsx"))
     if (!file.exists(out_path)) stop(sprintf("BEA conversion failed for %s", basename(path)))
+    converted <- TRUE
     out_path
   }
 
@@ -238,6 +243,9 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
   parse_bea_country_industry_sheet <- function(path, sheet_name, measure, unit,
                                                year = NA_integer_) {
     xlsx_path <- if (str_ends(path, "\\.xls$")) convert_xls_to_xlsx(path) else path
+    if (!identical(xlsx_path, path)) {
+      on.exit(unlink(dirname(xlsx_path), recursive = TRUE), add = TRUE)
+    }
     sheet_names <- read_xlsx_sheet_names(xlsx_path)
     sheet_index <- match(sheet_name, sheet_names)
     if (is.na(sheet_index)) stop(sprintf("Missing BEA sheet %s in %s", sheet_name, basename(path)))
@@ -600,15 +608,15 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
   add_diag("cbcr_t6", "rows", nrow(cbcr_t6))
 
 
-  # 7. OECD statutory CIT rates (central + combined)
+  # 7. OECD central-government statutory CIT rates (legacy frozen schema)
 
   message("[7/15] OECD statutory CIT rates")
   cit_stat_raw <- read_oecd(file.path(raw_data_dir, "oecd_tax_rates/oecd_statutory_cit_rates.csv"))
-  # Filter to MEASURE = "CIT" (the headline statutory CIT rate); the file also
-  # carries adjacent measure codes (CIT_C central-only, CIT_LSN local sub-national,
-  # exemption codes, etc.) which are kept long in cit_dividend / etr_forward style
-  # storage if needed later.
-  # TARGETING: ST = standard rate, TA = top-all (combined central + sub-central).
+  # CIT/S1311 is central government; CIT_C/S13 is combined government.
+  # TARGETING: ST = standard; TA = targeted small-business rate. The historical
+  # cit_top_all column actually stores TA, not a combined headline rate. Preserve
+  # the frozen schema and selection here; the opt-in module 08 diagnostic reads
+  # standard combined rates directly from the pinned raw extract.
   cit_statutory <- cit_stat_raw |>
     filter(MEASURE == "CIT") |>
     transmute(
