@@ -12,7 +12,7 @@ repository root.
 ```sh
 Rscript --vanilla run_all.R
 Rscript --vanilla tests/verify_golden_step15.R
-Rscript -e "testthat::test_dir('tests/testthat')"
+Rscript --vanilla tests/testthat.R
 ```
 
 The live Python collector is separate from the offline replication run.

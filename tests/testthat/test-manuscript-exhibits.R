@@ -51,9 +51,11 @@ test_that("generated tables use publication labels and formatted numbers", {
   }
 })
 
-test_that("paper and supervisor memo avoid prohibited dash punctuation", {
-  for (name in c("paper_v2.tex", "supervisor_pitch_memo.tex")) {
-    lines <- tex_without_comments(repo_path("writing", name))
+test_that("paper and research note avoid prohibited dash punctuation", {
+  for (name in c("paper_v2.tex", "Research note and publication plan GMT revenue decomposition.tex")) {
+    path <- repo_path("writing", name)
+    if (!file.exists(path)) stop("Missing TeX source: ", path, call. = FALSE)
+    lines <- tex_without_comments(path)
     invalid <- grepl("\u2014|\\\\textemdash|---|[[:blank:]]--[[:blank:]]", lines, perl = TRUE)
     expect_false(any(invalid), info = paste(name, paste(which(invalid), collapse = ", ")))
   }

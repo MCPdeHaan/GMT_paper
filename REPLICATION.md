@@ -27,7 +27,14 @@ The working package contains the exact public aggregate extracts used for this a
 
 The listed public portals do not charge for downloading the extracts. A refresh depends on provider uptime, throughput and revision schedules. The live collector can take several minutes or longer and requires Python 3 and `requests`. Run `python3 code/collect_all_data.py --list` for source selectors or `--source NAME` to request a single source. `--refresh` replaces local extracts and can change the vintage. Use a separate checkout for that operation. The collector reports failed sources through its exit status and log. The acquisition script records the precise requests, dataflow versions and provider URLs.
 
-A Git-only checkout needs four local extracts from the pinned snapshot. These are `ilo_monthly_earnings.csv`, `cbcr_table1_aggregate_totals.csv`, `cbcr_table3_etr_aggregates.csv` and `oecd_cit_revenue_gdp.csv`, under the paths in the input manifest. They are present in the verification workspace and excluded by Git ignore rules. An independent replicator needs those exact bytes alongside the checkout. Check the hashes before proceeding. The input manifest and live collector by themselves do not recover historical provider bytes if a portal has revised its series.
+A Git-only checkout needs four companion extracts from the pinned snapshot. They are currently supplied as local files in the verification workspace and excluded by Git ignore rules.
+
+- `data/raw/ilo_wages/ilo_monthly_earnings.csv`
+- `data/raw/oecd_cbcr/cbcr_table1_aggregate_totals.csv`
+- `data/raw/oecd_cbcr/cbcr_table3_etr_aggregates.csv`
+- `data/raw/oecd_cts_additional/oecd_cit_revenue_gdp.csv`
+
+Place the exact extracts at these paths and run `shasum -a 256 -c tests/step17_raw_inputs.sha256` before replaying. The input manifest and live collector cannot recover historical provider bytes after a source revision. An independent clean-machine restore still requires supplying the pinned companion files or documenting verified access to them, restoring the lockfile and system tools, and testing the complete build. This is tracked in [R18](docs/refactoring/refactoring_roadmap.md#r18-verify-the-independent-replication-deposit).
 
 | Source | Pinned inputs and acquisition |
 |---|---|
@@ -74,7 +81,7 @@ The 15 stages took 7 minutes 28 seconds in total on the verification host with t
 
 ```sh
 Rscript --vanilla tests/verify_golden_step15.R
-Rscript -e "testthat::test_dir('tests/testthat')"
+Rscript --vanilla tests/testthat.R
 ```
 
 For an isolated output tree, pass its path to the verifier and set `GMT_TEST_OUTPUT_ROOT` to that path before running the tests. The verifier rejects missing, extra and altered CSV or RDS files. The active reference set has 359 Step 15 files and the separately pinned Step 17 sensitivity CSV. The obsolete PwC RDS was retired from the reference set. The remaining hashes are the original frozen values. The byte verifier supports R >= 4.3: a runtime other than R 4.6 produces an informative note, with `tools::sha256sum()` where available and `sha256sum`, `shasum -a 256` or `openssl dgst -sha256` otherwise. Older R versions need not load and reserialise any analytical RDS file. The current test host is R 4.6; the system fallback is exercised independently.
@@ -86,16 +93,32 @@ The manuscript tests follow every input and graphic, check non-empty files, reje
 
 Module 13 reads frozen processed inputs. If the local Table I extract exists under `data/raw/oecd_cbcr/` (or `data/raw/cbcr/`), it recomputes and checks the source counts: 1,367,305 records, 63 parents and 244 affiliates. If absent, it uses the frozen metadata in `raw_table1_counts()`, verified against the extract whose SHA-256 is `721a7b9d7d701f4f987890aee022f0e16e15e0aa48d4f2a163f6f0aac31788e4`. This exception permits exhibit-only reproduction from Git; a full cleaning replay still requires the pinned raw extracts.
 
-From the repository root, with the R library configured as above:
+To regenerate module 13 exhibits in a separate output tree, run from the repository root with the R library configured as above. The symlink supplies the frozen module inputs. The standalone Stage 4.6 overview is a module 07 output.
 
 ```sh
-Rscript --vanilla code/13_generate_exhibits.R
-cd writing
-python3 make_paper_bib.py && pdflatex paper_v2 && bibtex paper_v2 && pdflatex paper_v2 && pdflatex paper_v2
-pdflatex supervisor_pitch_memo && pdflatex supervisor_pitch_memo
+exhibit_root=$(mktemp -d)
+mkdir -p "$exhibit_root/data"
+ln -s "$(pwd)/data/processed" "$exhibit_root/data/processed"
+GMT_OUTPUT_ROOT="$exhibit_root" Rscript --vanilla code/13_generate_exhibits.R
 ```
 
-The paper PDF includes Online Appendices A–E. The supervisor memo is a separate four-page research note.
+To compile the paper and five-page research note, use Python 3 and a TeX installation with `latexmk`, pdfLaTeX and BibTeX. Run from the repository root. Set `exhibits` to the generated directory from an isolated run to build from those outputs.
+
+```sh
+exhibits=writing/generated
+build_dir=$(mktemp -d)
+note='Research note and publication plan GMT revenue decomposition.tex'
+cp writing/.latexmkrc writing/make_paper_bib.py writing/bibliography.bib \
+  writing/paper_v2.tex "writing/$note" "$build_dir/"
+cp -R writing/figures "$exhibits" "$build_dir/"
+(
+  cd "$build_dir" &&
+  python3 make_paper_bib.py &&
+  latexmk -pdf -interaction=nonstopmode -halt-on-error paper_v2.tex "$note"
+)
+```
+
+Both PDFs are written to `$build_dir`. The paper PDF includes Online Appendices A–E.
 
 ## Optional statutory-rate cap diagnostic
 
