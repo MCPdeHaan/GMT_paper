@@ -60,16 +60,16 @@ audit_beta_quantiles <- function(probs, alpha, beta) {
   quantiles
 }
 
-# Use the production fitting function with a local numerical guard. Some
-# additional bilateral rows push qbeta marginally beyond 1 during fitting.
-fit_audit_mean_beta <- fit_constrained_beta_percentiles
-environment(fit_audit_mean_beta) <- list2env(
-  list(beta_quantiles = function(probs, alpha, beta) {
-    if (alpha + beta > 1e5) return(rep(alpha / (alpha + beta), length(probs)))
-    audit_beta_quantiles(probs, alpha, beta)
-  }),
-  parent = environment(fit_constrained_beta_percentiles)
-)
+# Keep the mean-anchored precision shortcut and the audit-specific guard.
+# Some extra bilateral fits push the initial qbeta result marginally beyond 1.
+fit_audit_mean_beta <- function(q, target_mean, probs = PERCENTILE_PROBS, upper_cap = NULL) {
+  fit_constrained_beta_percentiles(q, target_mean, probs, upper_cap,
+    quantile_function = function(probs, alpha, beta) {
+      if (alpha + beta > 1e5) return(rep(alpha / (alpha + beta), length(probs)))
+      audit_beta_quantiles(probs, alpha, beta)
+    }
+  )
+}
 
 # Fit on log shapes to maintain positive shape parameters. Multiple starts
 # cover near-degenerate, U-shaped and interior solutions.

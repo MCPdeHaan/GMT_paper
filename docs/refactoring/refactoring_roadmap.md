@@ -58,11 +58,12 @@ For each science slice, state the observed data, proxy and alternative, the esti
 - **Test results:** 334 targeted expectations and 1,184 full-suite expectations on each of the checkout and replay, with zero failures, warnings or skips.
 - **Separate publication follow-up:** The R06b paper prints the literal token `citepoecd2026` on page 4 after “retains host QDMTTs”. Review the escaped citation in [the manuscript source](../../writing/paper_v2.tex#L120) in a publication-only change and rebuild the paper.
 
-### R08. Decompose the ETR measurement stage
+### R08. Extract the constrained-Beta kernel
 
-- **Depends on:** R07. **Files:** 03 and 08/08a fit callers, Stage 1 and cap tests.
-- **Change and benefit:** Separate pooled direct, BSPI, constrained/rank Beta, bilateral selection and validation while retaining existing priorities. Pass quantile strategy explicitly to free the alternate-fit closure from its environment workaround. Establish measurements with explicit support and rate metadata.
-- **Risk, tests and completion:** Numerical tails, fallback order, overlaps, transported support and common-validation intersections. Require exact frozen outputs, established CV samples, numeric boundary cases and unchanged pooled and strict L4 support. The cap diagnostic reproduces to its existing tolerance.
+- **Depends on:** R07. [The numerical module](../../code/measurement/beta_fit.R) owns the mean-anchored fit, its two optimiser paths and its Beta primitives. Stage 08 passes its quantile strategy explicitly. [Caller inventory and support contracts](../architecture/current_architecture.md#r08-constrained-beta-numerical-kernel).
+- **Characterisation:** Recorded R07 fixtures lock down the shapes, boundary flags, losses and quantiles for both mean-anchored paths and the alternatives. Independent checks exercise log-odds recovery, both optimiser paths, non-monotone rank feasibility, tail identities and sparse zero-hurdle support. Stage 03 reproduced all 17 files and retained the ordered 361/70/81 validation samples. All 29 Stage 08 outputs match. The 1,743-row Stage 08a diagnostic matches the tracked CSV by bytes, including its pre-existing frozen-fit tolerance check.
+- **Replay and tests:** R 4.6.0 with all 68 lockfile versions matched. The fresh 15-stage run recomputed 500 measurement-error draws without a cache hit, 500 profit-correction draws and 500 joint draws. It verified the 54 pinned inputs, the legal register and all 364 R06b processed hashes and paths. All 81 TeX files matched exactly and eight figures matched after timestamp normalisation. The rebuilt 76-page paper and five-page note matched page contents, fonts, images and all rendered pages. The 925 targeted expectations and 1,369 full-suite expectations on each of the checkout and replay passed with zero failures, warnings or skips.
+- **Deferred:** Stage 03 retains the rank methods, pooled and bilateral selectors, Table IV and BSPI support, validation, ladder orchestration and I/O. Separate those in later parity slices. The incompatibility of some point-mean anchors and observed ranks is recorded under [S10](scientific_issue_register.md#s10-boundary-mean-anchors-can-conflict-with-observed-rank-bounds).
 
 ### R09. Revise statutory-rate inputs under named estimands
 
@@ -126,4 +127,4 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ## Recommended next task
 
-Start R08 with the Stage 03 constrained-Beta fit and its alternate-fit callers. Characterise the quantile objective, inputs, rate ceiling, failure behaviour and fitted outputs before extracting a shared calculation. Keep the measurement ladder, Table IV completeness and statutory-rate definitions fixed in that slice.
+Start R09 by naming the statutory-rate series and missing-rate rule separately for each use. Reuse the Stage 08a conditional cap comparison before tracing a separate upstream rate change through mean clipping, reconciliation, behavioural instruments, ordinary CIT and collector receipts. Keep the Table IV support revision in R10.
