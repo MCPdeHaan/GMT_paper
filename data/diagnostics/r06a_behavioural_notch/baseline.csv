@@ -1,0 +1,10 @@
+specification,reconciliation,max_gap_usd
+BASELINE_NOTCH,stage05_source,0
+BASELINE_NOTCH,stage06_receipts,0
+BASELINE_NOTCH,stage11_point,5.340576171875e-5
+BASELINE_NOTCH,stage11_accounting,6.103515625e-5
+BASELINE_NOTCH,stage11_game,3.814697265625e-6
+BASELINE_NOTCH,stage09_cit,5.4168701171875e-4
+BASELINE_NOTCH,stage10_screen,0
+BASELINE_NOTCH,stage07a_draws,6.103515625e-5
+BASELINE_NOTCH,stage07a_profit_point,1.220703125e-4

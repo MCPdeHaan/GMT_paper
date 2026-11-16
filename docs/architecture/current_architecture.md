@@ -2,6 +2,12 @@
 
 R01 audit of `16dc40d`, the clean tip of `publication-rework` on 15 November 2026. The inventory and line numbers below describe that revision. [Baseline verification](../refactoring/baseline_verification.md) records what ran. [The scientific register](../refactoring/scientific_issue_register.md) distinguishes implementation findings, empirical assumptions and duplication. [REPLICATION.md](../../REPLICATION.md) remains the replicator-facing source and exhibit guide.
 
+## R06a. Behavioural schedule diagnostic
+
+[The standalone diagnostic](../../code/diagnostics/behavioural_notch.R) first reconstructs Stage 05 from frozen R05b inputs. It replaces the behavioural schedule in an isolated evaluation environment for Stage 07a, Stage 10 and Stage 11 calls. The common source spine is scenario × parent × affiliate × observation year. Stage 06 routing retains the frozen source predicates, verified collector map and parent-year weights. Stage 09's ordinary-CIT destination routing is a different operation, with a different fiscal ledger and its own activity fallback.
+
+The detailed allocator and the sparse evaluator are compared at matched source keys, before collection. The sparse path also runs its actual collector operator, including explicit non-EU, extinguished and unsupported weights. The profit-only Stage 07a path varies the filter between specifications and holds it fixed within the point projection. The measurement-draw path rebuilds the schedule. The Stage 10 transitional screen tests a separate accounting basis and acts on liability remaining after the behavioural treatment. [Mechanism, diagnostic contracts and acceptance results](../refactoring/r06a_behavioural_notch.md).
+
 ## R05b. Production UTPR policy and residual accounting
 
 Stage 06 now sources [the UTPR policy module](../../code/allocation/utpr_policy.R) and builds weights through `build_production_utpr_weights()`. The dated national evidence register is authoritative for the production recipient map. The `GMT_UTPR_SPECIFICATION` setting defaults to `VERIFIED_PARENT_ONLY`. The pinned Stage 05 IIR, QDMTT and SbS predicates still classify source liability. Stage 05's older UTPR aliases serve the historical mode. R1, R2 and R3 retain their QDMTT and IIR definitions.

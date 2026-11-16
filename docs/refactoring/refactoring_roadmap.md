@@ -42,11 +42,15 @@ For each science slice, state the observed data, proxy and alternative, the esti
 - **Depends on:** R05a. **Delivered:** The leading specification uses national UTPR applicability for a fiscal year starting 1 January 2026 and parent-year activity. The dated map and explicit unsupported residual propagate across Stages 06–13. R1, R2 and R3 retain their source and parent predicates. The eligible set and the support assumption have separate sensitivity arms.
 - **Verification and remaining questions:** The [R05b scientific revision](r05b_utpr_production.md) records the full replay, comparison, game and new versioned freeze. The law-specific questions that require group data or separate policy changes remain in S03, S05 and S08.
 
-### R06. Separate behavioural bunching and legal safe harbours
+### R06a. Characterise the behavioural notch
 
-- **Depends on:** R04; use R05's agreed routing specification if available. **Files:** 05, 09 notch, 10 screens, 11 fast/policy evaluator, Stage 3 tests and paper §§2/4.4/5, Appendices C–E.
-- **Change and benefit:** Resolve S05 by distinguishing pre-reform support, stylised responses and OECD eligibility. Reuse the notch and transitional diagnostics. Propagate an explicitly bounded response through all engines and identify who would otherwise collect.
-- **Risk, tests and completion:** Threshold inclusivity and QDMTT/SbS interactions can differ across engines. Compare no-band and defended sensitivity with frozen benchmark across cases; test 13%/15% boundaries, sparse parity, and safe-harbour treatment and exposure by rule. Revise interpretation, figures and tables where affected, and version a new freeze if chosen.
+- **Depends on:** R05b. The [legal audit](r06a_safe_harbour_legal_audit.md), [decision memorandum](r06a_behavioural_notch.md) and independent fixtures separate the historical band from legal eligibility and trace its effects through the full core and accounting designs under verified routing. Selected Stage 07a draws and the unilateral deviations are also evaluated. The R05b specification remains the production reference.
+
+### R06b. Decide and propagate the behavioural specification
+
+- **Depends on:** R06a. **Files:** Stage 05 schedule and all its consumers in Stages 06–11, publication code, tests, manuscript §§2.1, 4.4 and 5 and Appendices C–E.
+- **Change and benefit:** Evaluate adoption of the ordinary response throughout otherwise exposed low-tax observations. Carry the historical band as a separately labelled behavioural sensitivity. Keep any expressly modelled legal election on a separate, date- and rule-specific basis.
+- **Risk, tests and completion:** Check full dense/sparse and profit-only parity, recalibrate or regenerate affected uncertainty summaries using existing designs and fixed seeds, and verify budget benchmarking, accounting and the game. Reconcile source relief, assigned receipts, extinction and unsupported amounts. Update the equation, results and interpretation together. Reproduce the historical R05b specification and create a separate versioned reference for an adopted revision.
 
 ### R07. Extract the bilateral panel assembly
 
@@ -122,4 +126,4 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ## Recommended next task
 
-Characterise the behavioural notch independently of the legal safe harbours under R06, using the [R05b reference](r05b_utpr_production.md) for routing. Establish matched no-notch and existing-notch outputs before choosing a scientific specification.
+Review the [R06a decision memorandum](r06a_behavioural_notch.md) before R06b. If adopting the ordinary response, start with the shared schedule contract and verify all consumers against the diagnostic before revising publication outputs.
