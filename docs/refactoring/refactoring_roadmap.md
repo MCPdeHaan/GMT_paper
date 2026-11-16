@@ -1,6 +1,6 @@
 # Incremental refactoring roadmap
 
-R01 establishes the [architecture](../architecture/current_architecture.md), [baseline](baseline_verification.md) and [scientific issue register](scientific_issue_register.md). The 17 iterations below are review boundaries. A parity change uses the existing specification and reference outputs. A scientific revision has a named comparison arm, an evidence-based specification decision and a separate change set. The order prioritises executable checks, one publication boundary and the routing dependency used by several scientific revisions. Independent owners can review later slices in parallel once their input contracts are stable.
+R01 establishes the [architecture](../architecture/current_architecture.md), [baseline](baseline_verification.md) and [scientific issue register](scientific_issue_register.md). The iterations below are review boundaries. A parity change uses the existing specification and reference outputs. A scientific revision has a named comparison arm, an evidence-based specification decision and a separate change set. The order prioritises executable checks, one publication boundary and the routing dependency used by several scientific revisions. Independent owners can review later slices in parallel once their input contracts are stable.
 
 ## Verification rules
 
@@ -65,11 +65,16 @@ For each science slice, state the observed data, proxy and alternative, the esti
 - **Replay and tests:** R 4.6.0 with all 68 lockfile versions matched. The fresh 15-stage run recomputed 500 measurement-error draws without a cache hit, 500 profit-correction draws and 500 joint draws. It verified the 54 pinned inputs, the legal register and all 364 R06b processed hashes and paths. All 81 TeX files matched exactly and eight figures matched after timestamp normalisation. The rebuilt 76-page paper and five-page note matched page contents, fonts, images and all rendered pages. The 925 targeted expectations and 1,369 full-suite expectations on each of the checkout and replay passed with zero failures, warnings or skips.
 - **Deferred:** Stage 03 retains the rank methods, pooled and bilateral selectors, Table IV and BSPI support, validation, ladder orchestration and I/O. Separate those in later parity slices. The incompatibility of some point-mean anchors and observed ranks is recorded under [S10](scientific_issue_register.md#s10-boundary-mean-anchors-can-conflict-with-observed-rank-bounds).
 
-### R09. Revise statutory-rate inputs under named estimands
+### R09a. Diagnose statutory rates by use
 
-- **Depends on:** R07–R08. **Files:** 01/02/02a/03/05/08a/09/10/11, tests and paper §§3–6 as affected and Appendices A–C.
-- **Change and benefit:** Resolve S01. Reuse the conditional 08a result and compare separately the impact on upstream clipping, reconciliation, sample/estimation, source liability and collectors. Declare standard combined, standard central and targeted series with explicit missing policy. Assign a rate definition to each use.
-- **Risk, tests and completion:** Revised denominators change measured support, behavioural regressors, legal allocations and ordinary CIT. Check rate unit/series/coverage, exact frozen comparator, matching CV, low-tax/profit shares and regression/scenario/receipt deltas. Report headline and variance results with changed cells, both channels and countries. Revise manuscript and version the selected empirical freeze if changed.
+- **Complete.** The [statutory audit and decision memorandum](r09a_statutory_rate_audit.md) distinguish mean clipping, percentile caps, the reconciliation prior, statutory robustness, ordinary CIT and a conditional joint shadow. All 17 audit outputs match between isolated runs. The existing 1,743-row Stage 08a audit and all 364 R06b hashes reproduce.
+- **Decision.** Standard combined and standard central cover identical country-years in the pinned vintage. The combined-first candidate is preferred for the statistical caps and prior, with a labelled same-year central fallback and role-specific unsupported behaviour. Matched validation is mixed. The statutory IV is weaker and reverses its sign. Conditional L4 and ordinary-CIT amounts are more sensitive than the preferred core collector receipts. [Current project status](project_status.md).
+
+### R09b. Implement the selected statutory rate definitions
+
+- **Depends on:** R09a's documented decision. **Files:** Stage 01/02/02a/03, Stage 05 and 09 statutory and fiscal consumers, Stage 10 numerator variants, 07a and 11 downstream, tests, paper and appendices.
+- **Change and benefit:** Publish separate named standard combined, standard central and targeted series and provenance. Use combined-first for the selected statistical support and prior, with explicit missing rules. Compare unit-only and alternative allowance arms and holdout performance. Update the statutory instrument and control independently of the ETR-based leading design. Reprice destinations and retain a separate effective origin rate. Keep the gate change identifiable.
+- **Risk, tests and completion:** Reproduce the original R06b comparator. Replay the selected 32- and 64-case designs, behavioural and uncertainty calibrations, collection and unsupported UTPR, repeal and budgets. Report changes in sample, sources, collector receipts and ordinary CIT by channel and geography. Update the manuscript and version a new scientific freeze only after the selected specification has been reviewed.
 
 ### R10. Resolve pooled Table IV suppression and eligibility
 
@@ -127,4 +132,4 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ## Recommended next task
 
-Start R09 by naming the statutory-rate series and missing-rate rule separately for each use. Reuse the Stage 08a conditional cap comparison before tracing a separate upstream rate change through mean clipping, reconciliation, behavioural instruments, ordinary CIT and collector receipts. Keep the Table IV support revision in R10.
+Start R09b from the [rate-policy decision](r09a_statutory_rate_audit.md#r09b-decision-memorandum). Implement the named rate fields and exact role-specific support first, then validate the paired propagated specifications. Keep Table IV support in R10.
