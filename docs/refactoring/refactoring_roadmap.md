@@ -48,9 +48,7 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ### R06b. Decide and propagate the behavioural specification
 
-- **Depends on:** R06a. **Files:** Stage 05 schedule and all its consumers in Stages 06–11, publication code, tests, manuscript §§2.1, 4.4 and 5 and Appendices C–E.
-- **Change and benefit:** Evaluate adoption of the ordinary response throughout otherwise exposed low-tax observations. Carry the historical band as a separately labelled behavioural sensitivity. Keep any expressly modelled legal election on a separate, date- and rule-specific basis.
-- **Risk, tests and completion:** Check full dense/sparse and profit-only parity, recalibrate or regenerate affected uncertainty summaries using existing designs and fixed seeds, and verify budget benchmarking, accounting and the game. Reconcile source relief, assigned receipts, extinction and unsupported amounts. Update the equation, results and interpretation together. Reproduce the historical R05b specification and create a separate versioned reference for an adopted revision.
+- **Depends on:** R06a. The [scientific revision](r06b_continuous_behavioural_response.md) adopts the continuous response with the existing legal flags and coefficient. It records source and collector accounting, the full simulations, benchmark and unilateral results, and both exact manifests. The stylised band remains available under `BASELINE_NOTCH`.
 
 ### R07. Extract the bilateral panel assembly
 
@@ -126,4 +124,4 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ## Recommended next task
 
-Review the [R06a decision memorandum](r06a_behavioural_notch.md) before R06b. If adopting the ordinary response, start with the shared schedule contract and verify all consumers against the diagnostic before revising publication outputs.
+Start R07 with the bilateral panel spine and merge contracts. Characterise keys, column classes, support and row order from the R06b freeze before extracting any assembly code.

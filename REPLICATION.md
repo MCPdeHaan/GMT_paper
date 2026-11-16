@@ -22,7 +22,9 @@ Rscript --vanilla run_all.R
 
 The command writes analysis data to `data/processed/`, diagnostics to `data/processed/diagnostics/`, and LaTeX and PDF exhibits to `writing/generated/`. Pass `--output-root=/absolute/path` for an isolated replay. All inputs resolve from this checkout. The default `GMT_UTPR_SPECIFICATION=VERIFIED_PARENT_ONLY` uses verified national applicability for fiscal years starting 1 January 2026 and observed parent-year activity. Stage 06 writes the dated collector map and source-key unsupported liability. Use a fresh output root for every specification. The four comparison specifications and the Guernsey sensitivity are defined in the [R05b scientific revision](docs/refactoring/r05b_utpr_production.md).
 
-The leading run computes every Stage 1 measurement-error draw. For `LEGACY_FALLBACK`, 07a can reuse 13 historical measurement-error files using `GMT_MEASUREMENT_CACHE_ROOT`, after checking the hashes of the files and nine simulation inputs. Use an empty existing directory for that variable to exercise a fresh historical simulation. On Unix, `GMT_MEASUREMENT_WORKERS` optionally uses more than one process for evaluation of the already seeded measurement draws. The default is one. The seeds are 20260503 for measurement error, 20260613 for profit reconciliation uncertainty and 20261113 for joint uncertainty. The main analysis runs offline after dependency installation.
+The default `GMT_BEHAVIOURAL_SPECIFICATION=NO_NOTCH_STANDARD_RESPONSE` applies the estimated response continuously below 15% where collection exposure and excess profit are positive. Stage 05 records the specification and zero bandwidth in `step5_stage3_behavioural_specification.csv`. To replay R05b in a fresh output root, set `GMT_UTPR_SPECIFICATION=VERIFIED_PARENT_ONLY GMT_BEHAVIOURAL_SPECIFICATION=BASELINE_NOTCH`. The historical mode preserves its two-point stylised notch and directory inventory. The R05b manuscript and research note sources are versioned at `0e619fc2e112c8e758ea6e6969aca97ea01b8606`.
+
+The leading run computes every Stage 1 measurement-error draw. Only `BASELINE_NOTCH` with `LEGACY_FALLBACK` can reuse the 13 archived measurement-error files via `GMT_MEASUREMENT_CACHE_ROOT`, after checking the output hashes and nine simulation inputs. An empty existing directory for that variable exercises a fresh simulation in that mode. On Unix, `GMT_MEASUREMENT_WORKERS` optionally uses more than one process for evaluation of the already seeded measurement draws. The default is one. The seeds are 20260503 for measurement error, 20260613 for profit reconciliation uncertainty and 20261113 for joint uncertainty. The main analysis runs offline after dependency installation.
 
 # Data availability and provenance
 
@@ -87,7 +89,7 @@ Rscript --vanilla tests/verify_golden_step15.R
 Rscript --vanilla tests/testthat.R
 ```
 
-For an isolated output tree, pass its path to the verifier and set `GMT_TEST_OUTPUT_ROOT` to that path before running the tests. The verifier rejects missing, extra and altered CSV or RDS files. It defaults to the `r05b` reference. Use `Rscript --vanilla tests/verify_golden_step15.R /absolute/path/to/legacy r04b` to verify all 361 historical files from `338d7203958c34d036f5e5baa21b8a4ffdd0a036` or a `LEGACY_FALLBACK` replay. The `r04` selector addresses the preceding 360-file reference. The byte verifier supports R >= 4.3 and uses `tools::sha256sum()`, `sha256sum`, `shasum -a 256` or `openssl dgst -sha256`.
+For an isolated output tree, pass its path to the verifier and set `GMT_TEST_OUTPUT_ROOT` to that path before running the tests. Use the same specification settings as the replay. The verifier rejects missing, extra and altered CSV or RDS files. It defaults to `r06b`. Select `r05b` for the 363-file historical notch replay under verified parent-only routing. Select `r04b` for the 361-file notch replay with legacy fallback, or `r04` for the preceding 360-file reference. The byte verifier supports R >= 4.3 and uses `tools::sha256sum()`, `sha256sum`, `shasum -a 256` or `openssl dgst -sha256`.
 
 The manuscript tests follow every input and graphic, check non-empty files, reject raw code labels/scientific notation and prohibited dash punctuation, and regenerate every included table in a temporary directory for byte comparison. They also check all eight numbered main-text and six numbered appendix fragments plus the CbCR extension table. PDF metadata can include generation timestamps.
 
@@ -105,7 +107,7 @@ ln -s "$(pwd)/data/processed" "$exhibit_root/data/processed"
 GMT_OUTPUT_ROOT="$exhibit_root" Rscript --vanilla code/13_generate_exhibits.R
 ```
 
-To compile the paper and five-page research note, use Python 3 and a TeX installation with `latexmk`, pdfLaTeX and BibTeX. Run from the repository root. Set `exhibits` to the generated directory from an isolated run to build from those outputs.
+To compile the paper and research note, use Python 3 and a TeX installation with `latexmk`, pdfLaTeX and BibTeX. Run from the repository root. Set `exhibits` to the generated directory from an isolated run to build from those outputs.
 
 ```sh
 exhibits=writing/generated

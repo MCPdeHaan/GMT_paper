@@ -1012,7 +1012,7 @@ run_reallocation_and_budget_backtest <- function() {
   write_step7(compare_typology_membership(features, fiscal, regimes), "eu27_typology_cluster_sensitivity")
 }
 
-# ETR density and the simplified ETR safe harbour notch
+# Pre-reform ETR density and stylised historical notch
 
 NOTCH_BIN_WIDTH <- 0.005
 NOTCH_POLYNOMIAL_ORDER <- 4L

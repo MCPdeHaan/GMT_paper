@@ -127,7 +127,7 @@ test_that("lower-tail support summaries conserve estimation rows", {
   expect_lt(metric_value("tail_balance_effective_n"), nrow(toy))
 })
 
-test_that("SESH bunching extinguishes liability inside the band", {
+test_that("the historical stylised notch extinguishes liability inside the band", {
   in_band <- apply_behavioural_regime(tau_low = 0.14, beta_raw = 0.20, eta = 0.02)
   below_band <- apply_behavioural_regime(tau_low = 0.10, beta_raw = 0.20, eta = 0.02)
   above_floor <- apply_behavioural_regime(tau_low = NA_real_, beta_raw = 0)

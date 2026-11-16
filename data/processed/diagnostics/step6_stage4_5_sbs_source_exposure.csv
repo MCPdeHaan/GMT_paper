@@ -191,14 +191,14 @@ x00000,initial,average,aggregate_sbie,initial,universal,mechanical,0,0,0,0,0,SWE
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,AUT,Austria,2017,TRUE,924812327.8939258,124009185.43032788,0,0,0.13409118984468327
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,AUT,Austria,2018,TRUE,1226644332.4383888,51750991.760097876,0,0,0.042189076647200986
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,AUT,Austria,2019,TRUE,1344436705.5993218,63092121.185648486,0,0,0.04692829414942471
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,AUT,Austria,2020,TRUE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,AUT,Austria,2020,TRUE,195588666.72089303,11897542.528906861,0,0,0.06082940657233874
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,AUT,Austria,2021,TRUE,1183359541.3900561,50735064.32017354,0,0,0.042873752689378423
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,AUT,Austria,2022,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,AUT,Austria,2023,TRUE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,AUT,Austria,2023,TRUE,449979912.0167371,20294012.639853198,0,0,0.04509981912058856
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,BEL,Belgium,2017,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,BEL,Belgium,2018,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,BEL,Belgium,2019,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,BEL,Belgium,2020,TRUE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,BEL,Belgium,2019,TRUE,673851940.8692663,146381855.52152562,0,0,0.2172314816407498
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,BEL,Belgium,2020,TRUE,150263328.35742977,41816122.205185704,0,0,0.27828561141490316
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,BEL,Belgium,2021,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,BEL,Belgium,2022,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,BEL,Belgium,2023,TRUE,0,0,0,0,NA
@@ -217,12 +217,12 @@ x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,CY
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,CYP,Cyprus,2022,FALSE,624445480.9552078,196736379.61307615,0,0,0.3150577362048173
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,CYP,Cyprus,2023,FALSE,3037512919.402038,2652042944.155715,0,0,0.8730968442029848
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,CZE,Czechia,2017,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,CZE,Czechia,2018,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,CZE,Czechia,2019,TRUE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,CZE,Czechia,2018,TRUE,145472665.3031476,18374774.739437625,0,0,0.12631084129205164
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,CZE,Czechia,2019,TRUE,72681142.37938689,9565387.313800497,0,0,0.13160755322020556
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,CZE,Czechia,2020,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,CZE,Czechia,2021,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,CZE,Czechia,2022,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,CZE,Czechia,2023,TRUE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,CZE,Czechia,2023,TRUE,90979711.47565554,11936612.280208869,0,0,0.13120081484763646
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,DEU,Germany,2017,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,DEU,Germany,2018,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,DEU,Germany,2019,TRUE,0,0,0,0,NA
@@ -231,17 +231,17 @@ x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,DE
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,DEU,Germany,2022,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,DEU,Germany,2023,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,DNK,Denmark,2017,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,DNK,Denmark,2018,TRUE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,DNK,Denmark,2018,TRUE,402072700.42469126,36046407.68108431,0,0,0.08965146761521017
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,DNK,Denmark,2019,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,DNK,Denmark,2020,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,DNK,Denmark,2021,TRUE,2544818844.467327,143148992.92506093,0,0,0.056251152507880924
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,DNK,Denmark,2022,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,DNK,Denmark,2023,TRUE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,DNK,Denmark,2022,TRUE,115218824.88725057,6213605.303259222,0,0,0.05392873351502808
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,DNK,Denmark,2023,TRUE,33369923.698350225,8801586.043024626,0,0,0.26375805118966356
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ESP,Spain,2017,TRUE,1174421011.16937,101114651.77766648,0,0,0.08609744786240389
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ESP,Spain,2018,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ESP,Spain,2019,TRUE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ESP,Spain,2018,TRUE,268411762.67325374,23749366.11333568,0,0,0.08848109291784856
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ESP,Spain,2019,TRUE,685782587.650193,84073492.56590602,0,0,0.12259496534314254
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ESP,Spain,2020,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ESP,Spain,2021,TRUE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ESP,Spain,2021,TRUE,804817114.0002055,55863069.06603117,0,0,0.06941088614327964
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ESP,Spain,2022,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ESP,Spain,2023,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,EST,Estonia,2017,FALSE,6169497.744619431,0,0,0,0
@@ -275,15 +275,15 @@ x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,GR
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,HRV,Croatia,2017,TRUE,41586788.22808127,8498373.512024183,0,0,0.20435272532745624
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,HRV,Croatia,2018,TRUE,60096653.33602697,6945607.327603227,0,0,0.11557394533714324
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,HRV,Croatia,2019,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,HRV,Croatia,2020,TRUE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,HRV,Croatia,2020,TRUE,4496103.083511846,665564.7920780196,0,0,0.14803147964262328
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,HRV,Croatia,2021,TRUE,53855680.65230973,6354874.07645551,0,0,0.117998212992281
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,HRV,Croatia,2022,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,HRV,Croatia,2023,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,HUN,Hungary,2017,TRUE,486868621.1308086,199655058.00057727,0,0,0.41007994628377437
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,HUN,Hungary,2018,TRUE,317784440.04332936,105789692.50151923,0,0,0.33289764749682205
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,HUN,Hungary,2019,TRUE,564014454.0006132,309509326.7386598,0,0,0.5487613385495317
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,HUN,Hungary,2020,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,HUN,Hungary,2021,TRUE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,HUN,Hungary,2020,TRUE,114593529.94980243,58772856.37943566,0,0,0.5128811059854866
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,HUN,Hungary,2021,TRUE,71608458.70703469,13864168.290443402,0,0,0.19361076248218997
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,HUN,Hungary,2022,TRUE,107768008.78304291,28264233.155452874,0,0,0.2622692343917576
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,HUN,Hungary,2023,TRUE,1250439248.9188757,445393500.9375567,0,0,0.35618963602001613
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,IRL,Ireland,2017,TRUE,2674535877.8527336,1509433145.6724052,0,0,0.564371993724856
@@ -323,7 +323,7 @@ x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,LV
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,LVA,Latvia,2023,FALSE,12277112.671548981,3017402.9036019356,0,0,0.2457746364578436
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,MLT,Malta,2017,FALSE,155613012.8487073,0,0,0,0
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,MLT,Malta,2018,FALSE,102531988.86058693,0,0,0,0
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,MLT,Malta,2019,FALSE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,MLT,Malta,2019,FALSE,121360399.79158641,0,0,0,0
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,MLT,Malta,2020,FALSE,1201416807.8002682,508917246.44731086,0,0,0.42359757508229967
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,MLT,Malta,2021,FALSE,494697632.9524764,319274366.4820188,0,0,0.6453929536240377
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,MLT,Malta,2022,FALSE,684122399.22309,586856363.1790181,0,0,0.8578236348429314
@@ -337,43 +337,43 @@ x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,NL
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,NLD,Netherlands,2023,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,POL,Poland,2017,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,POL,Poland,2018,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,POL,Poland,2019,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,POL,Poland,2020,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,POL,Poland,2021,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,POL,Poland,2022,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,POL,Poland,2023,TRUE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,POL,Poland,2019,TRUE,125588851.340145,29234821.855583135,0,0,0.23278198298353336
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,POL,Poland,2020,TRUE,115244002.43434788,22350894.50902206,0,0,0.19394410153148664
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,POL,Poland,2021,TRUE,211642465.95569646,35747245.01919873,0,0,0.16890393361170614
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,POL,Poland,2022,TRUE,189954666.53235835,35705482.16694235,0,0,0.18796843909523014
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,POL,Poland,2023,TRUE,193405153.19482607,42191208.07697777,0,0,0.21814934803974217
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,PRT,Portugal,2017,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,PRT,Portugal,2018,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,PRT,Portugal,2019,TRUE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,PRT,Portugal,2018,TRUE,72941128.6318748,5121219.8707053205,0,0,0.07021031846863116
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,PRT,Portugal,2019,TRUE,252645082.29425597,7202374.968681043,0,0,0.028507877150335464
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,PRT,Portugal,2020,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,PRT,Portugal,2021,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,PRT,Portugal,2022,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,PRT,Portugal,2023,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ROU,Romania,2017,TRUE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ROU,Romania,2017,TRUE,59934484.208021484,7424733.006151171,0,0,0.12388081926894205
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ROU,Romania,2018,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ROU,Romania,2019,TRUE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ROU,Romania,2019,TRUE,10134157.102737267,1620962.4755042223,0,0,0.15995039933477995
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ROU,Romania,2020,TRUE,145014733.11446002,17984648.37898775,0,0,0.12401945645614144
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ROU,Romania,2021,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ROU,Romania,2022,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ROU,Romania,2023,TRUE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ROU,Romania,2021,TRUE,49792118.023871034,6521344.366430423,0,0,0.13097141927772585
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ROU,Romania,2022,TRUE,33506502.99258771,4793660.537653915,0,0,0.1430665724416053
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,ROU,Romania,2023,TRUE,29546973.771874525,6154431.82894919,0,0,0.20829313609123426
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SVK,Slovak Republic,2017,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SVK,Slovak Republic,2018,TRUE,136182497.88487145,18661792.24530668,0,0,0.13703517364678788
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SVK,Slovak Republic,2019,TRUE,292409161.4062235,12433158.78665855,0,0,0.042519730663931
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SVK,Slovak Republic,2020,TRUE,261594331.01141992,9587932.47007979,0,0,0.036651912268164666
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SVK,Slovak Republic,2021,TRUE,184974268.36131638,45796030.502403304,0,0,0.24758054678690983
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SVK,Slovak Republic,2022,TRUE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SVK,Slovak Republic,2022,TRUE,26207414.99019822,4438321.456701711,0,0,0.16935365271094757
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SVK,Slovak Republic,2023,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SVN,Slovenia,2017,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SVN,Slovenia,2018,TRUE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SVN,Slovenia,2018,TRUE,2127934.3689332325,227042.68775073218,0,0,0.10669628305526749
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SVN,Slovenia,2019,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SVN,Slovenia,2020,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SVN,Slovenia,2021,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SVN,Slovenia,2022,TRUE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SVN,Slovenia,2021,TRUE,9722543.406746477,897965.9034212492,0,0,0.09235915602065096
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SVN,Slovenia,2022,TRUE,11005489.704392644,414618.1318099943,0,0,0.03767375582065257
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SVN,Slovenia,2023,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SWE,Sweden,2017,TRUE,0,0,0,0,NA
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SWE,Sweden,2018,TRUE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SWE,Sweden,2017,TRUE,332496255.15891534,18965108.174193908,0,0,0.0570385617279497
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SWE,Sweden,2018,TRUE,559340597.1959677,31344922.58537352,0,0,0.05603906232179259
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SWE,Sweden,2019,TRUE,2139980984.84864,232018748.30564955,0,0,0.1084209392272054
-x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SWE,Sweden,2020,TRUE,0,0,0,0,NA
+x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SWE,Sweden,2020,TRUE,126744368.41193461,23992738.830564916,0,0,0.18930023583048358
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SWE,Sweden,2021,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SWE,Sweden,2022,TRUE,0,0,0,0,NA
 x00001,initial,average,aggregate_sbie,initial,universal,behavioural,0,0,0,0,1,SWE,Sweden,2023,TRUE,0,0,0,0,NA
@@ -569,14 +569,14 @@ x00010,initial,average,aggregate_sbie,initial,sbs,mechanical,0,0,0,1,0,SWE,Swede
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,AUT,Austria,2017,TRUE,924812327.8939258,124009185.43032788,0,0,0.13409118984468327
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,AUT,Austria,2018,TRUE,1226644332.4383888,51750991.760097876,0,0,0.042189076647200986
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,AUT,Austria,2019,TRUE,1344436705.5993218,63092121.185648486,0,0,0.04692829414942471
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,AUT,Austria,2020,TRUE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,AUT,Austria,2020,TRUE,195588666.72089303,11897542.528906861,0,0,0.06082940657233874
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,AUT,Austria,2021,TRUE,1183359541.3900561,50735064.32017354,0,0,0.042873752689378423
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,AUT,Austria,2022,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,AUT,Austria,2023,TRUE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,AUT,Austria,2023,TRUE,449979912.0167371,20294012.639853198,0,0,0.04509981912058856
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,BEL,Belgium,2017,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,BEL,Belgium,2018,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,BEL,Belgium,2019,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,BEL,Belgium,2020,TRUE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,BEL,Belgium,2019,TRUE,673851940.8692663,146381855.52152562,0,0,0.2172314816407498
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,BEL,Belgium,2020,TRUE,150263328.35742977,41816122.205185704,0,0,0.27828561141490316
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,BEL,Belgium,2021,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,BEL,Belgium,2022,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,BEL,Belgium,2023,TRUE,0,0,0,0,NA
@@ -595,12 +595,12 @@ x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,CYP,Cypr
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,CYP,Cyprus,2022,FALSE,661135201.623735,233426100.28160325,233426100.28160325,233426100.28160325,0.3530686306043202
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,CYP,Cyprus,2023,FALSE,3631851514.3699055,3246381539.1235824,3246381539.1235824,3246381539.1235824,0.8938640597719484
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,CZE,Czechia,2017,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,CZE,Czechia,2018,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,CZE,Czechia,2019,TRUE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,CZE,Czechia,2018,TRUE,145472665.3031476,18374774.739437625,0,0,0.12631084129205164
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,CZE,Czechia,2019,TRUE,72681142.37938689,9565387.313800497,0,0,0.13160755322020556
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,CZE,Czechia,2020,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,CZE,Czechia,2021,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,CZE,Czechia,2022,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,CZE,Czechia,2023,TRUE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,CZE,Czechia,2023,TRUE,90979711.47565554,11936612.280208869,0,0,0.13120081484763646
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,DEU,Germany,2017,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,DEU,Germany,2018,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,DEU,Germany,2019,TRUE,0,0,0,0,NA
@@ -609,17 +609,17 @@ x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,DEU,Germ
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,DEU,Germany,2022,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,DEU,Germany,2023,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,DNK,Denmark,2017,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,DNK,Denmark,2018,TRUE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,DNK,Denmark,2018,TRUE,402072700.42469126,36046407.68108431,0,0,0.08965146761521017
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,DNK,Denmark,2019,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,DNK,Denmark,2020,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,DNK,Denmark,2021,TRUE,2544818844.467327,143148992.92506093,0,0,0.056251152507880924
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,DNK,Denmark,2022,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,DNK,Denmark,2023,TRUE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,DNK,Denmark,2022,TRUE,115218824.88725057,6213605.303259222,0,0,0.05392873351502808
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,DNK,Denmark,2023,TRUE,33369923.698350225,8801586.043024626,0,0,0.26375805118966356
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ESP,Spain,2017,TRUE,1174421011.16937,101114651.77766648,0,0,0.08609744786240389
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ESP,Spain,2018,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ESP,Spain,2019,TRUE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ESP,Spain,2018,TRUE,268411762.67325374,23749366.11333568,0,0,0.08848109291784856
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ESP,Spain,2019,TRUE,685782587.650193,84073492.56590602,0,0,0.12259496534314254
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ESP,Spain,2020,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ESP,Spain,2021,TRUE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ESP,Spain,2021,TRUE,804817114.0002055,55863069.06603117,0,0,0.06941088614327964
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ESP,Spain,2022,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ESP,Spain,2023,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,EST,Estonia,2017,FALSE,6169497.744619431,0,0,0,0
@@ -653,15 +653,15 @@ x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,GRC,Gree
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,HRV,Croatia,2017,TRUE,41586788.22808127,8498373.512024183,0,0,0.20435272532745624
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,HRV,Croatia,2018,TRUE,60096653.33602697,6945607.327603227,0,0,0.11557394533714324
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,HRV,Croatia,2019,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,HRV,Croatia,2020,TRUE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,HRV,Croatia,2020,TRUE,4496103.083511846,665564.7920780196,0,0,0.14803147964262328
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,HRV,Croatia,2021,TRUE,53855680.65230973,6354874.07645551,0,0,0.117998212992281
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,HRV,Croatia,2022,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,HRV,Croatia,2023,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,HUN,Hungary,2017,TRUE,486868621.1308086,199655058.00057727,0,0,0.41007994628377437
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,HUN,Hungary,2018,TRUE,317784440.04332936,105789692.50151923,0,0,0.33289764749682205
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,HUN,Hungary,2019,TRUE,564014454.0006132,309509326.7386598,0,0,0.5487613385495317
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,HUN,Hungary,2020,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,HUN,Hungary,2021,TRUE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,HUN,Hungary,2020,TRUE,114593529.94980243,58772856.37943566,0,0,0.5128811059854866
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,HUN,Hungary,2021,TRUE,71608458.70703469,13864168.290443402,0,0,0.19361076248218997
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,HUN,Hungary,2022,TRUE,107768008.78304291,28264233.155452874,0,0,0.2622692343917576
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,HUN,Hungary,2023,TRUE,1250439248.9188757,445393500.9375567,0,0,0.35618963602001613
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,IRL,Ireland,2017,TRUE,2674535877.8527336,1509433145.6724052,0,0,0.564371993724856
@@ -701,7 +701,7 @@ x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,LVA,Latv
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,LVA,Latvia,2023,FALSE,12530561.287122868,3270851.5191758224,3270851.5191758224,3270851.5191758224,0.2610299286862065
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,MLT,Malta,2017,FALSE,155613012.8487073,0,0,0,0
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,MLT,Malta,2018,FALSE,102531988.86058693,0,0,0,0
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,MLT,Malta,2019,FALSE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,MLT,Malta,2019,FALSE,121360399.79158641,0,0,0,0
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,MLT,Malta,2020,FALSE,1300987354.1403265,608487792.7873693,608487792.7873693,608487792.7873693,0.46771230392892565
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,MLT,Malta,2021,FALSE,536460547.6856781,361037281.2152205,361037281.2152205,361037281.2152205,0.672998755962123
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,MLT,Malta,2022,FALSE,795571719.6330804,698305683.5890085,698305683.5890085,698305683.5890085,0.8777407069108348
@@ -715,43 +715,43 @@ x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,NLD,Neth
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,NLD,Netherlands,2023,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,POL,Poland,2017,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,POL,Poland,2018,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,POL,Poland,2019,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,POL,Poland,2020,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,POL,Poland,2021,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,POL,Poland,2022,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,POL,Poland,2023,TRUE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,POL,Poland,2019,TRUE,125588851.340145,29234821.855583135,0,0,0.23278198298353336
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,POL,Poland,2020,TRUE,115244002.43434788,22350894.50902206,0,0,0.19394410153148664
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,POL,Poland,2021,TRUE,211642465.95569646,35747245.01919873,0,0,0.16890393361170614
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,POL,Poland,2022,TRUE,189954666.53235835,35705482.16694235,0,0,0.18796843909523014
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,POL,Poland,2023,TRUE,193405153.19482607,42191208.07697777,0,0,0.21814934803974217
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,PRT,Portugal,2017,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,PRT,Portugal,2018,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,PRT,Portugal,2019,TRUE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,PRT,Portugal,2018,TRUE,72941128.6318748,5121219.8707053205,0,0,0.07021031846863116
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,PRT,Portugal,2019,TRUE,252645082.29425597,7202374.968681043,0,0,0.028507877150335464
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,PRT,Portugal,2020,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,PRT,Portugal,2021,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,PRT,Portugal,2022,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,PRT,Portugal,2023,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ROU,Romania,2017,TRUE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ROU,Romania,2017,TRUE,59934484.208021484,7424733.006151171,0,0,0.12388081926894205
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ROU,Romania,2018,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ROU,Romania,2019,TRUE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ROU,Romania,2019,TRUE,10134157.102737267,1620962.4755042223,0,0,0.15995039933477995
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ROU,Romania,2020,TRUE,145014733.11446002,17984648.37898775,0,0,0.12401945645614144
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ROU,Romania,2021,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ROU,Romania,2022,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ROU,Romania,2023,TRUE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ROU,Romania,2021,TRUE,49792118.023871034,6521344.366430423,0,0,0.13097141927772585
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ROU,Romania,2022,TRUE,33506502.99258771,4793660.537653915,0,0,0.1430665724416053
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,ROU,Romania,2023,TRUE,29546973.771874525,6154431.82894919,0,0,0.20829313609123426
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SVK,Slovak Republic,2017,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SVK,Slovak Republic,2018,TRUE,136182497.88487145,18661792.24530668,0,0,0.13703517364678788
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SVK,Slovak Republic,2019,TRUE,292409161.4062235,12433158.78665855,0,0,0.042519730663931
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SVK,Slovak Republic,2020,TRUE,261594331.01141992,9587932.47007979,0,0,0.036651912268164666
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SVK,Slovak Republic,2021,TRUE,184974268.36131638,45796030.502403304,0,0,0.24758054678690983
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SVK,Slovak Republic,2022,TRUE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SVK,Slovak Republic,2022,TRUE,26207414.99019822,4438321.456701711,0,0,0.16935365271094757
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SVK,Slovak Republic,2023,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SVN,Slovenia,2017,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SVN,Slovenia,2018,TRUE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SVN,Slovenia,2018,TRUE,2127934.3689332325,227042.68775073218,0,0,0.10669628305526749
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SVN,Slovenia,2019,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SVN,Slovenia,2020,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SVN,Slovenia,2021,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SVN,Slovenia,2022,TRUE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SVN,Slovenia,2021,TRUE,9722543.406746477,897965.9034212492,0,0,0.09235915602065096
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SVN,Slovenia,2022,TRUE,11005489.704392644,414618.1318099943,0,0,0.03767375582065257
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SVN,Slovenia,2023,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SWE,Sweden,2017,TRUE,0,0,0,0,NA
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SWE,Sweden,2018,TRUE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SWE,Sweden,2017,TRUE,332496255.15891534,18965108.174193908,0,0,0.0570385617279497
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SWE,Sweden,2018,TRUE,559340597.1959677,31344922.58537352,0,0,0.05603906232179259
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SWE,Sweden,2019,TRUE,2139980984.84864,232018748.30564955,0,0,0.1084209392272054
-x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SWE,Sweden,2020,TRUE,0,0,0,0,NA
+x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SWE,Sweden,2020,TRUE,126744368.41193461,23992738.830564916,0,0,0.18930023583048358
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SWE,Sweden,2021,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SWE,Sweden,2022,TRUE,0,0,0,0,NA
 x00011,initial,average,aggregate_sbie,initial,sbs,behavioural,0,0,0,1,1,SWE,Sweden,2023,TRUE,0,0,0,0,NA
@@ -947,14 +947,14 @@ x00100,long_run,average,aggregate_sbie,long_run,universal,mechanical,0,0,1,0,0,S
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,AUT,Austria,2017,TRUE,978315526.6759632,127214050.2838887,0,0,0.1300337639699185
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,AUT,Austria,2018,TRUE,1269037987.0059438,53931316.586202666,0,0,0.042497795289362025
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,AUT,Austria,2019,TRUE,1394021843.0083592,65040730.09887323,0,0,0.04665689452793116
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,AUT,Austria,2020,TRUE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,AUT,Austria,2020,TRUE,209559239.23725754,12457818.153793573,0,0,0.05944771606891145
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,AUT,Austria,2021,TRUE,1238620332.9143105,52797935.74802852,0,0,0.04262640806469076
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,AUT,Austria,2022,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,AUT,Austria,2023,TRUE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,AUT,Austria,2023,TRUE,473713962.7700242,21536641.842368633,0,0,0.04546338832073673
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,BEL,Belgium,2017,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,BEL,Belgium,2018,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,BEL,Belgium,2019,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,BEL,Belgium,2020,TRUE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,BEL,Belgium,2019,TRUE,693017574.3946089,149238464.90342876,0,0,0.2153458590625169
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,BEL,Belgium,2020,TRUE,157900694.4558614,42520966.58596839,0,0,0.2692892943409723
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,BEL,Belgium,2021,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,BEL,Belgium,2022,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,BEL,Belgium,2023,TRUE,0,0,0,0,NA
@@ -973,12 +973,12 @@ x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,CYP,Cyprus,2022,FALSE,629498956.0965196,197477233.1623619,0,0,0.3137054180151542
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,CYP,Cyprus,2023,FALSE,3043621483.3843765,2652946486.176827,0,0,0.8716413984655097
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,CZE,Czechia,2017,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,CZE,Czechia,2018,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,CZE,Czechia,2019,TRUE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,CZE,Czechia,2018,TRUE,148499477.02715215,18946205.42308049,0,0,0.1275843242169553
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,CZE,Czechia,2019,TRUE,75856677.42494394,9948042.310141426,0,0,0.13114260534261435
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,CZE,Czechia,2020,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,CZE,Czechia,2021,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,CZE,Czechia,2022,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,CZE,Czechia,2023,TRUE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,CZE,Czechia,2023,TRUE,94026494.68884513,12311279.466327136,0,0,0.1309341532625239
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,DEU,Germany,2017,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,DEU,Germany,2018,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,DEU,Germany,2019,TRUE,0,0,0,0,NA
@@ -987,17 +987,17 @@ x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,DEU,Germany,2022,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,DEU,Germany,2023,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,DNK,Denmark,2017,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,DNK,Denmark,2018,TRUE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,DNK,Denmark,2018,TRUE,409613832.9507377,37778810.658828326,0,0,0.09223030967162625
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,DNK,Denmark,2019,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,DNK,Denmark,2020,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,DNK,Denmark,2021,TRUE,2593444009.96006,146320969.73778737,0,0,0.05641955992720304
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,DNK,Denmark,2022,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,DNK,Denmark,2023,TRUE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,DNK,Denmark,2022,TRUE,118143093.68183896,6485633.314787124,0,0,0.054896423588271924
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,DNK,Denmark,2023,TRUE,36348677.48100495,9291795.496266585,0,0,0.2556295342828437
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ESP,Spain,2017,TRUE,1211703423.2594986,104025891.09507364,0,0,0.08585095089955476
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ESP,Spain,2018,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ESP,Spain,2019,TRUE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ESP,Spain,2018,TRUE,279011237.487739,24932536.536686778,0,0,0.08936033100739328
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ESP,Spain,2019,TRUE,745599337.4836367,86212525.01337127,0,0,0.1156284892960535
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ESP,Spain,2020,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ESP,Spain,2021,TRUE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ESP,Spain,2021,TRUE,851485269.7271098,59284297.7446482,0,0,0.06962457232366223
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ESP,Spain,2022,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ESP,Spain,2023,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,EST,Estonia,2017,FALSE,6392325.536576703,0,0,0,0
@@ -1031,15 +1031,15 @@ x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,HRV,Croatia,2017,TRUE,49810810.15079718,8632757.9398462,0,0,0.17331093217940846
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,HRV,Croatia,2018,TRUE,65739229.05580883,7340018.772990428,0,0,0.11165355722013676
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,HRV,Croatia,2019,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,HRV,Croatia,2020,TRUE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,HRV,Croatia,2020,TRUE,6158093.742073437,851391.9825061632,0,0,0.13825576845140694
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,HRV,Croatia,2021,TRUE,57561705.428298,6592056.493016396,0,0,0.11452156332004133
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,HRV,Croatia,2022,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,HRV,Croatia,2023,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,HUN,Hungary,2017,TRUE,493896164.2599682,200977932.00108454,0,0,0.40692345181951517
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,HUN,Hungary,2018,TRUE,327496681.2079212,107506100.93785247,0,0,0.3282662301838685
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,HUN,Hungary,2019,TRUE,587999251.4840639,311548125.8369224,0,0,0.5298444259080253
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,HUN,Hungary,2020,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,HUN,Hungary,2021,TRUE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,HUN,Hungary,2020,TRUE,123101482.8632904,59435435.16957856,0,0,0.48281656554522756
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,HUN,Hungary,2021,TRUE,74870867.2431312,14056997.587262267,0,0,0.18774989665358635
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,HUN,Hungary,2022,TRUE,119156000.05000311,28877514.180829875,0,0,0.24235048313732918
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,HUN,Hungary,2023,TRUE,1276157412.246203,447443830.29373527,0,0,0.35061805542168656
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,IRL,Ireland,2017,TRUE,2795051324.0367126,1589778320.2624614,0,0,0.5687832300576317
@@ -1079,7 +1079,7 @@ x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,LVA,Latvia,2023,FALSE,14770374.93121298,3081060.2300775936,0,0,0.20859729319170162
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,MLT,Malta,2017,FALSE,155621104.36442786,0,0,0,0
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,MLT,Malta,2018,FALSE,114791899.4308217,0,0,0,0
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,MLT,Malta,2019,FALSE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,MLT,Malta,2019,FALSE,121572919.60164948,0,0,0,0
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,MLT,Malta,2020,FALSE,1207240902.1355345,510317818.94912344,0,0,0.4227141559289474
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,MLT,Malta,2021,FALSE,501800998.37561476,325793139.4814054,0,0,0.6492476908894835
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,MLT,Malta,2022,FALSE,696960248.4977403,587274101.7560284,0,0,0.8426220907460155
@@ -1093,43 +1093,43 @@ x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,NLD,Netherlands,2023,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,POL,Poland,2017,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,POL,Poland,2018,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,POL,Poland,2019,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,POL,Poland,2020,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,POL,Poland,2021,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,POL,Poland,2022,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,POL,Poland,2023,TRUE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,POL,Poland,2019,TRUE,135358726.49192715,30307251.02963073,0,0,0.22390319276118684
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,POL,Poland,2020,TRUE,127595087.94781515,24371826.979580082,0,0,0.1910091318683668
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,POL,Poland,2021,TRUE,217767976.8180756,36846186.83342211,0,0,0.16919928894873093
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,POL,Poland,2022,TRUE,201869861.8703225,37381008.387234956,0,0,0.1851737948443628
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,POL,Poland,2023,TRUE,211752621.98372385,43648810.691011645,0,0,0.20613114625030082
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,PRT,Portugal,2017,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,PRT,Portugal,2018,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,PRT,Portugal,2019,TRUE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,PRT,Portugal,2018,TRUE,73986298.74645664,5313896.603432718,0,0,0.07182271168399557
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,PRT,Portugal,2019,TRUE,257872957.70974237,7373086.065060486,0,0,0.028591931975122078
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,PRT,Portugal,2020,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,PRT,Portugal,2021,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,PRT,Portugal,2022,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,PRT,Portugal,2023,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ROU,Romania,2017,TRUE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ROU,Romania,2017,TRUE,63072886.00310494,7954712.716659672,0,0,0.1261193711077067
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ROU,Romania,2018,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ROU,Romania,2019,TRUE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ROU,Romania,2019,TRUE,11119459.147026801,1666483.005955331,0,0,0.14987086907018557
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ROU,Romania,2020,TRUE,162337668.94973424,19447094.063370105,0,0,0.1197940945511029
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ROU,Romania,2021,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ROU,Romania,2022,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ROU,Romania,2023,TRUE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ROU,Romania,2021,TRUE,52935422.947662055,6681404.572254083,0,0,0.12621802566610407
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ROU,Romania,2022,TRUE,36106999.8310408,5034777.672105952,0,0,0.1394404878739775
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,ROU,Romania,2023,TRUE,31456294.824899174,6280538.61720665,0,0,0.1996591986490189
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SVK,Slovak Republic,2017,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SVK,Slovak Republic,2018,TRUE,138592465.3820455,19274819.22357931,0,0,0.13907552023442352
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SVK,Slovak Republic,2019,TRUE,312296284.59693557,19039698.214343827,0,0,0.060966777875431234
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SVK,Slovak Republic,2020,TRUE,285915460.50995684,15397635.570368817,0,0,0.053853805397251694
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SVK,Slovak Republic,2021,TRUE,188837821.35962707,46159116.23817653,0,0,0.24443787746454698
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SVK,Slovak Republic,2022,TRUE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SVK,Slovak Republic,2022,TRUE,27027183.420078278,4486863.016899297,0,0,0.16601297098409606
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SVK,Slovak Republic,2023,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SVN,Slovenia,2017,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SVN,Slovenia,2018,TRUE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SVN,Slovenia,2018,TRUE,2513162.4331197552,240053.34374513707,0,0,0.0955184354905158
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SVN,Slovenia,2019,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SVN,Slovenia,2020,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SVN,Slovenia,2021,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SVN,Slovenia,2022,TRUE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SVN,Slovenia,2021,TRUE,13120473.183310768,954189.2109440415,0,0,0.07272521330692322
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SVN,Slovenia,2022,TRUE,12522855.615742352,462511.2992056682,0,0,0.03693337313769313
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SVN,Slovenia,2023,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SWE,Sweden,2017,TRUE,0,0,0,0,NA
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SWE,Sweden,2018,TRUE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SWE,Sweden,2017,TRUE,335951247.90632224,19393091.30574684,0,0,0.05772590941872159
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SWE,Sweden,2018,TRUE,573420778.1424032,32907676.102539364,0,0,0.05738835660811558
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SWE,Sweden,2019,TRUE,2163862931.157929,235124006.79230264,0,0,0.10865938105722935
-x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SWE,Sweden,2020,TRUE,0,0,0,0,NA
+x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SWE,Sweden,2020,TRUE,133236614.27985896,24650250.46169244,0,0,0.18501108418978157
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SWE,Sweden,2021,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SWE,Sweden,2022,TRUE,0,0,0,0,NA
 x00101,long_run,average,aggregate_sbie,long_run,universal,behavioural,0,0,1,0,1,SWE,Sweden,2023,TRUE,0,0,0,0,NA
@@ -1325,14 +1325,14 @@ x00110,long_run,average,aggregate_sbie,long_run,sbs,mechanical,0,0,1,1,0,SWE,Swe
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,AUT,Austria,2017,TRUE,978315526.6759632,127214050.2838887,0,0,0.1300337639699185
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,AUT,Austria,2018,TRUE,1269037987.0059438,53931316.586202666,0,0,0.042497795289362025
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,AUT,Austria,2019,TRUE,1394021843.0083592,65040730.09887323,0,0,0.04665689452793116
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,AUT,Austria,2020,TRUE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,AUT,Austria,2020,TRUE,209559239.23725754,12457818.153793573,0,0,0.05944771606891145
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,AUT,Austria,2021,TRUE,1238620332.9143105,52797935.74802852,0,0,0.04262640806469076
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,AUT,Austria,2022,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,AUT,Austria,2023,TRUE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,AUT,Austria,2023,TRUE,473713962.7700242,21536641.842368633,0,0,0.04546338832073673
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,BEL,Belgium,2017,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,BEL,Belgium,2018,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,BEL,Belgium,2019,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,BEL,Belgium,2020,TRUE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,BEL,Belgium,2019,TRUE,693017574.3946089,149238464.90342876,0,0,0.2153458590625169
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,BEL,Belgium,2020,TRUE,157900694.4558614,42520966.58596839,0,0,0.2692892943409723
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,BEL,Belgium,2021,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,BEL,Belgium,2022,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,BEL,Belgium,2023,TRUE,0,0,0,0,NA
@@ -1351,12 +1351,12 @@ x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,CYP,Cy
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,CYP,Cyprus,2022,FALSE,666326839.8736341,234305116.9394764,234305116.9394764,234305116.9394764,0.3516369188788963
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,CYP,Cyprus,2023,FALSE,3638162567.4923635,3247487570.284814,3247487570.284814,3247487570.284814,0.892617498542176
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,CZE,Czechia,2017,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,CZE,Czechia,2018,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,CZE,Czechia,2019,TRUE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,CZE,Czechia,2018,TRUE,148499477.02715215,18946205.42308049,0,0,0.1275843242169553
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,CZE,Czechia,2019,TRUE,75856677.42494394,9948042.310141426,0,0,0.13114260534261435
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,CZE,Czechia,2020,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,CZE,Czechia,2021,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,CZE,Czechia,2022,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,CZE,Czechia,2023,TRUE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,CZE,Czechia,2023,TRUE,94026494.68884513,12311279.466327136,0,0,0.1309341532625239
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,DEU,Germany,2017,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,DEU,Germany,2018,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,DEU,Germany,2019,TRUE,0,0,0,0,NA
@@ -1365,17 +1365,17 @@ x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,DEU,Ge
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,DEU,Germany,2022,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,DEU,Germany,2023,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,DNK,Denmark,2017,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,DNK,Denmark,2018,TRUE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,DNK,Denmark,2018,TRUE,409613832.9507377,37778810.658828326,0,0,0.09223030967162625
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,DNK,Denmark,2019,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,DNK,Denmark,2020,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,DNK,Denmark,2021,TRUE,2593444009.96006,146320969.73778737,0,0,0.05641955992720304
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,DNK,Denmark,2022,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,DNK,Denmark,2023,TRUE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,DNK,Denmark,2022,TRUE,118143093.68183896,6485633.314787124,0,0,0.054896423588271924
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,DNK,Denmark,2023,TRUE,36348677.48100495,9291795.496266585,0,0,0.2556295342828437
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ESP,Spain,2017,TRUE,1211703423.2594986,104025891.09507364,0,0,0.08585095089955476
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ESP,Spain,2018,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ESP,Spain,2019,TRUE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ESP,Spain,2018,TRUE,279011237.487739,24932536.536686778,0,0,0.08936033100739328
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ESP,Spain,2019,TRUE,745599337.4836367,86212525.01337127,0,0,0.1156284892960535
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ESP,Spain,2020,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ESP,Spain,2021,TRUE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ESP,Spain,2021,TRUE,851485269.7271098,59284297.7446482,0,0,0.06962457232366223
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ESP,Spain,2022,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ESP,Spain,2023,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,EST,Estonia,2017,FALSE,6392325.536576703,0,0,0,0
@@ -1409,15 +1409,15 @@ x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,GRC,Gr
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,HRV,Croatia,2017,TRUE,49810810.15079718,8632757.9398462,0,0,0.17331093217940846
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,HRV,Croatia,2018,TRUE,65739229.05580883,7340018.772990428,0,0,0.11165355722013676
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,HRV,Croatia,2019,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,HRV,Croatia,2020,TRUE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,HRV,Croatia,2020,TRUE,6158093.742073437,851391.9825061632,0,0,0.13825576845140694
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,HRV,Croatia,2021,TRUE,57561705.428298,6592056.493016396,0,0,0.11452156332004133
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,HRV,Croatia,2022,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,HRV,Croatia,2023,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,HUN,Hungary,2017,TRUE,493896164.2599682,200977932.00108454,0,0,0.40692345181951517
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,HUN,Hungary,2018,TRUE,327496681.2079212,107506100.93785247,0,0,0.3282662301838685
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,HUN,Hungary,2019,TRUE,587999251.4840639,311548125.8369224,0,0,0.5298444259080253
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,HUN,Hungary,2020,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,HUN,Hungary,2021,TRUE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,HUN,Hungary,2020,TRUE,123101482.8632904,59435435.16957856,0,0,0.48281656554522756
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,HUN,Hungary,2021,TRUE,74870867.2431312,14056997.587262267,0,0,0.18774989665358635
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,HUN,Hungary,2022,TRUE,119156000.05000311,28877514.180829875,0,0,0.24235048313732918
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,HUN,Hungary,2023,TRUE,1276157412.246203,447443830.29373527,0,0,0.35061805542168656
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,IRL,Ireland,2017,TRUE,2795051324.0367126,1589778320.2624614,0,0,0.5687832300576317
@@ -1457,7 +1457,7 @@ x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,LVA,La
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,LVA,Latvia,2023,FALSE,15029170.483136378,3339855.782000992,3339855.782000992,3339855.782000992,0.22222489163646847
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,MLT,Malta,2017,FALSE,155621104.36442786,0,0,0,0
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,MLT,Malta,2018,FALSE,114791899.4308217,0,0,0,0
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,MLT,Malta,2019,FALSE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,MLT,Malta,2019,FALSE,121572919.60164948,0,0,0,0
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,MLT,Malta,2020,FALSE,1307085472.9268527,610162389.7404416,610162389.7404416,610162389.7404416,0.4668113925053068
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,MLT,Malta,2021,FALSE,544416605.93204,368408747.03783065,368408747.03783065,368408747.03783065,0.6767037284013696
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,MLT,Malta,2022,FALSE,808488901.2340678,698802754.492356,698802754.492356,698802754.492356,0.8643319078662821
@@ -1471,43 +1471,43 @@ x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,NLD,Ne
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,NLD,Netherlands,2023,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,POL,Poland,2017,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,POL,Poland,2018,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,POL,Poland,2019,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,POL,Poland,2020,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,POL,Poland,2021,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,POL,Poland,2022,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,POL,Poland,2023,TRUE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,POL,Poland,2019,TRUE,135358726.49192715,30307251.02963073,0,0,0.22390319276118684
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,POL,Poland,2020,TRUE,127595087.94781515,24371826.979580082,0,0,0.1910091318683668
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,POL,Poland,2021,TRUE,217767976.8180756,36846186.83342211,0,0,0.16919928894873093
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,POL,Poland,2022,TRUE,201869861.8703225,37381008.387234956,0,0,0.1851737948443628
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,POL,Poland,2023,TRUE,211752621.98372385,43648810.691011645,0,0,0.20613114625030082
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,PRT,Portugal,2017,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,PRT,Portugal,2018,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,PRT,Portugal,2019,TRUE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,PRT,Portugal,2018,TRUE,73986298.74645664,5313896.603432718,0,0,0.07182271168399557
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,PRT,Portugal,2019,TRUE,257872957.70974237,7373086.065060486,0,0,0.028591931975122078
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,PRT,Portugal,2020,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,PRT,Portugal,2021,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,PRT,Portugal,2022,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,PRT,Portugal,2023,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ROU,Romania,2017,TRUE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ROU,Romania,2017,TRUE,63072886.00310494,7954712.716659672,0,0,0.1261193711077067
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ROU,Romania,2018,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ROU,Romania,2019,TRUE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ROU,Romania,2019,TRUE,11119459.147026801,1666483.005955331,0,0,0.14987086907018557
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ROU,Romania,2020,TRUE,162337668.94973424,19447094.063370105,0,0,0.1197940945511029
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ROU,Romania,2021,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ROU,Romania,2022,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ROU,Romania,2023,TRUE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ROU,Romania,2021,TRUE,52935422.947662055,6681404.572254083,0,0,0.12621802566610407
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ROU,Romania,2022,TRUE,36106999.8310408,5034777.672105952,0,0,0.1394404878739775
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,ROU,Romania,2023,TRUE,31456294.824899174,6280538.61720665,0,0,0.1996591986490189
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SVK,Slovak Republic,2017,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SVK,Slovak Republic,2018,TRUE,138592465.3820455,19274819.22357931,0,0,0.13907552023442352
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SVK,Slovak Republic,2019,TRUE,312296284.59693557,19039698.214343827,0,0,0.060966777875431234
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SVK,Slovak Republic,2020,TRUE,285915460.50995684,15397635.570368817,0,0,0.053853805397251694
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SVK,Slovak Republic,2021,TRUE,188837821.35962707,46159116.23817653,0,0,0.24443787746454698
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SVK,Slovak Republic,2022,TRUE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SVK,Slovak Republic,2022,TRUE,27027183.420078278,4486863.016899297,0,0,0.16601297098409606
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SVK,Slovak Republic,2023,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SVN,Slovenia,2017,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SVN,Slovenia,2018,TRUE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SVN,Slovenia,2018,TRUE,2513162.4331197552,240053.34374513707,0,0,0.0955184354905158
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SVN,Slovenia,2019,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SVN,Slovenia,2020,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SVN,Slovenia,2021,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SVN,Slovenia,2022,TRUE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SVN,Slovenia,2021,TRUE,13120473.183310768,954189.2109440415,0,0,0.07272521330692322
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SVN,Slovenia,2022,TRUE,12522855.615742352,462511.2992056682,0,0,0.03693337313769313
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SVN,Slovenia,2023,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SWE,Sweden,2017,TRUE,0,0,0,0,NA
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SWE,Sweden,2018,TRUE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SWE,Sweden,2017,TRUE,335951247.90632224,19393091.30574684,0,0,0.05772590941872159
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SWE,Sweden,2018,TRUE,573420778.1424032,32907676.102539364,0,0,0.05738835660811558
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SWE,Sweden,2019,TRUE,2163862931.157929,235124006.79230264,0,0,0.10865938105722935
-x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SWE,Sweden,2020,TRUE,0,0,0,0,NA
+x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SWE,Sweden,2020,TRUE,133236614.27985896,24650250.46169244,0,0,0.18501108418978157
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SWE,Sweden,2021,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SWE,Sweden,2022,TRUE,0,0,0,0,NA
 x00111,long_run,average,aggregate_sbie,long_run,sbs,behavioural,0,0,1,1,1,SWE,Sweden,2023,TRUE,0,0,0,0,NA
@@ -1703,14 +1703,14 @@ x01000,initial,average,sectoral_sbie_sbti,initial,universal,mechanical,0,1,0,0,0
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,AUT,Austria,2017,TRUE,924812327.8939258,124009185.43032788,0,0,0.13409118984468327
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,AUT,Austria,2018,TRUE,1226644332.4383888,51750991.760097876,0,0,0.042189076647200986
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,AUT,Austria,2019,TRUE,1344436705.5993218,63092121.185648486,0,0,0.04692829414942471
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,AUT,Austria,2020,TRUE,0,0,0,0,NA
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,AUT,Austria,2020,TRUE,195588666.72089303,11897542.528906861,0,0,0.06082940657233874
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,AUT,Austria,2021,TRUE,692207260.3708127,29677522.890930396,0,0,0.04287375268937842
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,AUT,Austria,2022,TRUE,0,0,0,0,NA
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,AUT,Austria,2023,TRUE,0,0,0,0,NA
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,AUT,Austria,2023,TRUE,58550036.96233315,2640596.0765050007,0,0,0.04509981912058858
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,BEL,Belgium,2017,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,BEL,Belgium,2018,TRUE,0,0,0,0,NA
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,BEL,Belgium,2019,TRUE,0,0,0,0,NA
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,BEL,Belgium,2020,TRUE,0,0,0,0,NA
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,BEL,Belgium,2019,TRUE,673851940.8692663,146381855.52152562,0,0,0.2172314816407498
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,BEL,Belgium,2020,TRUE,150263328.35742977,41816122.205185704,0,0,0.27828561141490316
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,BEL,Belgium,2021,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,BEL,Belgium,2022,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,BEL,Belgium,2023,TRUE,0,0,0,0,NA
@@ -1729,12 +1729,12 @@ x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,CYP,Cyprus,2022,FALSE,606828390.7836684,191185979.06511483,0,0,0.31505773620481736
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,CYP,Cyprus,2023,FALSE,3006897291.120938,2625312535.720195,0,0,0.873096844202985
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,CZE,Czechia,2017,TRUE,0,0,0,0,NA
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,CZE,Czechia,2018,TRUE,0,0,0,0,NA
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,CZE,Czechia,2019,TRUE,0,0,0,0,NA
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,CZE,Czechia,2018,TRUE,145472665.3031476,18374774.739437625,0,0,0.12631084129205164
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,CZE,Czechia,2019,TRUE,72681142.37938689,9565387.313800497,0,0,0.13160755322020556
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,CZE,Czechia,2020,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,CZE,Czechia,2021,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,CZE,Czechia,2022,TRUE,0,0,0,0,NA
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,CZE,Czechia,2023,TRUE,0,0,0,0,NA
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,CZE,Czechia,2023,TRUE,15610795.762038484,2048149.1243994795,0,0,0.1312008148476365
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,DEU,Germany,2017,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,DEU,Germany,2018,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,DEU,Germany,2019,TRUE,0,0,0,0,NA
@@ -1743,17 +1743,17 @@ x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,DEU,Germany,2022,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,DEU,Germany,2023,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,DNK,Denmark,2017,TRUE,0,0,0,0,NA
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,DNK,Denmark,2018,TRUE,0,0,0,0,NA
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,DNK,Denmark,2018,TRUE,124906543.88547017,11198054.974076057,0,0,0.08965146761521017
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,DNK,Denmark,2019,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,DNK,Denmark,2020,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,DNK,Denmark,2021,TRUE,2215970251.736633,124650880.5833646,0,0,0.05625115250788092
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,DNK,Denmark,2022,TRUE,0,0,0,0,NA
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,DNK,Denmark,2023,TRUE,0,0,0,0,NA
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,DNK,Denmark,2022,TRUE,35793490.06289282,1930297.587174552,0,0,0.05392873351502807
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,DNK,Denmark,2023,TRUE,1735065.771241748,457637.56650861405,0,0,0.26375805118966356
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,ESP,Spain,2017,TRUE,1174421011.16937,101114651.77766648,0,0,0.08609744786240389
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,ESP,Spain,2018,TRUE,0,0,0,0,NA
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,ESP,Spain,2019,TRUE,0,0,0,0,NA
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,ESP,Spain,2018,TRUE,268411762.67325374,23749366.11333568,0,0,0.08848109291784856
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,ESP,Spain,2019,TRUE,685782587.650193,84073492.56590602,0,0,0.12259496534314254
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,ESP,Spain,2020,TRUE,0,0,0,0,NA
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,ESP,Spain,2021,TRUE,0,0,0,0,NA
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,ESP,Spain,2021,TRUE,200814034.95725673,13938680.11639072,0,0,0.06941088614327962
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,ESP,Spain,2022,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,ESP,Spain,2023,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,EST,Estonia,2017,FALSE,6169497.744619431,0,0,0,0
@@ -1787,15 +1787,15 @@ x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,HRV,Croatia,2017,TRUE,41586788.22808127,8498373.512024183,0,0,0.20435272532745624
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,HRV,Croatia,2018,TRUE,60096653.33602697,6945607.327603227,0,0,0.11557394533714324
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,HRV,Croatia,2019,TRUE,0,0,0,0,NA
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,HRV,Croatia,2020,TRUE,0,0,0,0,NA
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,HRV,Croatia,2020,TRUE,4496103.083511846,665564.7920780196,0,0,0.14803147964262328
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,HRV,Croatia,2021,TRUE,16805168.613257244,1982979.8653983232,0,0,0.11799821299228096
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,HRV,Croatia,2022,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,HRV,Croatia,2023,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,HUN,Hungary,2017,TRUE,34316734.042940326,14072604.452963542,0,0,0.4100799462837744
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,HUN,Hungary,2018,TRUE,22398905.245983563,7456542.862892153,0,0,0.332897647496822
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,HUN,Hungary,2019,TRUE,39754326.26846789,21815637.296219252,0,0,0.5487613385495318
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,HUN,Hungary,2020,TRUE,0,0,0,0,NA
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,HUN,Hungary,2021,TRUE,0,0,0,0,NA
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,HUN,Hungary,2020,TRUE,8077077.7159461565,4142580.5520851943,0,0,0.5128811059854868
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,HUN,Hungary,2021,TRUE,2268307.8824076266,439168.8186573023,0,0,0.19361076248218997
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,HUN,Hungary,2022,TRUE,7595983.670410588,1992192.8216908774,0,0,0.26226923439175753
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,HUN,Hungary,2023,TRUE,1084700402.611776,386359041.5970534,0,0,0.3561896360200161
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,IRL,Ireland,2017,TRUE,1620420852.0526245,914520146.9462695,0,0,0.5643719937248559
@@ -1835,7 +1835,7 @@ x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,LVA,Latvia,2023,FALSE,4260313.925437916,1047077.1062207924,0,0,0.2457746364578436
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,MLT,Malta,2017,FALSE,149141254.9301265,0,0,0,0
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,MLT,Malta,2018,FALSE,98267806.84477134,0,0,0,0
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,MLT,Malta,2019,FALSE,0,0,0,0,NA
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,MLT,Malta,2019,FALSE,116313166.82581292,0,0,0,0
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,MLT,Malta,2020,FALSE,1151451328.711724,487751990.6675783,0,0,0.4235975750822997
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,MLT,Malta,2021,FALSE,445709658.28169477,287657872.8171835,0,0,0.6453929536240376
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,MLT,Malta,2022,FALSE,655670572.0050472,562449713.3369136,0,0,0.8578236348429314
@@ -1851,12 +1851,12 @@ x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,POL,Poland,2018,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,POL,Poland,2019,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,POL,Poland,2020,TRUE,0,0,0,0,NA
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,POL,Poland,2021,TRUE,0,0,0,0,NA
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,POL,Poland,2021,TRUE,5264815.317178207,889248.0168105616,0,0,0.16890393361170616
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,POL,Poland,2022,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,POL,Poland,2023,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,PRT,Portugal,2017,TRUE,0,0,0,0,NA
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,PRT,Portugal,2018,TRUE,0,0,0,0,NA
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,PRT,Portugal,2019,TRUE,0,0,0,0,NA
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,PRT,Portugal,2018,TRUE,72941128.6318748,5121219.8707053205,0,0,0.07021031846863116
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,PRT,Portugal,2019,TRUE,252645082.29425597,7202374.968681043,0,0,0.028507877150335464
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,PRT,Portugal,2020,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,PRT,Portugal,2021,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,PRT,Portugal,2022,TRUE,0,0,0,0,NA
@@ -1865,7 +1865,7 @@ x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,ROU,Romania,2018,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,ROU,Romania,2019,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,ROU,Romania,2020,TRUE,0,0,0,0,NA
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,ROU,Romania,2021,TRUE,0,0,0,0,NA
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,ROU,Romania,2021,TRUE,22638.72900771031,2965.026468783641,0,0,0.13097141927772585
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,ROU,Romania,2022,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,ROU,Romania,2023,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SVK,Slovak Republic,2017,TRUE,0,0,0,0,NA
@@ -1873,7 +1873,7 @@ x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SVK,Slovak Republic,2019,TRUE,7252958.914949628,308393.8595802154,0,0,0.042519730663931006
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SVK,Slovak Republic,2020,TRUE,6488623.427819796,237820.45661760904,0,0,0.036651912268164666
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SVK,Slovak Republic,2021,TRUE,117681375.37439874,29135619.26182923,0,0,0.24758054678690988
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SVK,Slovak Republic,2022,TRUE,0,0,0,0,NA
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SVK,Slovak Republic,2022,TRUE,650052.4924623551,110088.76405235557,0,0,0.16935365271094763
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SVK,Slovak Republic,2023,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SVN,Slovenia,2017,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SVN,Slovenia,2018,TRUE,0,0,0,0,NA
@@ -1882,10 +1882,10 @@ x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SVN,Slovenia,2021,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SVN,Slovenia,2022,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SVN,Slovenia,2023,TRUE,0,0,0,0,NA
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SWE,Sweden,2017,TRUE,0,0,0,0,NA
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SWE,Sweden,2018,TRUE,0,0,0,0,NA
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SWE,Sweden,2017,TRUE,332496255.15891534,18965108.174193908,0,0,0.0570385617279497
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SWE,Sweden,2018,TRUE,559340597.1959677,31344922.58537352,0,0,0.05603906232179259
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SWE,Sweden,2019,TRUE,2139980984.84864,232018748.30564955,0,0,0.1084209392272054
-x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SWE,Sweden,2020,TRUE,0,0,0,0,NA
+x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SWE,Sweden,2020,TRUE,126744368.41193461,23992738.830564916,0,0,0.18930023583048358
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SWE,Sweden,2021,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SWE,Sweden,2022,TRUE,0,0,0,0,NA
 x01001,initial,average,sectoral_sbie_sbti,initial,universal,behavioural,0,1,0,0,1,SWE,Sweden,2023,TRUE,0,0,0,0,NA
@@ -2081,14 +2081,14 @@ x01010,initial,average,sectoral_sbie_sbti,initial,sbs,mechanical,0,1,0,1,0,SWE,S
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,AUT,Austria,2017,TRUE,924812327.8939258,124009185.43032788,0,0,0.13409118984468327
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,AUT,Austria,2018,TRUE,1226644332.4383888,51750991.760097876,0,0,0.042189076647200986
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,AUT,Austria,2019,TRUE,1344436705.5993218,63092121.185648486,0,0,0.04692829414942471
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,AUT,Austria,2020,TRUE,0,0,0,0,NA
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,AUT,Austria,2020,TRUE,195588666.72089303,11897542.528906861,0,0,0.06082940657233874
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,AUT,Austria,2021,TRUE,692207260.3708127,29677522.890930396,0,0,0.04287375268937842
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,AUT,Austria,2022,TRUE,0,0,0,0,NA
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,AUT,Austria,2023,TRUE,0,0,0,0,NA
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,AUT,Austria,2023,TRUE,58550036.96233315,2640596.0765050007,0,0,0.04509981912058858
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,BEL,Belgium,2017,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,BEL,Belgium,2018,TRUE,0,0,0,0,NA
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,BEL,Belgium,2019,TRUE,0,0,0,0,NA
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,BEL,Belgium,2020,TRUE,0,0,0,0,NA
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,BEL,Belgium,2019,TRUE,673851940.8692663,146381855.52152562,0,0,0.2172314816407498
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,BEL,Belgium,2020,TRUE,150263328.35742977,41816122.205185704,0,0,0.27828561141490316
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,BEL,Belgium,2021,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,BEL,Belgium,2022,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,BEL,Belgium,2023,TRUE,0,0,0,0,NA
@@ -2107,12 +2107,12 @@ x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,CYP,
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,CYP,Cyprus,2022,FALSE,642483007.2884223,226840595.5698688,226840595.5698688,226840595.5698688,0.35306863060432025
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,CYP,Cyprus,2023,FALSE,3595245442.597875,3213660687.197132,3213660687.197132,3213660687.197132,0.8938640597719484
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,CZE,Czechia,2017,TRUE,0,0,0,0,NA
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,CZE,Czechia,2018,TRUE,0,0,0,0,NA
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,CZE,Czechia,2019,TRUE,0,0,0,0,NA
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,CZE,Czechia,2018,TRUE,145472665.3031476,18374774.739437625,0,0,0.12631084129205164
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,CZE,Czechia,2019,TRUE,72681142.37938689,9565387.313800497,0,0,0.13160755322020556
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,CZE,Czechia,2020,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,CZE,Czechia,2021,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,CZE,Czechia,2022,TRUE,0,0,0,0,NA
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,CZE,Czechia,2023,TRUE,0,0,0,0,NA
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,CZE,Czechia,2023,TRUE,15610795.762038484,2048149.1243994795,0,0,0.1312008148476365
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,DEU,Germany,2017,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,DEU,Germany,2018,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,DEU,Germany,2019,TRUE,0,0,0,0,NA
@@ -2121,17 +2121,17 @@ x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,DEU,
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,DEU,Germany,2022,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,DEU,Germany,2023,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,DNK,Denmark,2017,TRUE,0,0,0,0,NA
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,DNK,Denmark,2018,TRUE,0,0,0,0,NA
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,DNK,Denmark,2018,TRUE,124906543.88547017,11198054.974076057,0,0,0.08965146761521017
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,DNK,Denmark,2019,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,DNK,Denmark,2020,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,DNK,Denmark,2021,TRUE,2215970251.736633,124650880.5833646,0,0,0.05625115250788092
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,DNK,Denmark,2022,TRUE,0,0,0,0,NA
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,DNK,Denmark,2023,TRUE,0,0,0,0,NA
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,DNK,Denmark,2022,TRUE,35793490.06289282,1930297.587174552,0,0,0.05392873351502807
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,DNK,Denmark,2023,TRUE,1735065.771241748,457637.56650861405,0,0,0.26375805118966356
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,ESP,Spain,2017,TRUE,1174421011.16937,101114651.77766648,0,0,0.08609744786240389
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,ESP,Spain,2018,TRUE,0,0,0,0,NA
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,ESP,Spain,2019,TRUE,0,0,0,0,NA
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,ESP,Spain,2018,TRUE,268411762.67325374,23749366.11333568,0,0,0.08848109291784856
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,ESP,Spain,2019,TRUE,685782587.650193,84073492.56590602,0,0,0.12259496534314254
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,ESP,Spain,2020,TRUE,0,0,0,0,NA
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,ESP,Spain,2021,TRUE,0,0,0,0,NA
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,ESP,Spain,2021,TRUE,200814034.95725673,13938680.11639072,0,0,0.06941088614327962
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,ESP,Spain,2022,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,ESP,Spain,2023,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,EST,Estonia,2017,FALSE,6169497.744619431,0,0,0,0
@@ -2165,15 +2165,15 @@ x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,GRC,
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,HRV,Croatia,2017,TRUE,41586788.22808127,8498373.512024183,0,0,0.20435272532745624
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,HRV,Croatia,2018,TRUE,60096653.33602697,6945607.327603227,0,0,0.11557394533714324
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,HRV,Croatia,2019,TRUE,0,0,0,0,NA
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,HRV,Croatia,2020,TRUE,0,0,0,0,NA
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,HRV,Croatia,2020,TRUE,4496103.083511846,665564.7920780196,0,0,0.14803147964262328
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,HRV,Croatia,2021,TRUE,16805168.613257244,1982979.8653983232,0,0,0.11799821299228096
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,HRV,Croatia,2022,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,HRV,Croatia,2023,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,HUN,Hungary,2017,TRUE,34316734.042940326,14072604.452963542,0,0,0.4100799462837744
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,HUN,Hungary,2018,TRUE,22398905.245983563,7456542.862892153,0,0,0.332897647496822
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,HUN,Hungary,2019,TRUE,39754326.26846789,21815637.296219252,0,0,0.5487613385495318
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,HUN,Hungary,2020,TRUE,0,0,0,0,NA
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,HUN,Hungary,2021,TRUE,0,0,0,0,NA
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,HUN,Hungary,2020,TRUE,8077077.7159461565,4142580.5520851943,0,0,0.5128811059854868
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,HUN,Hungary,2021,TRUE,2268307.8824076266,439168.8186573023,0,0,0.19361076248218997
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,HUN,Hungary,2022,TRUE,7595983.670410588,1992192.8216908774,0,0,0.26226923439175753
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,HUN,Hungary,2023,TRUE,1084700402.611776,386359041.5970534,0,0,0.3561896360200161
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,IRL,Ireland,2017,TRUE,1620420852.0526245,914520146.9462695,0,0,0.5643719937248559
@@ -2213,7 +2213,7 @@ x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,LVA,
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,LVA,Latvia,2023,FALSE,4348263.81196251,1135026.9927453867,1135026.9927453867,1135026.9927453867,0.26102992868620656
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,MLT,Malta,2017,FALSE,149141254.9301265,0,0,0,0
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,MLT,Malta,2018,FALSE,98267806.84477134,0,0,0,0
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,MLT,Malta,2019,FALSE,0,0,0,0,NA
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,MLT,Malta,2019,FALSE,116313166.82581292,0,0,0,0
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,MLT,Malta,2020,FALSE,1246880855.8661942,583181517.8220484,583181517.8220484,583181517.8220484,0.4677123039289257
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,MLT,Malta,2021,FALSE,483336954.66370726,325285169.19919604,325285169.19919604,325285169.19919604,0.672998755962123
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,MLT,Malta,2022,FALSE,762484849.312408,669263990.6442744,669263990.6442744,669263990.6442744,0.8777407069108348
@@ -2229,12 +2229,12 @@ x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,POL,
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,POL,Poland,2018,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,POL,Poland,2019,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,POL,Poland,2020,TRUE,0,0,0,0,NA
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,POL,Poland,2021,TRUE,0,0,0,0,NA
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,POL,Poland,2021,TRUE,5264815.317178207,889248.0168105616,0,0,0.16890393361170616
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,POL,Poland,2022,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,POL,Poland,2023,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,PRT,Portugal,2017,TRUE,0,0,0,0,NA
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,PRT,Portugal,2018,TRUE,0,0,0,0,NA
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,PRT,Portugal,2019,TRUE,0,0,0,0,NA
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,PRT,Portugal,2018,TRUE,72941128.6318748,5121219.8707053205,0,0,0.07021031846863116
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,PRT,Portugal,2019,TRUE,252645082.29425597,7202374.968681043,0,0,0.028507877150335464
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,PRT,Portugal,2020,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,PRT,Portugal,2021,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,PRT,Portugal,2022,TRUE,0,0,0,0,NA
@@ -2243,7 +2243,7 @@ x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,ROU,
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,ROU,Romania,2018,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,ROU,Romania,2019,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,ROU,Romania,2020,TRUE,0,0,0,0,NA
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,ROU,Romania,2021,TRUE,0,0,0,0,NA
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,ROU,Romania,2021,TRUE,22638.72900771031,2965.026468783641,0,0,0.13097141927772585
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,ROU,Romania,2022,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,ROU,Romania,2023,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SVK,Slovak Republic,2017,TRUE,0,0,0,0,NA
@@ -2251,7 +2251,7 @@ x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SVK,
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SVK,Slovak Republic,2019,TRUE,7252958.914949628,308393.8595802154,0,0,0.042519730663931006
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SVK,Slovak Republic,2020,TRUE,6488623.427819796,237820.45661760904,0,0,0.036651912268164666
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SVK,Slovak Republic,2021,TRUE,117681375.37439874,29135619.26182923,0,0,0.24758054678690988
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SVK,Slovak Republic,2022,TRUE,0,0,0,0,NA
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SVK,Slovak Republic,2022,TRUE,650052.4924623551,110088.76405235557,0,0,0.16935365271094763
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SVK,Slovak Republic,2023,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SVN,Slovenia,2017,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SVN,Slovenia,2018,TRUE,0,0,0,0,NA
@@ -2260,10 +2260,10 @@ x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SVN,
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SVN,Slovenia,2021,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SVN,Slovenia,2022,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SVN,Slovenia,2023,TRUE,0,0,0,0,NA
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SWE,Sweden,2017,TRUE,0,0,0,0,NA
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SWE,Sweden,2018,TRUE,0,0,0,0,NA
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SWE,Sweden,2017,TRUE,332496255.15891534,18965108.174193908,0,0,0.0570385617279497
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SWE,Sweden,2018,TRUE,559340597.1959677,31344922.58537352,0,0,0.05603906232179259
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SWE,Sweden,2019,TRUE,2139980984.84864,232018748.30564955,0,0,0.1084209392272054
-x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SWE,Sweden,2020,TRUE,0,0,0,0,NA
+x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SWE,Sweden,2020,TRUE,126744368.41193461,23992738.830564916,0,0,0.18930023583048358
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SWE,Sweden,2021,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SWE,Sweden,2022,TRUE,0,0,0,0,NA
 x01011,initial,average,sectoral_sbie_sbti,initial,sbs,behavioural,0,1,0,1,1,SWE,Sweden,2023,TRUE,0,0,0,0,NA
@@ -2459,14 +2459,14 @@ x01100,long_run,average,sectoral_sbie_sbti,long_run,universal,mechanical,0,1,1,0
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,AUT,Austria,2017,TRUE,978315526.6759632,127214050.2838887,0,0,0.1300337639699185
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,AUT,Austria,2018,TRUE,1269037987.0059438,53931316.586202666,0,0,0.042497795289362025
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,AUT,Austria,2019,TRUE,1394021843.0083592,65040730.09887323,0,0,0.04665689452793116
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,AUT,Austria,2020,TRUE,0,0,0,0,NA
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,AUT,Austria,2020,TRUE,209559239.23725754,12457818.153793573,0,0,0.05944771606891145
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,AUT,Austria,2021,TRUE,717455399.7576773,30582546.63828659,0,0,0.042626408064690764
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,AUT,Austria,2022,TRUE,0,0,0,0,NA
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,AUT,Austria,2023,TRUE,0,0,0,0,NA
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,AUT,Austria,2023,TRUE,60689112.56028073,2759132.6911689434,0,0,0.04546338832073672
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,BEL,Belgium,2017,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,BEL,Belgium,2018,TRUE,0,0,0,0,NA
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,BEL,Belgium,2019,TRUE,0,0,0,0,NA
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,BEL,Belgium,2020,TRUE,0,0,0,0,NA
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,BEL,Belgium,2019,TRUE,693017574.3946089,149238464.90342876,0,0,0.2153458590625169
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,BEL,Belgium,2020,TRUE,157900694.4558614,42520966.58596839,0,0,0.2692892943409723
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,BEL,Belgium,2021,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,BEL,Belgium,2022,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,BEL,Belgium,2023,TRUE,0,0,0,0,NA
@@ -2485,12 +2485,12 @@ x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,CYP,Cyprus,2022,FALSE,612595197.0798299,192174432.3740038,0,0,0.31370541801515417
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,CYP,Cyprus,2023,FALSE,3015709265.1698356,2628617041.25803,0,0,0.8716413984655097
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,CZE,Czechia,2017,TRUE,0,0,0,0,NA
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,CZE,Czechia,2018,TRUE,0,0,0,0,NA
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,CZE,Czechia,2019,TRUE,0,0,0,0,NA
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,CZE,Czechia,2018,TRUE,148499477.02715215,18946205.42308049,0,0,0.1275843242169553
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,CZE,Czechia,2019,TRUE,75856677.42494394,9948042.310141426,0,0,0.13114260534261435
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,CZE,Czechia,2020,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,CZE,Czechia,2021,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,CZE,Czechia,2022,TRUE,0,0,0,0,NA
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,CZE,Czechia,2023,TRUE,0,0,0,0,NA
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,CZE,Czechia,2023,TRUE,15876678.139315948,2078799.408792957,0,0,0.1309341532625239
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,DEU,Germany,2017,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,DEU,Germany,2018,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,DEU,Germany,2019,TRUE,0,0,0,0,NA
@@ -2499,17 +2499,17 @@ x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,DEU,Germany,2022,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,DEU,Germany,2023,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,DNK,Denmark,2017,TRUE,0,0,0,0,NA
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,DNK,Denmark,2018,TRUE,0,0,0,0,NA
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,DNK,Denmark,2018,TRUE,124933382.28153692,11522644.536149815,0,0,0.09223030967162625
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,DNK,Denmark,2019,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,DNK,Denmark,2020,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,DNK,Denmark,2021,TRUE,2251669701.043899,127038213.63431355,0,0,0.05641955992720301
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,DNK,Denmark,2022,TRUE,0,0,0,0,NA
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,DNK,Denmark,2023,TRUE,0,0,0,0,NA
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,DNK,Denmark,2022,TRUE,36033979.07866001,1978136.5790730482,0,0,0.05489642358827192
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,DNK,Denmark,2023,TRUE,1776770.6408156543,454195.0514391355,0,0,0.25562953428284374
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,ESP,Spain,2017,TRUE,1211703423.2594986,104025891.09507364,0,0,0.08585095089955476
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,ESP,Spain,2018,TRUE,0,0,0,0,NA
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,ESP,Spain,2019,TRUE,0,0,0,0,NA
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,ESP,Spain,2018,TRUE,279011237.487739,24932536.536686778,0,0,0.08936033100739328
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,ESP,Spain,2019,TRUE,745599337.4836367,86212525.01337127,0,0,0.1156284892960535
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,ESP,Spain,2020,TRUE,0,0,0,0,NA
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,ESP,Spain,2021,TRUE,0,0,0,0,NA
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,ESP,Spain,2021,TRUE,204240215.48388886,14220137.654358376,0,0,0.06962457232366222
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,ESP,Spain,2022,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,ESP,Spain,2023,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,EST,Estonia,2017,FALSE,6392325.536576703,0,0,0,0
@@ -2543,15 +2543,15 @@ x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,HRV,Croatia,2017,TRUE,49810810.15079718,8632757.9398462,0,0,0.17331093217940846
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,HRV,Croatia,2018,TRUE,65739229.05580883,7340018.772990428,0,0,0.11165355722013676
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,HRV,Croatia,2019,TRUE,0,0,0,0,NA
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,HRV,Croatia,2020,TRUE,0,0,0,0,NA
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,HRV,Croatia,2020,TRUE,6158093.742073437,851391.9825061632,0,0,0.13825576845140694
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,HRV,Croatia,2021,TRUE,17806982.030089557,2039283.420097739,0,0,0.1145215633200413
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,HRV,Croatia,2022,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,HRV,Croatia,2023,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,HUN,Hungary,2017,TRUE,37544525.52684669,15277747.924310362,0,0,0.4069234518195153
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,HUN,Hungary,2018,TRUE,24895329.013116974,8172295.804322997,0,0,0.3282662301838685
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,HUN,Hungary,2019,TRUE,44697963.87300983,23682967.00755255,0,0,0.5298444259080253
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,HUN,Hungary,2020,TRUE,0,0,0,0,NA
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,HUN,Hungary,2021,TRUE,0,0,0,0,NA
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,HUN,Hungary,2020,TRUE,9357810.609196702,4518105.979355046,0,0,0.4828165655452276
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,HUN,Hungary,2021,TRUE,2638011.1055511306,495286.31243823783,0,0,0.18774989665358635
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,HUN,Hungary,2022,TRUE,9057886.675952248,2195183.2121202038,0,0,0.24235048313732915
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,HUN,Hungary,2023,TRUE,1115775293.6345408,391210963.74170405,0,0,0.35061805542168656
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,IRL,Ireland,2017,TRUE,1729473060.4635282,983695273.6281034,0,0,0.5687832300576318
@@ -2591,7 +2591,7 @@ x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,LVA,Latvia,2023,FALSE,4457641.945411054,929852.0438305371,0,0,0.20859729319170167
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,MLT,Malta,2017,FALSE,148718066.44031224,0,0,0,0
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,MLT,Malta,2018,FALSE,109699962.58595398,0,0,0,0
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,MLT,Malta,2019,FALSE,0,0,0,0,NA
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,MLT,Malta,2019,FALSE,116180190.39578038,0,0,0,0
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,MLT,Malta,2020,FALSE,1153690133.6519115,487681151.05022216,0,0,0.4227141559289473
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,MLT,Malta,2021,FALSE,454846504.92090446,295308043.02904934,0,0,0.6492476908894835
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,MLT,Malta,2022,FALSE,666044499.3348604,561223808.5594232,0,0,0.8426220907460155
@@ -2605,14 +2605,14 @@ x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,NLD,Netherlands,2023,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,POL,Poland,2017,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,POL,Poland,2018,TRUE,0,0,0,0,NA
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,POL,Poland,2019,TRUE,0,0,0,0,NA
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,POL,Poland,2020,TRUE,0,0,0,0,NA
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,POL,Poland,2021,TRUE,0,0,0,0,NA
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,POL,Poland,2022,TRUE,0,0,0,0,NA
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,POL,Poland,2019,TRUE,63704.04645033162,14263.539392036202,0,0,0.22390319276118686
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,POL,Poland,2020,TRUE,60050.23554906556,11470.14336071795,0,0,0.19100913186836677
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,POL,Poland,2021,TRUE,6233322.6709804805,1054673.763717902,0,0,0.16919928894873099
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,POL,Poland,2022,TRUE,95006.26513559894,17592.670649148542,0,0,0.18517379484436286
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,POL,Poland,2023,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,PRT,Portugal,2017,TRUE,0,0,0,0,NA
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,PRT,Portugal,2018,TRUE,0,0,0,0,NA
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,PRT,Portugal,2019,TRUE,0,0,0,0,NA
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,PRT,Portugal,2018,TRUE,73986298.74645664,5313896.603432718,0,0,0.07182271168399557
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,PRT,Portugal,2019,TRUE,257872957.70974237,7373086.065060486,0,0,0.028591931975122078
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,PRT,Portugal,2020,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,PRT,Portugal,2021,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,PRT,Portugal,2022,TRUE,0,0,0,0,NA
@@ -2621,7 +2621,7 @@ x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,ROU,Romania,2018,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,ROU,Romania,2019,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,ROU,Romania,2020,TRUE,0,0,0,0,NA
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,ROU,Romania,2021,TRUE,0,0,0,0,NA
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,ROU,Romania,2021,TRUE,27253.23030560563,3439.8489221971763,0,0,0.12621802566610404
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,ROU,Romania,2022,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,ROU,Romania,2023,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SVK,Slovak Republic,2017,TRUE,0,0,0,0,NA
@@ -2629,7 +2629,7 @@ x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SVK,Slovak Republic,2019,TRUE,7584880.645834843,462425.7335462703,0,0,0.06096677787543124
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SVK,Slovak Republic,2020,TRUE,6944157.678871753,373969.31628579035,0,0,0.05385380539725169
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SVK,Slovak Republic,2021,TRUE,120166944.91197899,29373352.955683295,0,0,0.24443787746454704
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SVK,Slovak Republic,2022,TRUE,0,0,0,0,NA
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SVK,Slovak Republic,2022,TRUE,656421.3874621026,108974.4647500861,0,0,0.16601297098409604
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SVK,Slovak Republic,2023,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SVN,Slovenia,2017,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SVN,Slovenia,2018,TRUE,0,0,0,0,NA
@@ -2638,10 +2638,10 @@ x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SVN,Slovenia,2021,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SVN,Slovenia,2022,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SVN,Slovenia,2023,TRUE,0,0,0,0,NA
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SWE,Sweden,2017,TRUE,0,0,0,0,NA
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SWE,Sweden,2018,TRUE,0,0,0,0,NA
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SWE,Sweden,2017,TRUE,335951247.90632224,19393091.30574684,0,0,0.05772590941872159
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SWE,Sweden,2018,TRUE,573420778.1424032,32907676.102539364,0,0,0.05738835660811558
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SWE,Sweden,2019,TRUE,2163862931.157929,235124006.79230264,0,0,0.10865938105722935
-x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SWE,Sweden,2020,TRUE,0,0,0,0,NA
+x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SWE,Sweden,2020,TRUE,133236614.27985896,24650250.46169244,0,0,0.18501108418978157
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SWE,Sweden,2021,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SWE,Sweden,2022,TRUE,0,0,0,0,NA
 x01101,long_run,average,sectoral_sbie_sbti,long_run,universal,behavioural,0,1,1,0,1,SWE,Sweden,2023,TRUE,0,0,0,0,NA
@@ -2837,14 +2837,14 @@ x01110,long_run,average,sectoral_sbie_sbti,long_run,sbs,mechanical,0,1,1,1,0,SWE
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,AUT,Austria,2017,TRUE,978315526.6759632,127214050.2838887,0,0,0.1300337639699185
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,AUT,Austria,2018,TRUE,1269037987.0059438,53931316.586202666,0,0,0.042497795289362025
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,AUT,Austria,2019,TRUE,1394021843.0083592,65040730.09887323,0,0,0.04665689452793116
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,AUT,Austria,2020,TRUE,0,0,0,0,NA
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,AUT,Austria,2020,TRUE,209559239.23725754,12457818.153793573,0,0,0.05944771606891145
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,AUT,Austria,2021,TRUE,717455399.7576773,30582546.63828659,0,0,0.042626408064690764
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,AUT,Austria,2022,TRUE,0,0,0,0,NA
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,AUT,Austria,2023,TRUE,0,0,0,0,NA
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,AUT,Austria,2023,TRUE,60689112.56028073,2759132.6911689434,0,0,0.04546338832073672
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,BEL,Belgium,2017,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,BEL,Belgium,2018,TRUE,0,0,0,0,NA
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,BEL,Belgium,2019,TRUE,0,0,0,0,NA
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,BEL,Belgium,2020,TRUE,0,0,0,0,NA
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,BEL,Belgium,2019,TRUE,693017574.3946089,149238464.90342876,0,0,0.2153458590625169
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,BEL,Belgium,2020,TRUE,157900694.4558614,42520966.58596839,0,0,0.2692892943409723
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,BEL,Belgium,2021,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,BEL,Belgium,2022,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,BEL,Belgium,2023,TRUE,0,0,0,0,NA
@@ -2863,12 +2863,12 @@ x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,CY
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,CYP,Cyprus,2022,FALSE,648434152.0168979,228013387.31107184,228013387.31107184,228013387.31107184,0.3516369188788963
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,CYP,Cyprus,2023,FALSE,3604797975.9890523,3217705752.0772467,3217705752.0772467,3217705752.0772467,0.892617498542176
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,CZE,Czechia,2017,TRUE,0,0,0,0,NA
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,CZE,Czechia,2018,TRUE,0,0,0,0,NA
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,CZE,Czechia,2019,TRUE,0,0,0,0,NA
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,CZE,Czechia,2018,TRUE,148499477.02715215,18946205.42308049,0,0,0.1275843242169553
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,CZE,Czechia,2019,TRUE,75856677.42494394,9948042.310141426,0,0,0.13114260534261435
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,CZE,Czechia,2020,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,CZE,Czechia,2021,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,CZE,Czechia,2022,TRUE,0,0,0,0,NA
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,CZE,Czechia,2023,TRUE,0,0,0,0,NA
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,CZE,Czechia,2023,TRUE,15876678.139315948,2078799.408792957,0,0,0.1309341532625239
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,DEU,Germany,2017,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,DEU,Germany,2018,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,DEU,Germany,2019,TRUE,0,0,0,0,NA
@@ -2877,17 +2877,17 @@ x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,DE
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,DEU,Germany,2022,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,DEU,Germany,2023,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,DNK,Denmark,2017,TRUE,0,0,0,0,NA
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,DNK,Denmark,2018,TRUE,0,0,0,0,NA
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,DNK,Denmark,2018,TRUE,124933382.28153692,11522644.536149815,0,0,0.09223030967162625
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,DNK,Denmark,2019,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,DNK,Denmark,2020,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,DNK,Denmark,2021,TRUE,2251669701.043899,127038213.63431355,0,0,0.05641955992720301
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,DNK,Denmark,2022,TRUE,0,0,0,0,NA
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,DNK,Denmark,2023,TRUE,0,0,0,0,NA
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,DNK,Denmark,2022,TRUE,36033979.07866001,1978136.5790730482,0,0,0.05489642358827192
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,DNK,Denmark,2023,TRUE,1776770.6408156543,454195.0514391355,0,0,0.25562953428284374
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,ESP,Spain,2017,TRUE,1211703423.2594986,104025891.09507364,0,0,0.08585095089955476
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,ESP,Spain,2018,TRUE,0,0,0,0,NA
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,ESP,Spain,2019,TRUE,0,0,0,0,NA
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,ESP,Spain,2018,TRUE,279011237.487739,24932536.536686778,0,0,0.08936033100739328
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,ESP,Spain,2019,TRUE,745599337.4836367,86212525.01337127,0,0,0.1156284892960535
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,ESP,Spain,2020,TRUE,0,0,0,0,NA
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,ESP,Spain,2021,TRUE,0,0,0,0,NA
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,ESP,Spain,2021,TRUE,204240215.48388886,14220137.654358376,0,0,0.06962457232366222
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,ESP,Spain,2022,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,ESP,Spain,2023,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,EST,Estonia,2017,FALSE,6392325.536576703,0,0,0,0
@@ -2921,15 +2921,15 @@ x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,GR
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,HRV,Croatia,2017,TRUE,49810810.15079718,8632757.9398462,0,0,0.17331093217940846
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,HRV,Croatia,2018,TRUE,65739229.05580883,7340018.772990428,0,0,0.11165355722013676
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,HRV,Croatia,2019,TRUE,0,0,0,0,NA
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,HRV,Croatia,2020,TRUE,0,0,0,0,NA
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,HRV,Croatia,2020,TRUE,6158093.742073437,851391.9825061632,0,0,0.13825576845140694
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,HRV,Croatia,2021,TRUE,17806982.030089557,2039283.420097739,0,0,0.1145215633200413
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,HRV,Croatia,2022,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,HRV,Croatia,2023,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,HUN,Hungary,2017,TRUE,37544525.52684669,15277747.924310362,0,0,0.4069234518195153
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,HUN,Hungary,2018,TRUE,24895329.013116974,8172295.804322997,0,0,0.3282662301838685
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,HUN,Hungary,2019,TRUE,44697963.87300983,23682967.00755255,0,0,0.5298444259080253
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,HUN,Hungary,2020,TRUE,0,0,0,0,NA
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,HUN,Hungary,2021,TRUE,0,0,0,0,NA
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,HUN,Hungary,2020,TRUE,9357810.609196702,4518105.979355046,0,0,0.4828165655452276
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,HUN,Hungary,2021,TRUE,2638011.1055511306,495286.31243823783,0,0,0.18774989665358635
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,HUN,Hungary,2022,TRUE,9057886.675952248,2195183.2121202038,0,0,0.24235048313732915
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,HUN,Hungary,2023,TRUE,1115775293.6345408,391210963.74170405,0,0,0.35061805542168656
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,IRL,Ireland,2017,TRUE,1729473060.4635282,983695273.6281034,0,0,0.5687832300576318
@@ -2969,7 +2969,7 @@ x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,LV
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,LVA,Latvia,2023,FALSE,4535745.440610875,1007955.5390303577,1007955.5390303577,1007955.5390303577,0.22222489163646847
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,MLT,Malta,2017,FALSE,148718066.44031224,0,0,0,0
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,MLT,Malta,2018,FALSE,109699962.58595398,0,0,0,0
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,MLT,Malta,2019,FALSE,0,0,0,0,NA
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,MLT,Malta,2019,FALSE,116180190.39578038,0,0,0,0
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,MLT,Malta,2020,FALSE,1249105800.9117684,583096818.310079,583096818.310079,583096818.310079,0.4668113925053067
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,MLT,Malta,2021,FALSE,493474487.3579017,333936025.4660466,333936025.4660466,333936025.4660466,0.6767037284013695
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,MLT,Malta,2022,FALSE,772625966.2597989,667805275.4843616,667805275.4843616,667805275.4843616,0.8643319078662821
@@ -2983,14 +2983,14 @@ x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,NL
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,NLD,Netherlands,2023,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,POL,Poland,2017,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,POL,Poland,2018,TRUE,0,0,0,0,NA
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,POL,Poland,2019,TRUE,0,0,0,0,NA
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,POL,Poland,2020,TRUE,0,0,0,0,NA
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,POL,Poland,2021,TRUE,0,0,0,0,NA
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,POL,Poland,2022,TRUE,0,0,0,0,NA
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,POL,Poland,2019,TRUE,63704.04645033162,14263.539392036202,0,0,0.22390319276118686
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,POL,Poland,2020,TRUE,60050.23554906556,11470.14336071795,0,0,0.19100913186836677
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,POL,Poland,2021,TRUE,6233322.6709804805,1054673.763717902,0,0,0.16919928894873099
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,POL,Poland,2022,TRUE,95006.26513559894,17592.670649148542,0,0,0.18517379484436286
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,POL,Poland,2023,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,PRT,Portugal,2017,TRUE,0,0,0,0,NA
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,PRT,Portugal,2018,TRUE,0,0,0,0,NA
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,PRT,Portugal,2019,TRUE,0,0,0,0,NA
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,PRT,Portugal,2018,TRUE,73986298.74645664,5313896.603432718,0,0,0.07182271168399557
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,PRT,Portugal,2019,TRUE,257872957.70974237,7373086.065060486,0,0,0.028591931975122078
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,PRT,Portugal,2020,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,PRT,Portugal,2021,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,PRT,Portugal,2022,TRUE,0,0,0,0,NA
@@ -2999,7 +2999,7 @@ x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,RO
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,ROU,Romania,2018,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,ROU,Romania,2019,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,ROU,Romania,2020,TRUE,0,0,0,0,NA
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,ROU,Romania,2021,TRUE,0,0,0,0,NA
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,ROU,Romania,2021,TRUE,27253.23030560563,3439.8489221971763,0,0,0.12621802566610404
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,ROU,Romania,2022,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,ROU,Romania,2023,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SVK,Slovak Republic,2017,TRUE,0,0,0,0,NA
@@ -3007,7 +3007,7 @@ x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SV
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SVK,Slovak Republic,2019,TRUE,7584880.645834843,462425.7335462703,0,0,0.06096677787543124
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SVK,Slovak Republic,2020,TRUE,6944157.678871753,373969.31628579035,0,0,0.05385380539725169
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SVK,Slovak Republic,2021,TRUE,120166944.91197899,29373352.955683295,0,0,0.24443787746454704
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SVK,Slovak Republic,2022,TRUE,0,0,0,0,NA
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SVK,Slovak Republic,2022,TRUE,656421.3874621026,108974.4647500861,0,0,0.16601297098409604
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SVK,Slovak Republic,2023,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SVN,Slovenia,2017,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SVN,Slovenia,2018,TRUE,0,0,0,0,NA
@@ -3016,10 +3016,10 @@ x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SV
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SVN,Slovenia,2021,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SVN,Slovenia,2022,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SVN,Slovenia,2023,TRUE,0,0,0,0,NA
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SWE,Sweden,2017,TRUE,0,0,0,0,NA
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SWE,Sweden,2018,TRUE,0,0,0,0,NA
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SWE,Sweden,2017,TRUE,335951247.90632224,19393091.30574684,0,0,0.05772590941872159
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SWE,Sweden,2018,TRUE,573420778.1424032,32907676.102539364,0,0,0.05738835660811558
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SWE,Sweden,2019,TRUE,2163862931.157929,235124006.79230264,0,0,0.10865938105722935
-x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SWE,Sweden,2020,TRUE,0,0,0,0,NA
+x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SWE,Sweden,2020,TRUE,133236614.27985896,24650250.46169244,0,0,0.18501108418978157
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SWE,Sweden,2021,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SWE,Sweden,2022,TRUE,0,0,0,0,NA
 x01111,long_run,average,sectoral_sbie_sbti,long_run,sbs,behavioural,0,1,1,1,1,SWE,Sweden,2023,TRUE,0,0,0,0,NA
@@ -3327,9 +3327,9 @@ x10001,initial,distributional,aggregate_sbie,initial,universal,behavioural,1,0,0
 x10001,initial,distributional,aggregate_sbie,initial,universal,behavioural,1,0,0,0,1,LTU,Lithuania,2017,FALSE,2081788.0999115715,1475492.6784015652,0,0,0.7087621830791712
 x10001,initial,distributional,aggregate_sbie,initial,universal,behavioural,1,0,0,0,1,LTU,Lithuania,2018,FALSE,3730176.7709870683,1813526.459309681,0,0,0.48617708238791885
 x10001,initial,distributional,aggregate_sbie,initial,universal,behavioural,1,0,0,0,1,LTU,Lithuania,2019,FALSE,5401824.956132842,2281805.3752497043,0,0,0.4224137941861865
-x10001,initial,distributional,aggregate_sbie,initial,universal,behavioural,1,0,0,0,1,LTU,Lithuania,2020,FALSE,0,0,0,0,NA
+x10001,initial,distributional,aggregate_sbie,initial,universal,behavioural,1,0,0,0,1,LTU,Lithuania,2020,FALSE,21340385.883159585,10900974.060776688,0,0,0.5108142898849366
 x10001,initial,distributional,aggregate_sbie,initial,universal,behavioural,1,0,0,0,1,LTU,Lithuania,2021,FALSE,98211255.23518118,52148317.69031044,0,0,0.5309810730494553
-x10001,initial,distributional,aggregate_sbie,initial,universal,behavioural,1,0,0,0,1,LTU,Lithuania,2022,FALSE,0,0,0,0,NA
+x10001,initial,distributional,aggregate_sbie,initial,universal,behavioural,1,0,0,0,1,LTU,Lithuania,2022,FALSE,6927473.563680971,4518377.256368486,0,0,0.6522402741538011
 x10001,initial,distributional,aggregate_sbie,initial,universal,behavioural,1,0,0,0,1,LTU,Lithuania,2023,FALSE,26390444.38702763,13910100.618462939,0,0,0.5270885330487473
 x10001,initial,distributional,aggregate_sbie,initial,universal,behavioural,1,0,0,0,1,LUX,Luxembourg,2017,TRUE,10978044595.078842,6585540059.429122,0,0,0.5998827935515255
 x10001,initial,distributional,aggregate_sbie,initial,universal,behavioural,1,0,0,0,1,LUX,Luxembourg,2018,TRUE,10385176003.572906,6002916435.630305,0,0,0.578027414611468
@@ -3705,9 +3705,9 @@ x10011,initial,distributional,aggregate_sbie,initial,sbs,behavioural,1,0,0,1,1,I
 x10011,initial,distributional,aggregate_sbie,initial,sbs,behavioural,1,0,0,1,1,LTU,Lithuania,2017,FALSE,2155111.856955859,1548816.4354458528,1548816.4354458528,1548816.4354458528,0.7186710195328742
 x10011,initial,distributional,aggregate_sbie,initial,sbs,behavioural,1,0,0,1,1,LTU,Lithuania,2018,FALSE,3820298.921670909,1903648.6099935223,1903648.6099935223,1903648.6099935223,0.4982983397437683
 x10011,initial,distributional,aggregate_sbie,initial,sbs,behavioural,1,0,0,1,1,LTU,Lithuania,2019,FALSE,5531179.536310973,2411159.955427835,2411159.955427835,2411159.955427835,0.43592147743516596
-x10011,initial,distributional,aggregate_sbie,initial,sbs,behavioural,1,0,0,1,1,LTU,Lithuania,2020,FALSE,0,0,0,0,NA
+x10011,initial,distributional,aggregate_sbie,initial,sbs,behavioural,1,0,0,1,1,LTU,Lithuania,2020,FALSE,21639715.51571414,11200303.693331242,11200303.693331242,11200303.693331242,0.517580912059491
 x10011,initial,distributional,aggregate_sbie,initial,sbs,behavioural,1,0,0,1,1,LTU,Lithuania,2021,FALSE,102919127.76702528,56856190.22215454,56856190.22215454,56856190.22215454,0.5524356011922106
-x10011,initial,distributional,aggregate_sbie,initial,sbs,behavioural,1,0,0,1,1,LTU,Lithuania,2022,FALSE,0,0,0,0,NA
+x10011,initial,distributional,aggregate_sbie,initial,sbs,behavioural,1,0,0,1,1,LTU,Lithuania,2022,FALSE,6973558.516205309,4564462.208892824,4564462.208892824,4564462.208892824,0.6545384538303975
 x10011,initial,distributional,aggregate_sbie,initial,sbs,behavioural,1,0,0,1,1,LTU,Lithuania,2023,FALSE,27305212.257318623,14824868.488753932,14824868.488753932,14824868.488753932,0.5429318164256504
 x10011,initial,distributional,aggregate_sbie,initial,sbs,behavioural,1,0,0,1,1,LUX,Luxembourg,2017,TRUE,10978044595.078842,6585540059.429122,0,0,0.5998827935515255
 x10011,initial,distributional,aggregate_sbie,initial,sbs,behavioural,1,0,0,1,1,LUX,Luxembourg,2018,TRUE,10385176003.572906,6002916435.630305,0,0,0.578027414611468
@@ -4083,9 +4083,9 @@ x10101,long_run,distributional,aggregate_sbie,long_run,universal,behavioural,1,0
 x10101,long_run,distributional,aggregate_sbie,long_run,universal,behavioural,1,0,1,0,1,LTU,Lithuania,2017,FALSE,2155791.239444387,1481410.620389263,0,0,0.6871772151607163
 x10101,long_run,distributional,aggregate_sbie,long_run,universal,behavioural,1,0,1,0,1,LTU,Lithuania,2018,FALSE,4018816.3552547665,1839132.494943276,0,0,0.4576303897386441
 x10101,long_run,distributional,aggregate_sbie,long_run,universal,behavioural,1,0,1,0,1,LTU,Lithuania,2019,FALSE,5593427.61023305,2314770.623908142,0,0,0.41383759390634134
-x10101,long_run,distributional,aggregate_sbie,long_run,universal,behavioural,1,0,1,0,1,LTU,Lithuania,2020,FALSE,0,0,0,0,NA
+x10101,long_run,distributional,aggregate_sbie,long_run,universal,behavioural,1,0,1,0,1,LTU,Lithuania,2020,FALSE,22246490.507528983,10977169.898840109,0,0,0.49343377981911596
 x10101,long_run,distributional,aggregate_sbie,long_run,universal,behavioural,1,0,1,0,1,LTU,Lithuania,2021,FALSE,113253259.79586194,52239852.811922036,0,0,0.4612657764207753
-x10101,long_run,distributional,aggregate_sbie,long_run,universal,behavioural,1,0,1,0,1,LTU,Lithuania,2022,FALSE,0,0,0,0,NA
+x10101,long_run,distributional,aggregate_sbie,long_run,universal,behavioural,1,0,1,0,1,LTU,Lithuania,2022,FALSE,8630592.948453857,4565436.859767323,0,0,0.5289829895853456
 x10101,long_run,distributional,aggregate_sbie,long_run,universal,behavioural,1,0,1,0,1,LTU,Lithuania,2023,FALSE,34319492.73582745,13980042.998968272,0,0,0.4073499310312929
 x10101,long_run,distributional,aggregate_sbie,long_run,universal,behavioural,1,0,1,0,1,LUX,Luxembourg,2017,TRUE,11115044331.610285,6635707825.840986,0,0,0.597002371548764
 x10101,long_run,distributional,aggregate_sbie,long_run,universal,behavioural,1,0,1,0,1,LUX,Luxembourg,2018,TRUE,11101997939.326982,6602371379.181217,0,0,0.5947011893952362
@@ -4461,9 +4461,9 @@ x10111,long_run,distributional,aggregate_sbie,long_run,sbs,behavioural,1,0,1,1,1
 x10111,long_run,distributional,aggregate_sbie,long_run,sbs,behavioural,1,0,1,1,1,LTU,Lithuania,2017,FALSE,2229409.0852000993,1555028.4661449755,1555028.4661449755,1555028.4661449755,0.6975070104755605
 x10111,long_run,distributional,aggregate_sbie,long_run,sbs,behavioural,1,0,1,1,1,LTU,Lithuania,2018,FALSE,4110210.983100405,1930527.1227889145,1930527.1227889145,1930527.1227889145,0.4696905172815931
 x10111,long_run,distributional,aggregate_sbie,long_run,sbs,behavioural,1,0,1,1,1,LTU,Lithuania,2019,FALSE,5724650.976393953,2445993.9900690448,2445993.9900690448,2445993.9900690448,0.4272739072050493
-x10111,long_run,distributional,aggregate_sbie,long_run,sbs,behavioural,1,0,1,1,1,LTU,Lithuania,2020,FALSE,0,0,0,0,NA
+x10111,long_run,distributional,aggregate_sbie,long_run,sbs,behavioural,1,0,1,1,1,LTU,Lithuania,2020,FALSE,22547912.400103837,11278591.791414963,11278591.791414963,11278591.791414963,0.5002055884944374
 x10111,long_run,distributional,aggregate_sbie,long_run,sbs,behavioural,1,0,1,1,1,LTU,Lithuania,2021,FALSE,117969395.98229398,56955988.99835407,56955988.99835407,56955988.99835407,0.48280309078553385
-x10111,long_run,distributional,aggregate_sbie,long_run,sbs,behavioural,1,0,1,1,1,LTU,Lithuania,2022,FALSE,0,0,0,0,NA
+x10111,long_run,distributional,aggregate_sbie,long_run,sbs,behavioural,1,0,1,1,1,LTU,Lithuania,2022,FALSE,8677157.882941939,4612001.794255406,4612001.794255406,4612001.794255406,0.5315106462822288
 x10111,long_run,distributional,aggregate_sbie,long_run,sbs,behavioural,1,0,1,1,1,LTU,Lithuania,2023,FALSE,35238860.21644571,14899410.479586527,14899410.479586527,14899410.479586527,0.4228119294458078
 x10111,long_run,distributional,aggregate_sbie,long_run,sbs,behavioural,1,0,1,1,1,LUX,Luxembourg,2017,TRUE,11115044331.610285,6635707825.840986,0,0,0.597002371548764
 x10111,long_run,distributional,aggregate_sbie,long_run,sbs,behavioural,1,0,1,1,1,LUX,Luxembourg,2018,TRUE,11101997939.326982,6602371379.181217,0,0,0.5947011893952362

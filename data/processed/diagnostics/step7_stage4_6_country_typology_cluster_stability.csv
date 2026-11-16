@@ -1,4 +1,4 @@
 k,stability_score,stability_min,min_cluster_size,max_cluster_size,total_withinss,cluster_sizes,selected,selection_reason
-2,0.9992592592592593,0.9259259259259259,4,23,187.00689884776875,4/23,FALSE,
-3,0.9996438746438746,0.9287749287749287,1,22,129.94883402687904,1/4/22,FALSE,
-4,0.9997008547008547,0.9401709401709402,1,13,89.1217998641212,4/9/13/1,TRUE,Four clusters retained for comparison with the published collector typology.
+2,1,1,4,23,191.84589767713504,23/4,FALSE,
+3,0.9982051282051282,0.6410256410256411,1,22,134.7166283755113,1/4/22,FALSE,
+4,1,1,1,13,92.4328658167611,4/9/13/1,TRUE,Four clusters retained for comparison with the published collector typology.

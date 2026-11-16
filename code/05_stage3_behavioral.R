@@ -130,6 +130,10 @@ build_rule_b_reallocation <- function(panel, host) {
 
 SESH_BANDWIDTH_BASELINE <- 0.02
 SESH_BANDWIDTH_SENSITIVITY <- c(0.01, 0.02, 0.03)
+
+behavioural_bandwidth <- function(specification = behavioural_specification()) {
+  if (behavioural_specification(specification) == "BASELINE_NOTCH") SESH_BANDWIDTH_BASELINE else 0
+}
 LOW_ETR_TAIL_CUTOFF <- 0.05
 TAIL_REWEIGHT_TARGET_SHARE <- 0.50
 LOG_T0_GRID <- seq(0.001, 0.200, length.out = 60)
@@ -1547,10 +1551,10 @@ compute_reallocation_share <- function(tau, model_spec, beta3,
 
 apply_behavioural_regime <- function(tau_low, beta_raw,
                                      threshold = GMT_RATE,
-                                     eta = SESH_BANDWIDTH_BASELINE) {
-  in_band <- !is.na(tau_low) & tau_low >= threshold - eta & tau_low < threshold
-  below_band <- !is.na(tau_low) & tau_low < threshold - eta
-  beta_applied <- if_else(below_band, clamp_unit_interval(beta_raw), 0)
+                                     eta = behavioural_bandwidth()) {
+  in_band <- is.finite(tau_low) & tau_low >= threshold - eta & tau_low < threshold
+  below_band <- is.finite(tau_low) & tau_low < threshold - eta
+  beta_applied <- if_else(below_band & is.finite(beta_raw), clamp_unit_interval(beta_raw), 0)
 
   tibble(
     beta_applied = beta_applied,
@@ -1594,6 +1598,7 @@ extract_tax_coefficients <- function(model_fits) {
 build_behavioural_affiliate_year <- function(stage1_affiliate_year,
                                              model_fits) {
   tax_coefficients <- extract_tax_coefficients(model_fits)
+  widths <- sort(unique(c(behavioural_bandwidth(), SESH_BANDWIDTH_SENSITIVITY)))
 
   behavioural_base <- stage1_affiliate_year |>
     filter(year %in% MAIN_YEARS, stage1_positive_profit_flag) |>
@@ -1630,7 +1635,7 @@ build_behavioural_affiliate_year <- function(stage1_affiliate_year,
       -stage1_distributional_topup_rate,
       -stage1_distributional_topup_rate_strict
     ) |>
-    tidyr::crossing(tax_coefficients, tibble(eta = SESH_BANDWIDTH_SENSITIVITY)) |>
+    tidyr::crossing(tax_coefficients, tibble(eta = widths)) |>
     mutate(
       tau_low = if_else(
         stage1_low_share > 0 & stage1_topup_rate > 0,
@@ -2016,7 +2021,7 @@ build_factorial_revenue <- function(stage2_bilateral,
   behaviour_preferred <- behavioural_affiliate_year |>
     filter(
       model_spec == preferred_model,
-      eta == SESH_BANDWIDTH_BASELINE,
+      eta == behavioural_bandwidth(),
       etr_measurement %in% c("average", "distributional")
     ) |>
     select(
@@ -2717,6 +2722,11 @@ build_behavioural_identification_design <- function() {
 
 run_stage3_pipeline <- function() {
   dir.create(DIAGNOSTICS_DIR, showWarnings = FALSE, recursive = TRUE)
+  specification <- behavioural_specification()
+  specification_file <- file.path(DIAGNOSTICS_DIR, BEHAVIOURAL_SPECIFICATION_FILE)
+  if (specification == "BASELINE_NOTCH" && file.exists(specification_file)) {
+    stop("Use a fresh output root to replay the historical behavioural specification", call. = FALSE)
+  }
   base_panel <- readRDS(file.path(PROCESSED_DIR, "base_panel.rds"))
   stage1_affiliate_year <- readRDS(file.path(PROCESSED_DIR, "stage1_affiliate_year.rds"))
   stage2_bilateral <- readRDS(file.path(PROCESSED_DIR, "stage2_bilateral_panel.rds"))
@@ -2859,7 +2869,7 @@ run_stage3_pipeline <- function() {
   behavioural_identification_design <- build_behavioural_identification_design()
 
   behavioural_by_year <- behavioural_affiliate_year |>
-    filter(eta == SESH_BANDWIDTH_BASELINE) |>
+    filter(eta == behavioural_bandwidth()) |>
     group_by(model_spec, etr_measurement, year) |>
     summarise(
       affiliate_years = n(),
@@ -3162,10 +3172,20 @@ run_stage3_pipeline <- function() {
     reallocation_objects$destination_summary,
     file.path(DIAGNOSTICS_DIR, "step5_stage3_reallocation_destination_summary.csv")
   )
-  write_csv(
-    behavioural_identification_design,
-    file.path(DIAGNOSTICS_DIR, "step5_stage3_behavioural_identification_design.csv")
-  )
+  if (specification == "NO_NOTCH_STANDARD_RESPONSE") {
+    write_csv(tibble(specification, bandwidth = behavioural_bandwidth(specification)), specification_file)
+    behavioural_identification_design <- behavioural_identification_design |>
+      mutate(
+        baseline_treatment = if_else(component == "sesh_notch_bunching",
+          "Continuous response below 15 per cent. The stylised notch is a separate historical sensitivity.",
+          baseline_treatment),
+        identification_status = if_else(component == "sesh_notch_bunching",
+          "The pre-reform density identifies neither a policy response nor safe-harbour eligibility.",
+          identification_status)
+      )
+  }
+  write_csv(behavioural_identification_design,
+    file.path(DIAGNOSTICS_DIR, "step5_stage3_behavioural_identification_design.csv"))
 
   saveRDS(estimation_sample, file.path(PROCESSED_DIR, "stage3_estimation_sample.rds"))
   saveRDS(model_comparison, file.path(PROCESSED_DIR, "stage3_model_comparison.rds"))

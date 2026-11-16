@@ -54,6 +54,24 @@ test_that("the original half-open threshold and the two no-notch responses are d
   expect_equal(env$notch_schedule(.125, .2, "BANDWIDTH_3PP")$behavioural_liability_filter, 0)
 })
 
+test_that("the production default stays continuous at the two historical thresholds", {
+  withr::local_envvar(GMT_BEHAVIOURAL_SPECIFICATION = NA)
+  env <- notch_env()
+  tau <- c(.129999999, .13, .14, .149999999, .15, .16, NA_real_, -Inf, Inf)
+  expect_identical(env$behavioural_specification(), "NO_NOTCH_STANDARD_RESPONSE")
+  expect_equal(env$behavioural_bandwidth(), 0)
+  expect_equal(env$apply_behavioural_regime(tau, .2)$beta_applied, c(rep(.2, 4), rep(0, 5)))
+  expect_equal(env$apply_behavioural_regime(rep(.14, 5), c(-.2, -Inf, Inf, NA, 1.2))$beta_applied,
+    c(0, 0, 0, 0, 1))
+  expect_false(any(env$apply_behavioural_regime(tau, .2)$behavioural_regime == "sesh_bunching_topup_zero"))
+  expect_error(env$behavioural_specification("unknown"), "should be one of")
+
+  withr::local_envvar(GMT_BEHAVIOURAL_SPECIFICATION = "BASELINE_NOTCH")
+  expect_equal(env$behavioural_bandwidth(), .02)
+  expect_equal(env$apply_behavioural_regime(tau, .2)$behavioural_liability_filter,
+    c(.8, 0, 0, 0, rep(1, 5)))
+})
+
 test_that("notch relief, ordinary response, source liability and assigned receipts reconcile", {
   env <- notch_env()
   f <- notch_fixture()
@@ -106,6 +124,7 @@ test_that("the transitional screen acts only on remaining liability", {
 })
 
 test_that("detailed and fast notch calculations agree on equivalent source keys", {
+  withr::local_envvar(GMT_BEHAVIOURAL_SPECIFICATION = "BASELINE_NOTCH")
   env <- notch_env()
   f <- notch_fixture()
   rows <- dplyr::slice(f$cells, 1:6)
@@ -165,4 +184,31 @@ test_that("legal commencement and numerical band membership answer different que
     candidates$missing_lowtax_profit_rows), c(4, 1, 1))
   expect_false(any(grepl("elect|legally_eligible", names(exposure))))
   expect_equal(dplyr::filter(env$notch_exposure(f$cells, 0, "fixture"), window == "FY2023")$rows, 0)
+})
+
+test_that("the replay schedule selects one row per affiliate-year, measurement and model", {
+  e <- notch_env()
+  marker <- processed_path("diagnostics", e$BEHAVIOURAL_SPECIFICATION_FILE)
+  continuous <- file.exists(marker)
+  if (continuous) {
+    active <- read.csv(marker)
+    expect_identical(active$specification, "NO_NOTCH_STANDARD_RESPONSE")
+    expect_equal(active$bandwidth, 0)
+  }
+  schedule <- readRDS(processed_path("stage3_behavioral_affiliate_year.rds"))
+  expect_setequal(unique(schedule$eta), if (continuous) c(0, .01, .02, .03) else c(.01, .02, .03))
+  for (width in unique(schedule$eta)) {
+    selected <- subset(schedule, eta == width)
+    expect_equal(anyDuplicated(selected[c("affiliate", "year", "etr_measurement", "model_spec")]), 0L)
+  }
+  band <- schedule$tau_low >= .13 & schedule$tau_low < .15 & !is.na(schedule$tau_low)
+  expect_true(all(schedule$behavioural_regime[schedule$eta == .02 & band] == "sesh_bunching_topup_zero"))
+  if (continuous) {
+    expect_true(all(schedule$behavioural_regime[schedule$eta == 0 & band] == "semi_elasticity_reallocation"))
+    e <- new.env(parent = globalenv())
+    source_pipeline("diagnostics/behavioural_specification_comparison.R", e)
+    parity <- e$behavioural_point_acceptance(processed_path(),
+      repo_path("data", "diagnostics", "r06a_behavioural_notch"))
+    expect_lt(max(parity$max_absolute_gap_usd), 1e-3)
+  }
 })

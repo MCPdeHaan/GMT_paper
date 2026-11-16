@@ -8,6 +8,10 @@ R01 audit of `16dc40d`, the clean tip of `publication-rework` on 15 November 202
 
 The detailed allocator and the sparse evaluator are compared at matched source keys, before collection. The sparse path also runs its actual collector operator, including explicit non-EU, extinguished and unsupported weights. The profit-only Stage 07a path varies the filter between specifications and holds it fixed within the point projection. The measurement-draw path rebuilds the schedule. The Stage 10 transitional screen tests a separate accounting basis and acts on liability remaining after the behavioural treatment. [Mechanism, diagnostic contracts and acceptance results](../refactoring/r06a_behavioural_notch.md).
 
+## R06b. Continuous production schedule
+
+`GMT_BEHAVIOURAL_SPECIFICATION` selects the production schedule. Stage 05 constructs the active bandwidth plus the three stylised sensitivities and selects the active schedule before joining affiliate-year measurements onto each core source. The Stage 07a measurement draws rebuild the stored schedule and select the same width. The profit-only draws read the behavioural filter at the production point. The stress tests, accounting bridge, repeal game and sparse evaluator inherit the active `apply_behavioural_regime()` contract when they reprice ETRs. The 2026 transitional screen applies separately to the remaining liability. Exhibit regeneration reads the saved specification marker so it can render either vintage. [R06b scientific revision](../refactoring/r06b_continuous_behavioural_response.md).
+
 ## R05b. Production UTPR policy and residual accounting
 
 Stage 06 now sources [the UTPR policy module](../../code/allocation/utpr_policy.R) and builds weights through `build_production_utpr_weights()`. The dated national evidence register is authoritative for the production recipient map. The `GMT_UTPR_SPECIFICATION` setting defaults to `VERIFIED_PARENT_ONLY`. The pinned Stage 05 IIR, QDMTT and SbS predicates still classify source liability. Stage 05's older UTPR aliases serve the historical mode. R1, R2 and R3 retain their QDMTT and IIR definitions.

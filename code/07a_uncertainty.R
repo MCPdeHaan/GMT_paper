@@ -1104,6 +1104,7 @@ run_stage1_measurement_error_simulation <- function(
 # A cache is portable only when all outputs and the regenerated inputs match
 # their frozen hashes. A cache miss runs the full simulation.
 reuse_measurement_error_cache <- function(cache_root) {
+  if (behavioural_specification() != "BASELINE_NOTCH") return(FALSE)
   if (file.exists(file.path(PROCESSED_DIR, "stage4_5_utpr_policy.rds"))) return(FALSE)
   manifest <- readRDS(file.path(GMT_PROJECT_ROOT, "tests", "golden_step15_manifest.rds"))$files
   outputs <- grepl("/(step9_stage1_measurement_error|stage1_measurement_error_)", manifest$path)

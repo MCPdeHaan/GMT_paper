@@ -77,9 +77,9 @@ revised=$(mktemp -d)
 legacy=$(mktemp -d)
 reference=$(mktemp -d)
 git archive 338d7203958c34d036f5e5baa21b8a4ffdd0a036 data/processed | tar -x -C "$reference"
-GMT_UTPR_SPECIFICATION=LEGACY_FALLBACK GMT_MEASUREMENT_CACHE_ROOT="$reference" \
+GMT_UTPR_SPECIFICATION=LEGACY_FALLBACK GMT_BEHAVIOURAL_SPECIFICATION=BASELINE_NOTCH GMT_MEASUREMENT_CACHE_ROOT="$reference" \
   Rscript --vanilla run_all.R --output-root="$legacy"
-GMT_UTPR_SPECIFICATION=VERIFIED_PARENT_ONLY GMT_MEASUREMENT_WORKERS=4 \
+GMT_UTPR_SPECIFICATION=VERIFIED_PARENT_ONLY GMT_BEHAVIOURAL_SPECIFICATION=BASELINE_NOTCH GMT_MEASUREMENT_WORKERS=4 \
   Rscript --vanilla run_all.R --output-root="$revised"
 Rscript --vanilla tests/verify_golden_step15.R "$legacy" r04b
 Rscript --vanilla tests/verify_golden_step15.R "$revised" r05b

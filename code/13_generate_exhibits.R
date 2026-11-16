@@ -3350,6 +3350,7 @@ write_appendix_tables <- function() {
     )
   )
 
+  continuous_response <- file.exists(file.path(DIAGNOSTICS_DIR, BEHAVIOURAL_SPECIFICATION_FILE))
   behaviour <- read_diag("step5_stage3_behaviour_by_year.csv") |>
     filter(model_spec == "linear", etr_measurement == "distributional") |>
     transmute(
@@ -3362,16 +3363,20 @@ write_appendix_tables <- function() {
       `Reallocation affiliate-years` = fmt_int(reallocation_affiliate_years)
     )
 
+  behaviour_headers <- c(
+    "Year", "Aff.-years", "EU27 aff.-years", "Mean $\\beta$ (\\%)",
+    "Profit-wtd $\\beta$ (\\%)", "Bunching aff.-years", "Realloc. aff.-years"
+  )
+  if (continuous_response) {
+    behaviour <- select(behaviour, -`Bunching affiliate-years`)
+    behaviour_headers <- behaviour_headers[behaviour_headers != "Bunching aff.-years"]
+  }
   write_appendix_latex_table(
     file.path(GENERATED_TABLES_DIR, "appendix_stage3_behaviour_by_year.tex"),
     "Stage 3 applied behavioural response by year",
     "tab:app_stage3_behaviour_by_year",
-    "lrrrrrr",
-    c(
-      "Year", "Aff.-years", "EU27 aff.-years", "Mean $\\beta$ (\\%)",
-      "Profit-wtd $\\beta$ (\\%)", "Bunching aff.-years",
-      "Realloc. aff.-years"
-    ),
+    if (continuous_response) "lrrrrr" else "lrrrrrr",
+    behaviour_headers,
     behaviour,
     "",
     tabcolsep = "2pt",
@@ -3381,7 +3386,7 @@ write_appendix_tables <- function() {
   behavioural_design <- read_diag("step5_stage3_behavioural_identification_design.csv") |>
     transmute(
       Component = latex_escape(recode(component, low_etr_nonlinearity = "Low-ETR nonlinearity",
-        sesh_notch_bunching = "SESH notch bunching",
+        sesh_notch_bunching = if (continuous_response) "Historical stylised notch" else "SESH notch bunching",
         .default = str_to_sentence(str_replace_all(component, "_", " ")))),
       `Baseline treatment` = latex_escape(str_replace_all(baseline_treatment,
         "Garcia-Bernardo and Jansky", "Garcia-Bernardo and Janský")),

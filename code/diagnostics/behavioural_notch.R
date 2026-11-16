@@ -21,7 +21,7 @@ notch_schedule <- function(tau_low, beta_raw, specification, threshold = GMT_RAT
   if (spec != "NO_NOTCH_NO_BAND_RESPONSE") {
     return(apply_behavioural_regime(tau_low, beta_raw, threshold, notch_bandwidth(spec)))
   }
-  historical <- apply_behavioural_regime(tau_low, beta_raw, threshold)
+  historical <- apply_behavioural_regime(tau_low, beta_raw, threshold, SESH_BANDWIDTH_BASELINE)
   former_band <- historical$behavioural_regime == "sesh_bunching_topup_zero"
   historical$behavioural_liability_filter[former_band] <- 1
   historical$behavioural_regime[former_band] <- "no_low_tax_response"
@@ -377,6 +377,7 @@ notch_screen <- function(engine, prepared, weights, beta) {
 }
 
 run_behavioural_notch_diagnostic <- function(output, processed = PROCESSED_DIR) {
+  withr::local_envvar(GMT_BEHAVIOURAL_SPECIFICATION = "BASELINE_NOTCH")
   stopifnot(dir.exists(processed), !file.exists(output) ||
     (dir.exists(output) && length(list.files(output, all.files = TRUE, no.. = TRUE)) == 0L))
   output <- file.path(normalizePath(dirname(output), mustWork = TRUE), basename(output))

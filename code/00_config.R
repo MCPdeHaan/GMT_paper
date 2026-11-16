@@ -22,6 +22,13 @@ BASELINE_GENERATED_DIR <- "writing/baseline_generated"
 MAIN_YEARS <- 2017:2023
 CORE_YEARS <- 2016:2023
 GMT_RATE <- 0.15
+BEHAVIOURAL_SPECIFICATION_FILE <- "step5_stage3_behavioural_specification.csv"
+
+behavioural_specification <- function(name = Sys.getenv("GMT_BEHAVIOURAL_SPECIFICATION",
+                                                         unset = "NO_NOTCH_STANDARD_RESPONSE")) {
+  match.arg(name, c("NO_NOTCH_STANDARD_RESPONSE", "BASELINE_NOTCH"))
+}
+
 ETR_WINSOR_PROBS <- c(0.01, 0.99)
 T4_DIRECT_POSITIVE_BRACKETS <- c("rate_0_15", "rate_15", "rate_20_30", "rate_30")
 

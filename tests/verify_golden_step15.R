@@ -1,5 +1,5 @@
 # Usage from any directory:
-# Rscript /path/to/GMT_paper/tests/verify_golden_step15.R [output-root] [r05b|r04b|r04]
+# Rscript /path/to/GMT_paper/tests/verify_golden_step15.R [output-root] [r06b|r05b|r04b|r04]
 # SHA-256 checks exact bytes, independently of the R serialisation version.
 sha256_files <- function(paths, backend = c("auto", "system")) {
   backend <- match.arg(backend)
@@ -25,10 +25,10 @@ sha256_files <- function(paths, backend = c("auto", "system")) {
   }, character(1), USE.NAMES = FALSE)
 }
 
-read_golden_manifest <- function(repo_root, reference = c("r05b", "r04b", "r04")) {
+read_golden_manifest <- function(repo_root, reference = c("r06b", "r05b", "r04b", "r04")) {
   reference <- match.arg(reference)
-  if (reference == "r05b") {
-    return(utils::read.csv(file.path(repo_root, "tests", "golden_r05b.csv")))
+  if (reference %in% c("r06b", "r05b")) {
+    return(utils::read.csv(file.path(repo_root, "tests", paste0("golden_", reference, ".csv"))))
   }
   manifest <- readRDS(file.path(repo_root, "tests", "golden_step15_manifest.rds"))$files
   step17 <- utils::read.csv(file.path(repo_root, "tests", "golden_step17_additions.csv"))
@@ -39,7 +39,7 @@ read_golden_manifest <- function(repo_root, reference = c("r05b", "r04b", "r04")
     sha256 = c(manifest$sha256, step17$sha256, r04b$sha256))
 }
 
-verify_golden_step15 <- function(root, repo_root, reference = c("r05b", "r04b", "r04")) {
+verify_golden_step15 <- function(root, repo_root, reference = c("r06b", "r05b", "r04b", "r04")) {
   reference <- match.arg(reference)
   if (getRversion() < "4.3.0") stop("The verifier supports R >= 4.3.")
   if (getRversion() < "4.6.0" || getRversion() >= "4.7.0") {
@@ -72,10 +72,10 @@ verify_golden_step15 <- function(root, repo_root, reference = c("r05b", "r04b", 
 
 if (sys.nframe() == 0L) {
   args <- commandArgs(trailingOnly = TRUE)
-  if (length(args) > 2L) stop("Usage: Rscript tests/verify_golden_step15.R [output-root] [r05b|r04b|r04]")
+  if (length(args) > 2L) stop("Usage: Rscript tests/verify_golden_step15.R [output-root] [r06b|r05b|r04b|r04]")
   script <- sub("^--file=", "", grep("^--file=", commandArgs(FALSE), value = TRUE))
   repo_root <- file.path(dirname(normalizePath(script, mustWork = TRUE)), "..")
   root <- if (length(args)) args[[1L]] else repo_root
-  reference <- if (length(args) == 2L) args[[2L]] else "r05b"
+  reference <- if (length(args) == 2L) args[[2L]] else "r06b"
   if (!verify_golden_step15(root, repo_root, reference)) quit(status = 1L)
 }

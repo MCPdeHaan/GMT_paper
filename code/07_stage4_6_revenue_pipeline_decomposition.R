@@ -40,7 +40,11 @@ delayedAssign("FACTOR_TAXONOMY", tribble(
   "QDMTT, IIR and UTPR collection rights",
   "Epistemic legal-regime uncertainty",
   "x5_behaviour", "Coefficient: behavioural response",
-  "Panel-estimated semi-elasticity and SESH liability filter",
+  if (behavioural_specification() == "BASELINE_NOTCH") {
+    "Panel-estimated semi-elasticity and SESH liability filter"
+  } else {
+    "Continuous panel-estimated semi-elasticity below the minimum rate"
+  },
   "Behavioural specification; aleatoric only under coefficient bootstrap"
 ))
 

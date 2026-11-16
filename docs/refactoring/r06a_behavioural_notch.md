@@ -78,16 +78,16 @@ The **64-scenario L3 accounting design** moves from US$61.199–670.666bn to US$
 
 ## Reproduction and checks
 
-Starting revision `0e619fc2e112c8e758ea6e6969aca97ea01b8606` on `publication-rework`. From the repository root, use R 4.6.0 and the 68 installed versions pinned by `renv.lock`. The run used `LC_ALL=en_US.UTF-8` and `TZ=Europe/Amsterdam`.
+Starting revision `0e619fc2e112c8e758ea6e6969aca97ea01b8606` on `publication-rework`. Set `historical` to a verified R05b replay root or the archived R05b checkout before running the diagnostic. From the repository root, use R 4.6.0 and the 68 installed versions pinned by `renv.lock`. The run used `LC_ALL=en_US.UTF-8` and `TZ=Europe/Amsterdam`.
 
 ```sh
 shasum -a 256 -c tests/step17_raw_inputs.sha256
 shasum -a 256 -c tests/r05b_legal_inputs.sha256
-Rscript --vanilla tests/verify_golden_step15.R . r05b
+Rscript --vanilla tests/verify_golden_step15.R "$historical" r05b
 Rscript --vanilla -e 'testthat::test_dir("tests/testthat", filter = "behavioural-notch|stage3-behavioral|collector-routing|sesh-notch-bunching|stage1-measurement-error|pipeline-regression|source-safety", stop_on_failure = TRUE)'
 Rscript --vanilla tests/testthat.R
 audit_dir="$(mktemp -d)"
-Rscript --vanilla code/diagnostics/behavioural_notch.R "$audit_dir/results"
+Rscript --vanilla code/diagnostics/behavioural_notch.R "$audit_dir/results" "$historical/data/processed"
 diff -qr data/diagnostics/r06a_behavioural_notch "$audit_dir/results"
 ```
 
