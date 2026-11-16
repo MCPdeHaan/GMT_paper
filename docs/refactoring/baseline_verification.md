@@ -54,9 +54,11 @@ The [replication guide](../../REPLICATION.md#data-availability-and-provenance) l
 
 ### C. Scientific specification changes
 
-[R04b](r04b_budget_benchmarking.md) provides a worked example of an additive scientific reference. The default verifier includes its new scenario-range diagnostic, and the `r04` selector checks the exact historical output inventory.
+[R04b](r04b_budget_benchmarking.md) provides an example of an additive scientific reference. The `r04b` and `r04` selectors check the historical inventories. The current default uses the [separately versioned R05b reference](r05b_utpr_production.md).
 
 [R05a](r05a_utpr_shadow_results.md#reproduction) applies the standalone-diagnostic gate. Two fresh shadow executions match each other, the LEGACY arm reconciles to frozen routing and game outputs, and the 361-file production reference remains byte-identical.
+
+[R05b](r05b_utpr_production.md#reproduction-and-acceptance) applies the production scientific-change gate. The default 363-file freeze is `VERIFIED_PARENT_ONLY`. The `LEGACY_FALLBACK` replay verifies the 361 historical files using the `r04b` selector. Use each replay's own generated files when running its suite or comparing publication bytes.
 
 - Verify the original reference with the raw and golden hash commands above and run its tracked suite at the baseline revision. Run the old and new specifications in separate isolated output roots for any change to the production specification. A retained old replay can serve as the comparison if its revision, input hashes, code path and cache provenance are established. A standalone scientific diagnostic can exercise its affected path in isolation if it leaves the production specification intact. Run the full suite for each affected specification and build affected exhibits and the paper from the corresponding outputs.
 - Compare both specifications using matched keys and report changes in population, support and scenario coverage separately from changed values. Quantify effects by affected scenario, jurisdiction, time window and headline result. Preserve exact bytes for pinned inputs within each vintage, the old freeze and outputs outside the intended change set. Once a new freeze is authorised, verify its own exact CSV/RDS path set and hashes and the TeX against that specification's reference. Numerical tolerances address reproducibility and calculation precision within each specification. Size and interpretation of scientific differences are assessed separately.

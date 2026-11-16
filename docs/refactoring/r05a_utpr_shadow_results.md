@@ -74,20 +74,20 @@ R05a carries out the mapping comparison and shadow diagnostics only. It leaves t
 
 ## Reproduction
 
-Run from the repository root with R 4.6.0 and the lockfile-matched library. The two isolated invocations have no cache and use the existing analytical freeze as inputs.
+Run from the repository root with R 4.6.0 and the lockfile-matched library. The two isolated invocations have no cache and use the archived R04b freeze as inputs. To run the R05a acceptance suite as shipped, use commit `ef458db1bbf12e10d6ac01828591c5c7c632e420`.
 
 ```sh
 export LC_ALL=en_US.UTF-8 TZ=Europe/Amsterdam
 export R_LIBS=/private/tmp/gmt-r02-verify.UJ7adqE8/r-library
 shasum -a 256 -c tests/step17_raw_inputs.sha256
-Rscript --vanilla tests/verify_golden_step15.R
-Rscript --vanilla -e 'testthat::test_dir("tests/testthat", filter = "utpr-eligibility-shadow|source-safety")'
-Rscript --vanilla tests/testthat.R
+reference=$(mktemp -d)
+git archive 338d7203958c34d036f5e5baa21b8a4ffdd0a036 data/processed | tar -x -C "$reference"
+Rscript --vanilla tests/verify_golden_step15.R "$reference" r04b
 shadow=$(mktemp -d)
-repeat=$(mktemp -d)
-Rscript --vanilla code/allocation/utpr_eligibility_shadow.R "$shadow"
-Rscript --vanilla code/allocation/utpr_eligibility_shadow.R "$repeat"
-diff -rq "$shadow" "$repeat"
+second_shadow=$(mktemp -d)
+Rscript --vanilla code/allocation/utpr_eligibility_shadow.R "$shadow" "$reference/data/processed"
+Rscript --vanilla code/allocation/utpr_eligibility_shadow.R "$second_shadow" "$reference/data/processed"
+diff -rq "$shadow" "$second_shadow"
 diff -rq "$shadow" data/legal/r05a_shadow
 ```
 

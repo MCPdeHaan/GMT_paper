@@ -58,6 +58,7 @@ make_profit_routing_input <- function(env, rows, weights) {
   saveRDS(env$build_source_panel(rows), file.path(directory, "stage4_5_allocation_source_panel.rds"))
   saveRDS(weights$parent_year_weights, file.path(directory, "stage4_5_utpr_parent_year_weights.rds"))
   saveRDS(weights$fallback_weights, file.path(directory, "stage4_5_utpr_fallback_weights.rds"))
+  if (!is.null(weights$policy)) saveRDS(weights$policy, file.path(directory, "stage4_5_utpr_policy.rds"))
   env$build_preferred_source_panel(directory)
 }
 
@@ -257,6 +258,96 @@ test_that("unsupported positive UTPR remains visible and cannot be reported as r
   expect_error(env$allocate_stage4_revenue(tiny, weights), "no supported collector route")
   qdmtt <- env$build_source_panel(dplyr::mutate(rows, qdmtt_flag = TRUE))
   expect_equal(env$nash_channels(qdmtt, weights)$channels$revenue, 30)
+})
+
+test_that("parent-only residuals reconcile at source and in all collector projections", {
+  env <- routing_env()
+  weights <- routing_weights()
+  weights$fallback_weights <- weights$fallback_weights[0, ]
+  weights$policy <- list(specification = "VERIFIED_PARENT_ONLY", eligible = c("DEU", "GBR"))
+  rows <- routing_sources()
+  source <- env$build_source_panel(rows)
+  detail <- env$allocate_stage4_revenue(source, weights)
+  expect_error(env$allocate_stage4_revenue(source, weights, unsupported = "strict"),
+    "no supported collector route")
+  expect_identical(detail$unsupported_utpr$parent, c("AUS", "ZAF"))
+  expect_equal(detail$unsupported_utpr$unsupported_utpr, c(30, 4))
+  totals <- env$build_conservation_diagnostics(source, detail$revenue_by_channel_global, detail$unsupported_utpr)
+  expect_equal(unlist(totals[c("pre_allocation_topup", "allocated_topup", "sbs_extinguished_topup",
+    "unsupported_utpr", "residual_gap")], use.names = FALSE), c(314, 230, 50, 34, 0))
+  expect_equal(sum(detail$revenue_by_channel_eu27$revenue), 115)
+  expect_equal(sum(detail$revenue_by_channel_global$revenue[!detail$revenue_by_channel_global$country_is_eu27]), 115)
+
+  preferred <- make_profit_routing_input(env, profit_routing_fixture(rows), weights)
+  expect_equal(preferred$eu27_utpr_share[preferred$parent == "NZL"], 0)
+  expect_true(all(is.na(preferred$eu27_utpr_share[preferred$parent %in% c("AUS", "ZAF")])))
+  collapsed <- env$compute_preferred_revenue_from_profit(preferred, 10 * preferred$analysis_profit_base, "toy")
+  expect_equal(collapsed$global_allocated_revenue, 230)
+  expect_equal(collapsed$eu27_final_revenue, 115)
+  expect_equal(collapsed$eu27_utpr_revenue, 25)
+  expect_equal(collapsed$unsupported_utpr, 34)
+
+  sparse <- env$step15_route(source, weights)
+  # The operator represents a potential route on every cell, including cells
+  # with zero liability today that can carry positive liability in a draw.
+  expect_identical(sparse$unsupported_weight, as.numeric(rows$parent %in% c("AUS", "ZAF", "KOR", "MEX")))
+  expect_equal(as.numeric(Matrix::colSums(sparse$operator)) + sparse$foreign_collection_weight +
+    sparse$extinguished + sparse$unsupported_weight, rep(1, nrow(source)))
+  amounts <- source$topup_after_behaviour
+  for (scale in c(1, 1e7 / 3)) {
+    order <- rev(seq_len(nrow(source)))
+    shuffled <- env$step15_route(source[order, ], weights)
+    expect_equal(as.numeric(shuffled$operator %*% (amounts[order] * scale)),
+      as.numeric(sparse$operator %*% (amounts * scale)), tolerance = 32 * .Machine$double.eps)
+    expect_equal(sum(sparse$operator %*% (amounts * scale)), 115 * scale,
+      tolerance = 32 * .Machine$double.eps)
+    expect_equal(sum(sparse$unsupported_weight * amounts * scale), 34 * scale,
+      tolerance = 32 * .Machine$double.eps)
+  }
+  ledger <- env$build_source_routing(source, weights)
+  expect_equal(sum(ledger$source_unsupported_utpr), 34)
+  expect_equal(sum(ledger$source_exported_utpr), 120)
+  expect_equal(sum(ledger$source_domestic_utpr), 20)
+  expect_equal(with(ledger, source_retained_qdmtt + source_domestic_iir + source_exported_iir +
+    source_domestic_utpr + source_exported_utpr + source_sbs_extinguished + source_unsupported_utpr),
+    ledger$source_topup_liability)
+  expect_equal(sum(env$nash_channels(source, weights)$unsupported_utpr$unsupported_utpr), 34)
+
+  simulation <- env$build_simulation_conservation_diagnostics(source, detail$revenue_by_channel_global,
+    unsupported_utpr = detail$unsupported_utpr)
+  expect_equal(simulation$unsupported_utpr, 34)
+  expect_equal(simulation$residual_gap, 0)
+  expect_error(env$build_simulation_conservation_diagnostics(source, detail$revenue_by_channel_global),
+    "simulation allocation residual")
+
+  malformed <- weights
+  malformed$policy$eligible <- "DEU"
+  expect_error(env$allocate_stage4_revenue(source, malformed), "ineligible")
+})
+
+test_that("production unsupported sources match the complete original source key", {
+  env <- routing_env()
+  directory <- dirname(processed_path("stage4_5_allocation_source_panel.rds"))
+  weights <- env$read_stage4_utpr_weights(directory)
+  if (!is.null(weights$policy) && weights$policy$specification == "VERIFIED_PARENT_ONLY") {
+    source <- readRDS(processed_path("stage4_5_allocation_source_panel.rds"))
+    residual <- readRDS(processed_path("stage4_5_utpr_unsupported_sources.rds"))
+    key <- c("scenario_id", "parent", "affiliate", "year")
+    expect_false(anyDuplicated(residual[key]) > 0)
+    expect_true(all(residual$unsupported_utpr > 0))
+    expect_true(all(residual$year %in% 2017:2023))
+    expect_true(all(source$year %in% 2017:2023))
+    expected <- dplyr::filter(source, stage4_utpr_pool > 0) |>
+      dplyr::anti_join(dplyr::distinct(weights$parent_year_weights, parent, year), by = c("parent", "year")) |>
+      dplyr::select(dplyr::all_of(key), unsupported_utpr = stage4_utpr_pool)
+    expect_identical(dplyr::select(residual, dplyr::all_of(key), unsupported_utpr), expected)
+  } else {
+    if (is.null(weights$policy)) {
+      expect_false(file.exists(processed_path("stage4_5_utpr_unsupported_sources.rds")))
+    } else {
+      expect_true(file.exists(processed_path("stage4_5_utpr_unsupported_sources.rds")))
+    }
+  }
 })
 
 test_that("activity combines eligible collectors within each weighting tier", {

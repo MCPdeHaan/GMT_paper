@@ -321,10 +321,7 @@ score_allocation_ledger <- function(archive, years) {
     select(scenario_id, year, parent, affiliate, analysis_profit_positive,
       stage1_lowtax_profit_distributional, topup_after_behaviour, stage4_qdmtt_liability,
       stage4_iir_liability, stage4_utpr_pool, stage4_sbs_extinguished_liability)
-  weights <- list(
-    parent_year_weights = score_rds("stage4_5_utpr_parent_year_weights", archive),
-    fallback_weights = score_rds("stage4_5_utpr_fallback_weights", archive)
-  )
+  weights <- read_stage4_utpr_weights(if (archive) BASELINE_PROCESSED_DIR else PROCESSED_DIR)
   legal <- score_csv("step5_stage3_policy_flags", archive) |>
     transmute(country = jurisdiction, qdmtt_by_2026, iir_by_2026)
   build_stage5_ledger(source, weights, score_rds("stage4_5_revenue_country_year", archive),
@@ -356,7 +353,9 @@ score_fiscal_flows <- function() {
     }
     data <- data |>
       mutate(scope = country, specification = scenario_id, across(c(qdmtt_by_2026, iir_by_2026), as.integer))
-    score_metrics(data, "Stage 4.5", "Source and collector ledger", vintage, source, ledger_units)
+    units <- ledger_units
+    if ("source_unsupported_utpr" %in% names(data)) units <- c(units, source_unsupported_utpr = "USD")
+    score_metrics(data, "Stage 4.5", "Source and collector ledger", vintage, source, units)
   })
   scenario_totals <- map_dfr(c(SCORE_ARCHIVE, SCORE_CURRENT, SCORE_OVERLAP), function(vintage) {
     archive <- vintage == SCORE_ARCHIVE

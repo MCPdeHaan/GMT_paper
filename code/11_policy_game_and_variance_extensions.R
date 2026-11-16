@@ -61,8 +61,10 @@ nash_channels <- function(source, weights, check = TRUE) {
   channels <- allocation$revenue_by_channel_global |>
     summarise(revenue = sum(revenue), .by = c(scenario_id, country, year, channel))
   if (check) {
-    conservation <- build_conservation_diagnostics(source, allocation$revenue_by_channel_global)
-    return(list(channels = channels, max_gap = max(abs(conservation$residual_gap))))
+    conservation <- build_conservation_diagnostics(source, allocation$revenue_by_channel_global,
+      allocation$unsupported_utpr)
+    return(list(channels = channels, max_gap = max(abs(conservation$residual_gap)),
+      unsupported_utpr = allocation$unsupported_utpr))
   }
   channels
 }
@@ -131,8 +133,13 @@ nash_build_deviation <- function(base, country, deviation, weights) {
     add_behavioural_response() |>
     build_source_panel()
   host <- filter(source, affiliate == country)
+  host_result <- nash_channels(host, weights)
   list(source = source, allocation = nash_channels(source, weights),
-    host_channels = nash_channels(host, weights, check = FALSE))
+    host_channels = host_result$channels, host_unsupported_utpr = host_result$unsupported_utpr)
+}
+
+nash_unassigned <- function(pools, id, years) {
+  sum(pools$unsupported_utpr[pools$scenario_id == id & pools$year %in% years])
 }
 
 nash_summarise_deviation <- function(base, result, country, years, regime, window) {
@@ -150,7 +157,10 @@ nash_summarise_deviation <- function(base, result, country, years, regime, windo
   self_utpr <- nash_revenue(host, country, "UTPR")
   foreign_iir <- sum(host$revenue[host$country != country & host$channel == "IIR"])
   foreign_utpr <- sum(host$revenue[host$country != country & host$channel == "UTPR"])
-  tax_saved <- qdmtt - sum(host$revenue)
+  host_unassigned <- nash_unassigned(result$host_unsupported_utpr, id, years)
+  initial_unassigned <- nash_unassigned(base$allocation$unsupported_utpr, id, years)
+  revised_unassigned <- nash_unassigned(result$allocation$unsupported_utpr, id, years)
+  tax_saved <- qdmtt - sum(host$revenue) - host_unassigned
   us_tax_saved <- sum(before$stage4_qdmtt_liability[us]) - sum(
     after$stage4_iir_liability[us] + after$stage4_utpr_pool[us])
   # Compute relief on the adoption base. The extinguished post-repeal
@@ -165,13 +175,14 @@ nash_summarise_deviation <- function(base, result, country, years, regime, windo
   retain_total <- sum(retained)
   if (abs(tax_saved) < NASH_TOL) tax_saved <- 0
   if (abs(us_tax_saved) < NASH_TOL) us_tax_saved <- 0
-  source_gap <- qdmtt - (self_iir + self_utpr + foreign_iir + foreign_utpr + tax_saved)
+  source_gap <- qdmtt - (self_iir + self_utpr + foreign_iir + foreign_utpr + host_unassigned + tax_saved)
   stopifnot(abs(source_gap) < NASH_TOL, abs(extinguished - liability_rebound - tax_saved) < NASH_TOL,
     all(retained >= -NASH_TOL), abs(sum(retained[!us])) < NASH_TOL,
     abs(sum(after$stage4_iir_liability[after$parent == country]) - self_iir) < NASH_TOL)
   if (regime == "Universal") stopifnot(tax_saved == 0, extinguished == 0, retain_total == 0)
   if (regime == "SbS") stopifnot(abs(tax_saved - us_tax_saved) < NASH_TOL)
-  tibble(
+  assigned_decline <- sum(initial$revenue) - sum(revised$revenue)
+  payoff <- tibble(
     country, regime, scenario_id = id, window, start_year = min(years), end_year = max(years),
     adoption_qdmtt = qdmtt, delta_qdmtt = -qdmtt,
     adoption_qdmtt_us = sum(before$stage4_qdmtt_liability[us]),
@@ -200,9 +211,15 @@ nash_summarise_deviation <- function(base, result, country, years, regime, windo
     fiscal_gain_at_zero_weight = delta_total_tax > NASH_TOL,
     fiscal_tie_at_zero_weight = abs(delta_total_tax) <= NASH_TOL,
     source_incidence_residual = source_gap,
-    global_topup_saved_all_sources = sum(initial$revenue) - sum(revised$revenue),
+    global_topup_saved_all_sources = assigned_decline + initial_unassigned - revised_unassigned,
     max_global_conservation_gap = result$allocation$max_gap
   )
+  if (!is.null(result$allocation$unsupported_utpr)) {
+    payoff <- mutate(payoff, host_unsupported_utpr = host_unassigned,
+      adoption_global_unsupported_utpr = initial_unassigned, deviation_global_unsupported_utpr = revised_unassigned,
+      global_assigned_decline = assigned_decline)
+  }
+  payoff
 }
 
 nash_network <- function(base, result, country, years, window, collectors) {
@@ -390,9 +407,9 @@ nash_summarise_strategy <- function(base, repeal, sector_shares, weights) {
 
 run_qdmtt_game_diagnostics <- function() {
   panels <- nash_load_panels()
-  weights <- list(parent_year_weights = nash_read("stage4_5_utpr_parent_year_weights"),
-    fallback_weights = nash_read("stage4_5_utpr_fallback_weights"))
+  weights <- read_stage4_utpr_weights()
   activity <- build_collector_activity(panels$L3_pooled)
+  if (!is.null(weights$policy)) activity <- apply_utpr_collector_policy(activity, weights$policy)
   collectors <- sort(unique(c(EU27_ISO3, activity$collector[activity$collector_utpr_flag],
     panels$L3_pooled$parent[panels$L3_pooled$parent_iir_utpr_flag], "USA", "GBR", "CHE", "JPN", "HKG")))
   r3 <- map(panels, function(panel) {
@@ -405,7 +422,7 @@ run_qdmtt_game_diagnostics <- function() {
   spillovers <- vector("list", length(pairs))
   index <- 0L
   for (country in EU27_ISO3) {
-    exit_weights <- build_parent_year_utpr_weights(filter(activity, collector != country))
+    exit_weights <- build_parent_year_utpr_weights(filter(activity, collector != country), weights$policy)
     for (level in NASH_LEVELS) {
       base <- r3[[level]]
       for (deviation in NASH_DEVIATIONS) {
@@ -505,16 +522,17 @@ step15_route <- function(rows, weights) {
   utpr <- rows |> mutate(cell = row_number(), regime = routed) |>
     filter(regime == "utpr") |> select(cell, parent, year)
   routes <- expand_utpr_routes(utpr, weights)
-  if (anyNA(routes$collector)) {
+  if (utpr_unsupported_contract(weights) == "strict" && anyNA(routes$collector)) {
     stop("Sparse operator has a potential UTPR source with no supported collector route", call. = FALSE)
   }
-  distributed <- routes |> transmute(cell, country = collector, share = utpr_weight)
+  distributed <- routes |> filter(!is.na(collector)) |> transmute(cell, country = collector, share = utpr_weight)
+  unsupported <- as.numeric(seq_len(nrow(rows)) %in% routes$cell[is.na(routes$collector)])
   all <- bind_rows(direct, distributed)
   totals <- numeric(nrow(rows))
   routing_totals <- rowsum(all$share, all$cell)
   totals[as.integer(rownames(routing_totals))] <- routing_totals[, 1L]
   stopifnot(all(is.finite(all$share)), all(all$share >= 0),
-            max(abs(totals + (routed == "sbs_extinguished") - 1)) < 1e-12)
+            max(abs(totals + (routed == "sbs_extinguished") + unsupported - 1)) < 1e-12)
   collectors <- expand_grid(country = EU27_ISO3, year = MAIN_YEARS)
   eu <- all |> filter(country %in% EU27_ISO3) |> mutate(year = rows$year[cell]) |>
     left_join(mutate(collectors, collector_id = row_number()), by = c("country", "year"),
@@ -522,7 +540,8 @@ step15_route <- function(rows, weights) {
   operator <- Matrix::sparseMatrix(i = eu$collector_id, j = eu$cell, x = eu$share,
                                   dims = c(nrow(collectors), nrow(rows)))
   list(operator = operator, foreign_collection_weight = totals - Matrix::colSums(operator),
-       extinguished = routed == "sbs_extinguished", exposed = !(rows$sbs_exempt & !rows$qdmtt_flag))
+       extinguished = routed == "sbs_extinguished", unsupported_weight = unsupported,
+       exposed = !(rows$sbs_exempt & !rows$qdmtt_flag))
 }
 
 step15_inputs <- function() {
@@ -536,8 +555,7 @@ step15_inputs <- function() {
   average_support <- !is.na(cells$profit_panelai) & cells$profit_panelai > 0
   stopifnot(isTRUE(all.equal(host_sum(cells$analysis_profit_positive * average_support),
                              host$avg_profit_denominator, tolerance = 1e-12)))
-  weights <- list(parent_year_weights = bridge_read("stage4_5_utpr_parent_year_weights"),
-                  fallback_weights = bridge_read("stage4_5_utpr_fallback_weights"))
+  weights <- read_stage4_utpr_weights()
   source <- bridge_read("stage4_5_allocation_source_panel") |>
     filter(scenario_id %in% c("x00000", "x00010")) |>
     select(scenario_id, all_of(STEP15_KEYS), qdmtt_flag, parent_iir_utpr_flag, sbs_exempt)
@@ -684,6 +702,7 @@ step15_evaluate <- function(input, measure, beta = input$beta, check = FALSE) {
   design <- step15_design()
   y <- matrix(0, nrow(input$collector_year), nrow(design), dimnames = list(NULL, design$scenario_id))
   max_gap <- 0
+  max_unassigned <- 0
   for (law in 0:1) {
     cols <- which(design$x4_sbs == law)
     route <- input$routes[[law + 1L]]
@@ -697,6 +716,7 @@ step15_evaluate <- function(input, measure, beta = input$beta, check = FALSE) {
     y[, cols] <- as.matrix(route$operator %*% source)
     if (check) {
       outside <- route$foreign_collection_weight + route$extinguished
+      if (any(route$unsupported_weight > 0)) outside <- outside + route$unsupported_weight
       for (year in MAIN_YEARS) {
         cells <- input$cells$year == year
         collectors <- input$collector_year$year == year
@@ -707,10 +727,14 @@ step15_evaluate <- function(input, measure, beta = input$beta, check = FALSE) {
         # Allow roundoff from sparse summation at trillion-dollar scale.
         stopifnot(all(gaps <= 1e-3 + 64 * .Machine$double.eps * liability))
         max_gap <- max(max_gap, gaps)
+        if (any(route$unsupported_weight > 0)) {
+          unassigned <- cells & route$unsupported_weight > 0
+          max_unassigned <- max(max_unassigned, colSums(source[unassigned, , drop = FALSE]))
+        }
       }
     }
   }
-  list(revenue = y / 1e9, max_global_conservation_gap = max_gap)
+  list(revenue = y / 1e9, max_global_conservation_gap = max_gap, max_unsupported_utpr_usd = max_unassigned)
 }
 
 step15_cumulative <- function(revenue, input, windows = seq_along(input$windows)) {
@@ -755,9 +779,11 @@ step15_monte_carlo <- function(input, point) {
   hybrid <- array(0, c(STEP15_DRAWS, n_scenarios, n_outcomes, nrow(masks)))
   fixed <- array(0, c(STEP15_DRAWS, n_scenarios, n_outcomes, 3L))
   largest_gap <- 0
+  largest_unassigned <- 0
   evaluate <- function(error, beta, rho) {
     result <- step15_evaluate(input, step15_measure(input, rho, error), beta, check = TRUE)
     largest_gap <<- max(largest_gap, result$max_global_conservation_gap)
+    largest_unassigned <<- max(largest_unassigned, result$max_unsupported_utpr_usd)
     step15_cumulative(result$revenue, input, starts)
   }
   for (m in seq_len(STEP15_DRAWS)) {
@@ -833,6 +859,9 @@ step15_monte_carlo <- function(input, point) {
       beta_estimate = input$beta, beta_clustered_se = input$beta_se,
       max_global_conservation_gap_usd = largest_gap
     )
+    if (any(vapply(input$routes, function(route) any(route$unsupported_weight > 0), logical(1)))) {
+      measures$max_draw_scenario_year_unsupported_utpr_usd <- largest_unassigned
+    }
     bind_rows(
       mutate(measures, record = "total_variance",
         total_variance_usd_bn_sq = total, scenario_variance_usd_bn_sq = epistemic,
@@ -1327,15 +1356,16 @@ check_factorial_revenue <- function(revenue_country_year, label) {
 }
 
 build_leave_one_revenue <- function(stage3_panel, leave_dimension, jurisdiction,
-                                    country_lookup, case_id_value) {
+                                    country_lookup, case_id_value, collector_policy = NULL) {
   stage3_case <- filter_leave_one(stage3_panel, leave_dimension, jurisdiction)
   source_panel <- stage45_build_source_panel(stage3_case)
-  collector_activity <- stage45_build_collector_activity(stage3_case)
-  utpr_weights <- stage45_build_parent_year_utpr_weights(collector_activity)
+  activity <- stage45_build_collector_activity(stage3_case)
+  utpr_weights <- stage45_build_parent_year_utpr_weights(activity, collector_policy)
   allocation <- stage45_allocate_stage4_revenue(source_panel, utpr_weights)
   conservation <- stage45_build_conservation_diagnostics(
     source_panel,
-    allocation$revenue_by_channel_global
+    allocation$revenue_by_channel_global,
+    allocation$unsupported_utpr
   )
 
   revenue_country_year <- repair_country_names(
@@ -1561,6 +1591,7 @@ run_jurisdiction_influence_suite <- function(top_n = DEFAULT_TOP_N) {
   stage1_bilateral <- readRDS(file.path(PROCESSED_DIR, "stage1_bilateral_panel.rds"))
   stage3_panel <- readRDS(file.path(PROCESSED_DIR, "stage3_factorial_pair_year.rds"))
   estimation_sample <- readRDS(file.path(PROCESSED_DIR, "stage3_estimation_sample.rds"))
+  collector_policy <- read_stage4_utpr_weights()$policy
   country_lookup <- build_country_lookup(stage3_panel)
   jurisdiction_lookup <- build_jurisdiction_lookup(
     stage1_bilateral,
@@ -1619,7 +1650,8 @@ run_jurisdiction_influence_suite <- function(top_n = DEFAULT_TOP_N) {
       target$leave_dimension,
       target$jurisdiction,
       country_lookup,
-      target$case_id
+      target$case_id,
+      collector_policy
     )
     revenue_decomposition <- summarise_revenue_decomposition(
       revenue_output$revenue_country_year,

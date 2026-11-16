@@ -1,0 +1,4 @@
+check,max_gap_usd
+R04b global legacy country-year-channel,1.9073486328125e-6
+R05b production country-year-channel,0
+R05a preferred R1 and R3 fallback cases,1.220703125e-4

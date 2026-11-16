@@ -2,7 +2,17 @@
 
 R01 audit of `16dc40d`, the clean tip of `publication-rework` on 15 November 2026. The inventory and line numbers below describe that revision. [Baseline verification](../refactoring/baseline_verification.md) records what ran. [The scientific register](../refactoring/scientific_issue_register.md) distinguishes implementation findings, empirical assumptions and duplication. [REPLICATION.md](../../REPLICATION.md) remains the replicator-facing source and exhibit guide.
 
+## R05b. Production UTPR policy and residual accounting
+
+Stage 06 now sources [the UTPR policy module](../../code/allocation/utpr_policy.R) and builds weights through `build_production_utpr_weights()`. The dated national evidence register is authoritative for the production recipient map. The `GMT_UTPR_SPECIFICATION` setting defaults to `VERIFIED_PARENT_ONLY`. The pinned Stage 05 IIR, QDMTT and SbS predicates still classify source liability. Stage 05's older UTPR aliases serve the historical mode. R1, R2 and R3 retain their QDMTT and IIR definitions.
+
+For non-legacy replays, `stage4_5_utpr_policy.rds` carries the dated map and specification alongside the existing weight files. Parent-only modes persist an empty fallback table with its schema intact. Downstream readers obtain the three objects through `read_stage4_utpr_weights()`. The production allocator uses explicit reporting mode and retains unsupported parent-year pools. Stage 06 additionally writes `stage4_5_utpr_unsupported_sources.rds` at scenario × parent × affiliate × year. Missing metadata identifies the historical strict contract used by the archived fixtures. Strict mode remains available as an explicit allocator argument.
+
+Stage 07a preserves zero EU share for a supported non-EU route and NA for missing support. The detailed measurement draws reuse the observed-activity weights. Stage 09 and the scorecard report the unsupported component separately from exports. Stage 10 carries unassigned liability through the accounting waterfall. Stage 11 adds unsupported weight to every applicable sparse column and rebuilds denominators after full opt-out. A fall in assigned receipts can therefore exceed the saving in source liability. Stage 13 reads the ledger and game diagnostics and presents the residual alongside collection and relief. [Scientific revision and verification](../refactoring/r05b_utpr_production.md).
+
 ## R04. Collector routing contract
+
+This section records the historical contract retained under LEGACY_FALLBACK.
 
 **Source liability and channel.** Stage 06 takes one numeric post-behaviour top-up amount in USD per scenario, parent jurisdiction, affiliate jurisdiction and fiscal year. Jurisdiction codes are character, the year is integer, and the QDMTT, parent-IIR and SbS flags are logical. The detailed output also carries the reporting names and scenario variables, including factor labels and integer design indicators. At the Stage 06 boundary, missing amounts and negative amounts become zero, and missing flags become false. A zero or inactive amount contributes to no channel. For positive amounts, QDMTT takes precedence and is retained by the affiliate, including exempt US-parented sources. Without QDMTT, SbS extinguishes exempt liability. Otherwise a qualifying parent takes IIR, or the amount enters the UTPR pool. These four amounts sum to the normalised source liability. Potential routing in the sparse path uses unit liability and requires complete policy flags for every cell, including cells with a zero point amount.
 

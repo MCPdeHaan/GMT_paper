@@ -16,17 +16,10 @@ compute_draw_phi <- function(sbie, profit) {
 }
 
 build_utpr_eu_shares <- function(in_dir = PROCESSED_DIR) {
-  parent_year_weights <- readRDS(
-    file.path(in_dir, "stage4_5_utpr_parent_year_weights.rds")
-  )
-  fallback_weights <- readRDS(
-    file.path(in_dir, "stage4_5_utpr_fallback_weights.rds")
-  )
+  weights <- read_stage4_utpr_weights(in_dir)
+  validate_utpr_weights(weights, EU27_ISO3)
 
-  validate_utpr_weights(list(parent_year_weights = parent_year_weights,
-    fallback_weights = fallback_weights), EU27_ISO3)
-
-  parent_year <- parent_year_weights |>
+  parent_year <- weights$parent_year_weights |>
     group_by(parent, year) |>
     summarise(
       eu27_utpr_share_parent_year =
@@ -34,7 +27,7 @@ build_utpr_eu_shares <- function(in_dir = PROCESSED_DIR) {
       .groups = "drop"
     )
 
-  fallback <- fallback_weights |>
+  fallback <- weights$fallback_weights |>
     group_by(year) |>
     summarise(
       eu27_utpr_share_fallback =
@@ -42,13 +35,13 @@ build_utpr_eu_shares <- function(in_dir = PROCESSED_DIR) {
       .groups = "drop"
     )
 
-  list(parent_year = parent_year, fallback = fallback)
+  list(parent_year = parent_year, fallback = fallback, unsupported = utpr_unsupported_contract(weights))
 }
 
 build_preferred_source_panel <- function(in_dir = PROCESSED_DIR) {
   utpr_shares <- build_utpr_eu_shares(in_dir)
 
-  readRDS(file.path(in_dir, "stage4_5_allocation_source_panel.rds")) |>
+  panel <- readRDS(file.path(in_dir, "stage4_5_allocation_source_panel.rds")) |>
     filter(
       factor1_etr == "distributional",
       factor2_substance == "aggregate_sbie",
@@ -87,6 +80,8 @@ build_preferred_source_panel <- function(in_dir = PROCESSED_DIR) {
       parent_iir_utpr_flag = coalesce(parent_iir_utpr_flag, FALSE),
       sbs_exempt = coalesce(sbs_exempt, FALSE)
     )
+  attr(panel, "utpr_unsupported_contract") <- utpr_shares$unsupported
+  panel
 }
 
 add_foreign_holding_chain_flags <- function(source_panel) {
@@ -121,7 +116,10 @@ add_foreign_holding_chain_flags <- function(source_panel) {
 
 compute_preferred_revenue_from_profit <- function(source_panel, profit_value,
                                                   specification,
-                                                  draw_id = NA_integer_) {
+                                                  draw_id = NA_integer_,
+                                                  unsupported = attr(source_panel, "utpr_unsupported_contract", exact = TRUE)) {
+  if (is.null(unsupported)) unsupported <- "strict"
+  unsupported <- match.arg(unsupported, c("strict", "report"))
   liabilities <- source_panel |>
     mutate(
       profit_draw = pmax(coalesce(profit_value, 0), 0),
@@ -141,23 +139,24 @@ compute_preferred_revenue_from_profit <- function(source_panel, profit_value,
       iir_liability_draw = if_else(regime == "iir", topup_after_behaviour_draw, 0),
       utpr_pool_draw = if_else(regime == "utpr", topup_after_behaviour_draw, 0),
       sbs_extinguished_draw = if_else(regime == "sbs_extinguished", topup_after_behaviour_draw, 0),
+      unassigned_draw = if_else(is.na(eu27_utpr_share), utpr_pool_draw, 0),
       eu27_utpr_revenue_draw = utpr_pool_draw * coalesce_zero(eu27_utpr_share),
       eu27_revenue_draw =
         if_else(affiliate_is_eu27, qdmtt_liability_draw, 0) +
           if_else(parent_is_eu27, iir_liability_draw, 0) +
           eu27_utpr_revenue_draw
     )
-  if (any(liabilities$utpr_pool_draw > 0 & is.na(liabilities$eu27_utpr_share))) {
+  if (unsupported == "strict" && any(liabilities$unassigned_draw > 0)) {
     stop("Profit-only draw has a positive UTPR pool with no supported collector route", call. = FALSE)
   }
-  liabilities |>
+  receipts <- liabilities |>
     group_by(factor4_sbs) |>
     summarise(
       draw_id = draw_id,
       specification = specification,
       positive_profit = sum(profit_draw, na.rm = TRUE),
       global_allocated_revenue =
-        sum(qdmtt_liability_draw + iir_liability_draw + utpr_pool_draw,
+        sum(qdmtt_liability_draw + iir_liability_draw + utpr_pool_draw - unassigned_draw,
           na.rm = TRUE
         ),
       eu27_final_revenue = sum(eu27_revenue_draw, na.rm = TRUE),
@@ -171,6 +170,11 @@ compute_preferred_revenue_from_profit <- function(source_panel, profit_value,
       sbs_extinguished_revenue = sum(sbs_extinguished_draw, na.rm = TRUE),
       .groups = "drop"
     )
+  if (unsupported == "report") {
+    residual <- liabilities |> summarise(unsupported_utpr = sum(unassigned_draw), .by = factor4_sbs)
+    receipts <- left_join(receipts, residual, by = "factor4_sbs", relationship = "one-to-one")
+  }
+  receipts
 }
 
 build_point_revenue_sensitivity <- function(source_panel) {
@@ -273,7 +277,7 @@ build_draw_revenue_sensitivity <- function(source_panel, predictions,
 }
 
 summarise_draw_revenue <- function(draws) {
-  draws |>
+  result <- draws |>
     group_by(factor4_sbs, specification) |>
     summarise(
       draws = n_distinct(draw_id),
@@ -294,6 +298,13 @@ summarise_draw_revenue <- function(draws) {
       sbs_extinguished_mean = mean(sbs_extinguished_revenue, na.rm = TRUE),
       .groups = "drop"
     )
+  if ("unsupported_utpr" %in% names(draws)) {
+    residual <- draws |> summarise(unsupported_utpr_mean = mean(unsupported_utpr),
+      unsupported_utpr_p025 = quantile(unsupported_utpr, .025),
+      unsupported_utpr_p975 = quantile(unsupported_utpr, .975), .by = c(factor4_sbs, specification))
+    result <- left_join(result, residual, by = c("factor4_sbs", "specification"), relationship = "one-to-one")
+  }
+  result
 }
 
 run_profit_correction_revenue_uncertainty <- function(in_dir = PROCESSED_DIR,
@@ -713,10 +724,9 @@ summarise_draw_interval <- function(draws, value_col, group_vars) {
     )
 }
 
-build_simulation_conservation_diagnostics <- function(source_panel,
-                                                      revenue_global,
-                                                      tolerance =
-                                                        SIM_CONSERVATION_TOLERANCE) {
+build_simulation_conservation_diagnostics <- function(source_panel, revenue_global,
+                                                      tolerance = SIM_CONSERVATION_TOLERANCE,
+                                                      unsupported_utpr = NULL) {
   source_totals <- source_panel |>
     group_by(across(all_of(SCENARIO_VARS)), year) |>
     summarise(
@@ -735,12 +745,20 @@ build_simulation_conservation_diagnostics <- function(source_panel,
       .groups = "drop"
     )
 
-  conservation <- source_totals |>
-    left_join(allocated_totals, by = c(SCENARIO_VARS, "year")) |>
+  key <- c(SCENARIO_VARS, "year")
+  conservation <- source_totals |> left_join(allocated_totals, by = key)
+  if (!is.null(unsupported_utpr)) {
+    totals <- unsupported_utpr |> summarise(unsupported_utpr = sum(unsupported_utpr), .by = all_of(key))
+    conservation <- conservation |>
+      left_join(totals, by = key, relationship = "one-to-one") |>
+      mutate(unsupported_utpr = coalesce_zero(unsupported_utpr))
+  }
+  unassigned <- if (is.null(unsupported_utpr)) 0 else conservation$unsupported_utpr
+  conservation <- conservation |>
     mutate(
       allocated_topup = coalesce_zero(allocated_topup),
       residual_gap = allocated_topup + sbs_extinguished_topup +
-        zero_liability - pre_allocation_topup
+        zero_liability + unassigned - pre_allocation_topup
     )
 
   max_gap <- max(abs(conservation$residual_gap), na.rm = TRUE)
@@ -758,7 +776,7 @@ run_one_measurement_error_draw <- function(draw_id,
                                            stage2_sectoral_matrix,
                                            behavioural_affiliate_year,
                                            policy_flags,
-                                           preferred_model) {
+                                           preferred_model, utpr_weights = NULL) {
   stage1_draw_affiliate_year <- apply_stage1_measurement_draw(
     stage1_affiliate_year,
     stage1_draw
@@ -790,12 +808,11 @@ run_one_measurement_error_draw <- function(draw_id,
   )
 
   source_panel <- build_source_panel(revenue_objects$scenario_panel)
-  collector_activity <- build_collector_activity(revenue_objects$scenario_panel)
-  utpr_weights <- build_parent_year_utpr_weights(collector_activity)
+  if (is.null(utpr_weights)) utpr_weights <- build_production_utpr_weights(revenue_objects$scenario_panel)
   allocation_objects <- allocate_stage4_revenue(source_panel, utpr_weights)
   conservation <- build_simulation_conservation_diagnostics(
-    source_panel,
-    allocation_objects$revenue_by_channel_global
+    source_panel, allocation_objects$revenue_by_channel_global,
+    unsupported_utpr = allocation_objects$unsupported_utpr
   )
 
   revenue_country_year <- allocation_objects$revenue_country_year_eu27
@@ -828,6 +845,9 @@ run_one_measurement_error_draw <- function(draw_id,
     eu_revenue_min_scenario = min(scenario_summary$eu_revenue, na.rm = TRUE),
     eu_revenue_max_scenario = max(scenario_summary$eu_revenue, na.rm = TRUE)
   )
+  if (!is.null(allocation_objects$unsupported_utpr)) {
+    diagnostics$max_unsupported_utpr_usd <- max(conservation$unsupported_utpr)
+  }
 
   list(
     scenario_summary = scenario_summary,
@@ -869,16 +889,17 @@ run_stage1_measurement_error_simulation <- function(
     seed = seed
   )
 
-  results <- vector("list", n_draws)
-
-  for (draw_id in seq_len(n_draws)) {
+  weights <- read_stage4_utpr_weights()
+  workers <- suppressWarnings(as.integer(Sys.getenv("GMT_MEASUREMENT_WORKERS", unset = "1")))
+  stopifnot(is.finite(workers), workers >= 1L)
+  measure_draw <- function(draw_id) {
     if (draw_id == 1L || draw_id %% 25L == 0L || draw_id == n_draws) {
       message(sprintf("Measurement-error draw %d of %d", draw_id, n_draws))
     }
 
     stage1_draw <- stage1_draw_for_id(stage1_draws, draw_id)
 
-    results[[draw_id]] <- run_one_measurement_error_draw(
+    tryCatch(run_one_measurement_error_draw(
       draw_id = draw_id,
       stage1_draw = stage1_draw,
       stage1_affiliate_year = stage1_affiliate_year,
@@ -886,9 +907,21 @@ run_stage1_measurement_error_simulation <- function(
       stage2_sectoral_matrix = stage2_sectoral_matrix,
       behavioural_affiliate_year = behavioural_affiliate_year,
       policy_flags = policy_flags,
-      preferred_model = preferred_model
-    )
+      preferred_model = preferred_model,
+      utpr_weights = weights
+    ), error = function(error) {
+      message("Measurement-error draw ", draw_id, " failed. ", conditionMessage(error))
+      error
+    })
   }
+  # The random panel is generated before workers start. Preserve draw order
+  # in the returned list and stop on any failed or missing calculation.
+  results <- if (workers == 1L) lapply(seq_len(n_draws), measure_draw) else {
+    parallel::mclapply(seq_len(n_draws), measure_draw, mc.cores = workers, mc.set.seed = FALSE)
+  }
+  failed <- which(!vapply(results, function(draw) is.list(draw) && !inherits(draw, "error"), logical(1)))
+  if (length(failed)) stop("Incomplete measurement-error simulation. Failed draws: ",
+    paste(failed, collapse = ", "), call. = FALSE)
 
   scenario_draws <- map_dfr(results, "scenario_summary")
   preferred_draws <- map_dfr(results, "preferred_summary")
@@ -1071,6 +1104,7 @@ run_stage1_measurement_error_simulation <- function(
 # A cache is portable only when all outputs and the regenerated inputs match
 # their frozen hashes. A cache miss runs the full simulation.
 reuse_measurement_error_cache <- function(cache_root) {
+  if (file.exists(file.path(PROCESSED_DIR, "stage4_5_utpr_policy.rds"))) return(FALSE)
   manifest <- readRDS(file.path(GMT_PROJECT_ROOT, "tests", "golden_step15_manifest.rds"))$files
   outputs <- grepl("/(step9_stage1_measurement_error|stage1_measurement_error_)", manifest$path)
   inputs <- file.path("data", "processed", c(

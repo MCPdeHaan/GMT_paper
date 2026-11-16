@@ -801,7 +801,7 @@ ladder_allocate <- function(panel, weights, archived_source = NULL) {
         "stage4_utpr_pool", "stage4_sbs_extinguished_liability"))
   }
   allocation <- allocate_stage4_revenue(source, weights)
-  conservation <- build_conservation_diagnostics(source, allocation$revenue_by_channel_global)
+  conservation <- build_conservation_diagnostics(source, allocation$revenue_by_channel_global, allocation$unsupported_utpr)
   stopifnot(nrow(allocation$revenue_country_year_eu27) == length(EU27_ISO3) * length(MAIN_YEARS) * 16)
   list(
     revenue = allocation$revenue_country_year_eu27,
@@ -1328,10 +1328,7 @@ run_ladder_diagnostics <- function() {
   message("Allocating direct top-up across the ladder")
   factorial <- stage5_source_inputs()
   sectors <- ladder_read("stage2_sectoral_panel")
-  weights <- list(
-    parent_year_weights = ladder_read("stage4_5_utpr_parent_year_weights"),
-    fallback_weights = ladder_read("stage4_5_utpr_fallback_weights")
-  )
+  weights <- read_stage4_utpr_weights()
   beta <- ladder_read("stage3_model_coefficients") |>
     filter(model_spec == "linear", term == "tau", inference == "parent_affiliate_clustered") |>
     pull(estimate)
@@ -1736,10 +1733,7 @@ run_rank_beta_diagnostics <- function() {
       stage2_phi, stage2_topup_tax_average)
   sectors <- ladder_read("stage2_sectoral_panel")
   factorial <- stage5_source_inputs()
-  weights <- list(
-    parent_year_weights = ladder_read("stage4_5_utpr_parent_year_weights"),
-    fallback_weights = ladder_read("stage4_5_utpr_fallback_weights")
-  )
+  weights <- read_stage4_utpr_weights()
   beta <- ladder_read("stage3_model_coefficients") |>
     filter(model_spec == "linear", term == "tau", inference == "parent_affiliate_clustered") |>
     pull(estimate)

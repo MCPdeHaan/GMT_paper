@@ -294,7 +294,7 @@ step8_reconcile_rates <- function(stage1, base, host_stage1, partitions, gamma, 
 
 step8_allocate <- function(source, weights) {
   allocation <- allocate_stage4_revenue(source, weights)
-  conservation <- build_conservation_diagnostics(source, allocation$revenue_by_channel_global)
+  conservation <- build_conservation_diagnostics(source, allocation$revenue_by_channel_global, allocation$unsupported_utpr)
   gap <- max(abs(conservation$residual_gap))
   stopifnot(gap < 1e-3, nrow(allocation$revenue_country_year_eu27) == 27 * 7 * 32)
   list(
@@ -505,10 +505,7 @@ run_conduit_wedge_diagnostics <- function() {
     select(all_of(STEP8_KEYS), rate_scenario, affiliate_is_eu27, stage2_sbie,
       stage2_topup_tax_average)
   sectors <- step8_read("stage2_sectoral_panel")
-  weights <- list(
-    parent_year_weights = step8_read("stage4_5_utpr_parent_year_weights"),
-    fallback_weights = step8_read("stage4_5_utpr_fallback_weights")
-  )
+  weights <- read_stage4_utpr_weights()
   beta <- step8_read("stage3_model_coefficients") |>
     filter(model_spec == "linear", term == "tau", inference == "parent_affiliate_clustered") |>
     pull(estimate)
@@ -731,8 +728,17 @@ bridge_behaviour <- function(spine, measure, beta, scope = "host") {
 
 bridge_allocate <- function(panel, weights) {
   source <- build_source_panel(panel)
-  channels <- allocate_stage4_revenue(source, weights)$revenue_by_channel_global
-  checks <- build_conservation_diagnostics(source, channels)
+  allocation <- allocate_stage4_revenue(source, weights)
+  channels <- allocation$revenue_by_channel_global
+  checks <- build_conservation_diagnostics(source, channels, allocation$unsupported_utpr)
+  if (!is.null(allocation$unsupported_utpr)) {
+    unsupported_keys <- allocation$unsupported_utpr |> distinct(scenario_id, parent, year) |>
+      mutate(unsupported = TRUE)
+    source <- source |>
+      left_join(unsupported_keys, by = c("scenario_id", "parent", "year"), relationship = "many-to-one") |>
+      mutate(source_unsupported_utpr = if_else(unsupported %in% TRUE, stage4_utpr_pool, 0)) |>
+      select(-unsupported)
+  }
   revenue <- channels |>
     summarise(collector = sum(revenue), qdmtt = sum(revenue[channel == "QDMTT"]),
       iir = sum(revenue[channel == "IIR"]), utpr = sum(revenue[channel == "UTPR"]),
@@ -745,9 +751,10 @@ bridge_allocate <- function(panel, weights) {
 }
 
 bridge_summarise <- function(result, windows = BRIDGE_WINDOWS) {
-  source <- result$source |>
+  source_rows <- result$source |>
     bridge_scopes("affiliate") |>
-    bridge_windows(windows) |>
+    bridge_windows(windows)
+  source <- source_rows |>
     summarise(
       corrected_profit = sum(corrected_profit), low_profit = sum(low_profit),
       stage1_topup = sum(stage1_topup), stage2_topup = sum(stage2_topup),
@@ -755,6 +762,11 @@ bridge_summarise <- function(result, windows = BRIDGE_WINDOWS) {
       source_sbs_extinguished = sum(stage4_sbs_extinguished_liability),
       .by = c(scope, window, n_years)
     )
+  if ("source_unsupported_utpr" %in% names(source_rows)) {
+    residual <- summarise(source_rows, source_unsupported_utpr = sum(source_unsupported_utpr),
+      .by = c(scope, window, n_years))
+    source <- left_join(source, residual, by = c("scope", "window", "n_years"), relationship = "one-to-one")
+  }
   collectors <- result$revenue |>
     bridge_scopes("country") |>
     bridge_windows(windows) |>
@@ -1241,8 +1253,7 @@ run_hanlon_globe_bridge <- function() {
   host <- bridge_read("stage1_affiliate_year")
   bilateral_t4 <- bridge_read("base_panel_t4_bilateral_bracket_shares")
   spine <- bridge_preferred_input()
-  weights <- list(parent_year_weights = bridge_read("stage4_5_utpr_parent_year_weights"),
-    fallback_weights = bridge_read("stage4_5_utpr_fallback_weights"))
+  weights <- read_stage4_utpr_weights()
   beta <- bridge_read("stage3_model_coefficients") |>
     filter(model_spec == "linear", term == "tau", inference == "parent_affiliate_clustered") |>
     pull(estimate)

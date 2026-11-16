@@ -484,10 +484,7 @@ read_step6_factorial_input <- function() {
 }
 
 read_step6_utpr_weights <- function() {
-  list(
-    parent_year_weights = read_step6_input("stage4_5_utpr_parent_year_weights"),
-    fallback_weights = read_step6_input("stage4_5_utpr_fallback_weights")
-  )
+  read_stage4_utpr_weights()
 }
 
 run_fiscal_recovery_audit <- function(panel, direct, weights) {
@@ -573,7 +570,7 @@ build_cyprus_denominator_audit <- function(eurostat, panel, direct, weights) {
     add_behavioural_response() |>
     build_source_panel()
   allocation <- allocate_stage4_revenue(cyprus_active_source, weights)
-  build_conservation_diagnostics(cyprus_active_source, allocation$revenue_by_channel_global)
+  build_conservation_diagnostics(cyprus_active_source, allocation$revenue_by_channel_global, allocation$unsupported_utpr)
   active <- allocation$revenue_country_year_eu27 |>
     filter(country == "CYP") |>
     select(scenario_id, year, r2_cyprus_active_revenue = revenue)
@@ -1467,7 +1464,7 @@ build_split_substance_variant <- function(panel, scales) {
 allocate_stress_variant <- function(panel, weights) {
   source <- build_source_panel(panel)
   allocation <- allocate_stage4_revenue(source, weights)
-  conservation <- build_conservation_diagnostics(source, allocation$revenue_by_channel_global)
+  conservation <- build_conservation_diagnostics(source, allocation$revenue_by_channel_global, allocation$unsupported_utpr)
   list(revenue = allocation$revenue_country_year_eu27, gap = max(abs(conservation$residual_gap)))
 }
 
@@ -1569,16 +1566,19 @@ build_source_routing <- function(source, weights) {
     left_join(parent_own, by = c("parent", "year", "affiliate"), relationship = "many-to-one") |>
     left_join(fallback_own, by = c("year", "affiliate"), relationship = "many-to-one")
   unsupported <- is.na(routed$has_parent_weights) & !(routed$year %in% weights$fallback_weights$year)
-  if (any(unsupported & routed$stage4_utpr_pool > 0)) {
+  contract <- utpr_unsupported_contract(weights)
+  if (contract == "strict" && any(unsupported & routed$stage4_utpr_pool > 0)) {
     stop("Source ledger has a positive UTPR pool with no supported collector route", call. = FALSE)
   }
-  routed |>
+  routed <- routed |>
     mutate(
       own_utpr_weight = if_else(coalesce(has_parent_weights, FALSE),
         coalesce_zero(own_parent_weight), coalesce_zero(own_fallback_weight)
       ),
-      domestic_utpr = stage4_utpr_pool * own_utpr_weight
-    ) |>
+      domestic_utpr = stage4_utpr_pool * own_utpr_weight,
+      unsupported_utpr = if_else(unsupported, stage4_utpr_pool, 0)
+    )
+  totals <- routed |>
     group_by(country = affiliate, year, scenario_id) |>
     summarise(
       positive_corrected_affiliate_profit = sum(analysis_profit_positive, na.rm = TRUE),
@@ -1588,10 +1588,17 @@ build_source_routing <- function(source, weights) {
       source_domestic_iir = sum(stage4_iir_liability[affiliate == parent]),
       source_exported_iir = sum(stage4_iir_liability[affiliate != parent]),
       source_domestic_utpr = sum(domestic_utpr),
-      source_exported_utpr = sum(stage4_utpr_pool - domestic_utpr),
+      source_exported_utpr = sum(stage4_utpr_pool - domestic_utpr - unsupported_utpr),
       source_sbs_extinguished = sum(stage4_sbs_extinguished_liability),
       .groups = "drop"
     )
+  if (contract == "report") {
+    residual <- routed |>
+      summarise(source_unsupported_utpr = sum(unsupported_utpr), .by = c(affiliate, year, scenario_id)) |>
+      rename(country = affiliate)
+    totals <- left_join(totals, residual, by = c("country", "year", "scenario_id"), relationship = "one-to-one")
+  }
+  totals
 }
 
 stage5_collector_channels <- function(country_year, by_channel) {
@@ -1623,10 +1630,12 @@ build_stage5_ledger <- function(source, weights, revenue, channels, cit, legal, 
     left_join(select(cit, country, year, cit_revenue_T_1200),
       by = c("country", "year"), relationship = "many-to-one"
     )
+  unsupported <- flows[["source_unsupported_utpr"]]
+  if (is.null(unsupported)) unsupported <- 0
   stopifnot(
     max(abs(with(flows, source_topup_liability - source_retained_qdmtt -
       source_domestic_iir - source_exported_iir - source_domestic_utpr -
-      source_exported_utpr - source_sbs_extinguished))) < 1e-4,
+      source_exported_utpr - source_sbs_extinguished - unsupported))) < 1e-4,
     max(abs(with(flows, collector_revenue - collector_QDMTT - collector_IIR - collector_UTPR))) < 1e-4,
     max(abs(flows$source_retained_qdmtt - flows$collector_QDMTT)) < 1e-4
   )
@@ -1708,7 +1717,7 @@ build_legal_sensitivity <- function(panel, weights, legal, baseline_revenue) {
       add_behavioural_response() |>
       build_source_panel()
     allocation <- allocate_stage4_revenue(counterfactual, weights)
-    conservation <- build_conservation_diagnostics(counterfactual, allocation$revenue_by_channel_global)
+    conservation <- build_conservation_diagnostics(counterfactual, allocation$revenue_by_channel_global, allocation$unsupported_utpr)
     if (!length(active)) {
       check <- allocation$revenue_country_year_eu27 |>
         inner_join(select(baseline_revenue, country, year, scenario_id, baseline = revenue),
@@ -1815,10 +1824,7 @@ build_pre_implementation_compression <- function(stage1) {
 
 run_fiscal_flows_and_stress_tests <- function() {
   panel <- stage5_source_inputs()
-  weights <- list(
-    parent_year_weights = read_stage5_input("stage4_5_utpr_parent_year_weights"),
-    fallback_weights = read_stage5_input("stage4_5_utpr_fallback_weights")
-  )
+  weights <- read_stage4_utpr_weights()
   revenue <- read_stage5_input("stage4_5_revenue_country_year")
   conservation <- read_stage5_input("stage4_5_allocation_conservation")
   write_stage5_diagnostic(build_vintage_window_comparison(revenue), "stage4_6_vintage_window_comparison")

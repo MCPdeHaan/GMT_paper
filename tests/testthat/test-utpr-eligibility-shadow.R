@@ -132,14 +132,15 @@ test_that("a common policy date changes routes, with fallback and unsupported am
   expect_identical(f$mapping$status[f$mapping$iso3 == "GGY"], "not_established")
 })
 
-test_that("frozen weights and full LEGACY channel projection reproduce the preferred scenarios", {
+test_that("frozen weights and the audited routing contract reproduce the preferred scenarios", {
   env <- utpr_shadow_env()
   source <- readRDS(processed_path("stage4_5_allocation_source_panel.rds")) |>
     dplyr::filter(scenario_id %in% env$NASH_IDS)
   activity <- env$build_collector_activity(source)
   weights <- env$build_parent_year_utpr_weights(activity)
-  expect_identical(weights$parent_year_weights, readRDS(processed_path("stage4_5_utpr_parent_year_weights.rds")))
-  expect_identical(weights$fallback_weights, readRDS(processed_path("stage4_5_utpr_fallback_weights.rds")))
+  saved_weights <- env$read_stage4_utpr_weights(dirname(processed_path("stage4_5_utpr_parent_year_weights.rds")))
+  specification <- if (is.null(saved_weights$policy)) "LEGACY_FALLBACK" else saved_weights$policy$specification
+  expect_identical(env$build_production_utpr_weights(source, specification), saved_weights)
   policy <- env$build_policy_flags(readRDS(processed_path("oecd_pillar2_central_record.rds")))
   legal <- env$compare_utpr_eligibility(
     env$read_utpr_evidence(repo_path("data", "legal", "utpr_eligibility_2026.csv")), activity, policy, weights)
@@ -152,13 +153,48 @@ test_that("frozen weights and full LEGACY channel projection reproduce the prefe
   projected <- env$shadow_project(source, weights)
   saved <- readRDS(processed_path("stage4_5_revenue_by_channel_global.rds")) |>
     dplyr::filter(scenario_id %in% env$NASH_IDS)
-  expect_lt(env$compare_shadow_channels(projected$channels, saved,
+  active <- env$shadow_project(source, saved_weights)
+  expect_lt(env$compare_shadow_channels(active$channels, saved,
     c("scenario_id", "country", "year", "channel")), 1e-3)
   expect_equal(sum(projected$pools$unsupported_usd), 0)
+  if (specification == "VERIFIED_PARENT_ONLY") {
+    expect_gt(sum(active$pools$unsupported_usd), 0)
+    expect_identical(nrow(saved_weights$fallback_weights), 0L)
+    expect_identical(saved_weights$policy$eligible, sort(legal$iso3[legal$verified & legal$collector_scope == "candidate"]))
+  }
   verified <- env$shadow_project(source,
     env$build_parent_year_utpr_weights(env$shadow_activity(activity, legal, "VERIFIED")))
   expect_identical(verified$fixed, projected$fixed)
   keys <- c("scenario_id", "year")
   expect_identical(dplyr::arrange(verified$totals[c(keys, "source_usd", "extinguished_usd")], dplyr::across(dplyr::all_of(keys))),
     dplyr::arrange(projected$totals[c(keys, "source_usd", "extinguished_usd")], dplyr::across(dplyr::all_of(keys))))
+})
+
+test_that("the production recipient map keeps applicability separate from IIR and qualification", {
+  env <- utpr_shadow_env()
+  legal <- env$read_utpr_evidence(repo_path("data", "legal", "utpr_eligibility_2026.csv"))
+  excluded <- c("CAN", "CHE", "GIB", "HKG", "IMN", "JEY", "JPN", "LIE", "MYS", "QAT", "SGP", "VNM", "ZAF")
+  activity <- tibble::tibble(collector = c(excluded, "GGY"), collector_utpr_flag = TRUE)
+  legacy <- env$utpr_collector_policy("LEGACY_FALLBACK", activity)
+  strict <- env$utpr_collector_policy("VERIFIED_PARENT_ONLY", activity, legal)
+  fallback <- env$utpr_collector_policy("VERIFIED_FALLBACK", activity, legal)
+  unresolved <- env$utpr_collector_policy("VERIFIED_PLUS_UNRESOLVED_PARENT_ONLY", activity, legal)
+  expect_identical(strict$evaluation_date, as.Date("2026-01-01"))
+  expect_identical(strict$evidence_cutoff, as.Date("2026-11-15"))
+  expect_identical(sort(intersect(excluded, legacy$eligible)), sort(excluded))
+  expect_length(intersect(strict$eligible, c(excluded, "EST", "LVA", "LTU", "MLT", "SVK", "GGY")), 0L)
+  expect_true("CYP" %in% strict$eligible)
+  expect_identical(strict$eligible, fallback$eligible)
+  expect_identical(setdiff(unresolved$eligible, strict$eligible), "GGY")
+  expect_identical(unresolved$provisional, "GGY")
+  expect_true(all(legal$oecd_utpr_qualification[match(strict$eligible, legal$iso3)] == "not_established"))
+})
+
+test_that("the eligibility and support comparison has a separately identified interaction", {
+  env <- new.env(parent = globalenv())
+  source_pipeline("allocation/utpr_policy_comparison.R", env)
+  result <- env$utpr_decompose(tibble::tibble(metric = "receipts",
+    specification = env$UTPR_SPECIFICATIONS, value = c(80, 95, 60, 90, 92)), "metric")
+  expect_equal(unlist(result[c("eligibility_with_fallback", "fallback_removed_under_legacy",
+    "interaction", "combined", "unresolved_sensitivity")], use.names = FALSE), c(15, -20, 15, 10, 2))
 })

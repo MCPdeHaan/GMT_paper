@@ -37,11 +37,10 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 - **Depends on:** R04 and R04b. **Delivered:** The [dated national-rule register and method](r05a_utpr_legal_basis.md) and [shadow results and decision memorandum](r05a_utpr_shadow_results.md). The 1 January 2026 map separates national applicability, Article 50 and OECD qualification. The shadow holds each R1 and R3 source panel fixed while checking collector incidence, fallback and two opt-out cases. The R04b production reference is intact.
 
-### R05b. Decide eligibility and propagate the approved policy
+### R05b. Adopt verified collectors and parent-year routing
 
-- **Depends on:** R05a. **Files:** Stage 05 and 06 flags and routes, dependent 07a/09/10/11 studies, tests and paper §§2.1/6.1/6.3 and Appendix E.
-- **Change and benefit:** Adopt an independently dated collector map and decide whether pooled fallback belongs in the point estimate or a separate sensitivity. Preserve R1, R2 and R3 source predicates unless explicitly revised. Establish a common residual-accounting contract for detailed, collapsed and sparse collectors.
-- **Risk, tests and completion:** Recompute the full factorials and affected uncertainty outputs, invalidating affected caches. Rebuild both levels of collector weights and rerun the full L3 and L4 repeal and opt-out game. Test legally distinct scope, conservation with unsupported residual, country and channel effects, spillovers and welfare ratios. Publish before/after results and revise the affected manuscript passages. Version an approved new reference after review.
+- **Depends on:** R05a. **Delivered:** The leading specification uses national UTPR applicability for a fiscal year starting 1 January 2026 and parent-year activity. The dated map and explicit unsupported residual propagate across Stages 06–13. R1, R2 and R3 retain their source and parent predicates. The eligible set and the support assumption have separate sensitivity arms.
+- **Verification and remaining questions:** The [R05b scientific revision](r05b_utpr_production.md) records the full replay, comparison, game and new versioned freeze. The law-specific questions that require group data or separate policy changes remain in S03, S05 and S08.
 
 ### R06. Separate behavioural bunching and legal safe harbours
 
@@ -123,4 +122,4 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ## Recommended next task
 
-Decide the R05b specification using the [R05a results and decision memorandum](r05a_utpr_shadow_results.md). Record the collector map, support convention and intended empirical output changes before altering the production pipeline.
+Characterise the behavioural notch independently of the legal safe harbours under R06, using the [R05b reference](r05b_utpr_production.md) for routing. Establish matched no-notch and existing-notch outputs before choosing a scientific specification.

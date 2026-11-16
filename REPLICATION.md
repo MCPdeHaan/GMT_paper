@@ -16,10 +16,13 @@ Rscript --vanilla -e 'install.packages("renv", repos = "https://cloud.r-project.
 Rscript --vanilla -e 'renv::restore(prompt = FALSE)'
 export R_LIBS_USER="$(Rscript --vanilla -e 'cat(renv::paths$library())')"
 shasum -a 256 -c tests/step17_raw_inputs.sha256
+shasum -a 256 -c tests/r05b_legal_inputs.sha256
 Rscript --vanilla run_all.R
 ```
 
-The command writes analysis data to `data/processed/`, diagnostics to `data/processed/diagnostics/`, and LaTeX and PDF exhibits to `writing/generated/`. For a separate run, pass `--output-root=/absolute/path`. All inputs resolve from this checkout. An isolated replay may reuse the 13 Stage 1 measurement-error outputs from the checkout or from a completed replay supplied through `GMT_MEASUREMENT_CACHE_ROOT`. Module 07a checks the SHA-256 hashes of all 13 files and the nine current simulation inputs before reusing them. If any check fails, it runs the full 500-draw simulation. The seeds are 20260503 for measurement error, 20260613 for profit reconciliation uncertainty and 20261113 for joint uncertainty. The main analysis runs offline after dependency installation.
+The command writes analysis data to `data/processed/`, diagnostics to `data/processed/diagnostics/`, and LaTeX and PDF exhibits to `writing/generated/`. Pass `--output-root=/absolute/path` for an isolated replay. All inputs resolve from this checkout. The default `GMT_UTPR_SPECIFICATION=VERIFIED_PARENT_ONLY` uses verified national applicability for fiscal years starting 1 January 2026 and observed parent-year activity. Stage 06 writes the dated collector map and source-key unsupported liability. Use a fresh output root for every specification. The four comparison specifications and the Guernsey sensitivity are defined in the [R05b scientific revision](docs/refactoring/r05b_utpr_production.md).
+
+The leading run computes every Stage 1 measurement-error draw. For `LEGACY_FALLBACK`, 07a can reuse 13 historical measurement-error files using `GMT_MEASUREMENT_CACHE_ROOT`, after checking the hashes of the files and nine simulation inputs. Use an empty existing directory for that variable to exercise a fresh historical simulation. On Unix, `GMT_MEASUREMENT_WORKERS` optionally uses more than one process for evaluation of the already seeded measurement draws. The default is one. The seeds are 20260503 for measurement error, 20260613 for profit reconciliation uncertainty and 20261113 for joint uncertainty. The main analysis runs offline after dependency installation.
 
 # Data availability and provenance
 
@@ -75,7 +78,7 @@ A public deposit should include the authorised input bytes or persistent referen
 | 12 master scorecard | Core, extension diagnostics and archived thesis fixtures | `master_paper_v2_scorecard.csv` | 12.1 |
 | 13 generate exhibits | Inputs listed below | Core and appendix LaTeX, eight main-text tables and eight generated PDF figures | 4.2 |
 
-The 15 stages took 7 minutes 28 seconds in total on the verification host with the hash-verified Stage 1 cache. A previous full 500-draw Stage 1 run took roughly 40 minutes. Live acquisition and dependency installation are outside these timings.
+The historical 15-stage replay took 7 minutes 28 seconds in total on the verification host with the hash-verified Stage 1 cache. A previous full 500-draw Stage 1 run took roughly 40 minutes. Live acquisition and dependency installation are outside these timings.
 
 # Verification
 
@@ -84,7 +87,7 @@ Rscript --vanilla tests/verify_golden_step15.R
 Rscript --vanilla tests/testthat.R
 ```
 
-For an isolated output tree, pass its path to the verifier and set `GMT_TEST_OUTPUT_ROOT` to that path before running the tests. The verifier rejects missing, extra and altered CSV or RDS files. The default R04b reference adds one versioned budget benchmarking CSV to the 359 Step 15 files and separately pinned Step 17 sensitivity. The 360 historical hashes remain intact. Use `Rscript --vanilla tests/verify_golden_step15.R /absolute/path/to/r04-replay r04` to check the historical R04 output tree. The obsolete PwC RDS was retired before R04. The byte verifier supports R >= 4.3. A runtime other than R 4.6 produces an informative note. It uses `tools::sha256sum()` where available, with `sha256sum`, `shasum -a 256` or `openssl dgst -sha256` as system fallbacks. Older R versions can verify file bytes without reserialising analytical objects. See the [R04b comparison](docs/refactoring/r04b_budget_benchmarking.md) for the exhibit changes.
+For an isolated output tree, pass its path to the verifier and set `GMT_TEST_OUTPUT_ROOT` to that path before running the tests. The verifier rejects missing, extra and altered CSV or RDS files. It defaults to the `r05b` reference. Use `Rscript --vanilla tests/verify_golden_step15.R /absolute/path/to/legacy r04b` to verify all 361 historical files from `338d7203958c34d036f5e5baa21b8a4ffdd0a036` or a `LEGACY_FALLBACK` replay. The `r04` selector addresses the preceding 360-file reference. The byte verifier supports R >= 4.3 and uses `tools::sha256sum()`, `sha256sum`, `shasum -a 256` or `openssl dgst -sha256`.
 
 The manuscript tests follow every input and graphic, check non-empty files, reject raw code labels/scientific notation and prohibited dash punctuation, and regenerate every included table in a temporary directory for byte comparison. They also check all eight numbered main-text and six numbered appendix fragments plus the CbCR extension table. PDF metadata can include generation timestamps.
 

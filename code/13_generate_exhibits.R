@@ -2350,6 +2350,17 @@ write_country_revenue_diagnostic_table <- function(
   tabcolsep = "2pt",
   fit_width = TRUE
 ) {
+  notes <- COUNTRY_REVENUE_DIAGNOSTIC_NOTES
+  if (file.exists(file.path(PROCESSED_DIR, "stage4_5_utpr_policy.rds"))) {
+    countries <- read_diag("step7_stage4_6_fiscal_salience_country.csv") |>
+      filter(preferred_revenue > 0) |>
+      pull(country)
+    notes <- paste(
+      "Cumulative 2017–2023. Spread is the difference between the maximum and minimum across 32 scenarios (US\\$ bn).",
+      "Salience ratios use OECD T\\_1200 CIT and the Eurostat equivalent for Cyprus.",
+      "The table covers states with positive receipts in the preferred behavioural SbS scenario."
+    )
+  }
   rows <- build_country_revenue_diagnostic_rows(countries)
   body_lines <- format_country_revenue_diagnostic_body(rows)
 
@@ -2364,7 +2375,7 @@ write_country_revenue_diagnostic_table <- function(
       ),
       header_lines = COUNTRY_REVENUE_DIAGNOSTIC_HEADER,
       body_lines = body_lines,
-      notes = COUNTRY_REVENUE_DIAGNOSTIC_NOTES,
+      notes = notes,
       size = size,
       tabcolsep = tabcolsep,
       fit_width = fit_width
@@ -2387,14 +2398,17 @@ write_stage46_country_diagnostic_table <- function() {
 }
 
 write_stage46_country_diagnostic_appendix_table <- function() {
+  reports_unsupported <- file.exists(file.path(PROCESSED_DIR, "stage4_5_utpr_policy.rds"))
   write_country_revenue_diagnostic_table(
     file = file.path(
       GENERATED_TABLES_DIR,
       "appendix_country_revenue_diagnostic.tex"
     ),
     countries = COUNTRY_REVENUE_DIAGNOSTIC_COUNTRIES,
-    short_caption = "Country revenue uncertainty and fiscal salience, full EU sample",
-    caption = "Country revenue uncertainty and fiscal salience, full EU sample (appendix replication of the main-text diagnostic)",
+    short_caption = if (reports_unsupported) "Country revenue uncertainty and fiscal salience, EU27 collectors" else
+      "Country revenue uncertainty and fiscal salience, full EU sample",
+    caption = if (reports_unsupported) "Country revenue uncertainty and fiscal salience, EU27 collectors (appendix replication)" else
+      "Country revenue uncertainty and fiscal salience, full EU sample (appendix replication of the main-text diagnostic)",
     label = "tab:app_country_revenue_diagnostic"
   )
 }
@@ -2498,6 +2512,12 @@ write_stage46_measurement_sample_table <- function() {
 }
 
 write_country_typology_tables <- function() {
+  reports_unsupported <- file.exists(file.path(PROCESSED_DIR, "stage4_5_utpr_policy.rds"))
+  imputation_note <- if (reports_unsupported) {
+    "For PCA scaling, median imputation fills undefined channel shares for the four countries with zero assigned receipts."
+  } else {
+    "Cyprus' missing OECD T\\_1200 corporate-tax denominator and undefined channel shares for the four zero-revenue countries are median-imputed only for PCA scaling."
+  }
   pca <- read_diag("step7_stage4_6_country_typology_pca_summary.csv") |>
     filter(component %in% c("PC1", "PC2", "PC3")) |>
     transmute(
@@ -2523,13 +2543,18 @@ write_country_typology_tables <- function() {
     notes = paste(
       "The PCA is run on standardised country-level features.",
       "Revenue amounts, scenario spread and per-resident revenue enter in logs; signed main-effect amounts enter as signed log magnitudes.",
-      "Cyprus' missing OECD T\\_1200 corporate-tax denominator and undefined channel shares for the four zero-revenue countries are median-imputed only for PCA scaling.",
+      imputation_note,
       ""
     ),
     size = "\\footnotesize"
   )
 
   profiles <- read_diag("step7_stage4_6_country_typology_cluster_profiles.csv")
+  zero_receipts_note <- "For T4, zero Rev.\\ and missing channel shares reflect non-adoption of qualified QDMTT and IIR rules: Cyprus had no qualified domestic top-up tax in the Central Record, and Estonia, Latvia, Lithuania and Malta deferred the rules under Article 50."
+  if (reports_unsupported) {
+    zero_receipts_note <- paste("T4 has zero assigned receipts and undefined channel shares.",
+      "Estonia, Latvia, Lithuania and Malta deferred IIR and UTPR under Article 50.")
+  }
   stability <- read_diag("step7_stage4_6_country_typology_cluster_stability.csv")
   selected_stability <- stability |>
     filter(selected) |>
@@ -2564,7 +2589,7 @@ write_country_typology_tables <- function() {
       paste0(fmt_pct(selected_stability$stability_score, 1), "\\%,"),
       "the smallest cluster contains one country, and the four-cluster solution separates conduit hubs (T1), QDMTT-protected smaller states (T2), residual IIR/UTPR exposure states (T3) and states with zero baseline collector receipts (T4).",
       "Rev.\\ is preferred behavioural SbS revenue in US dollars, billions.",
-      "For T4, zero Rev.\\ and missing channel shares reflect non-adoption of qualified QDMTT and IIR rules: Cyprus had no qualified domestic top-up tax in the Central Record, and Estonia, Latvia, Lithuania and Malta deferred the rules under Article 50.",
+      zero_receipts_note,
       "Rev./CIT uses OECD T\\_1200 where available; cluster means ignore missing denominators.",
       "Res.\\ is residual IIR/UTPR exposure; SbS ext.\\ is the share of CIT revenue extinguished under the SbS regime; Imp.\\ is the high-risk imputation share.",
       ""
@@ -4746,6 +4771,15 @@ write_paper_ledger_table <- function() {
       retained = paper_bn(source_retained_qdmtt + source_domestic_iir + source_domestic_utpr),
       iir = paper_bn(source_exported_iir), utpr = paper_bn(source_exported_utpr),
       relief = paper_bn(source_sbs_extinguished))
+  reports_unsupported <- "source_unsupported_utpr" %in% names(ledger)
+  allocation_columns <- c("ISO", "Group", "Generated", "Retained", "IIR abroad", "UTPR abroad", "SbS relief")
+  ledger_note <- "CYP, EST, LTU, LVA and MLT have zero baseline collector receipts."
+  if (reports_unsupported) {
+    allocation$unsupported <- paper_bn(ledger$source_unsupported_utpr)
+    allocation_columns <- c(allocation_columns, "Unassigned")
+    ledger_note <- paste("Unassigned is residual UTPR liability outside observed parent-year routing support.",
+      "The UTPR collector map uses verified national applicability. R1, R2 and R3 vary source QDMTT and parent IIR.")
+  }
   collector <- ledger |>
     transmute(country, qdmtt = paper_bn(collector_QDMTT), iir = paper_bn(collector_IIR),
       utpr = paper_bn(collector_UTPR), collected = paper_bn(collector_revenue),
@@ -4758,30 +4792,38 @@ write_paper_ledger_table <- function() {
     select(country, regime, revenue) |>
     pivot_wider(names_from = regime, values_from = revenue, names_sort = TRUE)
   panels <- list(
-    "A. Liability generated and routed from source" = paper_panel(c("ISO", "Group", "Generated",
-      "Retained", "IIR abroad", "UTPR abroad", "SbS relief"), allocation),
+    "A. Liability generated and routed from source" = paper_panel(allocation_columns, allocation),
     "B. Collector receipts, ordinary CIT and scenario spread" = paper_panel(c("ISO", "QDMTT", "IIR",
       "UTPR", "Collected", "Net", "Rule B CIT", "CIT (%)", "Spread"), collector),
     "C. Qualification and adoption sensitivities" = paper_panel(c("ISO", "R1", "R2", "R3"), regimes))
   write_paper_float_table("tab_v2_main_table7_source_collector_ledger", "Source liability and collector receipts", panels[1:2],
-    "Cumulative 2017–2023, US$ bn, preferred behavioural SbS scenario. Net is collected minus source liability. Rule B CIT is gross induced ordinary CIT. Groups are high-salience sources (1), QDMTT-protected collectors (2), residual IIR/UTPR collectors (3), and Article 50 fiscal exporters (4). CYP, EST, LTU, LVA and MLT have zero baseline collector receipts. Qualification sensitivities are in Online Appendix E.",
-    align = list("A. Liability generated and routed from source" = "llrrrrr"), size = "scriptsize")
+    paste("Cumulative 2017–2023, US$ bn, preferred behavioural SbS scenario. Net is collected minus source liability. Rule B CIT is gross induced ordinary CIT. Groups are high-salience sources (1), QDMTT-protected collectors (2), residual IIR/UTPR collectors (3), and Article 50 fiscal exporters (4).", ledger_note,
+      "Qualification sensitivities are in Online Appendix E."),
+    align = list("A. Liability generated and routed from source" = if (reports_unsupported) "llrrrrrr" else "llrrrrr"),
+    size = "scriptsize")
   write_paper_table("tab_v2_app_table7_regime_sensitivities", "Qualification and adoption sensitivities",
     list("Collector revenue under alternative legal regimes" = panels[[3]]),
     "Cumulative 2017–2023, US$ bn, preferred behavioural SbS scenario. R1 is the observed qualification baseline. R2 activates Cyprus under Law 151(I)/2024. R3 assumes full EU27 QDMTT and IIR adoption.")
   write_paper_table("tab_v2_source_collector_ledger_and_regimes", "Source liability and collector receipts", panels,
-    "Cumulative 2017–2023, US$ bn, preferred behavioural SbS scenario. Net is collected minus source liability. Rule B CIT is gross induced ordinary CIT. Groups are high-salience sources (1), QDMTT-protected collectors (2), residual IIR/UTPR collectors (3), and Article 50 fiscal exporters (4). CYP, EST, LTU, LVA and MLT have zero baseline collector receipts. R2 activates Cyprus under Law 151(I)/2024. R3 assumes full EU27 QDMTT and IIR adoption.")
+    paste("Cumulative 2017–2023, US$ bn, preferred behavioural SbS scenario. Net is collected minus source liability. Rule B CIT is gross induced ordinary CIT. Groups are high-salience sources (1), QDMTT-protected collectors (2), residual IIR/UTPR collectors (3), and Article 50 fiscal exporters (4).", ledger_note,
+      "R2 activates Cyprus under Law 151(I)/2024. R3 assumes full EU27 QDMTT and IIR adoption."))
 }
 
 write_paper_nash_table <- function() {
   matrix <- paper_read("step13_unilateral_qdmtt_deviation_matrix") |>
     filter(level == "L3_pooled", window == "FY2023")
+  reports_unsupported <- "host_unsupported_utpr" %in% names(matrix)
+  residual_note <- "Unassigned denotes the deviating host's residual UTPR liability without modelled routing support. Source relief measures the decline in modelled source liability."
   format_deviations <- function(data) {
-    data |>
+    formatted <- data |>
       arrange(country, regime) |>
       transmute(country, regime, qdmtt = paper_bn(-delta_qdmtt, 3), foreign = paper_bn(foreign_soakup, 3),
         tax_cut = paper_bn(mne_topup_saved, 3), efficiency = paper_pct(tax_cut_efficiency, 1),
         retained = paper_bn(retained_profit, 3), weight = paper_number(critical_welfare_weight, 3))
+    if (reports_unsupported) {
+      formatted$unassigned <- paper_bn(arrange(data, country, regime)$host_unsupported_utpr, 3)
+    }
+    formatted
   }
   deviations <- format_deviations(filter(matrix, deviation == "qdmtt_repeal"))
   strategy <- paper_read("step13_qdmtt_vs_sbti_strategy_comparison") |>
@@ -4789,17 +4831,23 @@ write_paper_nash_table <- function() {
     transmute(country, capacity = paper_bn(maximum_capacity_proxy, 3),
       repeal = paper_bn(repeal_topup_relief, 3), sbti = paper_bn(overlay_topup_relief, 3),
       leakage = paper_bn(overlay_foreign_leakage, 3), efficiency = paper_pct(overlay_efficiency, 1))
-  deviation_columns <- c("ISO", "Regime", "QDMTT lost", "Foreign soak-up", "MNE tax cut",
+  relief_label <- if (reports_unsupported) "Source relief" else "MNE tax cut"
+  deviation_columns <- c("ISO", "Regime", "QDMTT lost", "Foreign soak-up", relief_label,
     "Efficiency (%)", "Retained", "Critical weight")
   strategy_panel <- paper_panel(c("ISO", "Capacity", "Repeal relief", "SBTI relief", "Leakage",
     "SBTI efficiency (%)"), strategy)
-  compact_columns <- c("ISO", "QDMTT lost", "Soak-up", "MNE tax cut", "Efficiency (%)", "Retained", "Weight")
+  compact_columns <- c("ISO", "QDMTT lost", "Soak-up", relief_label, "Efficiency (%)", "Retained", "Weight")
+  if (reports_unsupported) {
+    deviation_columns <- c(deviation_columns, "Unassigned")
+    compact_columns <- c(compact_columns, "Unassigned")
+  }
   sbs_repeal <- filter(deviations, regime == "SbS")
   stopifnot(nrow(sbs_repeal) == 27L)
   write_paper_float_table("tab_v2_main_table8_qdmtt_repeal_game", "Unilateral QDMTT repeal and capped SBTI", list(
     "A. Repeal under Side-by-Side" = paper_panel(compact_columns, select(sbs_repeal, -regime)),
     "B. Side-by-Side repeal versus maximum SBTI overlay" = strategy_panel),
-    "FY2023, L3, full EU27 adoption benchmark, US$ bn unless shown otherwise. Repeal holds the deviator's IIR and UTPR status fixed. Soak-up is the forgone QDMTT collected by foreign IIR and UTPR. Weight is the critical welfare weight, net domestic tax foregone per unit of retained profit. Under the Universal regime repeal yields no MNE tax cut in any state; those rows are in Online Appendix E. The SBTI overlay represents a capacity proxy. Its relief efficiency is distinct from the fiscal cost of new qualifying incentives.",
+    paste(c("FY2023, L3, full EU27 adoption benchmark, US$ bn unless shown otherwise. Repeal holds the deviator's IIR and UTPR status fixed. Soak-up is the forgone QDMTT collected by foreign IIR and UTPR. Weight is the critical welfare weight, net domestic tax foregone per unit of retained profit. Under the Universal regime repeal yields no MNE tax cut in any state; those rows are in Online Appendix E. The SBTI overlay represents a capacity proxy. Its relief efficiency is distinct from the fiscal cost of new qualifying incentives.",
+      if (reports_unsupported) residual_note), collapse = " "),
     size = "scriptsize")
   universal <- filter(deviations, regime == "Universal")
   opt_out <- format_deviations(filter(matrix, deviation == "full_opt_out"))
@@ -4807,11 +4855,13 @@ write_paper_nash_table <- function() {
   write_paper_table("tab_v2_app_table8_universal_and_optout", "QDMTT repeal under Universal and full opt-out", list(
     "A. QDMTT repeal under the Universal regime" = paper_panel(compact_columns, select(universal, -regime)),
     "B. Full opt-out under Universal and Side-by-Side" = paper_panel(c("ISO", "Regime", compact_columns[-1]), opt_out)),
-    "FY2023, L3, full EU27 adoption benchmark, US$ bn unless shown otherwise. Panel A holds the deviator's IIR and UTPR status fixed. Full opt-out also switches off the deviator's own IIR and UTPR. Soak-up is the forgone revenue collected by foreign IIR and UTPR. Weight is the critical welfare weight, net domestic tax foregone per unit of retained profit; it is infinite when the deviation yields no MNE tax cut. The 2017–2023 window and the L4 strict ladder are in the diagnostics CSV.")
+    paste(c("FY2023, L3, full EU27 adoption benchmark, US$ bn unless shown otherwise. Panel A holds the deviator's IIR and UTPR status fixed. Full opt-out also switches off the deviator's own IIR and UTPR. Soak-up is the forgone revenue collected by foreign IIR and UTPR. Weight is the critical welfare weight, net domestic tax foregone per unit of retained profit; it is infinite when the deviation yields no MNE tax cut. The 2017–2023 window and the L4 strict ladder are in the diagnostics CSV.",
+      if (reports_unsupported) residual_note), collapse = " "))
   write_paper_table("tab_v2_qdmtt_nash_deviation_game", "Unilateral QDMTT repeal and capped SBTI", list(
     "A. Repeal under Universal and Side-by-Side" = paper_panel(deviation_columns, deviations),
     "B. Side-by-Side repeal versus maximum SBTI overlay" = strategy_panel),
-    "FY2023, L3, full EU27 adoption benchmark, US$ bn unless shown otherwise. Repeal holds the deviator's IIR and UTPR status fixed. The critical welfare weight uses net domestic tax foregone and retained profit. The SBTI overlay represents a capacity proxy. Its relief efficiency is distinct from the fiscal cost of new qualifying incentives.")
+    paste(c("FY2023, L3, full EU27 adoption benchmark, US$ bn unless shown otherwise. Repeal holds the deviator's IIR and UTPR status fixed. The critical welfare weight uses net domestic tax foregone and retained profit. The SBTI overlay represents a capacity proxy. Its relief efficiency is distinct from the fiscal cost of new qualifying incentives.",
+      if (reports_unsupported) residual_note), collapse = " "))
 }
 
 paper_scope_label <- function(x) {

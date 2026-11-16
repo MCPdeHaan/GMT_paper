@@ -9,6 +9,7 @@
 
 source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "00_helpers.R"), local = TRUE)
 source(file.path(GMT_PROJECT_ROOT, "code", "allocation", "collector_routes.R"), local = TRUE)
+source(file.path(GMT_PROJECT_ROOT, "code", "allocation", "utpr_policy.R"), local = TRUE)
 
 
 compute_utpr_raw_weight <- function(employee_share, asset_share) {
@@ -130,7 +131,8 @@ build_collector_activity <- function(stage3_panel) {
     )
 }
 
-build_parent_year_utpr_weights <- function(collector_activity) {
+build_parent_year_utpr_weights <- function(collector_activity, policy = NULL) {
+  if (!is.null(policy)) collector_activity <- apply_utpr_collector_policy(collector_activity, policy)
   parent_year_weights <- collector_activity |>
     filter(collector_utpr_flag) |>
     group_by(parent, year) |>
@@ -199,13 +201,24 @@ build_parent_year_utpr_weights <- function(collector_activity) {
     parent_year_weights = parent_year_weights,
     fallback_weights = fallback_weights
   )
+  if (!is.null(policy) && policy$specification != "LEGACY_FALLBACK") {
+    if (endsWith(policy$specification, "PARENT_ONLY")) weights$fallback_weights <- fallback_weights[0, ]
+    weights$policy <- policy
+  }
   validate_utpr_weights(weights, EU27_ISO3)
   weights
 }
 
+build_production_utpr_weights <- function(panel, specification = utpr_specification()) {
+  activity <- build_collector_activity(panel)
+  build_parent_year_utpr_weights(activity, utpr_collector_policy(specification, activity))
+}
+
 # Final collector waterfall. In contrast to the Stage 3 source proxy, UTPR is
 # assigned to collectors using parent-year substance and the year fallback.
-allocate_stage4_revenue <- function(source_panel, utpr_weights) {
+allocate_stage4_revenue <- function(source_panel, utpr_weights,
+                                    unsupported = utpr_unsupported_contract(utpr_weights)) {
+  unsupported <- match.arg(unsupported, c("strict", "report"))
   validate_utpr_weights(utpr_weights, EU27_ISO3)
   qdmtt_allocation <- source_panel |>
     filter(stage4_qdmtt_liability > 0) |>
@@ -244,25 +257,31 @@ allocate_stage4_revenue <- function(source_panel, utpr_weights) {
     )
 
   utpr_routes <- expand_utpr_routes(utpr_pool, utpr_weights)
-  if (anyNA(utpr_routes$collector)) {
+  if (unsupported == "strict" && anyNA(utpr_routes$collector)) {
     stop("Stage 4.5 has a positive UTPR pool with no supported collector route", call. = FALSE)
   }
+  unassigned <- utpr_routes |>
+    filter(is.na(collector)) |>
+    select(all_of(SCENARIO_VARS), parent, year, unsupported_utpr = utpr_pool, source_rows, source_affiliates)
   utpr_routes <- utpr_routes |> mutate(revenue = utpr_pool * utpr_weight)
 
-  utpr_pool_check <- utpr_routes |>
+  route_totals <- utpr_routes |>
     group_by(across(all_of(SCENARIO_VARS)), parent, year) |>
     summarise(
       allocated_utpr_pool = sum(revenue, na.rm = TRUE),
+      unsupported_utpr = sum(utpr_pool[is.na(collector)]),
       .groups = "drop"
-    ) |>
-    left_join(utpr_pool, by = c(SCENARIO_VARS, "parent", "year")) |>
-    mutate(utpr_pool_gap = allocated_utpr_pool - utpr_pool)
+    )
+  utpr_pool_check <- utpr_pool |>
+    left_join(route_totals, by = c(SCENARIO_VARS, "parent", "year"), relationship = "one-to-one") |>
+    mutate(utpr_pool_gap = allocated_utpr_pool + unsupported_utpr - utpr_pool)
 
-  if (any(abs(utpr_pool_check$utpr_pool_gap) > 1e-3, na.rm = TRUE)) {
+  if (anyNA(utpr_pool_check$utpr_pool_gap) || any(abs(utpr_pool_check$utpr_pool_gap) > 1e-3)) {
     stop("Stage 4.5 UTPR expansion does not conserve the UTPR pool")
   }
 
   utpr_allocation <- utpr_routes |>
+    filter(!is.na(collector)) |>
     group_by(across(all_of(SCENARIO_VARS)),
       country = collector, country_name = collector_name, year,
       allocation_weight_source = utpr_weight_source,
@@ -320,11 +339,12 @@ allocate_stage4_revenue <- function(source_panel, utpr_weights) {
     revenue_by_channel_global = revenue_by_channel_global,
     revenue_by_channel_eu27 = revenue_by_channel_eu27,
     revenue_country_year_eu27 = revenue_country_year_eu27,
-    utpr_pool = utpr_pool
+    utpr_pool = utpr_pool,
+    unsupported_utpr = if (unsupported == "report") unassigned else NULL
   )
 }
 
-build_conservation_diagnostics <- function(source_panel, revenue_global) {
+build_conservation_diagnostics <- function(source_panel, revenue_global, unsupported_utpr = NULL) {
   source_totals <- source_panel |>
     group_by(across(all_of(SCENARIO_VARS)), year) |>
     summarise(
@@ -343,11 +363,20 @@ build_conservation_diagnostics <- function(source_panel, revenue_global) {
       .groups = "drop"
     )
 
-  conservation <- source_totals |>
-    left_join(allocated_totals, by = c(SCENARIO_VARS, "year")) |>
+  key <- c(SCENARIO_VARS, "year")
+  conservation <- source_totals |> left_join(allocated_totals, by = key)
+  if (!is.null(unsupported_utpr)) {
+    totals <- unsupported_utpr |>
+      summarise(unsupported_utpr = sum(unsupported_utpr), .by = all_of(key))
+    conservation <- conservation |>
+      left_join(totals, by = key, relationship = "one-to-one") |>
+      mutate(unsupported_utpr = coalesce_zero(unsupported_utpr))
+  }
+  unassigned <- if (is.null(unsupported_utpr)) 0 else conservation$unsupported_utpr
+  conservation <- conservation |>
     mutate(
       allocated_topup = coalesce_zero(allocated_topup),
-      residual_gap = allocated_topup + sbs_extinguished_topup + zero_liability -
+      residual_gap = allocated_topup + sbs_extinguished_topup + zero_liability + unassigned -
         pre_allocation_topup
     )
 
@@ -546,6 +575,11 @@ run_stage4_5_h4_tests <- function(revenue_country_year_eu27, source_panel) {
 
 run_stage4_5_pipeline <- function() {
   dir.create(DIAGNOSTICS_DIR, showWarnings = FALSE, recursive = TRUE)
+  specification <- utpr_specification()
+  policy_file <- file.path(PROCESSED_DIR, "stage4_5_utpr_policy.rds")
+  if (file.exists(policy_file) && readRDS(policy_file)$specification != specification) {
+    stop("Use a fresh output directory when switching UTPR specifications", call. = FALSE)
+  }
   stage3_panel <- readRDS(file.path(PROCESSED_DIR, "stage3_factorial_pair_year.rds"))
 
   assert_unique_keys(
@@ -555,13 +589,13 @@ run_stage4_5_pipeline <- function() {
   )
 
   source_panel <- build_source_panel(stage3_panel)
-  collector_activity <- build_collector_activity(stage3_panel)
-  utpr_weights <- build_parent_year_utpr_weights(collector_activity)
+  utpr_weights <- build_production_utpr_weights(stage3_panel, specification)
   allocation_objects <- allocate_stage4_revenue(source_panel, utpr_weights)
 
   conservation <- build_conservation_diagnostics(
     source_panel,
-    allocation_objects$revenue_by_channel_global
+    allocation_objects$revenue_by_channel_global,
+    allocation_objects$unsupported_utpr
   )
 
   h4_objects <- run_stage4_5_h4_tests(
@@ -612,7 +646,7 @@ run_stage4_5_pipeline <- function() {
         ),
         .groups = "drop"
       ),
-    utpr_weights$fallback_weights |>
+    if (nrow(utpr_weights$fallback_weights)) utpr_weights$fallback_weights |>
       group_by(weight_source = utpr_weight_source) |>
       summarise(
         parent_years = NA_integer_,
@@ -721,6 +755,15 @@ run_stage4_5_pipeline <- function() {
     file.path(PROCESSED_DIR, "stage4_5_revenue_country_year.rds")
   )
   saveRDS(conservation, file.path(PROCESSED_DIR, "stage4_5_allocation_conservation.rds"))
+  if (!is.null(utpr_weights$policy)) {
+    saveRDS(utpr_weights$policy, policy_file)
+    keys <- c(SCENARIO_VARS, "parent", "year")
+    unsupported <- source_panel |>
+      filter(stage4_utpr_pool > 0) |>
+      semi_join(allocation_objects$unsupported_utpr, by = keys) |>
+      select(all_of(keys), affiliate, unsupported_utpr = stage4_utpr_pool)
+    saveRDS(unsupported, file.path(PROCESSED_DIR, "stage4_5_utpr_unsupported_sources.rds"))
+  }
   saveRDS(
     sbs_source_exposure,
     file.path(PROCESSED_DIR, "stage4_5_sbs_source_exposure.rds")

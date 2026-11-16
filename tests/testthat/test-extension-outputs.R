@@ -29,6 +29,27 @@ test_that("econometric extensions contain the division-bias and budget compariso
   expect_true(all(budgets$collector_min_eur_bn <= budgets$collector_max_eur_bn))
 })
 
+test_that("reporting-mode repeal and opt-out reconcile assigned receipts and source relief", {
+  nash <- read_extension("step13_unilateral_qdmtt_deviation_matrix")
+  if ("host_unsupported_utpr" %in% names(nash)) {
+    expect_true(all(nash$host_unsupported_utpr >= 0))
+    expect_true(all(nash$host_unsupported_utpr[nash$deviation == "qdmtt_repeal"] == 0))
+    ireland <- dplyr::filter(nash, country == "IRL", deviation == "full_opt_out", regime == "Universal")
+    expect_equal(nrow(ireland), 4L)
+    expect_true(all(ireland$host_unsupported_utpr > 0))
+    expect_true(all(ireland$global_assigned_decline > 0))
+    expect_true(all(ireland$mne_topup_saved == 0))
+    expect_true(all(!ireland$deviation_utpr_active))
+    expect_lt(max(abs(with(nash, adoption_qdmtt - domestic_iir_recapture - domestic_utpr_recapture -
+      foreign_soakup - host_unsupported_utpr - mne_topup_saved))), 1e-3)
+    gap <- with(nash, global_assigned_decline + adoption_global_unsupported_utpr -
+      deviation_global_unsupported_utpr - mne_topup_saved)
+    expect_true(all(abs(gap) < 2e-3 * (nash$end_year - nash$start_year + 1L)))
+  } else {
+    expect_true(all(nash$mne_topup_saved[nash$regime == "Universal"] == 0))
+  }
+})
+
 test_that("the accounting bridge retains its baseline and conserves allocated liability", {
   bridge <- read_extension("step12_cbcr_to_budget_waterfall_bridge")
   waterfall <- bridge[bridge$record_type == "waterfall", ]
@@ -58,7 +79,18 @@ test_that("policy deviations and the joint variance decomposition cover the froz
 
 test_that("the master scorecard includes all empirical stages and extension results", {
   scorecard <- read_extension("master_paper_v2_scorecard")
-  expect_equal(nrow(scorecard), 65478L)
+  residuals <- dplyr::filter(scorecard, metric == "source_unsupported_utpr")
+  expect_equal(nrow(scorecard) - nrow(residuals), 65478L)
+  if (file.exists(processed_path("stage4_5_utpr_policy.rds"))) {
+    expected <- tidyr::expand_grid(scope = EU27_ISO3, window = c("Full vintage", "2023"),
+      specification = c("x10001", "x10011"))
+    expect_equal(nrow(residuals), nrow(expected))
+    expect_equal(dplyr::anti_join(expected, residuals, by = names(expected)), expected[0, ])
+    expect_true(all(residuals$unit == "USD" & is.finite(residuals$paper_value) &
+      is.na(residuals$thesis_value)))
+  } else {
+    expect_equal(nrow(residuals), 0L)
+  }
   expect_setequal(scorecard$stage, c("Data", "Stage 1", "Stage 2", "Stage 3",
     "Stage 4.5", "Stage 4.6", "Step 12", "Step 13", "Step 14", "Step 15"))
   expect_true(any(is.finite(scorecard$paper_value)))

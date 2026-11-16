@@ -2,56 +2,8 @@
 source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code",
   "11_policy_game_and_variance_extensions.R"), local = TRUE)
 
-UTPR_EVALUATION_DATE <- as.Date("2026-01-01")
-UTPR_EVIDENCE_CUTOFF <- as.Date("2026-11-15")
-UTPR_LEGAL_STATUSES <- c("verified_applicable", "verified_not_applicable", "deferred",
-  "not_established", "legally_ambiguous")
 UTPR_SHADOW_ARMS <- c("LEGACY", "VERIFIED", "VERIFIED_PLUS_UNRESOLVED")
 UTPR_SHADOW_WINDOWS <- list("FY2023" = 2023L, "2017–2023" = MAIN_YEARS)
-
-read_utpr_evidence <- function(path) {
-  date_cols <- c("enactment_date", "commencement_date", "first_applicable_fy_start",
-    "source_publication_date", "source_retrieval_date", "evaluation_date", "evidence_cutoff")
-  evidence <- readr::read_csv(path, show_col_types = FALSE,
-    col_types = do.call(readr::cols, c(list(.default = readr::col_character()),
-      setNames(rep(list(readr::col_date()), length(date_cols)), date_cols))))
-  readr::stop_for_problems(evidence)
-  validate_utpr_evidence(evidence)
-  evidence
-}
-
-validate_utpr_evidence <- function(evidence) {
-  keys <- c("iso3", "rule", "evaluation_date")
-  stopifnot(!anyNA(evidence[keys]), !anyDuplicated(evidence[keys]),
-    all(grepl("^[A-Z]{3}$", evidence$iso3)), all(evidence$rule == "UTPR"),
-    all(evidence$evaluation_date == UTPR_EVALUATION_DATE),
-    all(evidence$evidence_cutoff == UTPR_EVIDENCE_CUTOFF),
-    all(evidence$status %in% UTPR_LEGAL_STATUSES),
-    all(evidence$enactment_status %in% c("enacted", "not_enacted", "deferred", "not_established")),
-    all(evidence$collector_scope %in% c("candidate", "parent_context")),
-    all(evidence$evidence_category %in% c("national_law", "official_guidance",
-      "eu_notice", "official_search", "bill")),
-    all(evidence$verification_status %in% c("verified", "unresolved")),
-    all(evidence$oecd_utpr_qualification %in% c("verified_qualified", "verified_not_qualified", "not_established")),
-    all(evidence$article50_status %in% c("elected", "not_elected", "outside_eu")),
-    all(evidence$article50_source_rule %in% c("other_member_states", "not_applicable")),
-    all((evidence$article50_status == "elected") == (evidence$status == "deferred")),
-    all((evidence$article50_status == "elected") == (evidence$article50_source_rule == "other_member_states")),
-    all((evidence$iso3 %in% EU27_ISO3) == (evidence$article50_status != "outside_eu")),
-    all(evidence$source_retrieval_date <= evidence$evidence_cutoff),
-    all(evidence$source_publication_date <= evidence$source_retrieval_date, na.rm = TRUE),
-    all(evidence$enactment_date <= evidence$evidence_cutoff, na.rm = TRUE),
-    all(evidence$commencement_date >= evidence$enactment_date, na.rm = TRUE),
-    all(grepl("^https://", evidence$source_url)),
-    all((evidence$status %in% c("not_established", "legally_ambiguous")) ==
-      (evidence$verification_status == "unresolved")))
-  positive <- filter(evidence, status == "verified_applicable")
-  stopifnot(all(positive$enactment_status == "enacted"),
-    all(positive$first_applicable_fy_start <= positive$evaluation_date))
-  later <- filter(evidence, status == "verified_not_applicable", !is.na(first_applicable_fy_start))
-  stopifnot(all(later$first_applicable_fy_start > later$evaluation_date))
-  invisible(evidence)
-}
 
 compare_utpr_eligibility <- function(evidence, activity, policy, frozen_weights) {
   validate_utpr_evidence(evidence)
@@ -149,8 +101,8 @@ shadow_project <- function(source, weights, fixed = NULL) {
   list(channels = channels, pools = ledger, totals = totals, fixed = fixed)
 }
 
-shadow_windows <- function(rows) {
-  imap_dfr(UTPR_SHADOW_WINDOWS, ~ mutate(filter(rows, year %in% .x), window = .y))
+shadow_windows <- function(rows, windows = UTPR_SHADOW_WINDOWS) {
+  imap_dfr(windows, ~ mutate(filter(rows, year %in% .x), window = .y))
 }
 
 compare_shadow_channels <- function(observed, expected, keys) {
@@ -161,8 +113,8 @@ compare_shadow_channels <- function(observed, expected, keys) {
   max(abs(comparison$observed - comparison$expected))
 }
 
-shadow_totals <- function(result) {
-  pools <- shadow_windows(result$pools) |>
+shadow_totals <- function(result, windows = UTPR_SHADOW_WINDOWS) {
+  pools <- shadow_windows(result$pools, windows) |>
     summarise(pools = n(),
       parent_year_pools = sum(route == "parent_year"),
       fallback_pools = sum(route == "global_year_fallback"),
@@ -171,7 +123,7 @@ shadow_totals <- function(result) {
       fallback_pool_usd = sum(pool_usd[route == "global_year_fallback"]),
       unsupported_pool_usd = sum(unsupported_usd), pool_usd = sum(pool_usd),
       .by = c(window, scenario_id))
-  receipt_totals <- shadow_windows(result$channels) |>
+  receipt_totals <- shadow_windows(result$channels, windows) |>
     summarise(
       qdmtt_usd = sum(revenue[channel == "QDMTT"]),
       iir_usd = sum(revenue[channel == "IIR"]),
@@ -180,7 +132,7 @@ shadow_totals <- function(result) {
       non_eu27_utpr_usd = sum(revenue[channel == "UTPR" & !country_is_eu27]),
       eu27_assigned_usd = sum(revenue[country_is_eu27]),
       non_eu27_assigned_usd = sum(revenue[!country_is_eu27]), .by = c(window, scenario_id))
-  shadow_windows(result$totals) |>
+  shadow_windows(result$totals, windows) |>
     summarise(across(c(source_usd, extinguished_usd, assigned_usd), sum),
       max_conservation_gap_usd = max(abs(conservation_gap_usd)), .by = c(window, scenario_id)) |>
     left_join(pools, by = c("window", "scenario_id"), relationship = "one-to-one") |>
@@ -298,6 +250,9 @@ verify_shadow_repeal <- function(repeal, archived) {
 
 run_utpr_eligibility_shadow <- function(output, processed = PROCESSED_DIR,
                                         legal_file = file.path(GMT_PROJECT_ROOT, "data", "legal", "utpr_eligibility_2026.csv")) {
+  if (file.exists(file.path(processed, "stage4_5_utpr_policy.rds"))) {
+    stop("R05a shadow requires R04b or LEGACY_FALLBACK processed outputs", call. = FALSE)
+  }
   if (!dir.exists(output)) dir.create(output, recursive = TRUE)
   stopifnot(dir.exists(output), length(list.files(output, all.files = TRUE, no.. = TRUE)) == 0)
   read_frozen <- function(stem) readRDS(file.path(processed, paste0(stem, ".rds")))
@@ -377,6 +332,9 @@ run_utpr_eligibility_shadow <- function(output, processed = PROCESSED_DIR,
 
 if (is_direct_script_run("code/allocation/utpr_eligibility_shadow.R")) {
   args <- commandArgs(trailingOnly = TRUE)
-  if (length(args) != 1L) stop("Supply a new or empty shadow output directory", call. = FALSE)
-  run_utpr_eligibility_shadow(args[[1L]])
+  if (!length(args) %in% c(1L, 2L)) {
+    stop("Supply a new or empty shadow output directory and optionally the historical processed directory",
+      call. = FALSE)
+  }
+  run_utpr_eligibility_shadow(args[[1L]], if (length(args) == 2L) args[[2L]] else PROCESSED_DIR)
 }

@@ -25,6 +25,15 @@ validate_utpr_weights <- function(weights, eu27) {
   }
   validate(weights$parent_year_weights, c("parent", "year"), "Parent-year")
   validate(weights$fallback_weights, "year", "Fallback")
+  if (!is.null(weights$policy)) {
+    collectors <- c(weights$parent_year_weights$collector, weights$fallback_weights$collector)
+    if (any(!collectors %in% weights$policy$eligible)) {
+      stop("UTPR weights include an ineligible collector", call. = FALSE)
+    }
+    if (endsWith(weights$policy$specification, "PARENT_ONLY") && nrow(weights$fallback_weights) > 0L) {
+      stop("Parent-only UTPR specifications cannot include fallback weights", call. = FALSE)
+    }
+  }
   invisible(weights)
 }
 

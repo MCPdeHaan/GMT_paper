@@ -8,8 +8,8 @@ test_that("native and system SHA-256 backends hash exact bytes and spaced paths"
   expect_identical(env$sha256_files(path), expected)
   expect_identical(env$sha256_files(path, "system"), expected)
   expect_identical(env$sha256_files(character()), character())
-  manifest <- readRDS(repo_path("tests", "golden_step15_manifest.rds"))$files
-  addition <- read.csv(repo_path("tests", "golden_step17_additions.csv"))
-  expect_identical(env$sha256_files(repo_path(c(manifest$path, addition$path)), "system"),
-    c(manifest$sha256, addition$sha256))
+  root <- dirname(dirname(processed_path()))
+  reference <- if (file.exists(processed_path("stage4_5_utpr_policy.rds"))) "r05b" else "r04b"
+  manifest <- env$read_golden_manifest(repo_root, reference)
+  expect_identical(env$sha256_files(file.path(root, manifest$path), "system"), manifest$sha256)
 })

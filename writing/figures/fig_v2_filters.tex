@@ -58,18 +58,21 @@
   \node[alloc, fill=thesisRed!15, draw=thesisRed, text width=1.3cm] (L) at (0.75,-0.75) {Top-up tax\\$L_{pjt}$};
   \node[alloc] (Q) at (3.3,-0.75) {QDMTT\\collected by\\the host state};
   \node[alloc] (I) at (6.5,-0.75) {IIR\\collected by\\the parent state};
-  \node[alloc] (U) at (9.7,-0.75) {UTPR\\collected by\\other group states};
-  \node[alloc, fill=thesisGrey!15, draw=thesisGrey, text width=3.1cm] (S) at (9.7,-2.75) {Side-by-Side: IIR and UTPR switched off for US-parented groups};
+  \node[alloc, text width=2.4cm] (U) at (9.7,-0.75) {UTPR assigned\\where activity\\supports a route};
+  \node[alloc, fill=thesisGrey!15, draw=thesisGrey, text width=2.4cm] (N) at (9.7,-2.75)
+    {Unassigned UTPR\\without observed\\parent-year support};
+  \node[alloc, fill=thesisGrey!15, draw=thesisGrey, text width=2.7cm] (S) at (6.0,-2.75)
+    {SbS extinction for\\qualifying US-parented\\groups without QDMTT};
   \draw[flow] (11.25,1.3) |- (0.75,0.25) -- (L.north);
   \draw[flow] (L) -- (Q);
   \draw[flow] (Q) -- node[above, font=\tiny] {residual} (I);
   \draw[flow] (I) -- node[above, font=\tiny] {residual} (U);
-  \draw[flow, dashed, draw=thesisGrey] (I.south) |- (S.west);
-  \draw[flow, dashed, draw=thesisGrey] (U) -- (S);
+  \draw[flow, dashed, draw=thesisGrey] (Q.south) |- (S.west);
+  \draw[flow, dashed, draw=thesisGrey] (U.south) -- (N.north);
   \node[lab] at (12.2,-0.75) {Allocation to collectors ($x_4$)};
-  \node[lab, text=thesisGrey] at (12.2,-2.75) {Extinguished liability};
+  \node[lab, text=thesisGrey] at (12.2,-2.75) {No assigned receipts};
 \end{tikzpicture}%
 }
-\caption[Global Minimum Tax revenue as successive filters on the profit pool]{The figure follows reported profit from the public country-by-country tables to the treasury that collects the tax. The accounting bridge first converts corrected profit into the minimum-tax base. Three filters then isolate profit taxed below 15\%, remove the share shielded by real activity, and subtract the profit that firms move in response. The remaining top-up tax $L_{pjt}$ is collected by the host, the parent state or other states of the group, in that order; under the Side-by-Side package the parent-state and backstop charges lapse for US-parented groups. Each filter corresponds to one factor $x_k$ in the scenario design.}
+\caption[Global Minimum Tax revenue as successive filters on the profit pool]{The accounting bridge converts corrected profit into the minimum-tax base. Three filters then isolate profit taxed below 15\%, remove the share shielded by real activity and subtract the profit that firms move in response. The collection rules determine the route for the remaining liability $L_{pjt}$. Under Side-by-Side, the parent-state and backstop charges lapse for qualifying US-parented groups. Where the data contain no eligible parent-year UTPR activity, the residual remains unassigned. Each filter corresponds to a factor $x_k$ in the scenario design.}
 \label{fig:v2_filters}
 \end{figure}

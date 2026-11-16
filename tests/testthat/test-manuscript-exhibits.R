@@ -89,7 +89,7 @@ test_that("all numbered paper fragments match a fresh generator run", {
   expect_true(all(repo_path("writing", "generated", c(table6, policy_tex, figure3)) %in% references))
   expect_true(file.exists(file.path(output, figure3)))
   expect_identical(read_bytes(file.path(output, budget_tex)),
-    read_bytes(repo_path("writing", "generated", budget_tex)))
+    read_bytes(generated_path(budget_tex)))
   expect_identical(read_bytes(file.path(output, budget_tex)), read_bytes(file.path(output, table6)))
   numbered <- references[grepl("/tab_v2_(main_table[1-8]_|app_table[3-8]_|cbcr_tables_2_3_6)", references)]
   expect_length(numbered, 15L)
@@ -102,7 +102,7 @@ test_that("all numbered paper fragments match a fresh generator run", {
     regenerated <- file.path(output, relative)
     expect_true(file.exists(regenerated), info = relative)
     if (file.exists(regenerated)) {
-      expect_identical(read_bytes(path), read_bytes(regenerated), info = relative)
+      expect_identical(read_bytes(generated_path(relative)), read_bytes(regenerated), info = relative)
     }
   }
 })
@@ -114,7 +114,13 @@ test_that("Table 6 labels and renders distinct L3 and full-core diagnostics", {
     benchmark == "Dutch October 2026 direct after package", scenario_scope %in% c("l3", "core")) |>
     dplyr::arrange(scenario_count)
   expect_equal(rows$scenario_count, c(16, 32))
-  expect_lt(rows$scenario_min_eur_bn[2], rows$official_low_eur_bn[2])
+  if (file.exists(processed_path("stage4_5_utpr_policy.rds")) &&
+      readRDS(processed_path("stage4_5_utpr_policy.rds"))$specification == "VERIFIED_PARENT_ONLY") {
+    expect_gt(rows$scenario_min_eur_bn[2], rows$official_high_eur_bn[2])
+    expect_false(rows$official_interval_overlaps_model_range[2])
+  } else {
+    expect_lt(rows$scenario_min_eur_bn[2], rows$official_low_eur_bn[2])
+  }
   expect_gt(rows$scenario_min_eur_bn[1], rows$official_high_eur_bn[1])
   tex <- readLines(generated_path("paper_v2_tables", "tab_v2_main_table6_budget_backtest_and_waterfall.tex"))
   expect_true(any(grepl("L3 (16) & Core (32)", tex, fixed = TRUE)))
@@ -123,6 +129,18 @@ test_that("Table 6 labels and renders distinct L3 and full-core diagnostics", {
     rows$scenario_max_eur_bn[1], rows$scenario_min_eur_bn[2], rows$scenario_max_eur_bn[2]))
   expect_identical(regmatches(dutch, gregexpr("[0-9]+\\.[0-9]{4}", dutch))[[1L]],
     amounts)
+})
+
+test_that("the publication distinguishes unsupported UTPR from assigned receipts and source relief", {
+  reports_unsupported <- file.exists(processed_path("stage4_5_utpr_policy.rds"))
+  table_dir <- "paper_v2_tables"
+  ledger <- readLines(generated_path(table_dir, "tab_v2_main_table7_source_collector_ledger.tex"))
+  game <- readLines(generated_path(table_dir, "tab_v2_app_table8_universal_and_optout.tex"))
+  country <- readLines(generated_path("results_tables", "country_revenue_diagnostic.tex"))
+  expect_identical(any(grepl("Unassigned", ledger, fixed = TRUE)), reports_unsupported)
+  expect_identical(any(grepl("Unassigned", game, fixed = TRUE)), reports_unsupported)
+  expect_identical(any(grepl("Source relief", game, fixed = TRUE)), reports_unsupported)
+  expect_identical(any(startsWith(country, "Cyprus &")), reports_unsupported)
 })
 
 test_that("raw source metadata falls back only when the extract is absent", {
