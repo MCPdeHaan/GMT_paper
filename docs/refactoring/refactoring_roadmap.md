@@ -52,9 +52,11 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ### R07. Extract the bilateral panel assembly
 
-- **Depends on:** R02. **Files:** 01/02/02a and panel contract tests.
-- **Change and benefit:** Extract a spine-and-merge slice before wage and sector sidecars. Introduce canonical keys, join cardinalities, separate panel and sidecar data contracts, and a check at the reconciliation merge. Keep the existing writer and preserve the legacy panel schema.
-- **Risk, tests and completion:** Codes, duplicated or lost cells, source panels and profit adjustments. Check the ordered 20,111-row output with all 403 columns, keys and sidecar bytes, Table IV missingness, wage source/same-year tags and parent-year evidence balances. Extract remaining sector-sidecar glue only against those fixtures.
+- **Depends on:** R06b. Stage 02 now uses the [bilateral assembly module](../../code/panel/bilateral_assembly.R) for the Table I spine, Table II–VI projections and checked attachments of prepared supplementary and reconciliation lookups. Stage 01, Stage 02a, wage selection, profit calculations, sidecars and output adapters retain their responsibilities. [Grains and join contracts](../architecture/current_architecture.md#r07-bilateral-panel-assembly).
+- **Characterisation:** [Panel contract tests](../../tests/testthat/test-bilateral-assembly.R) cover key order, duplicate rejection, missing versus zero inputs, uncapped Table IV projection, wage precedence and adjusted-profit outcomes. The pre-calculation join boundary matches the original 20,111 × 329 object exactly. The 20,111 × 403 panel and all 29 Stage 02 sidecars and diagnostics match the reference bytes.
+- **Replay:** The [R06b parity gates](baseline_verification.md#b-behaviour-preserving-code-refactoring) verify all 54 original inputs, the legal register and the exact 364-file processed inventory. The fresh 15-stage replay took 2,009 seconds and reran 500 measurement-error draws without a cache hit, 500 profit-correction draws and 500 joint draws. All 81 generated TeX files match by bytes, the eight figures match after PDF timestamp normalisation, and the rebuilt 76-page paper and five-page note match page text, content streams, images and fonts.
+- **Test results:** 334 targeted expectations and 1,184 full-suite expectations on each of the checkout and replay, with zero failures, warnings or skips.
+- **Separate publication follow-up:** The R06b paper prints the literal token `citepoecd2026` on page 4 after “retains host QDMTTs”. Review the escaped citation in [the manuscript source](../../writing/paper_v2.tex#L120) in a publication-only change and rebuild the paper.
 
 ### R08. Decompose the ETR measurement stage
 
@@ -124,4 +126,4 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ## Recommended next task
 
-Start R07 with the bilateral panel spine and merge contracts. Characterise keys, column classes, support and row order from the R06b freeze before extracting any assembly code.
+Start R08 with the Stage 03 constrained-Beta fit and its alternate-fit callers. Characterise the quantile objective, inputs, rate ceiling, failure behaviour and fitted outputs before extracting a shared calculation. Keep the measurement ladder, Table IV completeness and statutory-rate definitions fixed in that slice.

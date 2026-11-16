@@ -2,12 +2,13 @@
 # Step 2 of the methodology pipeline.
 #
 # Builds the bilateral Parent x Affiliate x Year base panel from the cleaned
-# inputs in data/processed/. the CbCR tables onto a country-like bilateral spine;
+# inputs in data/processed/; attaches the CbCR tables to the bilateral spine;
 # adds the low-dimensional supplementary controls needed later;
 # constructs a wage-based payroll proxy from employee counts;
 # constructs deterministic corrected profit bases before Stage 1 / Stage 3.
 
 source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "00_helpers.R"), local = TRUE)
+source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "panel", "bilateral_assembly.R"), local = TRUE)
 
 cap_table4_employees <- function(brackets, population, employees_per_entity_cap) {
   brackets |>
@@ -33,10 +34,6 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
   EMPLOYEES_PER_ENTITY_CAP <- 100000
   EUKLEMS_STOCK_COVERAGE_THRESHOLD <- 0.75
 
-  AGGREGATE_AFFILIATES <- c(
-    "A", "A_O", "E", "E_O", "F", "F_O",
-    "S", "S_O", "W", "W_O", "WXD", "STLS"
-  )
   PANELAI_PERCENTILES <- c(
     "etr_p5_panelai", "etr_p25_panelai", "etr_p50_panelai",
     "etr_p75_panelai", "etr_p95_panelai"
@@ -111,41 +108,11 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
 
 
   # 2. Core bilateral spine and CbCR merges
-  panel <- t1 |>
-    filter(
-      year %in% CORE_YEARS,
-      !affiliate %in% AGGREGATE_AFFILIATES
-    ) |>
-    arrange(parent, affiliate, year) |>
-    mutate(
-      pair_id = paste(parent, affiliate, sep = "__"),
-      is_domestic = parent == affiliate,
-      is_2016_transition = year == 2016,
-      is_main_estimation_year = year %in% ESTIMATION_YEARS,
-      affiliate_is_eu27 = affiliate %in% EU27_ISO3,
-      affiliate_is_conduit_haven = affiliate %in% CONDUIT_HAVENS,
-      holding_share_panelai = safe_divide(act_holding_panelai, entities_count_panelai),
-      holding_share_panelaii = safe_divide(act_holding_panelaii, entities_count_panelaii),
-      profit_adj_observed_panelai = !is.na(profit_adj_panelai),
-      profit_adj_ratio_observed = safe_divide(profit_adj_panelai, profit_panelai),
-      profit_adj_above_profit_flag = !is.na(profit_adj_ratio_observed) &
-        profit_adj_ratio_observed > 1 + 1e-9
-    )
-
-  assert_unique_keys(panel, c("parent", "affiliate", "year"), "base spine")
-
-  t2_wide <- t2 |>
-    rename_with(~ paste0("t2_", .x), -c(parent, affiliate, year))
-
-  t3_low <- t3 |>
-    filter(etr_bracket == "rate_0_15") |>
-    select(-etr_bracket) |>
-    rename_with(~ paste0("t3_low_", .x), -c(parent, affiliate, year))
-
-  t4_low <- t4 |>
-    filter(etr_bracket == "rate_0_15") |>
-    select(-etr_bracket) |>
-    rename_with(~ paste0("t4_low_", .x), -c(parent, affiliate, year))
+  panel <- build_bilateral_spine(
+    t1, CORE_YEARS, ESTIMATION_YEARS, STAGE02_AGGREGATE_AFFILIATES,
+    EU27_ISO3, CONDUIT_HAVENS
+  )
+  cbcr_lookups <- prepare_cbcr_bilateral_lookups(t2, t3, t4, t5, t6)
 
   # Keep both the pooled profile used for BSPI and the parent-specific
   # profile used for direct bilateral measurement. Only the positive-profit
@@ -160,7 +127,7 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
   t4_population <- wb_population |>
     transmute(affiliate = jurisdiction, year, affiliate_population = population)
   t4_bracket_inputs <- t4 |>
-    filter(!affiliate %in% AGGREGATE_AFFILIATES, year %in% CORE_YEARS) |>
+    filter(!affiliate %in% STAGE02_AGGREGATE_AFFILIATES, year %in% CORE_YEARS) |>
     cap_table4_employees(t4_population, EMPLOYEES_PER_ENTITY_CAP)
 
   t4_brackets_long <- t4_bracket_inputs |>
@@ -178,7 +145,7 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
     cap_table4_employees(t4_population, EMPLOYEES_PER_ENTITY_CAP)
 
   t4_bilateral_brackets <- t4_bracket_inputs |>
-    filter(!parent %in% AGGREGATE_AFFILIATES) |>
+    filter(!parent %in% STAGE02_AGGREGATE_AFFILIATES) |>
     group_by(parent, affiliate, year) |>
     mutate(
       is_positive_bracket = etr_bracket %in% T4_POSITIVE_BRACKETS,
@@ -245,56 +212,7 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
     "Table IV bracket shares"
   )
 
-  t5_wide <- t5 |>
-    rename_with(~ paste0("t5_", .x), -c(parent, year))
-
-  t6_wide <- t6 |>
-    select(
-      parent, affiliate, year, size_class, profit, assets, employees,
-      accumulated_earnings, tax_accrued, entities_count,
-      cbcr_count, subgroups_count
-    ) |>
-    pivot_wider(
-      names_from = size_class,
-      values_from = c(
-        profit, assets, employees, accumulated_earnings, tax_accrued,
-        entities_count, cbcr_count, subgroups_count
-      ),
-      names_glue = "t6_{.value}_{size_class}"
-    )
-
-  panel <- panel |>
-    dplyr::left_join(t2_wide,
-      by = c(
-        "parent" = "parent",
-        "affiliate" = "affiliate",
-        "year" = "year"
-      )
-    ) |>
-    dplyr::left_join(t3_low,
-      by = c(
-        "parent" = "parent",
-        "affiliate" = "affiliate",
-        "year" = "year"
-      )
-    ) |>
-    dplyr::left_join(t4_low,
-      by = c(
-        "parent" = "parent",
-        "affiliate" = "affiliate",
-        "year" = "year"
-      )
-    ) |>
-    dplyr::left_join(t5_wide,
-      by = c("parent" = "parent", "year" = "year")
-    ) |>
-    dplyr::left_join(t6_wide,
-      by = c(
-        "parent" = "parent",
-        "affiliate" = "affiliate",
-        "year" = "year"
-      )
-    )
+  panel <- attach_cbcr_bilateral_lookups(panel, cbcr_lookups)
 
 
   # 3. Supplementary datasets added on their natural keys
@@ -493,63 +411,18 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
     rename(parent = jurisdiction)
 
   panel <- panel |>
-    dplyr::left_join(parent_lookup,
-      by = c("parent" = "parent")
-    ) |>
-    dplyr::left_join(affiliate_lookup,
-      by = c("affiliate" = "affiliate")
-    ) |>
-    dplyr::left_join(cit_affiliate,
-      by = c(
-        "affiliate" = "affiliate",
-        "year" = "year"
-      )
-    ) |>
-    dplyr::left_join(cit_parent,
-      by = c(
-        "parent" = "parent",
-        "year" = "year"
-      )
-    ) |>
-    dplyr::left_join(wb_gdp_affiliate,
-      by = c(
-        "affiliate" = "affiliate",
-        "year" = "year"
-      )
-    ) |>
-    dplyr::left_join(wb_population_affiliate,
-      by = c(
-        "affiliate" = "affiliate",
-        "year" = "year"
-      )
-    ) |>
-    dplyr::left_join(wage_lookup,
-      by = c(
-        "affiliate" = "affiliate",
-        "year" = "year"
-      )
-    ) |>
-    dplyr::left_join(beps_affiliate,
-      by = c(
-        "affiliate" = "affiliate",
-        "year" = "year"
-      )
-    ) |>
-    dplyr::left_join(beps_parent,
-      by = c(
-        "parent" = "parent",
-        "year" = "year"
-      )
-    ) |>
-    dplyr::left_join(cbcr_req_parent,
-      by = c("parent" = "parent")
-    ) |>
-    dplyr::left_join(oecd_affiliate,
-      by = c("affiliate" = "affiliate")
-    ) |>
-    dplyr::left_join(oecd_parent,
-      by = c("parent" = "parent")
-    )
+    attach_bilateral_lookup(parent_lookup, "parent", "Parent jurisdiction metadata") |>
+    attach_bilateral_lookup(affiliate_lookup, "affiliate", "Affiliate jurisdiction metadata") |>
+    attach_bilateral_lookup(cit_affiliate, c("affiliate", "year"), "Affiliate statutory CIT") |>
+    attach_bilateral_lookup(cit_parent, c("parent", "year"), "Parent statutory CIT") |>
+    attach_bilateral_lookup(wb_gdp_affiliate, c("affiliate", "year"), "Affiliate GDP") |>
+    attach_bilateral_lookup(wb_population_affiliate, c("affiliate", "year"), "Affiliate population") |>
+    attach_bilateral_lookup(wage_lookup, c("affiliate", "year"), "Selected affiliate wage") |>
+    attach_bilateral_lookup(beps_affiliate, c("affiliate", "year"), "Affiliate BEPS flags") |>
+    attach_bilateral_lookup(beps_parent, c("parent", "year"), "Parent BEPS flags") |>
+    attach_bilateral_lookup(cbcr_req_parent, "parent", "Parent CbCR filing requirements") |>
+    attach_bilateral_lookup(oecd_affiliate, "affiliate", "Affiliate OECD legal lookup") |>
+    attach_bilateral_lookup(oecd_parent, "parent", "Parent OECD legal lookup")
 
 
   # Profit reconciliation model. This is produced by
@@ -580,16 +453,7 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
       profit_reconciliation_extrapolated_flag = extrapolated_flag
     )
 
-  assert_unique_keys(
-    profit_reconciliation, c("parent", "year"),
-    "profit reconciliation parent-year model"
-  )
-
-  panel <- panel |>
-    dplyr::left_join(
-      profit_reconciliation,
-      by = c("parent" = "parent", "year" = "year")
-    )
+  panel <- attach_profit_reconciliation(panel, profit_reconciliation)
 
 
   # 4. Deterministic imputations and corrected profit bases
