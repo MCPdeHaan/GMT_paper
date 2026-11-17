@@ -6,6 +6,9 @@
 # and a 2021–2023 sectoral panel based on CbCR, FATS and EUKLEMS.
 
 source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "00_helpers.R"), local = TRUE)
+source(file.path(GMT_PROJECT_ROOT, "code", "substance", "aggregate_sbie.R"), local = TRUE)
+source(file.path(GMT_PROJECT_ROOT, "code", "substance", "sbti_capacity.R"), local = TRUE)
+source(file.path(GMT_PROJECT_ROOT, "code", "substance", "sectoral_sbie.R"), local = TRUE)
 
 
 SECTORAL_REFERENCE_YEAR <- 2022
@@ -125,31 +128,6 @@ tidy_lm_clustered <- function(fit, cluster, model_variant) {
   )
 }
 
-compute_sbie_value <- function(payroll, assets, sigma_w, sigma_a) {
-  sigma_w * coalesce_zero(payroll) + sigma_a * coalesce_zero(assets)
-}
-
-compute_phi_ratio <- function(sbie, profit) {
-  raw_phi <- safe_divide(sbie, profit)
-  clamp_unit_interval(raw_phi)
-}
-
-compute_effective_floor <- function(topup_gap, phi, threshold = GMT_RATE) {
-  if_else(
-    is.na(topup_gap) | is.na(phi),
-    NA_real_,
-    pmax(0, threshold - pmax(topup_gap, 0) * clamp_unit_interval(phi))
-  )
-}
-
-apply_sbti_capacity_overlay <- function(floor_rate, kappa) {
-  if_else(
-    is.na(floor_rate) | is.na(kappa),
-    NA_real_,
-    pmax(0, floor_rate - pmin(pmax(kappa, 0), floor_rate))
-  )
-}
-
 build_transition_rates <- function(years = SECTORAL_TRANSITION_YEARS,
                                    sigma_w_start = 0.10,
                                    sigma_w_end = 0.05,
@@ -166,45 +144,6 @@ build_transition_rates <- function(years = SECTORAL_TRANSITION_YEARS,
         transition_year == max(transition_year) ~ "long_run",
         TRUE ~ "transition"
       )
-    )
-}
-
-# Use the Stage 3 liability formula for the decomposition. The separate
-# effective-floor overlay in the H5 diagnostic is a capacity measure.
-summarise_sectoral_sbie_rates <- function(sectoral_panel, stage1_affiliate_year) {
-  sectoral_panel |>
-    filter(rate_scenario %in% STAGE2_ENDPOINTS$rate_scenario) |>
-    left_join(
-      stage1_affiliate_year |>
-        transmute(
-          affiliate, year, average_low_share,
-          distributional_low_share = stage1_distributional_low_share
-        ),
-      by = c("affiliate", "year"),
-      relationship = "many-to-one"
-    ) |>
-    mutate(
-      average_post_sbie_gap = average_topup_rate * (1 - sectoral_phi),
-      distributional_post_sbie_gap =
-        stage1_distributional_topup_rate * (1 - sectoral_phi)
-    ) |>
-    group_by(rate_scenario, affiliate, year) |>
-    summarise(
-      sectoral_sbie_per_profit_average = first(average_low_share) *
-        weighted_mean_available(average_post_sbie_gap, sectoral_profit_proxy),
-      sectoral_sbie_sbti_per_profit_average = first(average_low_share) *
-        weighted_mean_available(pmax(average_post_sbie_gap - sectoral_kappa, 0),
-          sectoral_profit_proxy
-        ),
-      sectoral_sbie_per_profit_distributional = first(distributional_low_share) *
-        weighted_mean_available(distributional_post_sbie_gap, sectoral_profit_proxy),
-      sectoral_sbie_sbti_per_profit_distributional = first(distributional_low_share) *
-        weighted_mean_available(pmax(distributional_post_sbie_gap - sectoral_kappa, 0),
-          sectoral_profit_proxy
-        ),
-      weighted_sectoral_phi = weighted_mean_available(sectoral_phi, sectoral_profit_proxy),
-      weighted_sectoral_kappa = weighted_mean_available(sectoral_kappa, sectoral_profit_proxy),
-      .groups = "drop"
     )
 }
 
@@ -323,80 +262,7 @@ run_stage2_pipeline <- function() {
     "BEA US-parent sector benchmark input"
   )
 
-  # Aggregate bilateral Stage 2 filter. Missing payroll enters as a conservative
-  # zero contribution so that the panel remains complete for downstream work;
-  # the affected rows are flagged and quantified in the diagnostics.
-  stage2_bilateral <- stage1_bilateral |>
-    tidyr::crossing(STAGE2_ENDPOINTS) |>
-    mutate(
-      stage2_payroll_zero_fallback_flag =
-        analysis_profit_positive > 0 & is.na(payroll_sbie),
-      stage2_assets_zero_fallback_flag =
-        analysis_profit_positive > 0 & is.na(assets_sbie),
-      stage2_sbie = if_else(
-        analysis_profit_positive > 0,
-        compute_sbie_value(payroll_sbie, assets_sbie, sigma_w, sigma_a),
-        NA_real_
-      ),
-      stage2_phi_raw = safe_divide(stage2_sbie, analysis_profit_positive),
-      stage2_phi = compute_phi_ratio(stage2_sbie, analysis_profit_positive),
-      stage2_filter = if_else(
-        analysis_profit_positive > 0,
-        1 - stage2_phi,
-        1
-      ),
-      stage2_phi_capped_flag = !is.na(stage2_phi_raw) & stage2_phi_raw > 1,
-      stage2_sbie_shield_average =
-        stage1_lowtax_profit_average * coalesce(stage2_phi, 0),
-      stage2_sbie_shield_distributional =
-        stage1_lowtax_profit_distributional * coalesce(stage2_phi, 0),
-      stage2_sbie_shield_distributional_bilat =
-        stage1_lowtax_profit_distributional_bilat * coalesce(stage2_phi, 0),
-      stage2_sbie_shield_distributional_strict =
-        stage1_lowtax_profit_distributional_strict * coalesce(stage2_phi, 0),
-      stage2_excess_lowtax_profit_average =
-        stage1_lowtax_profit_average * stage2_filter,
-      stage2_excess_lowtax_profit_distributional =
-        stage1_lowtax_profit_distributional * stage2_filter,
-      stage2_excess_lowtax_profit_distributional_bilat =
-        stage1_lowtax_profit_distributional_bilat * stage2_filter,
-      stage2_excess_lowtax_profit_distributional_strict =
-        stage1_lowtax_profit_distributional_strict * stage2_filter,
-      stage2_topup_tax_average =
-        coalesce(stage1_topup_tax_average, 0) * stage2_filter,
-      stage2_topup_tax_distributional =
-        coalesce(stage1_topup_tax_distributional, 0) * stage2_filter,
-      stage2_topup_tax_distributional_bilat =
-        coalesce(stage1_topup_tax_distributional_bilat, 0) * stage2_filter,
-      stage2_topup_tax_distributional_strict =
-        coalesce(stage1_topup_tax_distributional_strict, 0) * stage2_filter,
-      stage2_effective_floor_average =
-        compute_effective_floor(average_topup_rate, stage2_phi),
-      stage2_effective_floor_distributional =
-        compute_effective_floor(stage1_distributional_topup_rate, stage2_phi),
-      stage2_effective_floor_distributional_bilat =
-        compute_effective_floor(stage1_distributional_topup_rate_bilat, stage2_phi),
-      stage2_effective_floor_distributional_strict =
-        compute_effective_floor(
-          stage1_distributional_topup_rate_strict,
-          stage2_phi
-        )
-    )
-
-  assert_unique_keys(
-    stage2_bilateral,
-    c("rate_scenario", "parent", "affiliate", "year"),
-    "stage2 bilateral"
-  )
-
-  if (any(stage2_bilateral$stage2_filter < 0, na.rm = TRUE) ||
-    any(stage2_bilateral$stage2_filter > 1, na.rm = TRUE)) {
-    stop("Stage 2 filter leaves the [0, 1] interval")
-  }
-
-  if (any(stage2_bilateral$stage2_topup_tax_distributional < 0, na.rm = TRUE)) {
-    stop("Stage 2 produced a negative distributional top-up tax")
-  }
+  stage2_bilateral <- build_aggregate_bilateral_sbie(stage1_bilateral, STAGE2_ENDPOINTS)
 
   stage2_affiliate_year <- stage2_bilateral |>
     group_by(rate_scenario, sigma_w, sigma_a, affiliate, year) |>
@@ -577,31 +443,7 @@ run_stage2_pipeline <- function() {
     ) |>
     arrange(rate_scenario, year)
 
-  # Retain the 2022 reference matrix and use the same construction in 2021 and 2023.
-  sectoral_weights_check <- fats_sector_shares |>
-    filter(year %in% SECTORAL_PANEL_YEARS, affiliate %in% EU27_ISO3) |>
-    group_by(affiliate, year) |>
-    summarise(
-      n_nace = n(),
-      payroll_share_sum = sum(fats_payroll_share, na.rm = TRUE),
-      employee_share_sum = sum(fats_employee_share, na.rm = TRUE),
-      investment_share_sum = sum(fats_investment_share, na.rm = TRUE),
-      asset_share_sum = sum(sectoral_asset_share, na.rm = TRUE),
-      turnover_share_sum = sum(fats_turnover_share, na.rm = TRUE),
-      profit_share_sum = sum(sectoral_profit_share, na.rm = TRUE),
-      euklems_asset_share_sum = sum(euklems_tangible_asset_share, na.rm = TRUE),
-      affiliates_using_euklems_stock = as.integer(first(use_euklems_asset_share)),
-      euklems_stock_coverage_turnover_share =
-        first(euklems_stock_coverage_turnover_share),
-      .groups = "drop"
-    )
-
-  if (max(abs(sectoral_weights_check$payroll_share_sum - 1), na.rm = TRUE) > 1e-8 ||
-    max(abs(sectoral_weights_check$asset_share_sum - 1), na.rm = TRUE) > 1e-8 ||
-    max(abs(sectoral_weights_check$profit_share_sum - 1), na.rm = TRUE) > 1e-8) {
-    stop("Sectoral Stage 2 weights do not sum to one")
-  }
-
+  # Retain the 2022 reference matrix and the 2021–2023 endpoint panel.
   sectoral_country_year_base <- stage1_bilateral |>
     filter(
       year %in% SECTORAL_PANEL_YEARS,
@@ -632,86 +474,18 @@ run_stage2_pipeline <- function() {
       relationship = "one-to-one"
     )
 
-  assert_unique_keys(sectoral_country_year_base, c("affiliate", "year"), "sectoral base")
   sectoral_reference_base <- sectoral_country_year_base |>
     filter(year == SECTORAL_REFERENCE_YEAR) |>
     select(-year)
 
   transition_rates <- build_transition_rates()
 
-  # Sectoral SBIE with SBTI overlay. Unlike the aggregate bilateral SBIE above,
-  # this allocates affiliate-year profit, payroll and assets across NACE sectors.
-  sectoral_transition_panel <- fats_sector_shares |>
-    filter(year %in% SECTORAL_PANEL_YEARS, affiliate %in% EU27_ISO3) |>
-    left_join(sectoral_country_year_base, by = c("affiliate", "year"),
-      relationship = "many-to-one"
-    ) |>
-    tidyr::crossing(transition_rates) |>
-    mutate(
-      sectoral_payroll_share_used = fats_payroll_share,
-      sectoral_asset_share_used = sectoral_asset_share,
-      sectoral_profit_share_used = sectoral_profit_share,
-      sectoral_payroll = fats_payroll_share * total_payroll,
-      sectoral_assets = sectoral_asset_share * total_assets,
-      sectoral_profit_proxy = sectoral_profit_share * total_profit,
-      sectoral_sbie = compute_sbie_value(
-        sectoral_payroll,
-        sectoral_assets,
-        sigma_w,
-        sigma_a
-      ),
-      sectoral_phi_raw = safe_divide(sectoral_sbie, sectoral_profit_proxy),
-      sectoral_phi = compute_phi_ratio(sectoral_sbie, sectoral_profit_proxy),
-      sectoral_kappa = safe_divide(
-        pmax(0.055 * sectoral_payroll, 0.01 * sectoral_assets),
-        sectoral_profit_proxy
-      ),
-      sectoral_capital_intensity = safe_divide(
-        sectoral_assets,
-        sectoral_profit_proxy
-      ),
-      sectoral_payroll_intensity = safe_divide(
-        sectoral_payroll,
-        sectoral_profit_proxy
-      ),
-      sectoral_floor_average = compute_effective_floor(
-        average_topup_rate,
-        sectoral_phi
-      ),
-      sectoral_floor_distributional = compute_effective_floor(
-        stage1_distributional_topup_rate,
-        sectoral_phi
-      ),
-      sectoral_floor_distributional_strict = compute_effective_floor(
-        stage1_distributional_topup_rate_strict,
-        sectoral_phi
-      ),
-      sectoral_floor_average_sbti = apply_sbti_capacity_overlay(
-        sectoral_floor_average,
-        sectoral_kappa
-      ),
-      sectoral_floor_distributional_sbti = apply_sbti_capacity_overlay(
-        sectoral_floor_distributional,
-        sectoral_kappa
-      ),
-      sectoral_floor_distributional_strict_sbti = apply_sbti_capacity_overlay(
-        sectoral_floor_distributional_strict,
-        sectoral_kappa
-      ),
-      sectoral_delta_floor_average =
-        sectoral_floor_average_sbti - sectoral_floor_average,
-      sectoral_delta_floor_distributional =
-        sectoral_floor_distributional_sbti - sectoral_floor_distributional,
-      sectoral_delta_floor_distributional_strict =
-        sectoral_floor_distributional_strict_sbti -
-          sectoral_floor_distributional_strict
-    )
-
-  assert_unique_keys(
-    sectoral_transition_panel,
-    c("affiliate", "year", "transition_year", "nace_r2"),
-    "stage2 sectoral panel"
+  sectoral <- build_sectoral_transition_panel(
+    filter(fats_sector_shares, year %in% SECTORAL_PANEL_YEARS, affiliate %in% EU27_ISO3),
+    sectoral_country_year_base, transition_rates
   )
+  sectoral_weights_check <- sectoral$weights
+  sectoral_transition_panel <- sectoral$panel
   stage2_sectoral_matrix <- filter(sectoral_transition_panel, year == SECTORAL_REFERENCE_YEAR)
   stage2_sectoral_panel <- filter(
     sectoral_transition_panel, rate_scenario %in% STAGE2_ENDPOINTS$rate_scenario

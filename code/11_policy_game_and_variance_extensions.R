@@ -280,8 +280,8 @@ nash_sbti_capacity <- function(base, sector_shares) {
       sector_low_profit = low_profit * profit_share,
       sector_excess_low_profit = excess_low_profit * profit_share,
       # Assume the low-tax part uses its share of each sector's substance.
-      payroll_cap = 0.055 * payroll * payroll_share * low_share,
-      carrying_value_cap = 0.01 * assets * asset_share * low_share,
+      payroll_cap = sbti_payroll_capacity(payroll) * payroll_share * low_share,
+      carrying_value_cap = sbti_carrying_value_capacity(assets) * asset_share * low_share,
       # Mirrors the repository's max proxy. Legal methods apply at MNE
       # jurisdiction level, not sector level, and the default includes
       # depreciation, which the bilateral CbCR input does not measure.
@@ -603,7 +603,7 @@ step15_inputs <- function() {
     reference_ids <- ids[host$year[ids] == SECTORAL_REFERENCE_YEAR]
     list(host = s$host_id, ids = ids, profit_share = s$sectoral_profit_share_used,
          profit_share_sum = as.numeric(rowsum(s$sectoral_profit_share_used, s$host_id)),
-         sbie = s$sectoral_sbie, incentive = pmax(.055 * s$sectoral_payroll, .01 * s$sectoral_assets),
+         sbie = s$sectoral_sbie, incentive = sbti_maximum_capacity(s$sectoral_payroll, s$sectoral_assets),
          reference = reference_ids[ref])
   })
   collector_year <- expand_grid(country = EU27_ISO3, year = MAIN_YEARS)

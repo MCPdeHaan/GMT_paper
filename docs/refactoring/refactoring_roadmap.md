@@ -90,15 +90,16 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ### R11. Separate substance methods and incentive capacity
 
-- **Depends on:** R07–R08. **Files:** 04 and paired 08/09/11 substance callers, Stage 2 tests and paper §4.3, §§5/6 and Appendices B/E.
-- **Change and benefit:** Extract activity allocations, aggregate and sectoral SBIE, capacity and H5 diagnostics as separate operations. First secure parity. Then review S06 separately, tracing aggregation, eligibility and covered-tax add-back versus the current capacity overlay with the existing stress/repeal results.
-- **Risk, tests and completion:** Transition years, missing payroll/assets, caps at zero profit, sector aggregation, attribution of bundled factor. Test conservation of sector components, SBIE endpoints, reversion to aggregate and distinct capability/use definitions. Finish parity with exact outputs; if legal/economic choices change the specification, quantify source/collector shifts and update the paper, tests and freeze in the science change.
+- **R11a parity refactor.** Extract the aggregate shield, component-specific sector allocation and SBTI dollar primitives, leaving the H5 regressions and writers in Stage 04. Preserve the transitions, missing and capped inputs, both factorial designs and the repeal game. [Fixture, keyed-comparison and replay record](r11a_substance_methods.md).
+- **R11b diagnostic.** Study S06 separately by holding source support fixed and tracing sector aggregation, qualifying amounts and covered-tax add-back through the split-factor and repeal comparisons. Check where the available data bound the decision and where group-jurisdiction eligibility, depreciation and elections remain unidentified.
+- **R11c decision stage.** If a separate specification decision warrants a change, quantify source and collector effects, then update tests, the paper and the scientific freeze as part of that revision.
 
 ### R12. Separate estimation, behavioural response and destinations
 
 - **Depends on:** R04, R06, R08 and R11's relevant contracts. **Files:** 05, 09/10/11 econometric/reallocation callers and Stage 3 tests.
 - **Change and benefit:** Move sample construction and FE/IV fits, inference and schedule construction, and stage-level evaluation into distinct modules. Return aligned modelling keys and parameters. Move Rule A/B/C destinations to fiscal methods. This makes alternative estimators and relocation choices explicit inputs.
 - **Risk, tests and completion:** Clustering, covariance repairs, key alignment, bare serialized fit calls, elasticity signs, selected coefficient/substance bridge. Check coefficient/SE/matched sample, J/Wald, division-bias and response fixtures; preserve fits and stage/liability/recovery outputs by hash or reviewed projection with unchanged estimands.
+- **Deferred from R10b/R11a.** Diagnose the Stage 08 EU27 L3 business-activity regression's covariance regularisation before interpreting its clustered inference. This model is separate from the Stage 04 H5 regressions. [Verification record](r10b_table_iv_support_revision.md#acceptance-record).
 
 ### R13. Define design, liability and contrast contracts
 
@@ -138,4 +139,4 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ## Recommended next task
 
-R11 should first extract the aggregate SBIE shield, sectoral scale and SBTI capacity as separate tested calculations under the R10b freeze. Characterise sector reconciliation, payroll and asset support, zero and bounded profit, both rate endpoints, incentive capacity and the actual-use limitation before considering an S06 specification revision.
+For R11b, start from the R11a fixed-support audit. Quantify how sector aggregation, incentive qualification, alternative capacity legs and covered-tax add-back affect separately reported source and collector amounts. Keep the current R10b configuration and publication intact during the diagnostic.
