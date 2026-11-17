@@ -1,0 +1,17 @@
+component,source,sectors,amount
+profit,fats_gross_operating_surplus,2720,3204760100251.4707
+profit,missing_profit_allocator,396,0
+profit,fats_turnover_scaled_to_gos,41,13788707627.85845
+profit,fats_value_added_scaled_to_gos,43,86363941180.33891
+profit,fats_value_added,40,115130254776.8507
+payroll,fats_personnel_costs,2767,1356432944198.5664
+payroll,missing_payroll_allocator,343,0
+payroll,fats_employees_scaled_to_personnel_costs,108,14545611935.925638
+payroll,fats_turnover_scaled_to_personnel_costs,22,1135649366.7396955
+assets,euklems_k_tang_stock,1677,3403759259540.5312
+assets,euklems_k_tang_gapfilled_from_fats_investment,86,61572710146.95756
+assets,missing_asset_allocator,37,0
+assets,fats_gross_investment_flow,1143,617895188748.3453
+assets,missing_investment_allocator,182,0
+assets,fats_turnover_scaled_to_investment_flow,89,52259587280.49703
+assets,fats_payroll_scaled_to_investment_flow,26,760299426.6069474

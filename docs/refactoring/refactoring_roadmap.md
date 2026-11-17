@@ -91,7 +91,7 @@ For each science slice, state the observed data, proxy and alternative, the esti
 ### R11. Separate substance methods and incentive capacity
 
 - **R11a parity refactor.** Extract the aggregate shield, component-specific sector allocation and SBTI dollar primitives, leaving the H5 regressions and writers in Stage 04. Preserve the transitions, missing and capped inputs, both factorial designs and the repeal game. [Fixture, keyed-comparison and replay record](r11a_substance_methods.md).
-- **R11b diagnostic.** Study S06 separately by holding source support fixed and tracing sector aggregation, qualifying amounts and covered-tax add-back through the split-factor and repeal comparisons. Check where the available data bound the decision and where group-jurisdiction eligibility, depreciation and elections remain unidentified.
+- **R11b diagnostic complete.** [The scientific audit](r11b_sbti_scientific_audit.md) separates the legal default, carrying-value election and sectoral hybrid, traces QTI use through covered taxes and replays the split-factor and repeal comparisons. Its evidence leaves actual group-jurisdiction eligibility, depreciation, qualifying incentives and elections unidentified. The diagnostic recommends moving the imputed overlay out of the leading Factor 2, subject to the separate R11c decision.
 - **R11c decision stage.** If a separate specification decision warrants a change, quantify source and collector effects, then update tests, the paper and the scientific freeze as part of that revision.
 
 ### R12. Separate estimation, behavioural response and destinations
@@ -139,4 +139,4 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ## Recommended next task
 
-For R11b, start from the R11a fixed-support audit. Quantify how sector aggregation, incentive qualification, alternative capacity legs and covered-tax add-back affect separately reported source and collector amounts. Keep the current R10b configuration and publication intact during the diagnostic.
+For R11c, decide whether leading Factor 2 should contain sectoral SBIE alone, retaining the historical hybrid overlay and legal-style use scenarios as explicitly conditional sensitivities. A no-imputed-QTI baseline should leave actual use unresolved. Implement an approved choice with a named scientific specification, full downstream sensitivity and manuscript revisions, complete replays and a separate freeze. [R11b decision and implementation boundary](r11b_sbti_scientific_audit.md#r11c-scope).

@@ -1,0 +1,10 @@
+legal_input,observability,available_evidence,path,limitation
+eligible_payroll,proxy,CbCR screened employees times selected annual wage,data/processed/base_panel.rds,No wage bill or eligible-employment classification; PPP and stale source flags retained
+eligible_depreciation_depletion,unavailable,Pinned capital/national/analytical CSV headers and variable-description workbook inspected,data/raw/euklems_intanprod/capital_accounts.csv,No usable eligible accounting depreciation flow; stocks investment and service measures cannot identify it
+depreciable_carrying_value,proxy_incomplete,CbCR tangible assets and sector stock-share allocator,data/processed/base_panel_fats_sector_shares.rds,Group ownership eligibility land exclusions and opening/closing carrying values unidentified
+sector_stock,proxy,K_Tang and constituent capital stocks in pinned analytical and capital files,data/processed/euklems_sector_capital.rds,Host-economy sector stocks used for shares; differing asset universes and mapping support
+investment_flow,observed_aggregate,FATS gross investment in tangible capital,data/processed/fats_post2021.rds,Flow allocator is separate from depreciation; fallback can differ from stock distribution
+group_jurisdiction,unavailable,Parent-country affiliate year is an aggregate of several groups,data/processed/base_panel.rds,No true group identifier or entity-jurisdiction election history
+qti_qualification_and_use,unavailable,No qualifying incentive statutory or utilisation field,data/processed/stage3_factorial_pair_year.rds,Credit value deductible amount use deferred taxes and elections remain unobserved
+globe_income_and_covered_taxes,proxy,Corrected positive CbCR profit and inferred low-bracket tax gap,data/processed/stage3_factorial_pair_year.rds,Full GloBE tax adjustments and blending unavailable; source proxy depends on selected ladder
+replacement_payroll,conditional_proxy,Exact host-year ILO hourly economy earnings in nominal USD and screened headcount,data/processed/wages_ilo_hourly.rds,Annual2000hours is assumed; wage units differ from legacyPPP and no fabricated replacement for missing headcount

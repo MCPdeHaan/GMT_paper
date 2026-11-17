@@ -1,0 +1,13 @@
+key,value
+source_revision,f7db342ca726d9ee1539543f0db240c89ad751be
+policy_fiscal_year_start,2026-01-01
+economic_observation_years,2017–2023
+evidence_cutoff,2026-11-15
+audit_date,2026-11-17
+money_units,USD
+behaviour_convention,fixed_adoption_response_within_fiscal_shadow
+national_implementation,conditional_unverified_for_each_jurisdiction
+table_iv,OBSERVED_TWO_SIDED
+statutory_rate,STANDARD_ROLE_SPECIFIC
+utpr,VERIFIED_PARENT_ONLY
+behaviour,NO_NOTCH_STANDARD_RESPONSE

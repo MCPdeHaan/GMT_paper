@@ -1,0 +1,14 @@
+arm,mechanism,case,grain,utilisation,fixed_use_usd,election,formula,payroll_share,depreciation_ratio,eligible_share
+no_qti,existing,hybrid,sector,0,NA,TRUE,hybrid,1,NA,1
+legacy_overlay,direct_overlay,hybrid,sector,0,NA,FALSE,hybrid,1,NA,1
+existing_hybrid25,existing,hybrid,sector,0.25,NA,TRUE,hybrid,1,NA,1
+existing_hybrid50,existing,hybrid,sector,0.5,NA,TRUE,hybrid,1,NA,1
+existing_hybrid100,existing,hybrid,sector,1,NA,TRUE,hybrid,1,NA,1
+existing_hybrid100_pair,existing,hybrid,parent_country,1,NA,TRUE,hybrid,1,NA,1
+existing_default_d8_50,existing,default_d8,parent_country,0.5,NA,TRUE,default,1,0.08,1
+existing_carrying_a75_50,existing,carrying_a75,parent_country,0.5,NA,TRUE,carrying,1,NA,0.75
+existing_fixed_1m,existing,default_d8,parent_country,NA,1000000,TRUE,default,1,0.08,1
+new_hybrid50,new,hybrid,sector,0.5,NA,TRUE,hybrid,1,NA,1
+new_hybrid100,new,hybrid,sector,1,NA,TRUE,hybrid,1,NA,1
+new_default_d8_50,new,default_d8,parent_country,0.5,NA,TRUE,default,1,0.08,1
+new_default_d8_50_no_election,new,default_d8,parent_country,0.5,NA,FALSE,default,1,0.08,1
