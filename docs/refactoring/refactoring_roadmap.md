@@ -56,7 +56,7 @@ For each science slice, state the observed data, proxy and alternative, the esti
 - **Characterisation:** [Panel contract tests](../../tests/testthat/test-bilateral-assembly.R) cover key order, duplicate rejection, missing versus zero inputs, uncapped Table IV projection, wage precedence and adjusted-profit outcomes. The pre-calculation join boundary matches the original 20,111 × 329 object exactly. The 20,111 × 403 panel and all 29 Stage 02 sidecars and diagnostics match the reference bytes.
 - **Replay:** The [R06b parity gates](baseline_verification.md#b-behaviour-preserving-code-refactoring) verify all 54 original inputs, the legal register and the exact 364-file processed inventory. The fresh 15-stage replay took 2,009 seconds and reran 500 measurement-error draws without a cache hit, 500 profit-correction draws and 500 joint draws. All 81 generated TeX files match by bytes, the eight figures match after PDF timestamp normalisation, and the rebuilt 76-page paper and five-page note match page text, content streams, images and fonts.
 - **Test results:** 334 targeted expectations and 1,184 full-suite expectations on each of the checkout and replay, with zero failures, warnings or skips.
-- **Separate publication follow-up:** The R06b paper prints the literal token `citepoecd2026` on page 4 after “retains host QDMTTs”. Review the escaped citation in [the manuscript source](../../writing/paper_v2.tex#L120) in a publication-only change and rebuild the paper.
+- **Publication follow-up complete:** A separate editorial change after R10b corrected the [Side-by-Side citation](../../writing/paper_v2.tex#L120) that printed a literal token on page 4 and rebuilt the paper.
 
 ### R08. Extract the constrained-Beta kernel
 
