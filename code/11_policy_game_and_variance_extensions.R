@@ -33,6 +33,7 @@ nash_load_panels <- function() {
   beta <- nash_read("stage3_model_coefficients") |>
     filter(model_spec == "linear", term == "tau", inference == "parent_affiliate_clustered") |>
     pull(estimate)
+  beta <- applied_preferred_beta(beta)
   stopifnot(length(beta) == 1L, is.finite(beta))
   assert_unique_keys(common, c("scenario_id", NASH_KEYS), "Step 13 production panel")
   strict <- nash_read("stage1_bilateral_panel") |>
@@ -611,7 +612,7 @@ step15_inputs <- function() {
                                             (collector_year$country == c | c == "EU27")))
   })
   list(cells = cells, host = host, host_sum = host_sum, routes = routes, predictions = predictions,
-       draw_cells = draw_cells, beta = coef$estimate, beta_se = coef$std_error,
+       draw_cells = draw_cells, beta = applied_preferred_beta(coef$estimate), beta_se = coef$std_error,
        residuals = residuals, residual_hosts = residual_hosts, average_support = average_support,
        sector = sectors, collector_year = collector_year, windows = windows,
        profit = cells$analysis_profit_positive, sbie = vapply(seq_len(nrow(STAGE2_ENDPOINTS)),

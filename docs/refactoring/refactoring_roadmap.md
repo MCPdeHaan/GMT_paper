@@ -68,13 +68,13 @@ For each science slice, state the observed data, proxy and alternative, the esti
 ### R09a. Diagnose statutory rates by use
 
 - **Complete.** The [statutory audit and decision memorandum](r09a_statutory_rate_audit.md) distinguish mean clipping, percentile caps, the reconciliation prior, statutory robustness, ordinary CIT and a conditional joint shadow. All 17 audit outputs match between isolated runs. The existing 1,743-row Stage 08a audit and all 364 R06b hashes reproduce.
-- **Decision.** Standard combined and standard central cover identical country-years in the pinned vintage. The combined-first candidate is preferred for the statistical caps and prior, with a labelled same-year central fallback and role-specific unsupported behaviour. Matched validation is mixed. The statutory IV is weaker and reverses its sign. Conditional L4 and ordinary-CIT amounts are more sensitive than the preferred core collector receipts. [Current project status](project_status.md).
+- **Decision.** Standard combined and standard central cover identical country-years in the pinned vintage. The combined-first candidate entered R09b for the statistical caps and as a candidate for the prior, with a labelled same-year central fallback and role-specific unsupported behaviour. Matched validation is mixed. The statutory IV is weaker and reverses its sign. Conditional L4 and ordinary-CIT amounts are more sensitive than the preferred core collector receipts. [Current project status](project_status.md).
 
 ### R09b. Implement the selected statutory rate definitions
 
-- **Depends on:** R09a's documented decision. **Files:** Stage 01/02/02a/03, Stage 05 and 09 statutory and fiscal consumers, Stage 10 numerator variants, 07a and 11 downstream, tests, paper and appendices.
-- **Change and benefit:** Publish separate named standard combined, standard central and targeted series and provenance. Use combined-first for the selected statistical support and prior, with explicit missing rules. Compare unit-only and alternative allowance arms and holdout performance. Update the statutory instrument and control independently of the ETR-based leading design. Reprice destinations and retain a separate effective origin rate. Keep the gate change identifiable.
-- **Risk, tests and completion:** Reproduce the original R06b comparator. Replay the selected 32- and 64-case designs, behavioural and uncertainty calibrations, collection and unsupported UTPR, repeal and budgets. Report changes in sample, sources, collector receipts and ordinary CIT by channel and geography. Update the manuscript and version a new scientific freeze only after the selected specification has been reviewed.
+- **Dependency and scope.** R09a and R08. Stage 01/02/02a/03 for rate provenance and conditioning, Stages 05 and 09 for the instrument and fiscal roles, Stage 10 for accounting numerator variants, and the complete downstream analysis and publication.
+- **Adopted roles.** Combined-first statistical conditioning with the five-point allowance; combined-only statutory IV; combined-first destination price. The prior holdout and gate/price split support retaining the historical prior and destination gate. The applied behavioural coefficient and legal allocation rules carry forward. [Paired sensitivity and verification](r09b_statutory_rate_revision.md).
+- **Acceptance.** Reproduce R06b separately and verify the new replay, including 32 core designs, the 64-case accounting design, 432 policy deviations, all three seeded uncertainty studies and publication outputs. Preserve Table IV support for R10 and the distinction between statistical rate proxy and policy gates.
 
 ### R10. Resolve pooled Table IV suppression and eligibility
 
@@ -132,4 +132,4 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ## Recommended next task
 
-Start R09b from the [rate-policy decision](r09a_statutory_rate_audit.md#r09b-decision-memorandum). Implement the named rate fields and exact role-specific support first, then validate the paired propagated specifications. Keep Table IV support in R10.
+Begin R10 with the [Table IV completeness evidence](scientific_issue_register.md#s02-pooled-table-iv-can-translate-suppressed-observations-into-zeros). Use the R09b named rate policy and compare absent, suppressed and observed-zero cells before evaluating any change to the fallback hierarchy.

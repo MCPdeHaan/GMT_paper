@@ -256,18 +256,12 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
 
   # Statutory rates and World Bank controls
   cit_affiliate <- cit_statutory |>
-    rename(
-      affiliate = jurisdiction,
-      affiliate_cit_standard = cit_standard,
-      affiliate_cit_top_all = cit_top_all
-    )
+    rename(affiliate = jurisdiction) |>
+    rename_with(~ paste0("affiliate_", .x), -c(affiliate, year))
 
   cit_parent <- cit_statutory |>
-    rename(
-      parent = jurisdiction,
-      parent_cit_standard = cit_standard,
-      parent_cit_top_all = cit_top_all
-    )
+    rename(parent = jurisdiction) |>
+    rename_with(~ paste0("parent_", .x), -c(parent, year))
 
   wb_gdp_affiliate <- wb_gdp |>
     select(jurisdiction, year, gdp_pc_usd) |>
@@ -633,7 +627,9 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
       # and collapsed to 0; ETRs below -ZETA are flagged as loss-carryforward
       # cells and propagate NA to Stage 1 so that the hybrid selector falls
       # through to the best available branch.
-      etr_panelai_stage1 = case_when(
+      etr_panelai_stage1 = if ("affiliate_cit_statistical_ceiling" %in% names(panel)) {
+        regularise_bilateral_etr(etr_panelai_raw, coalesce(affiliate_cit_statistical_ceiling, 1))
+      } else case_when(
         is.na(etr_panelai_raw) ~ NA_real_,
         etr_panelai_raw < -ZETA_LOSS_OFFSET ~ NA_real_,
         etr_panelai_raw < 0 ~ 0,
@@ -646,7 +642,19 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
         etr_panelai_raw > 1 ~ 1,
         TRUE ~ etr_panelai_raw
       ),
-      etr_panelai_stage1_adjustment = case_when(
+      etr_panelai_stage1_adjustment = if ("affiliate_cit_statistical_ceiling" %in% names(panel)) {
+        case_when(
+          is.na(etr_panelai_raw) ~ "missing",
+          etr_panelai_raw < -ZETA_LOSS_OFFSET ~ "dropped_loss_carryforward",
+          etr_panelai_raw < 0 ~ "negative_noise_to_zero",
+          etr_panelai_raw > coalesce(affiliate_cit_statistical_ceiling, 1) &
+            affiliate_cit_statistical_rate_source == "standard_combined" ~ "above_cit_capped_combined",
+          etr_panelai_raw > coalesce(affiliate_cit_statistical_ceiling, 1) &
+            affiliate_cit_statistical_rate_source == "standard_central_fallback" ~ "above_cit_capped_standard",
+          etr_panelai_raw > 1 ~ "above_one_capped",
+          TRUE ~ "unchanged"
+        )
+      } else case_when(
         is.na(etr_panelai_raw) ~ "missing",
         etr_panelai_raw < -ZETA_LOSS_OFFSET ~ "dropped_loss_carryforward",
         etr_panelai_raw < 0 ~ "negative_noise_to_zero",

@@ -36,6 +36,9 @@ run_standard_cit_cap_diagnostic <- function(
   if (any(parent == protected | startsWith(parent, paste0(protected, .Platform$file.sep)))) {
     stop("Diagnostic output must be outside data/processed.")
   }
+  if (!is.null(statutory_rate_metadata(processed_dir))) {
+    stop("The historical cap diagnostic requires LEGACY_TARGETED processed data.")
+  }
 
   # This is a conditional percentile-cap sensitivity. Keep corrected profits,
   # mean ETR anchors, Table IV, BSPI, sample membership and SBIE shields frozen.

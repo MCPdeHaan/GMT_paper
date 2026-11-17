@@ -70,7 +70,7 @@ build_parent_year_targets <- function(panel, cit_statutory) {
         select(
           parent = jurisdiction, year,
           parent_cit_standard = cit_standard,
-          parent_cit_top_all = cit_top_all
+          parent_cit_top_all = cit_top_all, any_of("cit_reconciliation_prior_rate")
         ),
       by = c("parent", "year")
     )
@@ -98,8 +98,9 @@ build_parent_year_targets <- function(panel, cit_statutory) {
         parent_is_zero_tax_or_low_tax ~ "zero_tax_or_low_tax",
         TRUE ~ "residual"
       ),
-      parent_cit_rate_unit = coalesce(parent_cit_top_all, parent_cit_standard) /
-        100,
+      parent_cit_rate_unit = if ("cit_reconciliation_prior_rate" %in% names(target)) {
+        cit_reconciliation_prior_rate
+      } else coalesce(parent_cit_top_all, parent_cit_standard) / 100,
       domestic_holding_share = coalesce(domestic_holding_share, 0),
       log_domestic_profit = safe_log1p_scale(domestic_profit_mass, 1e9),
       log_domestic_assets = safe_log1p_scale(domestic_assets_mass, 1e9),
@@ -239,7 +240,9 @@ build_etr_parity_signal <- function(panel, cit_statutory) {
         transmute(
           jurisdiction,
           year,
-          statutory_rate = coalesce(cit_top_all, cit_standard) / 100
+          statutory_rate = if ("cit_reconciliation_prior_rate" %in% names(cit_statutory)) {
+            cit_reconciliation_prior_rate
+          } else coalesce(cit_top_all, cit_standard) / 100
         ),
       by = c("jurisdiction", "year")
     ) |>
@@ -387,7 +390,9 @@ expand_manual_anchor_signals <- function(anchors, targets) {
   bind_rows(country_signals, fallback_signals)
 }
 
-fit_prior_reconciliation_model <- function(evidence, targets) {
+fit_prior_reconciliation_model <- function(evidence, targets,
+  covariate = c("historical_encoding", "mean_imputed", "omit")) {
+  covariate <- match.arg(covariate)
   model_data <- evidence |>
     filter(signal_type != "public_etr_parity") |>
     left_join(
@@ -417,18 +422,19 @@ fit_prior_reconciliation_model <- function(evidence, targets) {
       log_domestic_profit = coalesce(log_domestic_profit, 0),
       log_domestic_assets = coalesce(log_domestic_assets, 0),
       log_domestic_employees = coalesce(log_domestic_employees, 0),
-      domestic_holding_share = coalesce(domestic_holding_share, 0),
-      parent_cit_rate_unit = coalesce(parent_cit_rate_unit, 0)
+      domestic_holding_share = coalesce(domestic_holding_share, 0)
     ) |>
     filter(is.finite(y_signal), is.finite(logit_weight), logit_weight > 0)
 
-  fit <- stats::lm(
-    y_signal ~ parent_group + year_factor + log_domestic_profit +
-      log_domestic_assets + log_domestic_employees +
-      domestic_holding_share + parent_cit_rate_unit,
-    data = model_data,
-    weights = logit_weight
-  )
+  replacement <- if (covariate == "mean_imputed") {
+    weighted_mean_clean(model_data$parent_cit_rate_unit, model_data$logit_weight)
+  } else 0
+  model_data$parent_cit_rate_unit <- coalesce(model_data$parent_cit_rate_unit, replacement)
+  model_formula <- y_signal ~ parent_group + year_factor + log_domestic_profit +
+    log_domestic_assets + log_domestic_employees + domestic_holding_share +
+    parent_cit_rate_unit
+  if (covariate == "omit") model_formula <- stats::update(model_formula, . ~ . - parent_cit_rate_unit)
+  fit <- stats::lm(model_formula, data = model_data, weights = logit_weight)
 
   target_data <- targets |>
     mutate(
@@ -437,10 +443,10 @@ fit_prior_reconciliation_model <- function(evidence, targets) {
       log_domestic_profit = coalesce(log_domestic_profit, 0),
       log_domestic_assets = coalesce(log_domestic_assets, 0),
       log_domestic_employees = coalesce(log_domestic_employees, 0),
-      domestic_holding_share = coalesce(domestic_holding_share, 0),
-      parent_cit_rate_unit = coalesce(parent_cit_rate_unit, 0)
+      domestic_holding_share = coalesce(domestic_holding_share, 0)
     )
 
+  target_data$parent_cit_rate_unit <- coalesce(target_data$parent_cit_rate_unit, replacement)
   prior_y <- as.numeric(stats::predict(fit, newdata = target_data))
   residual_sigma <- sqrt(weighted.mean(stats::residuals(fit)^2,
     model_data$logit_weight,
@@ -560,7 +566,7 @@ combine_parent_year_evidence <- function(prior, evidence) {
     )
 }
 
-build_holdout_validation <- function(evidence, targets) {
+build_holdout_validation <- function(evidence, targets, covariate = "historical_encoding") {
   holdout_rows <- evidence |>
     filter(signal_type %in% c(
       "observed_adjusted_profit",
@@ -580,7 +586,7 @@ build_holdout_validation <- function(evidence, targets) {
         by = c("parent", "year", "signal_type", "source")
       )
 
-    fit_i <- fit_prior_reconciliation_model(train, targets)
+    fit_i <- fit_prior_reconciliation_model(train, targets, covariate)
     pred_i <- fit_i$target_prior |>
       filter(parent == heldout$parent, year == heldout$year) |>
       transmute(heldout_prediction = prior_rho) |>

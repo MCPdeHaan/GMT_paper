@@ -207,8 +207,30 @@ test_that("the replay schedule selects one row per affiliate-year, measurement a
     expect_true(all(schedule$behavioural_regime[schedule$eta == 0 & band] == "semi_elasticity_reallocation"))
     e <- new.env(parent = globalenv())
     source_pipeline("diagnostics/behavioural_specification_comparison.R", e)
-    parity <- e$behavioural_point_acceptance(processed_path(),
-      repo_path("data", "diagnostics", "r06a_behavioural_notch"))
-    expect_lt(max(parity$max_absolute_gap_usd), 1e-3)
+    if (is.null(e$statutory_rate_metadata(processed_path()))) {
+      parity <- e$behavioural_point_acceptance(processed_path(),
+        repo_path("data", "diagnostics", "r06a_behavioural_notch"))
+      expect_lt(max(parity$max_absolute_gap_usd), 1e-3)
+    } else {
+      ledger <- e$read_behavioural_source_ledger(processed_path())
+      expect_false(any(ledger$behavioural_regime == "sesh_bunching_topup_zero"))
+      expect_identical(dplyr::n_distinct(ledger$scenario_id), 32L)
+      collectors <- e$read_behavioural_collector_ledger(processed_path())
+      windows <- e$NOTCH_WINDOWS[c("FY2023", "2017–2023")]
+      assigned <- dplyr::bind_rows(dplyr::mutate(collectors, scope = "Global"),
+        dplyr::mutate(dplyr::filter(collectors, country %in% e$EU27_ISO3), scope = "EU27")) |>
+        e$notch_windows(windows) |>
+        dplyr::summarise(assigned_total = sum(assigned_usd), .by = c(scope, window, scenario_id))
+      shadow <- readr::read_csv(repo_path("docs", "refactoring", "r09b", "cap_and_mean_scenarios.csv"),
+        show_col_types = FALSE) |>
+        dplyr::filter(scope %in% c("Global", "EU27"))
+      for (period in names(windows)) {
+        # Cumulative collection can accumulate the Stage 06 annual rounding bound.
+        tolerance <- 1e-3 * length(windows[[period]])
+        expect_lt(e$notch_keyed_gap(dplyr::filter(assigned, window == period),
+          dplyr::filter(shadow, window == period), c("scope", "window", "scenario_id"),
+          "assigned_total", tolerance = tolerance), tolerance)
+      }
+    }
   }
 })

@@ -174,36 +174,61 @@ audit_measurement <- function(stage1, host, brackets, selected, mean_clip = FALS
     ladder = ladder_build_measurements(stage1, host, brackets, rank_consistent = TRUE))
 }
 
-audit_validation <- function(processed, rates) {
+audit_validation <- function(processed, rates, compare_allowances = FALSE) {
   paths <- c(S1 = "affiliate_year", S2 = "affiliate_year_parent_restricted", S3 = "bilateral_matched")
   sample <- imap_dfr(paths, function(suffix, name) {
     data <- read_csv(file.path(processed, "diagnostics",
       paste0("step3_stage1_crossval_", suffix, ".csv")), show_col_types = FALSE)
     if (!"mean_etr" %in% names(data)) data$mean_etr <- data$avg_etr_stage1
     if (!"parent" %in% names(data)) data$parent <- NA_character_
-    transmute(data, sample = name, parent, affiliate, year, mean_etr,
+    if (!"analysis_profit_base" %in% names(data)) {
+      data$analysis_profit_base <- data$avg_profit_denominator
+    }
+    transmute(data, sample = name, parent, affiliate, year, mean_etr, analysis_profit_base, affiliate_is_eu27,
       cap_legacy = affiliate_etr_cap_stage1, across(all_of(Q_RAW)), direct_low_share,
       direct_liability_rate, archived_share = percentile_low_share,
       archived_liability = percentile_liability_rate)
   })
   stopifnot(identical(as.integer(table(sample$sample)), c(361L, 70L, 81L)))
-  rows <- map_dfr(AUDIT_RATE_SPECS, function(spec) {
-    selected <- audit_select_rate(rates, spec)
+  specifications <- if (compare_allowances) {
+    c(LEGACY = NA_real_, STANDARD_0PP = 0, STANDARD_5PP = 0.05, STANDARD_10PP = 0.10,
+      UNIT_ONLY = Inf)
+  } else stats::setNames(rep(ZETA_LOSS_OFFSET, length(AUDIT_RATE_SPECS)), AUDIT_RATE_SPECS)
+  rows <- imap_dfr(specifications, function(allowance, spec) {
+    series <- if (compare_allowances && spec != "LEGACY") "EXPLICIT_FALLBACK" else spec
+    selected <- audit_select_rate(rates, series)
     joined <- left_join(sample, selected, by = AUDIT_RATE_KEYS, relationship = "many-to-one") |>
-      mutate(affiliate_etr_cap_stage1 = if (spec == "LEGACY") cap_legacy else audit_cap(rate))
-    fit <- fit_matched_beta_metrics(joined)
+      mutate(affiliate_etr_cap_stage1 = if (spec == "LEGACY") cap_legacy else
+        statistical_etr_ceiling(rate, allowance))
+    fit <- if (compare_allowances) {
+      map_dfr(seq_len(nrow(joined)), function(i) {
+        cell <- joined[i, ]
+        tryCatch(mutate(fit_matched_beta_metrics(cell), fit_error = NA_character_),
+          error = function(e) mutate(cell, percentile_low_share = NA_real_,
+            percentile_liability_rate = NA_real_, fit_error = conditionMessage(e)))
+      })
+    } else mutate(fit_matched_beta_metrics(joined), fit_error = NA_character_)
     if (spec == "LEGACY") {
       stopifnot(max(abs(fit$percentile_low_share - fit$archived_share)) < 1e-7,
         max(abs(fit$percentile_liability_rate - fit$archived_liability)) < 1e-7)
     }
     q <- as.matrix(fit[Q_RAW])
     rank <- map_dfr(seq_len(nrow(fit)), function(i) {
-      stage1_fit_cell(q[i, ], fit$mean_etr[i], fit$affiliate_etr_cap_stage1[i],
+      fit_rank <- function() stage1_fit_cell(q[i, ], fit$mean_etr[i], fit$affiliate_etr_cap_stage1[i],
         STAGE1_BETA_MODELS[3])
+      if (compare_allowances) {
+        tryCatch(mutate(fit_rank(), rank_error = NA_character_), error = function(e) {
+          tibble(share = NA_real_, liability_rate = NA_real_, rank_lower = NA_real_,
+            rank_upper = NA_real_, rank_projection = NA, precision = NA_real_,
+            rank_error = conditionMessage(e))
+        })
+      } else mutate(fit_rank(), rank_error = NA_character_)
     })
     fit |>
       transmute(specification = spec, sample, parent, affiliate, year, rate_source, mean_etr,
         cap = affiliate_etr_cap_stage1, direct_low_share, direct_liability_rate,
+        analysis_profit_base, affiliate_is_eu27, selected_rate = rate, fit_error,
+        rank_error = rank$rank_error,
         low_share = percentile_low_share, liability_rate = percentile_liability_rate,
         low_share_error = low_share - direct_low_share,
         liability_error = liability_rate - direct_liability_rate,
@@ -238,6 +263,7 @@ audit_validation <- function(processed, rates) {
         boundary_projections = sum(x$boundary_projection, na.rm = TRUE),
         mean_error = mean(usable$error), median_bias = median(usable$error),
         mae = mean(abs(usable$error)), rmse = sqrt(mean(usable$error^2)),
+        p95_absolute_error = as.numeric(quantile(abs(usable$error), 0.95)),
         calibration_r2 = summary(stats::lm(observed ~ predicted + factor(year), data = usable))$r.squared)
     }) |>
     ungroup()

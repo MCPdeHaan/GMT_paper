@@ -2,6 +2,8 @@
 
 Keep the repository script-based, with small R modules organised by economic operation and a thin runner. Preserve the current subprocess-based entry point and on-disk interchange while extracting functions. Use explicit inputs and returned data in the methods, and confine reads, writes, seeds and process calls to stage boundaries where practical. This fits a single paper with a long audit trail and a small collaboration team. The expensive runs justify making dependencies reviewable. A new execution framework would add a second migration before the contracts it should schedule have been established.
 
+The rate boundary implemented in R09b lives in [`code/rates/statutory_rates.R`](../../code/rates/statutory_rates.R). Stage 01 records both the long OECD observation provenance and an exact jurisdiction-year lookup. Stage 02 attaches named roles to the bilateral panel. Stage 03 and Stage 10 share the same statistical cap policy, while destination selection and pricing use independent fields. The historical entry point retains the R06b projection and inventory. [Scientific decisions and migration notes](../refactoring/r09b_statutory_rate_revision.md).
+
 ## Layout after migration
 
 This is a destination, with the existing numbered scripts retained as adapters during migration. Subdirectories are domains. Create a file within a domain when the new boundary has a caller and a test.

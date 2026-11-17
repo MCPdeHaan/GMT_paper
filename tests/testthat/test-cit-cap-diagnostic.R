@@ -13,6 +13,14 @@ test_that("standard headline caps use combined ST rates and preserve the frozen 
   before <- tools::md5sum(files)
   output <- tempfile("gmt-cit-audit-", fileext = ".csv")
   withr::defer(unlink(output))
+  if (!is.null(env$statutory_rate_metadata(processed_path()))) {
+    expect_error(env$run_standard_cit_cap_diagnostic(processed_dir = processed_path(),
+      raw_path = raw, output = output), "requires LEGACY_TARGETED")
+    expect_false(file.exists(output))
+    expect_identical(tools::md5sum(files), before)
+    expect_identical(list.files(processed_path(), full.names = TRUE, recursive = TRUE), files)
+    return(invisible(NULL))
+  }
   report <- env$run_standard_cit_cap_diagnostic(processed_dir = processed_path(), raw_path = raw, output = output)
   expect_identical(tools::md5sum(files), before)
   expect_identical(list.files(processed_path(), full.names = TRUE, recursive = TRUE), files)

@@ -313,6 +313,7 @@ build_matched_stage1_crossval <- function(panel, bilateral_brackets, direct_bila
     select(
       all_of(keys), affiliate_is_eu27, has_panelai_percentiles,
       analysis_profit_base, etr_panelai_reg, tax_accrued_panelai, affiliate_cit_rate_unit,
+      any_of("affiliate_cit_statistical_ceiling"),
       subgroups_count_panelai, entities_count_panelai, subgroups_count, entities_count,
       etr_p5_panelai, etr_p25_panelai, etr_p50_panelai, etr_p75_panelai, etr_p95_panelai
     ) |>
@@ -322,7 +323,10 @@ build_matched_stage1_crossval <- function(panel, bilateral_brackets, direct_bila
     transmute(
       parent, affiliate, year, affiliate_is_eu27, analysis_profit_base,
       mean_etr = etr_panelai_reg,
-      affiliate_etr_cap_stage1 = pmin(1, coalesce(affiliate_cit_rate_unit + ZETA_LOSS_OFFSET, 1)),
+      affiliate_etr_cap_stage1 = panel_statistical_ceiling(matched),
+      mean_etr = if ("affiliate_cit_statistical_ceiling" %in% names(matched)) {
+        regularise_bilateral_etr(etr_panelai_reg, affiliate_etr_cap_stage1)
+      } else mean_etr,
       q5_raw = etr_p5_panelai, q25_raw = etr_p25_panelai, q50_raw = etr_p50_panelai,
       q75_raw = etr_p75_panelai, q95_raw = etr_p95_panelai,
       t4_positive_profit, t4_low_profit, t4_low_tax,
@@ -343,14 +347,12 @@ build_matched_stage1_crossval <- function(panel, bilateral_brackets, direct_bila
       parents = paste(sort(unique(parent)), collapse = "+"),
       analysis_profit_base = sum(analysis_profit_base),
       tax_accrued = sum(tax_accrued_panelai),
-      cit_rate = first_non_missing(affiliate_cit_rate_unit),
+      affiliate_etr_cap_stage1 = first_non_missing(panel_statistical_ceiling(dplyr::pick(everything()))),
       .groups = "drop"
     ) |>
     mutate(
-      affiliate_etr_cap_stage1 = pmin(1, coalesce(cit_rate + ZETA_LOSS_OFFSET, 1)),
       mean_etr = pmin(pmax(tax_accrued / analysis_profit_base, 0), affiliate_etr_cap_stage1)
-    ) |>
-    select(-cit_rate)
+    )
 
   restricted <- pool_panelai_percentiles(matched) |>
     inner_join(restricted_means, by = affiliate_year_keys) |>
@@ -603,7 +605,7 @@ ladder_bilateral_fits <- function(stage1, rank_consistent = FALSE) {
   use_t <- fit_inputs$percentile_source == "panel_t_non_eu"
   probabilities[use_t, ] <- as.matrix(fit_inputs[use_t, fallback])
   if (rank_consistent) {
-    caps <- pmin(1, coalesce(fit_inputs$affiliate_cit_rate_unit + ZETA_LOSS_OFFSET, 1))
+    caps <- panel_statistical_ceiling(fit_inputs)
     fits <- map_dfr(seq_len(nrow(fit_inputs)), function(i) {
       stage1_fit_cell(probabilities[i, ], fit_inputs$etr_panelai_stage1[i], caps[i],
         STAGE1_BETA_MODELS[3])
@@ -822,6 +824,18 @@ run_stage1_pipeline <- function() {
         TRUE ~ pmin(pmax(avg_etr_raw, 0), affiliate_etr_cap_stage1)
       )
     )
+
+  if ("affiliate_cit_statistical_ceiling" %in% names(panel)) {
+    ceilings <- panel |>
+      distinct(affiliate, year, affiliate_cit_statistical_ceiling)
+    affiliate_year_base <- affiliate_year_base |>
+      left_join(ceilings, by = c("affiliate", "year"), relationship = "many-to-one") |>
+      mutate(
+        affiliate_etr_cap_stage1 = coalesce(affiliate_cit_statistical_ceiling, 1),
+        avg_etr_stage1 = pmin(pmax(avg_etr_raw, 0), affiliate_etr_cap_stage1)
+      ) |>
+      select(-affiliate_cit_statistical_ceiling)
+  }
 
   # Average ETR branch: treats the affiliate-year mean ETR as representative
   # of all positive profits. This is the conservative fallback when the public

@@ -509,6 +509,7 @@ run_conduit_wedge_diagnostics <- function() {
   beta <- step8_read("stage3_model_coefficients") |>
     filter(model_spec == "linear", term == "tau", inference == "parent_affiliate_clustered") |>
     pull(estimate)
+  beta <- applied_preferred_beta(beta)
   stopifnot(length(beta) == 1, is.finite(beta))
   baseline <- step8_allocate(build_source_panel(source), weights)
   archived <- step8_read("stage4_5_revenue_country_year") |>
@@ -839,6 +840,15 @@ bridge_tax <- function(accrued, cash, numerator) {
     T3_envelope = pmax(accrued, cash, na.rm = TRUE))
 }
 
+bridge_bilateral_etr <- function(stage1, raw_etr) {
+  if ("affiliate_cit_statistical_ceiling" %in% names(stage1)) {
+    return(regularise_bilateral_etr(raw_etr, panel_statistical_ceiling(stage1)))
+  }
+  cap <- pmin(1, coalesce(stage1$affiliate_cit_top_all_unit, stage1$affiliate_cit_standard_unit,
+    1 - ZETA_LOSS_OFFSET) + ZETA_LOSS_OFFSET)
+  if_else(raw_etr < -ZETA_LOSS_OFFSET, NA_real_, pmin(cap, pmax(0, raw_etr)))
+}
+
 bridge_tax_rates <- function(stage1, host, table4, bilateral_brackets, numerator) {
   if (numerator == "T1_accrued") {
     return(list(stage1 = stage1, host = host,
@@ -850,10 +860,7 @@ bridge_tax_rates <- function(stage1, host, table4, bilateral_brackets, numerator
     mutate(
       tax_variant = bridge_tax(tax_accrued_panelai, tax_paid_panelai, numerator),
       variant_raw_etr = safe_divide(tax_variant, analysis_profit_positive),
-      cap = pmin(1, coalesce(affiliate_cit_top_all_unit, affiliate_cit_standard_unit,
-        1 - ZETA_LOSS_OFFSET) + ZETA_LOSS_OFFSET),
-      etr_panelai_stage1 = if_else(variant_raw_etr < -ZETA_LOSS_OFFSET,
-        NA_real_, pmin(cap, pmax(0, variant_raw_etr)))
+      etr_panelai_stage1 = bridge_bilateral_etr(dplyr::pick(everything()), variant_raw_etr)
     )
   host_tax <- donor |>
     filter(profit_panelai > 0, analysis_profit_positive > 0) |>
@@ -1257,6 +1264,7 @@ run_hanlon_globe_bridge <- function() {
   beta <- bridge_read("stage3_model_coefficients") |>
     filter(model_spec == "linear", term == "tau", inference == "parent_affiliate_clustered") |>
     pull(estimate)
+  beta <- applied_preferred_beta(beta)
   stopifnot(length(beta) == 1L, is.finite(beta), nrow(spine) == nrow(stage1))
 
   message("1/4 Panel A loss netting and loss stock")

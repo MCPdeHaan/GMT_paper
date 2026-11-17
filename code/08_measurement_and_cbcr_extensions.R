@@ -1332,6 +1332,7 @@ run_ladder_diagnostics <- function() {
   beta <- ladder_read("stage3_model_coefficients") |>
     filter(model_spec == "linear", term == "tau", inference == "parent_affiliate_clustered") |>
     pull(estimate)
+  beta <- applied_preferred_beta(beta)
   stopifnot(length(beta) == 1, is.finite(beta))
   core_levels <- levels[c(1, 3)]
   archived_source <- ladder_read("stage4_5_allocation_source_panel") |>
@@ -1737,6 +1738,7 @@ run_rank_beta_diagnostics <- function() {
   beta <- ladder_read("stage3_model_coefficients") |>
     filter(model_spec == "linear", term == "tau", inference == "parent_affiliate_clustered") |>
     pull(estimate)
+  beta <- applied_preferred_beta(beta)
   stopifnot(length(beta) == 1L, is.finite(beta))
   variants <- set_names(vector("list", length(STEP10_MODELS)), STEP10_MODELS)
   for (estimator in STEP10_MODELS) {

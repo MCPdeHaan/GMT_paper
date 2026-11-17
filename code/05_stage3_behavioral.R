@@ -25,11 +25,12 @@ normalise_formulary_destinations <- function(destinations, keys) {
 
 build_rule_b_footprint <- function(panel) {
   footprint <- panel |>
-    distinct(parent, affiliate, year, affiliate_cit_rate_unit,
+    mutate(destination_gate_rate = panel_statutory_rate(panel, "destination_gate")) |>
+    distinct(parent, affiliate, year, destination_gate_rate,
       etr_panelai_stage1, employees_sbie, payroll_sbie, upr_panelai) |>
-    filter(affiliate_cit_rate_unit >= GMT_RATE) |>
+    filter(destination_gate_rate >= GMT_RATE) |>
     transmute(
-      parent, year, destination = affiliate, statutory_rate = affiliate_cit_rate_unit,
+      parent, year, destination = affiliate, statutory_rate = destination_gate_rate,
       destination_etr = etr_panelai_stage1,
       employees = pmax(coalesce_zero(employees_sbie), 0),
       payroll = pmax(coalesce_zero(payroll_sbie), 0),
@@ -77,6 +78,7 @@ allocate_rule_b_sources <- function(sources, footprint, global) {
 }
 
 build_rule_b_reallocation <- function(panel, host) {
+  prices <- if ("affiliate_cit_destination_price_rate" %in% names(panel)) destination_price_lookup(panel)
   footprint <- build_rule_b_footprint(panel)
   global <- build_rule_b_global_footprint(footprint, host)
   origins <- panel |>
@@ -94,6 +96,10 @@ build_rule_b_reallocation <- function(panel, host) {
       vintage <- first(sources$year)
       routes <- allocate_rule_b_sources(mutate(sources, source_id = row_number()),
         filter(footprint, year == vintage), filter(global, year == vintage))
+      if (!is.null(prices)) {
+        routes <- attach_destination_prices(routes, prices, "received") |>
+          mutate(statutory_rate = price_rate)
+      }
       routes |>
         select(all_of(SCENARIO_VARS), year, parent, destination, route, weight,
           statutory_rate, destination_etr, source_etr, all_of(channel_columns)) |>
@@ -676,7 +682,7 @@ add_affiliate_cit_lag <- function(base_panel) {
     group_by(affiliate, year) |>
     summarise(
       affiliate_cit_rate_unit_lag1 =
-        first_non_missing(affiliate_cit_rate_unit),
+        first_non_missing(panel_statutory_rate(dplyr::pick(everything()), "robustness")),
       .groups = "drop"
     ) |>
     mutate(year = year + 1L)
@@ -1596,8 +1602,11 @@ extract_tax_coefficients <- function(model_fits) {
 }
 
 build_behavioural_affiliate_year <- function(stage1_affiliate_year,
-                                             model_fits) {
+                                             model_fits, applied_linear_beta = NULL) {
   tax_coefficients <- extract_tax_coefficients(model_fits)
+  if (!is.null(applied_linear_beta)) {
+    tax_coefficients$beta3[tax_coefficients$model_spec == "linear"] <- applied_linear_beta
+  }
   widths <- sort(unique(c(behavioural_bandwidth(), SESH_BANDWIDTH_SENSITIVITY)))
 
   behavioural_base <- stage1_affiliate_year |>
@@ -2545,7 +2554,8 @@ build_reallocation_matrix <- function(scenario_panel, affiliate_year) {
   legacy_values <- c(amounts, "reallocation_weight", "destination_weight_source")
   destinations <- scenario_panel |>
     summarise(destination_name_rule_b = first(affiliate_jurisdiction_name),
-      destination_cit_rate_rule_b = first_non_missing(affiliate_cit_rate_unit),
+      destination_cit_rate_rule_b = first_non_missing(
+        panel_statutory_rate(dplyr::pick(everything()), "destination_price")),
       destination_is_conduit_haven_rule_b = any(coalesce(affiliate_is_conduit_haven, FALSE)),
       .by = c(affiliate, year)) |>
     rename(destination = affiliate)
@@ -2835,7 +2845,8 @@ run_stage3_pipeline <- function() {
 
   behavioural_affiliate_year <- build_behavioural_affiliate_year(
     stage1_affiliate_year,
-    model_fits
+    model_fits,
+    applied_linear_beta = applied_preferred_beta(NULL)
   )
 
   policy_flags <- build_policy_flags(oecd_central_record)

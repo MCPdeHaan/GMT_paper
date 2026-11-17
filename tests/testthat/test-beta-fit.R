@@ -231,24 +231,28 @@ test_that("the isolated kernel source leaves the working directory and session u
 })
 
 test_that("Stage 03 panels and Stage 03 and 08 validation files retain their ordered contracts", {
+  manifest_env <- new.env(parent = globalenv())
+  source(repo_path("tests", "verify_golden_step15.R"), local = manifest_env)
+  standard <- !is.null(statutory_rate_metadata(processed_path()))
+  reference <- if (standard) "r09b" else "r06b"
+  manifest <- manifest_env$read_golden_manifest(repo_root, reference)
   panels <- list(
     stage1_affiliate_year.rds = c(1503L, 111L),
-    stage1_bilateral_panel.rds = c(18954L, 460L)
+    stage1_bilateral_panel.rds = c(18954L, if (standard) 490L else 460L)
   )
-  reference <- repo_path("data", "processed")
   for (file in names(panels)) {
     active <- readRDS(processed_path(file))
     key <- intersect(c("parent", "affiliate", "year"), names(active))
     expect_identical(dim(active), panels[[file]])
     expect_identical(anyDuplicated(active[key]), 0L)
-    expect_identical(active, readRDS(file.path(reference, file)))
+    expected <- manifest$sha256[manifest$path == file.path("data", "processed", file)]
+    expect_identical(manifest_env$sha256_files(processed_path(file)), expected)
   }
-  diagnostic_names <- list.files(file.path(reference, "diagnostics"),
-    "^(step3_stage1_|audit_step4_stage1_|step10_estimator_rank_consistency)")
-  active <- vapply(diagnostic_names, function(file) processed_path("diagnostics", file), "")
+  diagnostics <- manifest[grepl("/(step3_stage1_|audit_step4_stage1_|step10_estimator_rank_consistency)",
+    manifest$path), ]
+  active <- processed_path(sub("^data/processed/", "", diagnostics$path))
   expect_true(all(file.exists(active)))
-  reference_files <- file.path(reference, "diagnostics", diagnostic_names)
-  expect_identical(unname(tools::md5sum(active)), unname(tools::md5sum(reference_files)))
+  expect_identical(manifest_env$sha256_files(active), diagnostics$sha256)
 
   samples <- c("affiliate_year", "affiliate_year_parent_restricted", "bilateral_matched")
   counts <- vapply(samples, function(sample) {

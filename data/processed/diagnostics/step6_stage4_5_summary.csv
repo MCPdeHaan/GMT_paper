@@ -4,10 +4,10 @@ eu27_country_year_revenue_rows,6048
 global_allocation_conservation_max_abs_gap,4.57763671875e-4
 utpr_parent_year_weight_rows,4937
 utpr_fallback_weight_rows,0
-h4_mean_delta_sbs_minus_universal,-688414464.7360381
-h4_median_delta_sbs_minus_universal,-150039472.25611374
+h4_mean_delta_sbs_minus_universal,-688039961.6622789
+h4_median_delta_sbs_minus_universal,-150024432.75161436
 h4_wilcoxon_less_p_value,0
 max_iir_ambiguous_parent_flag_share,0
 max_utpr_ambiguous_collector_share,0
-eu_revenue_min_scenario,159821711849.51227
-eu_revenue_max_scenario,670666228125.762
+eu_revenue_min_scenario,159749701325.81622
+eu_revenue_max_scenario,670666963286.1572

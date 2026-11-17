@@ -3962,6 +3962,8 @@ make_profit_employee_etr_bubble <- function() {
       corrected_profit > 0
     )
 
+  # Keep the previous scale when it covers every host in the plotted sample.
+  etr_axis_maximum <- max(0.25, ceiling(max(country_plot$average_etr) / 0.05) * 0.05)
   label_positions <- tibble::tribble(
     ~affiliate, ~label_x, ~label_y,
     "DEU", 1.75e5, 0.214,
@@ -4019,8 +4021,8 @@ make_profit_employee_etr_bubble <- function() {
     ) +
     ggplot2::scale_y_continuous(
       labels = scales::label_percent(accuracy = 1),
-      limits = c(0, 0.25),
-      breaks = seq(0, 0.25, by = 0.05),
+      limits = c(0, etr_axis_maximum),
+      breaks = seq(0, etr_axis_maximum, by = 0.05),
       expand = ggplot2::expansion(mult = c(0.02, 0.02))
     ) +
     ggplot2::scale_size_area(
@@ -4645,12 +4647,18 @@ write_paper_etr_table <- function() {
     transmute(sample, outcome = if_else(outcome == "low_share", "Low share", "Liability"),
       fit = if_else(estimator == "uncapped", "Uncapped", "Capped"), n = fmt_int(n),
       bias = paper_pct(median_gap), error = paper_pct(mae), r2 = paper_number(calibration_r_squared, 3))
+  cap_note <- if (is.null(statutory_rate_metadata())) {
+    "The cap is the host statutory rate plus the loss-offset allowance, bounded at 100%."
+  } else {
+    paste("The cap uses the same-year OECD standard combined rate plus five points,",
+      "the standard central rate if combined is absent, and a unit ceiling if both are absent.")
+  }
   write_paper_float_table("tab_v2_etr_ladder_and_crossval", "ETR aggregation and Table IV validation", list(
     "A. Measurement ladder" = paper_panel(c("Scope", "Window", "Level", "Low share (%)",
       "Gap (pp)", "Liability (%)", "Post-SBIE"), ladder),
     "B. Table I percentile validation" = paper_panel(c("Sample", "Outcome", "Fit", "N",
       "Bias (pp)", "MAE (pp)", "R-squared"), cv)),
-    "Post-SBIE liability is in US$ bn at initial carve-out rates. Validation uses FY2021–2023. Bias is the median fitted minus direct estimate. The cap is the host statutory rate plus the loss-offset allowance, bounded at 100%.",
+    paste("Post-SBIE liability is in US$ bn at initial carve-out rates. Validation uses FY2021–2023. Bias is the median fitted minus direct estimate.", cap_note),
     align = list("A. Measurement ladder" = "lllrrrr", "B. Table I percentile validation" = "lllrrrr"))
 }
 

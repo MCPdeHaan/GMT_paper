@@ -42,7 +42,7 @@ build_division_bias_inputs <- function(estimation, base) {
   estimation |>
     select(all_of(pair_keys), pair_id, tau, etr_panelai_stage1, log_profit,
       analysis_profit_base, log_assets, log_payroll, log_gdp_pc, log_population,
-      affiliate_cit_rate_unit, affiliate_simulated_eatr_unit
+      affiliate_cit_rate_unit, any_of("affiliate_cit_robustness_rate"), affiliate_simulated_eatr_unit
     ) |>
     left_join(lagged, by = pair_keys, relationship = "one-to-one") |>
     left_join(host_totals, by = c("affiliate", "year"), relationship = "many-to-one") |>
@@ -65,7 +65,7 @@ build_division_bias_inputs <- function(estimation, base) {
         other_foreign_parents >= 2 & leaveout_foreign_profit > 0,
         safe_divide(leaveout_foreign_tax, leaveout_foreign_profit), NA_real_
       ))),
-      statutory_cit = affiliate_cit_rate_unit,
+      statutory_cit = panel_statutory_rate(dplyr::pick(everything()), "robustness"),
       forward_eatr = affiliate_simulated_eatr_unit
     ) |>
     left_join(
@@ -233,7 +233,8 @@ audit_division_bias <- function(estimation, base) {
   bind_rows(available, matched, lagged_activity)
 }
 
-build_parent_specific_reallocation <- function(panel, affiliate_year) {
+build_parent_specific_reallocation <- function(panel, affiliate_year,
+  prices = if ("affiliate_cit_destination_price_rate" %in% names(panel)) destination_price_lookup(panel)) {
   keys <- c("scenario_id", "parent", "year")
   source_rows <- panel |>
     filter(reallocated_profit > 0) |>
@@ -253,12 +254,13 @@ build_parent_specific_reallocation <- function(panel, affiliate_year) {
   # Destination eligibility depends on the observed footprint and tax code.
   # A loss-making destination may still employ workers and make sales.
   footprint <- panel |>
-    distinct(parent, destination = affiliate, year, affiliate_cit_rate_unit,
+    mutate(destination_gate_rate = panel_statutory_rate(panel, "destination_gate")) |>
+    distinct(parent, destination = affiliate, year, destination_gate_rate,
       affiliate_is_conduit_haven, employees_sbie, payroll_sbie, upr_panelai
     ) |>
-    filter(affiliate_cit_rate_unit >= GMT_RATE, !coalesce(affiliate_is_conduit_haven, FALSE)) |>
+    filter(destination_gate_rate >= GMT_RATE, !coalesce(affiliate_is_conduit_haven, FALSE)) |>
     transmute(
-      parent, destination, year, statutory_rate = affiliate_cit_rate_unit,
+      parent, destination, year, statutory_rate = destination_gate_rate,
       employees = pmax(coalesce_zero(employees_sbie), 0),
       payroll = pmax(coalesce_zero(payroll_sbie), 0),
       upr = pmax(coalesce_zero(upr_panelai), 0)
@@ -296,6 +298,16 @@ build_parent_specific_reallocation <- function(panel, affiliate_year) {
       ordinary_cit_net_recovery = reallocated_profit_received * pmax(statutory_rate - weighted_source_etr, 0)
     )
   stopifnot(!anyNA(matrix$weight), !anyNA(matrix$destination))
+  if (!is.null(prices)) {
+    matrix <- attach_destination_prices(matrix, prices, "reallocated_profit_received") |>
+      mutate(
+        effective_rate = pmax(GMT_RATE, coalesce(observed_etr, price_rate)),
+        ordinary_cit_gross_destination_revenue = reallocated_profit_received * price_rate,
+        ordinary_cit_gross_destination_revenue_effective = reallocated_profit_received * effective_rate,
+        ordinary_cit_net_recovery = ordinary_cit_gross_destination_revenue -
+          reallocated_profit_received * weighted_source_etr
+      )
+  }
   conservation <- matrix |>
     group_by(across(all_of(keys))) |>
     summarise(
@@ -473,7 +485,8 @@ read_step6_factorial_input <- function() {
   read_step6_input("stage3_factorial_pair_year") |>
     select(all_of(SCENARIO_VARS), parent, affiliate, year, affiliate_jurisdiction_name,
       parent_jurisdiction_name, affiliate_cit_rate_unit, affiliate_is_conduit_haven,
-      employees_sbie, payroll_sbie, upr_panelai, static_tau_low, reallocated_profit,
+      any_of(c("affiliate_cit_destination_price_rate", "affiliate_cit_destination_gate_rate",
+        "affiliate_cit_standard_combined")), employees_sbie, payroll_sbie, upr_panelai, static_tau_low, reallocated_profit,
       behavioural_avoided_topup, behavioural_regime, qdmtt_flag, parent_iir_utpr_flag, sbs_exempt,
       stage2_phi, assets_sbie, act_ip_panelai, act_holding_panelai, act_igf_panelai,
       analysis_profit_positive, average_low_share, stage1_distributional_low_share,
@@ -642,7 +655,8 @@ write_step7 <- function(data, name) {
 build_hub_destination_routes <- function(panel, stage1, host) {
   keys <- c("parent", "affiliate", "year")
   bilateral <- stage1 |>
-    select(all_of(keys), etr_panelai_stage1, parent_cit_rate_unit)
+    transmute(across(all_of(keys)), etr_panelai_stage1,
+      headquarters_gate_rate = panel_statutory_rate(stage1, "destination_gate", "parent"))
   sources <- panel |>
     filter(reallocated_profit > 0) |>
     transmute(across(all_of(keys)), scenario_id, source_etr = static_tau_low, reallocated_profit) |>
@@ -652,8 +666,9 @@ build_hub_destination_routes <- function(panel, stage1, host) {
     mutate(source_id = row_number())
   stopifnot(all(is.finite(sources$source_etr)), all(sources$source_etr < GMT_RATE))
   footprint <- panel |>
-    select(all_of(keys), affiliate_cit_rate_unit, employees_sbie, payroll_sbie, upr_panelai) |>
-    left_join(bilateral |> select(-parent_cit_rate_unit),
+    select(all_of(keys), affiliate_cit_rate_unit, any_of("affiliate_cit_destination_gate_rate"),
+      employees_sbie, payroll_sbie, upr_panelai) |>
+    left_join(bilateral |> select(-headquarters_gate_rate),
       by = keys, relationship = "many-to-one") |>
     build_rule_b_footprint()
   global <- build_rule_b_global_footprint(footprint, host)
@@ -667,13 +682,13 @@ build_hub_destination_routes <- function(panel, stage1, host) {
     formulary |>
       transmute(source_id, scenario_id, year, destination, route, statutory_rate,
         received = reallocated_profit * weight *
-          if_else(coalesce(parent_cit_rate_unit >= GMT_RATE, FALSE), 0.5, 1),
+          if_else(coalesce(headquarters_gate_rate >= GMT_RATE, FALSE), 0.5, 1),
         same_country_headquarters = FALSE
       ),
     sources |>
-      filter(parent_cit_rate_unit >= GMT_RATE) |>
+      filter(headquarters_gate_rate >= GMT_RATE) |>
       transmute(source_id, scenario_id, year, destination = parent, route = "headquarters",
-        statutory_rate = parent_cit_rate_unit, received = 0.5 * reallocated_profit,
+        statutory_rate = headquarters_gate_rate, received = 0.5 * reallocated_profit,
         same_country_headquarters = affiliate == parent
       )
   )
@@ -687,15 +702,26 @@ build_hub_destination_routes <- function(panel, stage1, host) {
   bind_rows(B = b, C = c, .id = "rule")
 }
 
-build_destination_comparison <- function(panel, direct, stage1, host) {
-  panel <- filter(panel, scenario_id %in% STEP7_PREFERRED)
-  a <- build_parent_specific_reallocation(panel, host)
+build_destination_routes <- function(panel, stage1, host) {
+  a <- build_parent_specific_reallocation(panel, host, prices = NULL)
   route_a <- a$matrix |>
     transmute(rule = "A", scenario_id, year, destination, statutory_rate,
       route = if_else(destination_weight_source == "parent_year", "parent_activity", "global_activity"),
       received = reallocated_profit_received, same_country_headquarters = FALSE
     )
-  routes <- bind_rows(route_a, build_hub_destination_routes(panel, stage1, host))
+  list(routes = bind_rows(route_a, build_hub_destination_routes(panel, stage1, host)),
+    sources = a$source_rows)
+}
+
+build_destination_comparison <- function(panel, direct, stage1, host) {
+  panel <- filter(panel, scenario_id %in% STEP7_PREFERRED)
+  destination <- build_destination_routes(panel, stage1, host)
+  routes <- destination$routes
+  if ("affiliate_cit_destination_price_rate" %in% names(stage1)) {
+    routes <- attach_destination_prices(routes,
+      destination_price_lookup(stage1, include_parents = TRUE), "received") |>
+      mutate(statutory_rate = price_rate)
+  }
   receipts <- routes |>
     group_by(rule, scenario_id, year, country = destination) |>
     summarise(
@@ -704,7 +730,7 @@ build_destination_comparison <- function(panel, direct, stage1, host) {
       headquarters_profit = sum(received[route == "headquarters"]),
       same_country_headquarters_profit = sum(received[same_country_headquarters]), .groups = "drop"
     )
-  origin <- a$source_rows |>
+  origin <- destination$sources |>
     group_by(country = affiliate, scenario_id, year) |>
     summarise(source_cit_lost = sum(source_tax_loss), profit_sent = sum(reallocated_profit), .groups = "drop")
   keys <- c("country", "scenario_id", "year")
@@ -768,6 +794,61 @@ build_destination_comparison <- function(panel, direct, stage1, host) {
     max(abs(check$gross_cit - check$ordinary_cit_gross_destination_revenue)) < 1e-3
   )
   compare
+}
+
+compare_destination_rate_roles <- function(panel, stage1, host) {
+  panel <- filter(panel, scenario_id %in% STEP7_PREFERRED)
+  prices <- list(legacy = destination_price_lookup(stage1, "historical", include_parents = TRUE),
+    standard = destination_price_lookup(stage1, include_parents = TRUE))
+  by_gate <- list(
+    legacy = build_destination_routes(panel, stage1, host),
+    standard = build_destination_routes(
+      mutate(panel, affiliate_cit_destination_gate_rate = affiliate_cit_standard_combined),
+      mutate(stage1, parent_cit_destination_gate_rate = parent_cit_standard_combined), host)
+  )
+  origin <- by_gate$legacy$sources |>
+    transmute(country = affiliate, year, scenario_id, reallocated_profit, source_tax_loss)
+  stopifnot(identical(origin, transmute(by_gate$standard$sources, country = affiliate, year,
+    scenario_id, reallocated_profit, source_tax_loss)))
+  keys <- c("country", "year", "scenario_id")
+  origin <- summarise(origin, profit_sent = sum(reallocated_profit),
+    source_cit_lost = sum(source_tax_loss), .by = all_of(keys)) |>
+    crossing(rule = c("A", "B", "C"))
+  imap_dfr(by_gate, function(routes, gate) {
+    imap_dfr(prices, function(rate, pricing) {
+      priced <- attach_destination_prices(routes$routes, rate, "received", require_support = FALSE) |>
+        summarise(relocated_profit = sum(received),
+          unpriced_profit = sum(received[!is.finite(price_rate)]),
+          priced_gross_cit = sum(received[is.finite(price_rate)] * price_rate[is.finite(price_rate)]),
+          fallback_profit = sum(received[route == "global_activity"]),
+          headquarters_profit = sum(received[route == "headquarters"]),
+          .by = c(rule, scenario_id, year, destination)) |>
+        rename(country = destination) |>
+        full_join(origin, by = c("rule", keys), relationship = "one-to-one") |>
+        mutate(across(c(relocated_profit, unpriced_profit, priced_gross_cit, fallback_profit,
+          headquarters_profit, profit_sent, source_cit_lost), coalesce_zero))
+      conservation <- summarise(priced, sent = sum(profit_sent), received = sum(relocated_profit),
+        .by = c(rule, scenario_id, year))
+      stopifnot(all(abs(conservation$sent - conservation$received) <
+        1e-12 * pmax(1, conservation$sent)))
+      amounts <- c("relocated_profit", "unpriced_profit", "priced_gross_cit", "fallback_profit",
+        "headquarters_profit", "profit_sent", "source_cit_lost")
+      imap_dfr(STEP7_WINDOWS, function(years, window) {
+        countries <- priced |>
+          filter(year %in% years) |>
+          summarise(across(all_of(amounts), sum), .by = c(rule, scenario_id, country)) |>
+          mutate(region = if_else(country %in% EU27_ISO3, "EU27", "non-EU27"))
+        regional <- summarise(countries, across(all_of(amounts), sum),
+          .by = c(rule, scenario_id, region)) |> rename(country = region)
+        global <- summarise(countries, across(all_of(amounts), sum),
+          .by = c(rule, scenario_id)) |> mutate(country = "Global")
+        bind_rows(select(countries, -region), regional, global) |>
+          mutate(gate, pricing, window,
+            gross_cit = if_else(unpriced_profit > 0, NA_real_, priced_gross_cit),
+            net_ordinary_cit = gross_cit - source_cit_lost, .before = 1)
+      })
+    })
+  })
 }
 
 summarise_budget_matches <- function(revenue, channels, destination_comparison) {
@@ -995,8 +1076,12 @@ run_reallocation_and_budget_backtest <- function() {
   direct <- read_step6_input("stage4_5_revenue_country_year")
   stage1 <- read_step6_input("stage1_bilateral_panel")
   host <- read_step6_input("stage1_affiliate_year")
-  reallocation <- build_destination_comparison(read_step6_factorial_input(), direct, stage1, host)
+  panel <- read_step6_factorial_input()
+  reallocation <- build_destination_comparison(panel, direct, stage1, host)
   write_step7(reallocation, "reallocation_destination_rules_comparison")
+  if ("affiliate_cit_standard_combined" %in% names(panel)) {
+    write_step7(compare_destination_rate_roles(panel, stage1, host), "statutory_destination_gate_and_pricing")
+  }
   write_step7(summarise_budget_matches(direct, read_step6_input("stage4_5_revenue_by_channel"), reallocation),
     "official_budget_forecasts_backtest")
   fiscal <- read_step6_input("stage4_6_fiscal_salience_country")
@@ -1762,8 +1847,10 @@ build_pre_implementation_compression <- function(stage1) {
   positive <- stage1 |>
     filter(year %in% MAIN_YEARS, analysis_profit_positive > 0) |>
     select(pair_id, parent, affiliate, year, all_of(outcomes),
-      affiliate_cit_rate_unit, stage1_distributional_source
-    )
+      affiliate_cit_rate_unit, stage1_distributional_source,
+      any_of("affiliate_cit_robustness_rate")
+    ) |>
+    mutate(affiliate_cit_rate_unit = panel_statutory_rate(dplyr::pick(everything()), "robustness"))
   exposure <- positive |>
     filter(year %in% 2017:2019, is.finite(stage1_distributional_low_share)) |>
     group_by(pair_id) |>

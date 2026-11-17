@@ -614,9 +614,8 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
   cit_stat_raw <- read_oecd(file.path(raw_data_dir, "oecd_tax_rates/oecd_statutory_cit_rates.csv"))
   # CIT/S1311 is central government; CIT_C/S13 is combined government.
   # TARGETING: ST = standard; TA = targeted small-business rate. The historical
-  # cit_top_all column actually stores TA, not a combined headline rate. Preserve
-  # the frozen schema and selection here; the opt-in module 08 diagnostic reads
-  # standard combined rates directly from the pinned raw extract.
+  # cit_top_all stores the targeted central rate. Keep the historical aliases
+  # as percentages and add the named, fractional OECD series for R09b.
   cit_statutory <- cit_stat_raw |>
     filter(MEASURE == "CIT") |>
     transmute(
@@ -629,6 +628,25 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
       names_prefix = "cit_"
     ) |>
     arrange(jurisdiction, year)
+
+  if (statutory_rate_specification() == "STANDARD_ROLE_SPECIFIC") {
+    rate_path <- file.path(raw_data_dir, "oecd_tax_rates/oecd_statutory_cit_rates.csv")
+    digest <- unname(tools::sha256sum(rate_path))
+    observations <- read_statutory_rate_observations(cit_stat_raw, digest)
+    cit_statutory <- left_join(cit_statutory, statutory_rate_panel(observations),
+      by = c("jurisdiction", "year"), relationship = "one-to-one")
+    saveRDS(observations, file.path(processed_dir, "cit_statutory_observations.rds"))
+    # Preserve the exact binary coefficient used by the R06b linear response.
+    applied_beta_hex <- "-0x1.7711fe50fb08p+0"
+    write_csv(tibble(specification = statutory_rate_specification(),
+      input_sha256 = digest, allowance = STATUTORY_CAP_ALLOWANCE, missing_statistical_ceiling = 1,
+      applied_preferred_beta = sprintf("%.17g", as.numeric(applied_beta_hex)),
+      applied_beta_hex, applied_beta_reference = "R06b",
+      reconciliation_prior = "legacy_targeted_first",
+      prior_missing_encoding = "numerical_zero", destination_gate = "legacy_targeted_first",
+      destination_pricing = "standard_combined_then_central"),
+      file.path(diagnostics_dir, STATUTORY_RATE_SPECIFICATION_FILE))
+  }
 
   assert_unique_keys(cit_statutory, c("jurisdiction", "year"), "CIT-statutory")
   saveRDS(cit_statutory, file.path(processed_dir, "cit_statutory.rds"))
