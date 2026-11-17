@@ -6,9 +6,9 @@
 
 source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "00_helpers.R"), local = TRUE)
 source(file.path(GMT_PROJECT_ROOT, "code", "measurement", "beta_fit.R"), local = TRUE)
+source(file.path(GMT_PROJECT_ROOT, "code", "measurement", "table_iv_support.R"), local = TRUE)
 
 
-DIRECT_YEARS <- 2019:2023
 PERCENTILE_YEARS <- 2021:2023
 BSPI_TV_FLAG <- 0.39
 
@@ -109,6 +109,9 @@ pool_panelai_percentiles <- function(panel) {
 # Require observations on both sides of the threshold. A published zero
 # carries information; a suppressed or absent profit or tax value does not.
 summarise_observed_t4 <- function(brackets, keys) {
+  if ("t4_point_eligible" %in% names(brackets)) {
+    brackets <- filter(brackets, t4_point_eligible %in% TRUE)
+  }
   brackets |>
     filter(year %in% DIRECT_YEARS, etr_bracket %in% T4_POSITIVE_BRACKETS) |>
     group_by(across(all_of(keys))) |>
@@ -757,7 +760,89 @@ add_stage1_ladder_columns <- function(stage1, host_stage1, brackets) {
   left_join(stage1, measurements, by = LADDER_KEYS, relationship = "one-to-one")
 }
 
+build_stage1_bspi_anchors <- function(direct_affiliate_year) {
+  direct_affiliate_year |>
+    filter(year %in% BSPI_ANCHOR_YEARS) |>
+    group_by(affiliate) |>
+    summarise(
+      bspi_has_anchor = TRUE,
+      bspi_anchor_years_observed = n(),
+      bspi_anchor_positive_profit = sum(direct_positive_profit_total, na.rm = TRUE),
+      bspi_anchor_low_profit = sum(direct_low_profit, na.rm = TRUE),
+      bspi_anchor_low_tax = sum(direct_low_tax, na.rm = TRUE),
+      bspi_low_share = safe_divide(
+        bspi_anchor_low_profit,
+        bspi_anchor_positive_profit
+      ),
+      bspi_low_mean_etr = if_else(
+        bspi_anchor_low_profit > 0,
+        bspi_anchor_low_tax / bspi_anchor_low_profit,
+        0
+      ),
+      bspi_topup_rate = if_else(
+        bspi_anchor_low_profit > 0,
+        pmax(0, GMT_RATE - pmin(pmax(bspi_low_mean_etr, 0), GMT_RATE)),
+        0
+      ),
+      .groups = "drop"
+    )
+}
+
+write_stage1_table_iv_support <- function(host, support, legacy_direct, legacy_brackets, anchors) {
+  legacy_anchors <- build_stage1_bspi_anchors(legacy_direct)
+  legacy_fields <- c("direct_available", "bspi_available", "direct_low_share", "direct_topup_rate",
+    "bspi_low_share", "bspi_topup_rate", "stage1_distributional_source",
+    "stage1_distributional_low_share", "stage1_distributional_topup_rate")
+  legacy <- host |>
+    select(-all_of(legacy_fields)) |>
+    left_join(select(legacy_direct, all_of(T4_HOST_KEYS), direct_low_share, direct_topup_rate),
+      by = T4_HOST_KEYS, relationship = "one-to-one") |>
+    left_join(select(legacy_anchors, affiliate, bspi_has_anchor, bspi_low_share, bspi_topup_rate),
+      by = "affiliate", relationship = "many-to-one", suffix = c(".old", "")) |>
+    mutate(
+      direct_available = is.finite(direct_low_share) & is.finite(direct_topup_rate),
+      bspi_available = year %in% BSPI_IMPUTE_YEARS & coalesce(bspi_has_anchor, FALSE),
+      stage1_distributional_source = choose_distributional_source(year, direct_available,
+        percentile_available, bspi_available, average_available),
+      stage1_distributional_low_share = case_when(
+        stage1_distributional_source == "direct_t4" ~ direct_low_share,
+        stage1_distributional_source == "percentile_fit" ~ percentile_low_share,
+        stage1_distributional_source == "shape_transport" ~ bspi_low_share,
+        stage1_distributional_source == "avg_only" ~ average_low_share),
+      stage1_distributional_topup_rate = case_when(
+        stage1_distributional_source == "direct_t4" ~ direct_topup_rate,
+        stage1_distributional_source == "percentile_fit" ~ percentile_topup_rate,
+        stage1_distributional_source == "shape_transport" ~ bspi_topup_rate,
+        stage1_distributional_source == "avg_only" ~ average_topup_rate)
+    )
+  comparison <- host |>
+    select(all_of(T4_HOST_KEYS), affiliate_is_eu27, total_analysis_profit_positive,
+      selected_source = stage1_distributional_source, selected_share = stage1_distributional_low_share,
+      selected_gap = stage1_distributional_topup_rate) |>
+    left_join(transmute(legacy, affiliate, year, legacy_source = stage1_distributional_source,
+      legacy_share = stage1_distributional_low_share, legacy_gap = stage1_distributional_topup_rate),
+      by = T4_HOST_KEYS, relationship = "one-to-one") |>
+    left_join(support, by = T4_HOST_KEYS, relationship = "one-to-one") |>
+    left_join(select(anchors, affiliate, bspi_anchor_years),
+      by = "affiliate", relationship = "many-to-one") |>
+    mutate(rejection_reason = case_when(
+        year %in% BSPI_IMPUTE_YEARS ~ "no_contemporaneous_table_iv",
+        TRUE ~ coalesce(rejection_reason, "absent_compatible_partition")),
+      selected_liability_rate = selected_share * selected_gap,
+      legacy_liability_rate = legacy_share * legacy_gap,
+      selected_liability_usd = selected_liability_rate * total_analysis_profit_positive,
+      legacy_liability_usd = legacy_liability_rate * total_analysis_profit_positive)
+  write_csv(comparison, file.path(DIAGNOSTICS_DIR, "step3_table_iv_host_transitions.csv"))
+  write_csv(tibble(specification = table_iv_specification(),
+    first_direct_year = min(DIRECT_YEARS), last_direct_year = max(DIRECT_YEARS),
+    production_direct = sum(host$direct_available),
+    production_anchor_hosts = nrow(anchors)),
+    file.path(DIAGNOSTICS_DIR, T4_SPECIFICATION_FILE))
+  audit_pooled_t4_completeness(legacy, legacy_brackets)
+}
+
 run_stage1_pipeline <- function() {
+  observed_support <- table_iv_specification() == "OBSERVED_TWO_SIDED"
   dir.create(DIAGNOSTICS_DIR, showWarnings = FALSE, recursive = TRUE)
   panel <- readRDS(file.path(PROCESSED_DIR, "base_panel.rds")) |>
     filter(year %in% MAIN_YEARS)
@@ -1098,33 +1183,19 @@ run_stage1_pipeline <- function() {
     ) |>
     select(-direct_metrics)
 
+  if (observed_support) {
+    legacy_direct <- direct_affiliate_year
+    host_support <- readRDS(file.path(PROCESSED_DIR, T4_HOST_SUPPORT_FILE))
+    direct_affiliate_year <- semi_join(direct_affiliate_year, filter(host_support, complete_direct),
+      by = T4_HOST_KEYS)
+    # Validation and BSPI use the same admissible source-year partitions.
+    legacy_brackets <- t4_brackets
+    t4_brackets <- semi_join(t4_brackets, direct_affiliate_year, by = T4_HOST_KEYS)
+  }
+
   # BSPI branch: transports stable Table IV bracket shapes from anchor years
   # into 2017 and 2018, when the direct distributional table is unavailable.
-  bspi_anchor <- direct_affiliate_year |>
-    filter(year %in% BSPI_ANCHOR_YEARS) |>
-    group_by(affiliate) |>
-    summarise(
-      bspi_has_anchor = TRUE,
-      bspi_anchor_years_observed = n(),
-      bspi_anchor_positive_profit = sum(direct_positive_profit_total, na.rm = TRUE),
-      bspi_anchor_low_profit = sum(direct_low_profit, na.rm = TRUE),
-      bspi_anchor_low_tax = sum(direct_low_tax, na.rm = TRUE),
-      bspi_low_share = safe_divide(
-        bspi_anchor_low_profit,
-        bspi_anchor_positive_profit
-      ),
-      bspi_low_mean_etr = if_else(
-        bspi_anchor_low_profit > 0,
-        bspi_anchor_low_tax / bspi_anchor_low_profit,
-        0
-      ),
-      bspi_topup_rate = if_else(
-        bspi_anchor_low_profit > 0,
-        pmax(0, GMT_RATE - pmin(pmax(bspi_low_mean_etr, 0), GMT_RATE)),
-        0
-      ),
-      .groups = "drop"
-    )
+  bspi_anchor <- build_stage1_bspi_anchors(direct_affiliate_year)
 
   bspi_support <- direct_affiliate_year |>
     mutate(window = case_when(
@@ -1874,7 +1945,12 @@ run_stage1_pipeline <- function() {
   )
 
   write_csv(
-    audit_pooled_t4_completeness(affiliate_year_stage1, t4_brackets),
+    if (observed_support) write_stage1_table_iv_support(
+      affiliate_year_stage1, host_support, legacy_direct, legacy_brackets,
+      direct_affiliate_year |>
+        filter(year %in% BSPI_ANCHOR_YEARS) |>
+        summarise(bspi_anchor_years = paste(sort(year), collapse = "+"), .by = affiliate)
+    ) else audit_pooled_t4_completeness(affiliate_year_stage1, t4_brackets),
     file.path(DIAGNOSTICS_DIR, "step3_stage1_pooled_t4_completeness_sensitivity.csv")
   )
   saveRDS(affiliate_year_stage1, file.path(PROCESSED_DIR, "stage1_affiliate_year.rds"))

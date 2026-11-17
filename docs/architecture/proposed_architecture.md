@@ -4,6 +4,8 @@ Keep the repository script-based, with small R modules organised by economic ope
 
 The rate boundary implemented in R09b lives in [`code/rates/statutory_rates.R`](../../code/rates/statutory_rates.R). Stage 01 records both the long OECD observation provenance and an exact jurisdiction-year lookup. Stage 02 attaches named roles to the bilateral panel. Stage 03 and Stage 10 share the same statistical cap policy, while destination selection and pricing use independent fields. The historical entry point retains the R06b projection and inventory. [Scientific decisions and migration notes](../refactoring/r09b_statutory_rate_revision.md).
 
+The R10b Table IV boundary lives in [`code/measurement/table_iv_support.R`](../../code/measurement/table_iv_support.R). It keeps source-measure status at the OECD observation grain, evaluates bracket support separately for host and bilateral points, and makes the same accrued support available to direct selection, BSPI calibration and accounting. Stage 10 independently checks the cash numerator and the envelope on that accrued partition. Stage entry points retain I/O and the historical schema. [Specification and comparison](../refactoring/r10b_table_iv_support_revision.md).
+
 ## Layout after migration
 
 This is a destination, with the existing numbered scripts retained as adapters during migration. Subdirectories are domains. Create a file within a domain when the new boundary has a caller and a test.

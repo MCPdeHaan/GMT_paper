@@ -31,6 +31,13 @@ behavioural_specification <- function(name = Sys.getenv("GMT_BEHAVIOURAL_SPECIFI
 
 ETR_WINSOR_PROBS <- c(0.01, 0.99)
 T4_DIRECT_POSITIVE_BRACKETS <- c("rate_0_15", "rate_15", "rate_20_30", "rate_30")
+DIRECT_YEARS <- 2019:2023
+T4_SPECIFICATION_FILE <- "step3_table_iv_specification.csv"
+
+table_iv_specification <- function(name = Sys.getenv("GMT_TABLE_IV_SPECIFICATION",
+                                                     unset = "OBSERVED_TWO_SIDED")) {
+  match.arg(name, c("OBSERVED_TWO_SIDED", "LEGACY_PUBLISHED"))
+}
 
 EU27_ISO3 <- c(
   "AUT", "BEL", "BGR", "CYP", "CZE", "DEU", "DNK", "ESP", "EST", "FIN",

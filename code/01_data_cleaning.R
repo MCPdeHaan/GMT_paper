@@ -5,6 +5,7 @@
 # analysis-ready intermediate tables in data/processed/.
 
 source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "00_helpers.R"), local = TRUE)
+source(file.path(GMT_PROJECT_ROOT, "code", "measurement", "table_iv_support.R"), local = TRUE)
 
 delayedAssign("EUROSTAT_GEO_MAP", tribble(
   ~geo, ~jurisdiction,
@@ -476,7 +477,9 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
   # 4. CbCR Table IV: ETR brackets at subsidiary level (the GMT-critical table)
 
   message("[4/15] CbCR Table IV")
-  t4_raw <- read_oecd(file.path(raw_data_dir, "oecd_cbcr/cbcr_table4_etr_aggregates_alt.csv")) |>
+  t4_source <- file.path("oecd_cbcr", "cbcr_table4_etr_aggregates_alt.csv")
+  t4_input <- read_oecd(file.path(raw_data_dir, t4_source))
+  t4_raw <- t4_input |>
     rename(
       parent = REF_AREA, affiliate = COUNTERPART_AREA, year = TIME_PERIOD,
       measure = MEASURE, panel = PROFIT_GROUPING,
@@ -497,6 +500,12 @@ run_data_cleaning <- function(raw_dir = RAW_DIR, out_dir = PROCESSED_DIR) {
     c("parent", "affiliate", "year", "etr_bracket"), "T4"
   )
   saveRDS(cbcr_t4, file.path(processed_dir, "cbcr_table4.rds"))
+  if (table_iv_specification() == "OBSERVED_TWO_SIDED") {
+    source_vintage <- unname(tools::sha256sum(file.path(raw_data_dir, t4_source)))
+    provenance <- t4_measure_provenance(t4_input, source_vintage)
+    t4_validate_measure_link(cbcr_t4, provenance)
+    saveRDS(provenance, file.path(processed_dir, T4_PROVENANCE_FILE))
+  }
 
   add_diag("cbcr_t4", "rows", nrow(cbcr_t4))
   add_diag(

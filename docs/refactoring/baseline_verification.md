@@ -54,7 +54,7 @@ The [replication guide](../../REPLICATION.md#data-availability-and-provenance) l
 
 ### C. Scientific specification changes
 
-[R04b](r04b_budget_benchmarking.md) provides an example of an additive scientific reference. The `r04b`, `r04` and `r05b` selectors check historical inventories. The default for the leading specification is `r09b`. The `r06b` selector verifies the historical targeted-first replay. [R09b configuration and acceptance evidence](r09b_statutory_rate_revision.md).
+[R04b](r04b_budget_benchmarking.md) provides an example of an additive scientific reference. The `r04b`, `r04` and `r05b` selectors check historical inventories. The leading selector is `r10b`, with `OBSERVED_TWO_SIDED` Table IV support. Select `r09b` for the historical statutory-role reference and `r06b` for the targeted-first reference. Both historical profiles use `LEGACY_PUBLISHED` Table IV support. [R10b configuration and acceptance evidence](r10b_table_iv_support_revision.md).
 
 [R05a](r05a_utpr_shadow_results.md#reproduction) applies the standalone-diagnostic gate. Two fresh shadow executions match each other, the LEGACY arm reconciles to frozen routing and game outputs, and the 361-file production reference remains byte-identical.
 

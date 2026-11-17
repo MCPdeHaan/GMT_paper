@@ -122,20 +122,26 @@ test_that("screening anchors preserves the existing source precedence and host k
 })
 
 test_that("R09b legacy support and statutory conditioning reproduce on frozen objects", {
-  if (!file.exists(processed_path("stage1_affiliate_year.rds"))) skip("Frozen Stage 03 reference unavailable")
-  if (!identical(table_iv$statutory_rate_metadata(dirname(processed_path("stage1_affiliate_year.rds")))$specification,
-      "STANDARD_ROLE_SPECIFIC")) skip("R09b reference required")
-  host <- readRDS(processed_path("stage1_affiliate_year.rds"))
-  pooled <- readRDS(processed_path("base_panel_t4_bracket_shares.rds"))
-  legacy <- table_iv$t4_legacy_host(host, pooled)$host
-  expect_identical(legacy$stage1_distributional_source, host$stage1_distributional_source)
-  expect_identical(legacy$stage1_distributional_liability_rate, host$stage1_distributional_liability_rate)
-  expect_identical(legacy$affiliate_etr_cap_stage1, host$affiliate_etr_cap_stage1)
-  temporary <- withr::local_tempfile()
-  readr::write_csv(table_iv$audit_pooled_t4_completeness(host, pooled), temporary)
-  expect_identical(readBin(temporary, "raw", n = file.size(temporary)),
-    readBin(processed_path("diagnostics", "step3_stage1_pooled_t4_completeness_sensitivity.csv"),
-      "raw", n = file.size(temporary)))
+  if (uses_revised_table_iv()) {
+    manifests <- new.env(parent = globalenv())
+    source(repo_path("tests", "verify_golden_step15.R"), local = manifests)
+    legacy <- manifests$read_golden_manifest(repo_root, "r09b")
+    suffix <- "diagnostics/step3_stage1_pooled_t4_completeness_sensitivity.csv"
+    expect_identical(manifests$sha256_files(processed_path(suffix)),
+      legacy$sha256[legacy$path == file.path("data", "processed", suffix)])
+  } else {
+    host <- readRDS(processed_path("stage1_affiliate_year.rds"))
+    pooled <- readRDS(processed_path("base_panel_t4_bracket_shares.rds"))
+    legacy <- table_iv$t4_legacy_host(host, pooled)$host
+    expect_identical(legacy$stage1_distributional_source, host$stage1_distributional_source)
+    expect_identical(legacy$stage1_distributional_liability_rate, host$stage1_distributional_liability_rate)
+    expect_identical(legacy$affiliate_etr_cap_stage1, host$affiliate_etr_cap_stage1)
+    temporary <- withr::local_tempfile()
+    readr::write_csv(table_iv$audit_pooled_t4_completeness(host, pooled), temporary)
+    expect_identical(readBin(temporary, "raw", n = file.size(temporary)),
+      readBin(processed_path("diagnostics", "step3_stage1_pooled_t4_completeness_sensitivity.csv"),
+        "raw", n = file.size(temporary)))
+  }
 })
 
 test_that("the R10a diagnostic is source safe and refuses production output paths", {

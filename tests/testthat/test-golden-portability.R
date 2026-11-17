@@ -9,7 +9,9 @@ test_that("native and system SHA-256 backends hash exact bytes and spaced paths"
   expect_identical(env$sha256_files(path, "system"), expected)
   expect_identical(env$sha256_files(character()), character())
   root <- dirname(dirname(processed_path()))
-  reference <- if (file.exists(processed_path("diagnostics", STATUTORY_RATE_SPECIFICATION_FILE))) {
+  reference <- if (uses_revised_table_iv()) {
+    "r10b"
+  } else if (file.exists(processed_path("diagnostics", STATUTORY_RATE_SPECIFICATION_FILE))) {
     "r09b"
   } else if (file.exists(processed_path("diagnostics", BEHAVIOURAL_SPECIFICATION_FILE))) {
     "r06b"

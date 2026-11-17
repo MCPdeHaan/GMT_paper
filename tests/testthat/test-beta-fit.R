@@ -234,7 +234,7 @@ test_that("Stage 03 panels and Stage 03 and 08 validation files retain their ord
   manifest_env <- new.env(parent = globalenv())
   source(repo_path("tests", "verify_golden_step15.R"), local = manifest_env)
   standard <- !is.null(statutory_rate_metadata(processed_path()))
-  reference <- if (standard) "r09b" else "r06b"
+  reference <- if (uses_revised_table_iv()) "r10b" else if (standard) "r09b" else "r06b"
   manifest <- manifest_env$read_golden_manifest(repo_root, reference)
   panels <- list(
     stage1_affiliate_year.rds = c(1503L, 111L),
@@ -258,5 +258,5 @@ test_that("Stage 03 panels and Stage 03 and 08 validation files retain their ord
   counts <- vapply(samples, function(sample) {
     length(readLines(processed_path("diagnostics", paste0("step3_stage1_crossval_", sample, ".csv")))) - 1L
   }, integer(1))
-  expect_identical(unname(counts), c(361L, 70L, 81L))
+  expect_identical(unname(counts), c(if (uses_revised_table_iv()) 207L else 361L, 70L, 81L))
 })

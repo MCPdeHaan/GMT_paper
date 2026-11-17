@@ -241,7 +241,7 @@ compare_percentile_estimators <- function() {
     S3_exact_bilateral = read_diagnostic("step3_stage1_crossval_bilateral_matched") |>
       mutate(target_mean = mean_etr)
   )
-  stopifnot(identical(unname(vapply(samples, nrow, integer(1))), c(361L, 70L, 81L)))
+  stopifnot(identical(unname(vapply(samples, nrow, integer(1))), c(if (table_iv_specification() == "OBSERVED_TWO_SIDED") 207L else 361L, 70L, 81L)))
   imap_dfr(samples, function(sample, name) {
     stopifnot(all(sample$year %in% AUDIT_CV_YEARS))
     message("Fitting the five percentile models on ", name)
@@ -1428,7 +1428,7 @@ step10_cross_validation <- function(host_cap) {
   }) |>
     left_join(host_cap, by = c("affiliate", "year"), relationship = "many-to-one") |>
     mutate(sample_row = row_number())
-  stopifnot(identical(as.integer(table(samples$sample)), c(361L, 70L, 81L)))
+  stopifnot(identical(as.integer(table(samples$sample)), c(if (table_iv_specification() == "OBSERVED_TWO_SIDED") 207L else 361L, 70L, 81L)))
   fitted <- step10_fit_rows(samples, STEP10_RAW_QUANTILES, "sample_row",
     c(STEP10_MODELS, STEP10_ABLATION), blends = TRUE) |>
     inner_join(select(samples, -target_mean, -affiliate_etr_cap_stage1), by = "sample_row",

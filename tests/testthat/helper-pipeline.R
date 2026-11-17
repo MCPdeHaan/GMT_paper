@@ -18,4 +18,6 @@ generated_path <- function(...) {
   file.path(root, "writing", "generated", ...)
 }
 
+uses_revised_table_iv <- function() file.exists(processed_path("diagnostics", T4_SPECIFICATION_FILE))
+
 source_pipeline("00_helpers.R")

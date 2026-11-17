@@ -155,6 +155,9 @@ test_that("Stage 02 applies the original profit and wage calculations after atta
   for (file in paste0(frozen_inputs, ".rds")) {
     stopifnot(file.copy(processed_path(file), input))
   }
+  if (stage02$table_iv_specification() == "OBSERVED_TWO_SIDED") {
+    stopifnot(file.copy(processed_path(stage02$T4_PROVENANCE_FILE), input))
+  }
 
   cells <- tibble::tibble(
     parent = c("DEU", "FRA", "NLD", "DEU", "DEU", "DEU"),

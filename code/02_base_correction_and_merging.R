@@ -9,6 +9,7 @@
 
 source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "00_helpers.R"), local = TRUE)
 source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "panel", "bilateral_assembly.R"), local = TRUE)
+source(file.path(GMT_PROJECT_ROOT, "code", "measurement", "table_iv_support.R"), local = TRUE)
 
 cap_table4_employees <- function(brackets, population, employees_per_entity_cap) {
   brackets |>
@@ -166,6 +167,22 @@ run_base_panel <- function(in_dir = PROCESSED_DIR, out_dir = PROCESSED_DIR) {
     c("parent", "affiliate", "year", "etr_bracket"),
     "Bilateral Table IV bracket shares"
   )
+
+  if (table_iv_specification() == "OBSERVED_TWO_SIDED") {
+    provenance <- readRDS(file.path(input_dir, T4_PROVENANCE_FILE))
+    components <- t4_component_ledger(t4_bracket_inputs, provenance)
+    host_support <- t4_partial_bounds(t4_partition_support(components, T4_HOST_KEYS))
+    pair_keys <- head(T4_COMPONENT_KEYS, -1L)
+    bilateral_support <- components |>
+      filter(!parent %in% STAGE02_AGGREGATE_AFFILIATES) |>
+      t4_partition_support(pair_keys) |>
+      t4_partial_bounds()
+    t4_bilateral_brackets <- t4_bilateral_brackets |>
+      left_join(select(bilateral_support, all_of(pair_keys), t4_point_eligible = complete_direct),
+        by = pair_keys, relationship = "many-to-one")
+    saveRDS(host_support, file.path(output_dir, T4_HOST_SUPPORT_FILE))
+    saveRDS(bilateral_support, file.path(output_dir, T4_BILATERAL_SUPPORT_FILE))
+  }
 
   t4_parent_profit <- t4_bilateral_brackets |>
     filter(year >= 2019L, etr_bracket %in% T4_DIRECT_POSITIVE_BRACKETS) |>

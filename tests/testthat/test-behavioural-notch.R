@@ -221,9 +221,15 @@ test_that("the replay schedule selects one row per affiliate-year, measurement a
         dplyr::mutate(dplyr::filter(collectors, country %in% e$EU27_ISO3), scope = "EU27")) |>
         e$notch_windows(windows) |>
         dplyr::summarise(assigned_total = sum(assigned_usd), .by = c(scope, window, scenario_id))
-      shadow <- readr::read_csv(repo_path("docs", "refactoring", "r09b", "cap_and_mean_scenarios.csv"),
-        show_col_types = FALSE) |>
-        dplyr::filter(scope %in% c("Global", "EU27"))
+      shadow <- if (uses_revised_table_iv()) {
+        readr::read_csv(repo_path("docs", "refactoring", "r10b", "core_shadow_receipts.csv"),
+          show_col_types = FALSE) |>
+          dplyr::filter(arm == "COMPLETE_DIRECT_AND_BSPI")
+      } else {
+        readr::read_csv(repo_path("docs", "refactoring", "r09b", "cap_and_mean_scenarios.csv"),
+          show_col_types = FALSE) |>
+          dplyr::filter(scope %in% c("Global", "EU27"))
+      }
       for (period in names(windows)) {
         # Cumulative collection can accumulate the Stage 06 annual rounding bound.
         tolerance <- 1e-3 * length(windows[[period]])

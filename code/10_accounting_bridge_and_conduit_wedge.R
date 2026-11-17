@@ -854,8 +854,15 @@ bridge_tax_rates <- function(stage1, host, table4, bilateral_brackets, numerator
     return(list(stage1 = stage1, host = host,
       partitions = step8_table4_partitions(table4)))
   }
+  observed_support <- "t4_point_eligible" %in% names(bilateral_brackets)
   switched_t4 <- mutate(table4, tax_accrued = bridge_tax(tax_accrued, tax_paid, numerator))
   exact <- mutate(bilateral_brackets, tax_accrued = bridge_tax(tax_accrued, tax_paid, numerator))
+  if (observed_support) {
+    pair_support <- t4_partition_support(t4_component_ledger(exact), BRIDGE_KEYS, accrued = FALSE)
+    exact <- select(exact, -t4_point_eligible) |>
+      left_join(select(pair_support, all_of(BRIDGE_KEYS), t4_point_eligible = complete_direct),
+        by = BRIDGE_KEYS, relationship = "many-to-one")
+  }
   donor <- stage1 |>
     mutate(
       tax_variant = bridge_tax(tax_accrued_panelai, tax_paid_panelai, numerator),
@@ -866,26 +873,37 @@ bridge_tax_rates <- function(stage1, host, table4, bilateral_brackets, numerator
     filter(profit_panelai > 0, analysis_profit_positive > 0) |>
     summarise(tax_variant = sum(tax_variant, na.rm = TRUE), .by = c(affiliate, year))
   partitions <- step8_table4_partitions(switched_t4)
-  pool <- partitions |>
-    summarise(variant_direct_low_tax = sum(t4_low_tax, na.rm = TRUE),
-      .by = c(affiliate, year))
+  pool <- if (observed_support) {
+    # Cash and envelope may support a different gap on the accrued-tax
+    # bracket population. Keep that evidence separate from accrued tax.
+    t4_partition_support(t4_component_ledger(switched_t4), T4_HOST_KEYS, accrued = FALSE) |>
+      transmute(affiliate, year,
+        variant_direct_low_tax = if_else(complete_direct, coalesce_zero(observed_low_tax), NA_real_))
+  } else {
+    partitions |>
+      summarise(variant_direct_low_tax = sum(t4_low_tax, na.rm = TRUE), .by = c(affiliate, year))
+  }
   anchors <- host |>
     left_join(pool, by = c("affiliate", "year"), relationship = "one-to-one") |>
-    filter(year %in% BSPI_ANCHOR_YEARS, direct_has_partition %in% TRUE) |>
+    filter(year %in% BSPI_ANCHOR_YEARS, direct_has_partition %in% TRUE,
+      !observed_support | is.finite(variant_direct_low_tax)) |>
     summarise(anchor_tax = sum(variant_direct_low_tax, na.rm = TRUE),
-      anchor_low_profit = sum(direct_low_profit, na.rm = TRUE), .by = affiliate) |>
+      anchor_low_profit = sum(direct_low_profit, na.rm = TRUE),
+      anchor_share = safe_divide(anchor_low_profit, sum(direct_positive_profit_total, na.rm = TRUE)),
+      .by = affiliate) |>
     mutate(anchor_gap = if_else(anchor_low_profit > 0, GMT_RATE -
       pmin(pmax(safe_divide(anchor_tax, anchor_low_profit), 0), GMT_RATE), 0))
   host <- host |>
     left_join(host_tax, by = c("affiliate", "year"), relationship = "one-to-one") |>
     left_join(pool, by = c("affiliate", "year"), relationship = "one-to-one") |>
-    left_join(select(anchors, affiliate, anchor_gap), by = "affiliate", relationship = "many-to-one") |>
+    left_join(select(anchors, affiliate, anchor_gap, any_of(if (observed_support) "anchor_share")),
+      by = "affiliate", relationship = "many-to-one") |>
     mutate(
       avg_etr_stage1 = pmin(affiliate_etr_cap_stage1,
         pmax(0, safe_divide(tax_variant, avg_profit_denominator))),
       average_low_share = as.numeric(avg_etr_stage1 < GMT_RATE),
       average_topup_rate = pmax(0, GMT_RATE - avg_etr_stage1),
-      direct_low_tax = coalesce(variant_direct_low_tax, direct_low_tax),
+      direct_low_tax = if (observed_support) variant_direct_low_tax else coalesce(variant_direct_low_tax, direct_low_tax),
       direct_topup_rate = if_else(direct_low_profit > 0,
         GMT_RATE - pmin(pmax(safe_divide(direct_low_tax, direct_low_profit), 0), GMT_RATE), 0)
     )
@@ -905,7 +923,18 @@ bridge_tax_rates <- function(stage1, host, table4, bilateral_brackets, numerator
     ungroup() |>
     select(affiliate, year, variant_share, variant_gap, variant_precision)
   host <- host |>
-    left_join(percentile, by = c("affiliate", "year"), relationship = "one-to-one") |>
+    left_join(percentile, by = c("affiliate", "year"), relationship = "one-to-one")
+  if (observed_support) {
+    # Switch numerator on the accrued forecast's cohort and fall back where
+    # the new numerator is unavailable. This keeps the dividend base common.
+    host <- host |>
+      mutate(stage1_distributional_source = choose_distributional_source(year,
+        direct_available & is.finite(direct_low_tax),
+        percentile_available & is.finite(variant_share) & is.finite(variant_gap),
+        bspi_available & is.finite(anchor_share) & is.finite(anchor_gap),
+        is.finite(average_low_share) & is.finite(average_topup_rate)))
+  }
+  host <- host |>
     mutate(
       stage1_distributional_low_share = case_when(
         stage1_distributional_source == "percentile_fit" ~ variant_share,
@@ -922,6 +951,15 @@ bridge_tax_rates <- function(stage1, host, table4, bilateral_brackets, numerator
     )
   fields <- c("average_low_share", "average_topup_rate", "stage1_distributional_low_share",
     "stage1_distributional_topup_rate")
+  if (observed_support) {
+    host <- host |>
+      mutate(stage1_distributional_low_share = case_when(
+        stage1_distributional_source == "direct_t4" ~ direct_low_share,
+        stage1_distributional_source == "shape_transport" ~ anchor_share,
+        stage1_distributional_source == "percentile_fit" ~ variant_share,
+        stage1_distributional_source == "avg_only" ~ average_low_share))
+    fields <- c(fields, "stage1_distributional_source")
+  }
   updated <- donor |>
     select(-all_of(fields), -starts_with("ladder_l")) |>
     left_join(select(host, affiliate, year, all_of(fields)),
@@ -1034,12 +1072,13 @@ bridge_safe_tests <- function(data, policy, basis, numerator, t4_low) {
 
 bridge_safe_summary <- function(tests, result, windows) {
   keys <- BRIDGE_KEYS
-  result$source |>
+  rows <- result$source |>
     select(all_of(keys), topup_after_behaviour, stage4_qdmtt_liability,
       stage4_sbs_extinguished_liability) |>
     left_join(tests, by = keys, relationship = "one-to-one") |>
     bridge_scopes("affiliate") |>
-    bridge_windows(windows) |>
+    bridge_windows(windows)
+  summary <- rows |>
     summarise(
       exposed_positive_cells = sum(topup_after_behaviour > 0),
       positive_cells_passing = sum(topup_after_behaviour > 0 & any_pass, na.rm = TRUE),
@@ -1062,6 +1101,19 @@ bridge_safe_summary <- function(tests, result, windows) {
       policy_year = first(tests$policy_year), transition_etr = first(tests$transition_etr),
       basis = first(tests$basis), test_numerator = first(tests$test_numerator)
     )
+  if (table_iv_specification() == "OBSERVED_TWO_SIDED") {
+    support <- rows |>
+      summarise(
+        de_minimis_unknown_topup = sum(topup_after_behaviour[is.na(de_minimis)]),
+        routine_unknown_topup = sum(topup_after_behaviour[is.na(routine)]),
+        simplified_etr_unknown_topup = sum(topup_after_behaviour[is.na(simplified)]),
+        .by = c(scope, window, n_years)
+      )
+    summary <- left_join(summary, support, by = c("scope", "window", "n_years"),
+      relationship = "one-to-one") |>
+      mutate(proxy_unknown_convention = "unknown_does_not_pass_individual_criterion")
+  }
+  summary
 }
 
 bridge_apply_safe <- function(result, tests, weights, keep_qdmtt = FALSE, include_etr = TRUE) {
@@ -1306,6 +1358,13 @@ run_hanlon_globe_bridge <- function() {
   message("2/4 Cash, accrued and envelope tax numerators")
   numerator_names <- c("T1_accrued", "T2_cash", "T3_envelope")
   variants <- set_names(map(numerator_names, ~ bridge_tax_rates(stage1, host, clean_t4, bilateral_t4, .x)), numerator_names)
+  if ("t4_point_eligible" %in% names(bilateral_t4)) {
+    support <- imap_dfr(variants, ~ transmute(.x$host, numerator = .y, affiliate, year,
+      accrued_source = host$stage1_distributional_source,
+      numerator_source = stage1_distributional_source, tax_in_low_bin = direct_low_tax,
+      selected_share = stage1_distributional_low_share, selected_gap = stage1_distributional_topup_rate))
+    write_csv(support, file.path(DIAGNOSTICS_DIR, "step12_table_iv_numerator_support.csv"))
+  }
   branches <- c(L1_average = "l1", L3_pooled = "l3", L4_anchored = "l4_anchored", L4_strict = "l4_strict")
   tax_results <- imap_dfr(variants, function(variant, numerator) {
     stopifnot(identical(select(variant$stage1, all_of(BRIDGE_KEYS)), select(stage1, all_of(BRIDGE_KEYS))))

@@ -2,149 +2,13 @@
 source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code",
   "diagnostics", "statutory_rate_audit.R"), local = TRUE)
 source(file.path(GMT_PROJECT_ROOT, "code", "10_accounting_bridge_and_conduit_wedge.R"), local = TRUE)
+source(file.path(GMT_PROJECT_ROOT, "code", "measurement", "table_iv_support.R"), local = TRUE)
 
-T4_HOST_KEYS <- c("affiliate", "year")
-T4_COMPONENT_KEYS <- c(LADDER_KEYS, "etr_bracket")
 T4_AUDIT_WINDOWS <- c(stats::setNames(as.list(MAIN_YEARS), MAIN_YEARS),
   list(FY2023 = 2023L, `2017–2018` = BSPI_IMPUTE_YEARS,
     `2019–2023` = DIRECT_YEARS, `2017–2023` = MAIN_YEARS))
-T4_AUDIT_ARMS <- c("LEGACY", "COMPLETE_DIRECT_ONLY", "COMPLETE_DIRECT_AND_BSPI", "BSPI_ONLY")
-
-t4_pinned_status <- function(raw) {
-  select(raw, REF_AREA, COUNTERPART_AREA, TIME_PERIOD, EFFECTIVE_TAX_RATE,
-    MEASURE, OBS_STATUS, OBS_VALUE) |>
-    filter(MEASURE %in% c("PROFIT", "TAX_ACCRUED", "TAX_PAID")) |>
-    transmute(parent = REF_AREA, affiliate = COUNTERPART_AREA, year = as.integer(TIME_PERIOD),
-      etr_bracket = gsub("[-[:space:]]", "_", tolower(EFFECTIVE_TAX_RATE)),
-      measure = tolower(MEASURE), value = OBS_VALUE,
-      status = case_when(
-        OBS_STATUS == "Q" & is.na(value) ~ "explicit_suppression",
-        !is.na(value) & is.finite(value) ~ "observed",
-        is.nan(value) | is.infinite(value) ~ "invalid",
-        TRUE ~ "missing_unclassified"
-      ))
-}
-
-t4_component_ledger <- function(clean, status = NULL) {
-  assert_unique_keys(clean, T4_COMPONENT_KEYS, "Table IV bracket")
-  components <- select(clean, all_of(T4_COMPONENT_KEYS), profit, tax_accrued, tax_paid)
-  if (!is.null(status)) {
-    assert_unique_keys(status, c(T4_COMPONENT_KEYS, "measure"), "Table IV raw measure")
-    evidence <- status |>
-      select(-value) |>
-      pivot_wider(names_from = measure, values_from = status, names_prefix = "status_",
-        values_fill = "absent_measure")
-    components <- left_join(components, evidence, by = T4_COMPONENT_KEYS,
-      relationship = "one-to-one")
-  } else {
-    components <- mutate(components, across(c(profit, tax_accrued, tax_paid),
-      ~ case_when(is.nan(.x) | is.infinite(.x) ~ "invalid", is.na(.x) ~ "missing_unclassified",
-        TRUE ~ "observed"), .names = "status_{.col}"))
-  }
-  components |>
-    mutate(across(starts_with("status_"), ~ coalesce(.x, "absent_measure")),
-      component_class = case_when(
-        is.nan(profit) | is.nan(tax_accrued) | is.infinite(profit) |
-          is.infinite(tax_accrued) ~ "non_finite",
-        etr_bracket == "negative_tax_accrued" & tax_accrued < 0 ~ "negative_accrued_category",
-        etr_bracket %in% T4_DIRECT_POSITIVE_BRACKETS &
-          (profit < 0 | (etr_bracket == "rate_0_15" & tax_accrued < 0)) ~ "invalid_sign",
-        is.na(profit) & is.na(tax_accrued) ~ "missing_profit_and_tax",
-        is.na(profit) ~ "missing_profit_observed_tax",
-        profit == 0 & is.na(tax_accrued) ~ "zero_profit_missing_tax",
-        profit == 0 & tax_accrued == 0 ~ "zero_profit_zero_tax",
-        profit > 0 & is.na(tax_accrued) ~ "positive_profit_missing_tax",
-        profit > 0 & tax_accrued == 0 ~ "positive_profit_zero_tax",
-        profit > 0 & tax_accrued > 0 ~ "positive_profit_positive_tax",
-        TRUE ~ "other_observed"
-      )) |>
-    arrange(parent, affiliate, year, etr_bracket)
-}
-
-# A pool's screened point concerns the published, compatible population.
-# Unknown attendance and alternative bracket schedules are reported separately.
-t4_partition_support <- function(components, keys, numerator = "tax_accrued") {
-  assert_unique_keys(components, T4_COMPONENT_KEYS, "Table IV bracket")
-  components |>
-    filter(year %in% DIRECT_YEARS, etr_bracket %in% T4_DIRECT_POSITIVE_BRACKETS) |>
-    mutate(low = etr_bracket == "rate_0_15", tax = .data[[numerator]],
-      profit_valid = is.finite(profit) & profit >= 0, profit_positive = profit_valid & profit > 0,
-      tax_valid = is.finite(tax) & tax >= 0,
-      low_positive_with_tax = low & profit_positive & tax_valid,
-      low_positive_missing_tax = low & profit_positive & is.na(tax) & !is.nan(tax),
-      low_tax_problem = low & (!profit_valid | (profit_positive & !tax_valid) |
-        (profit_valid & profit == 0 & !is.na(tax) & (!tax_valid | tax != 0)) | is.nan(tax))) |>
-    summarise(
-      parents = n_distinct(parent), rows = n(), lower_rows = sum(low), upper_rows = sum(!low),
-      lower_observed = sum(low & profit_valid), upper_observed = sum(!low & profit_valid),
-      lower_missing = sum(low & !profit_valid), upper_missing = sum(!low & !profit_valid),
-      invalid_profit = sum(is.nan(profit) | is.infinite(profit) | coalesce(profit < 0, FALSE)),
-      invalid_lower_tax = sum(low & (is.nan(tax) | is.infinite(tax) | coalesce(tax < 0, FALSE))),
-      lower_tax_problems = sum(low_tax_problem),
-      positive_low_tax_missing = sum(low_positive_missing_tax),
-      zero_low_tax_observed = sum(low & profit_positive & tax_valid & tax == 0, na.rm = TRUE),
-      positive_low_tax_observed = sum(low_positive_with_tax),
-      low_tax_suppressed = sum(low & status_tax_accrued == "explicit_suppression"),
-      low_tax_blank = sum(low & status_tax_accrued == "missing_unclassified"),
-      observed_profit = sum_or_na(profit[profit_valid]),
-      observed_low_profit = sum_or_na(profit[low & profit_valid]),
-      observed_upper_profit = sum_or_na(profit[!low & profit_valid]),
-      observed_low_tax = sum_or_na(tax[low & tax_valid]),
-      unidentified_tax_profit = sum(profit[low_positive_missing_tax]),
-      incompatible_low_rate = any(tax[low_positive_with_tax] >
-        GMT_RATE * profit[low_positive_with_tax]),
-      .by = all_of(keys)) |>
-    mutate(absent_lower = lower_rows == 0L, absent_upper = upper_rows == 0L,
-      mixed_profit = lower_observed + upper_observed > 0 & lower_missing + upper_missing > 0,
-      mixed_low_tax = positive_low_tax_observed > 0 & positive_low_tax_missing > 0,
-      all_positive_low_tax_missing = positive_low_tax_observed == 0 & positive_low_tax_missing > 0,
-      complete_profit = lower_observed > 0 & upper_observed > 0 &
-        lower_missing + upper_missing == 0 & observed_profit > 0,
-      complete_direct = complete_profit & lower_tax_problems == 0,
-      support = case_when(complete_direct ~ "complete_published_partition",
-        lower_observed + upper_observed > 0 ~ "partial_direct_information",
-        TRUE ~ "unsupported_direct_information"))
-}
-
-t4_partial_bounds <- function(support) {
-  support |>
-    mutate(
-      low_known = lower_observed > 0 & lower_missing == 0,
-      upper_known = upper_observed > 0 & upper_missing == 0,
-      share_lo = if_else(complete_profit, observed_low_profit / observed_profit, 0),
-      share_hi = case_when(
-        complete_profit ~ share_lo,
-        low_known & observed_low_profit == 0 ~ 0,
-        low_known ~ observed_low_profit / (observed_low_profit + coalesce(observed_upper_profit, 0)),
-        TRUE ~ 1
-      ),
-      # Conditional on published low-bin membership and non-negative rates.
-      # Zero-profit components contribute no tax and no gaps are defined for L=0.
-      gap_bounded = low_known & observed_low_profit > 0 & invalid_lower_tax == 0 &
-        lower_tax_problems == positive_low_tax_missing & !incompatible_low_rate,
-      known_low_tax = if_else(gap_bounded, coalesce(observed_low_tax, 0), NA_real_),
-      gap_lo = if_else(gap_bounded,
-        pmax(0, GMT_RATE - (known_low_tax + GMT_RATE * unidentified_tax_profit) / observed_low_profit),
-        NA_real_),
-      gap_hi = if_else(gap_bounded, pmax(0, GMT_RATE - known_low_tax / observed_low_profit), NA_real_),
-      bracket_topup_lo = observed_low_profit * gap_lo,
-      bracket_topup_hi = observed_low_profit * gap_hi,
-      liability_rate_lo = if_else(gap_bounded, share_lo * gap_lo, NA_real_),
-      liability_rate_hi = if_else(gap_bounded, share_hi * gap_hi, NA_real_)
-    )
-}
-
-t4_anchor_profiles <- function(partitions, keys) {
-  partitions |>
-    filter(year %in% BSPI_ANCHOR_YEARS, complete_direct) |>
-    arrange(year) |>
-    summarise(anchor_years = paste(year, collapse = "+"),
-      anchor_profit = sum(observed_profit), anchor_low_profit = sum(observed_low_profit),
-      anchor_low_tax = sum(observed_low_tax, na.rm = TRUE), .by = all_of(keys)) |>
-    mutate(anchor_share = anchor_low_profit / anchor_profit,
-      anchor_gap = if_else(anchor_low_profit > 0,
-        GMT_RATE - clamp_interval(anchor_low_tax / anchor_low_profit, 0, GMT_RATE), 0))
-}
+T4_AUDIT_ARMS <- c("LEGACY", "COMPLETE_DIRECT_ONLY", "COMPLETE_DIRECT_AND_BSPI", "BSPI_ONLY",
+  "MISSING_MEASURES_ONLY")
 
 t4_host_selection <- function(host, support, anchors, screen_direct, screen_bspi) {
   host |>
@@ -225,7 +89,8 @@ t4_bilateral_measurements <- function(frozen, support, hosts) {
     stopifnot(identical(check$share, check[[paste0(prefix, "low_share")]]),
       identical(check$gap, check[[paste0(prefix, "topup_rate")]]))
   }
-  options <- list(legacy$measurements, revised$measurements, revised$measurements, legacy$measurements)
+  options <- list(legacy$measurements, revised$measurements, revised$measurements,
+    legacy$measurements, legacy$measurements)
   options[[2]] <- bind_rows(filter(options[[2]], level != LADDER_BSPI | !year %in% BSPI_IMPUTE_YEARS),
     filter(legacy$measurements, level == LADDER_BSPI, year %in% BSPI_IMPUTE_YEARS))
   options[[4]] <- bind_rows(filter(options[[4]], level != LADDER_BSPI | !year %in% BSPI_IMPUTE_YEARS),
@@ -385,7 +250,12 @@ t4_fiscal_shadow <- function(hosts, measurements, frozen, processed, read) {
     message("L3 fiscal shadow: ", arm)
     result <- audit_core_fiscal(list(host = host), frozen$stage2, frozen$sectors, frozen)
     if (arm == "LEGACY") audit_usd_parity(result, frozen)
-    t4_fiscal_summary(result, c("x10001", "x10011"))
+    summary <- t4_fiscal_summary(result, c("x10001", "x10011"))
+    summary$core_receipts <- result$collectors |>
+      t4_scope("country_is_eu27") |>
+      ladder_windows(AUDIT_RATE_WINDOWS) |>
+      summarise(assigned_total = sum(revenue), .by = c(scenario_id, scope, window))
+    summary
   })
   factorial <- read("stage3_factorial_pair_year")
   stage2 <- select(frozen$stage2, all_of(LADDER_KEYS), rate_scenario, affiliate_is_eu27,
@@ -411,7 +281,8 @@ t4_fiscal_shadow <- function(hosts, measurements, frozen, processed, read) {
   bind <- function(name) bind_rows(
     imap_dfr(fiscal, ~ mutate(.x[[name]], arm = .y, level = "L3", .before = 1)),
     imap_dfr(strict, ~ mutate(.x[[name]], arm = .y, level = "L4_strict", .before = 1)))
-  list(summary = bind("summary"), sources = bind("sources"), collectors = bind("collectors"))
+  list(summary = bind("summary"), sources = bind("sources"), collectors = bind("collectors"),
+    core_receipts = imap_dfr(fiscal, ~ mutate(.x$core_receipts, arm = .y, .before = 1L)))
 }
 
 t4_reporting_profiles <- function(components) {
@@ -489,7 +360,9 @@ run_table_iv_observability <- function(output, project = GMT_PROJECT_ROOT, refer
   hosts <- set_names(list(legacy$host,
     t4_host_selection(frozen$host, partitions_host, anchor_profiles, TRUE, FALSE),
     t4_host_selection(frozen$host, partitions_host, anchor_profiles, TRUE, TRUE),
-    t4_host_selection(frozen$host, partitions_host, anchor_profiles, FALSE, TRUE)), T4_AUDIT_ARMS)
+    t4_host_selection(frozen$host, partitions_host, anchor_profiles, FALSE, TRUE),
+    t4_host_selection(frozen$host, mutate(partitions_host, complete_direct = published_measures_complete),
+      anchor_profiles, TRUE, FALSE)), T4_AUDIT_ARMS)
   measurements <- t4_bilateral_measurements(frozen, partitions_pair, hosts)
   l3 <- filter(measurements$LEGACY, level == LADDER_LEVELS[3]) |>
     left_join(select(frozen$stage1, all_of(LADDER_KEYS), stage1_topup_tax_distributional),
@@ -556,7 +429,7 @@ run_table_iv_observability <- function(output, project = GMT_PROJECT_ROOT, refer
     all(abs(strict_rebuilt$assigned_total - strict_rebuilt$archived) < strict_rebuilt$tolerance),
     all(abs(strict_rebuilt$pre_sbie - strict_rebuilt$stage1_topup_usd) < strict_rebuilt$tolerance))
   interaction <- fiscal$summary |>
-    filter(level == "L3") |>
+    filter(level == "L3", arm != "MISSING_MEASURES_ONLY") |>
     select(arm, scenario_id, scope, window, pre_sbie, post_sbie_sector, assigned_total) |>
     pivot_longer(c(pre_sbie, post_sbie_sector, assigned_total), names_to = "metric") |>
     pivot_wider(names_from = arm, values_from = value) |>
@@ -578,7 +451,7 @@ run_table_iv_observability <- function(output, project = GMT_PROJECT_ROOT, refer
     accounting_support = t4_accounting_support(in_scope, frozen),
     accounting_dividend_shadow = t4_accounting_purge(clean, frozen, hosts),
     fiscal_summary = fiscal$summary, fiscal_sources = fiscal$sources,
-    fiscal_collectors = fiscal$collectors, interaction = interaction
+    fiscal_collectors = fiscal$collectors, core_shadow_receipts = fiscal$core_receipts, interaction = interaction
   )
   inventory <- tibble(file = paste0(c(names(output_tables), "inventory"), ".csv"),
     rows = c(vapply(output_tables, nrow, integer(1)), length(output_tables) + 1L))
@@ -593,6 +466,8 @@ run_table_iv_observability <- function(output, project = GMT_PROJECT_ROOT, refer
 
 if (is_direct_script_run(file.path(GMT_PROJECT_ROOT, "code", "diagnostics", "table_iv_observability.R"))) {
   args <- commandArgs(trailingOnly = TRUE)
-  if (length(args) != 1L) stop("Usage: Rscript --vanilla code/diagnostics/table_iv_observability.R /absolute/new/output")
-  run_table_iv_observability(args[1L])
+  if (!length(args) || length(args) > 2L) {
+    stop("Usage: Rscript --vanilla code/diagnostics/table_iv_observability.R /absolute/new/output [r09b-root]")
+  }
+  run_table_iv_observability(args[1L], reference = if (length(args) == 2L) args[2L] else GMT_PROJECT_ROOT)
 }

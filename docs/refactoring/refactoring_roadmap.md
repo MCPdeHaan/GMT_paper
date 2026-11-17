@@ -72,17 +72,18 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ### R09b. Implement the selected statutory rate definitions
 
-- **Complete.** R09b is the leading 367-file scientific freeze. The isolated historical R06b replay remains reproducible under its own specification and manifest.
+- **Complete.** R09b established the 367-file statutory-role scientific freeze, retained as a historical reference. The isolated historical R06b replay remains reproducible under its own specification and manifest.
 - **Dependency and scope.** R09a and R08. Stage 01/02/02a/03 for rate provenance and conditioning, Stages 05 and 09 for the instrument and fiscal roles, Stage 10 for accounting numerator variants, and the complete downstream analysis and publication.
 - **Adopted roles.** Combined-first statistical conditioning with the five-point allowance; combined-only statutory IV; combined-first destination price. The prior holdout and gate/price split support retaining the historical prior and destination gate. The applied behavioural coefficient and legal allocation rules carry forward. [Paired sensitivity and verification](r09b_statutory_rate_revision.md).
 - **Acceptance.** Reproduce R06b separately and verify the new replay, including 32 core designs, the 64-case accounting design, 432 policy deviations, all three seeded uncertainty studies and publication outputs. Preserve Table IV support for R10 and the distinction between statistical rate proxy and policy gates.
 
 ### R10a. Audit Table IV observability and BSPI
 
-- **Complete.** The [standalone diagnostic and decision memorandum](r10a_table_iv_observability.md) recover raw status, compare pooled and bilateral support, separate direct and anchor sensitivities, check matched and accounting support, and propagate the principal arms through the R09b fiscal kernels. S02 remains open. R09b remains the leading freeze.
+- **Complete.** The [standalone diagnostic and decision memorandum](r10a_table_iv_observability.md) recover raw status, compare pooled and bilateral support, separate direct and anchor sensitivities, check matched and accounting support, and propagate the principal arms through the R09b fiscal kernels. The production decision was deferred to R10b, with R09b as the comparator.
 
 ### R10b. Adopt and propagate a Table IV completeness rule
 
+- **Complete.** [R10b](r10b_table_iv_support_revision.md) adopts the verified two-sided published-support rule for direct observations and BSPI anchors, separates the missing-measure-only comparison, and versions the new leading freeze. R09b and R06b remain historical references.
 - **Depends on:** R10a and R09b. **Files:** 01/02/03 and 07a/08/10/11 where status, branch membership and ambiguity propagate, support tests, manuscript §§4.1–4.2/5 and Appendix B.
 - **Change and benefit:** Carry the raw evidence into the pooled and bilateral eligibility decisions, apply the selected rule to contemporaneous direct estimates and eligible anchor years, and keep shape versus tax-numerator support explicit. Retain the R09b rate roles and the source hierarchies.
 - **Risk, tests and completion:** Document and test the approved treatment of one-sided reports. Check exposure and calibration at fixed as well as natural support. Run isolated paired reproductions and re-evaluate the ladder, all scenario and accounting arms, game, benchmarks and seeded uncertainty. Report stage-specific deltas with harmonised manuscript exhibits and a separately versioned freeze.
@@ -137,4 +138,4 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ## Recommended next task
 
-R10b should implement the supported Table IV point and anchor rule under an explicit specification, retain R09b as a replayable legacy mode, and quantify the change through each downstream consumer. Use the [R10a evidence and decision memorandum](r10a_table_iv_observability.md).
+R11 should first extract the aggregate SBIE shield, sectoral scale and SBTI capacity as separate tested calculations under the R10b freeze. Characterise sector reconciliation, payroll and asset support, zero and bounded profit, both rate endpoints, incentive capacity and the actual-use limitation before considering an S06 specification revision.
