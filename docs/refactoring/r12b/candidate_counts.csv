@@ -1,0 +1,12 @@
+tier,rejection,candidates,any_activity_missing,all_activity_zero,any_activity_negative
+same_parent,origin,137826,15440,992,392
+same_parent,admissible,5933362,254302,0,4788
+same_parent,below_gate,2563548,865152,13236,14268
+same_parent,missing_destination_etr,1576154,1308646,0,0
+same_parent,destination_etr_not_higher,1480072,68408,0,3912
+same_parent,missing_gate,2942466,1694662,9076,1244
+same_parent,no_positive_activity,290884,238932,47244,5848
+global_year,admissible,78492,0,0,0
+global_year,origin,640,0,0,0
+global_year,destination_etr_not_higher,20340,0,0,0
+global_year,missing_destination_etr,4172,0,0,0

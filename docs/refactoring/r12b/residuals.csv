@@ -1,0 +1,5 @@
+rule,key,residual_usd
+B full source,x10101/USA/USA/2021,-6.866455078125e-5
+A parent pool,x10001/USA/2018,6.103515625e-5
+A global scenario-year,x10011/2021,2.44140625e-4
+C preferred source,x10001/USA/USA/2021,-2.288818359375e-5

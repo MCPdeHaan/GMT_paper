@@ -97,7 +97,7 @@ For each science slice, state the observed data, proxy and alternative, the esti
 ### R12. Separate estimation, behavioural response and destinations
 
 - **R12a, estimation and response.** The sample, model and response modules expose their established interfaces, while the two-way FE specification, coefficient selection, historical notch, route logic and R11c freeze remain in place. The [R12a record](r12a_behaviour_estimation_response.md) gives the keyed comparisons, tests and Stage 08 covariance diagnosis.
-- **R12b, destinations.** Extract Rule A, B and C behind explicit source and destination contracts. Retain Rule B's parent-specific gate and fallback, role-specific prices and source CIT rates, conservation and incidence accounting. Require exact parity of the route, fiscal and collector outputs and a clean replay. The recipient of relocated profit and the statutory top-up collector are separate objects.
+- **R12b, destinations.** The destination and ordinary-CIT modules separate the four route variants, rate roles, source losses and collector receipts. The [R12b record](r12b_fiscal_destination_methods.md) gives the keyed contracts, unsupported-source findings, prices and replay evidence.
 - **R12c, inference.** Investigate the separately documented covariance repair and weak statutory IV. Keep the Stage 08 business-activity fit separate from the Stage 04 H5 regressions and the preferred response schedule. Quantify covariance and weak-IV alternatives before any decision to revise a scientific specification.
 
 ### R13. Define design, liability and contrast contracts
@@ -138,4 +138,4 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ## Recommended next task
 
-R12b is the next extraction. Write source-to-destination fixtures for each of Rules A, B and C, including parent support, global fallback and an unsupported source. Characterise grain and rate roles before moving the functions. [R12b scope](#r12-separate-estimation-behavioural-response-and-destinations).
+R12c is the next iteration. Start with the Stage 08 covariance and the Stage 09 repair flags. Compare statutory and simulated EATR instruments on matched support using cluster-appropriate weak-IV-robust inference. Trace any defensible slope sensitivity through the existing destination and ordinary-CIT contracts before proposing a change. [R12b hand-off](r12b_fiscal_destination_methods.md#scientific-interpretation-and-r12c-hand-off).

@@ -2,11 +2,17 @@
 
 R01 audit of `16dc40d`, the clean tip of `publication-rework` on 15 November 2026. The inventory and line numbers below describe that revision. [Baseline verification](../refactoring/baseline_verification.md) records what ran. [The scientific register](../refactoring/scientific_issue_register.md) distinguishes implementation findings, empirical assumptions and duplication. [REPLICATION.md](../../REPLICATION.md) remains the replicator-facing source and exhibit guide.
 
+## R12b. Relocated-profit destinations and ordinary CIT
+
+[Destination rules](../../code/behaviour/destination_rules.R) own the parent and global Rule B footprints, source-key assignment, the two Rule A candidate sets and the Rule C headquarters split. The global compatibility A pool has scenario-year-channel grain. The parent-specific A pool has scenario-parent-year grain. Rules B and C retain source-specific ETR and activity eligibility through the one-to-many expansion. Missing support can trigger the original global-year fallback. Rule B rejects a positive source left without an allocation.
+
+[Fiscal incidence](../../code/behaviour/fiscal_incidence.R) projects routed profit onto ordinary destination receipts and independently aggregates original source losses. The historical central-rate gate and the combined-first destination pricing lookup remain distinct. Stages 05 and 09 retain their established entry points and output schemas. Stage 09 joins ordinary CIT to the separately calculated changes in legal top-up from Stage 06 for total fiscal comparisons. Stage 11 obtains its game and uncertainty inputs from the source and collector ledgers. [Detailed contracts and verification](../refactoring/r12b_fiscal_destination_methods.md).
+
 ## R12a. Behavioural estimation and source response
 
 The [behavioural methods](../../code/behaviour/) have three owners. `estimation_sample.R` builds bilateral estimation inputs, wider PPML and WLS samples, and keyed lag and donor comparisons. `estimation_models.R` fits the established FE-OLS, FE-WLS, PPML and IV models and exposes model-comparison and semi-elasticity functions. `response_kernel.R` integrates signed profit slopes, selects the continuous or historical notch regime, and applies the source response to scenario–parent–affiliate–year amounts. It also owns the schedule replacement adapter formerly defined by Stage 07.
 
-Stage 05 remains the primary loader, coefficient selector, schedule assembler and writer. Stage 09 retains the matched-support study design and fiscal destinations. Stages 07a and 10 use the same detailed response, and Stage 11 shares the regime classification in its sparse evaluator and retains the existing leave-out aliases. The existing source-cell, collector and fiscal amount grains remain separate. [Contracts, before-and-after fit ledger and inference audit](../refactoring/r12a_behaviour_estimation_response.md).
+Stage 05 remains the primary loader, coefficient selector, schedule assembler and writer. Stage 09 retains the matched-support study design and fiscal orchestration. R12b assigns the destination methods to their own module. Stages 07a and 10 use the same detailed response, and Stage 11 shares the regime classification in its sparse evaluator and retains the existing leave-out aliases. The existing source-cell, collector and fiscal amount grains remain separate. [Contracts, before-and-after fit ledger and inference audit](../refactoring/r12a_behaviour_estimation_response.md).
 
 ## R11c. Explicit substance-factor specification
 
