@@ -98,7 +98,7 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 - **R12a, estimation and response.** The sample, model and response modules expose their established interfaces, while the two-way FE specification, coefficient selection, historical notch, route logic and R11c freeze remain in place. The [R12a record](r12a_behaviour_estimation_response.md) gives the keyed comparisons, tests and Stage 08 covariance diagnosis.
 - **R12b, destinations.** The destination and ordinary-CIT modules separate the four route variants, rate roles, source losses and collector receipts. The [R12b record](r12b_fiscal_destination_methods.md) gives the keyed contracts, unsupported-source findings, prices and replay evidence.
-- **R12c, inference.** Investigate the separately documented covariance repair and weak statutory IV. Keep the Stage 08 business-activity fit separate from the Stage 04 H5 regressions and the preferred response schedule. Quantify covariance and weak-IV alternatives before any decision to revise a scientific specification.
+- **R12c, inference.** The matched-support IV and covariance audit retains the original conditional response schedule. Record its identification limits and the price dependence of the fiscal sign in a bounded publication edit. [Decision and evidence](r12c_behavioural_inference_audit.md).
 
 ### R13. Define design, liability and contrast contracts
 
@@ -138,4 +138,4 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ## Recommended next task
 
-R12c is the next iteration. Start with the Stage 08 covariance and the Stage 09 repair flags. Compare statutory and simulated EATR instruments on matched support using cluster-appropriate weak-IV-robust inference. Trace any defensible slope sensitivity through the existing destination and ordinary-CIT contracts before proposing a change. [R12b hand-off](r12b_fiscal_destination_methods.md#scientific-interpretation-and-r12c-hand-off).
+R13 should characterise the existing scenario, source-liability and contrast contracts against R11c, including the meaning of the Factor 2 mode. The R12c evidence supports retaining the current response parameter. [Scientific decision](r12c_behavioural_inference_audit.md).
