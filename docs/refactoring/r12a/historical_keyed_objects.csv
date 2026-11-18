@@ -1,0 +1,12 @@
+"object","rows","columns","key","exact_values_types_order_and_attributes"
+"stage3_estimation_sample",10611,444,"parent / affiliate / year",TRUE
+"stage3_model_coefficients",34,16,"model_spec / term / inference",TRUE
+"stage3_semielasticity_schedule",24,16,"model_spec / tau / inference",TRUE
+"stage3_behavioral_affiliate_year",48672,19,"affiliate / year / etr_measurement / model_spec / eta",TRUE
+"stage3_factorial_pair_year",606528,593,"scenario_id / parent / affiliate / year",TRUE
+"stage3_reallocation_matrix",34912,48,"scenario_id / year / destination / behavioural_channel",TRUE
+"stage4_5_allocation_source_panel",606528,600,"scenario_id / parent / affiliate / year",TRUE
+"stage4_5_revenue_by_channel_global",20104,22,"scenario_id / country / year / channel / allocation_weight_source / collector_utpr_explicit_flag / collector_utpr_ambiguous_flag",TRUE
+"stage4_5_utpr_unsupported_sources",448,16,"scenario_id / parent / affiliate / year",TRUE
+"stage4_5_allocation_conservation",224,19,"scenario_id / year",TRUE
+"stage1_measurement_error_scenario_draws",16000,19,"draw_id / scenario_id",TRUE

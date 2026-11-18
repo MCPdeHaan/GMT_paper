@@ -96,10 +96,9 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ### R12. Separate estimation, behavioural response and destinations
 
-- **Depends on:** R04, R06, R08 and R11's relevant contracts. **Files:** 05, 09/10/11 econometric/reallocation callers and Stage 3 tests.
-- **Change and benefit:** Move sample construction and FE/IV fits, inference and schedule construction, and stage-level evaluation into distinct modules. Return aligned modelling keys and parameters. Move Rule A/B/C destinations to fiscal methods. This makes alternative estimators and relocation choices explicit inputs.
-- **Risk, tests and completion:** Clustering, covariance repairs, key alignment, bare serialized fit calls, elasticity signs, selected coefficient/substance bridge. Check coefficient/SE/matched sample, J/Wald, division-bias and response fixtures; preserve fits and stage/liability/recovery outputs by hash or reviewed projection with unchanged estimands.
-- **Deferred from R10b/R11a.** Diagnose the Stage 08 EU27 L3 business-activity regression's covariance regularisation before interpreting its clustered inference. This model is separate from the Stage 04 H5 regressions. [Verification record](r10b_table_iv_support_revision.md#acceptance-record).
+- **R12a, estimation and response.** The sample, model and response modules expose their established interfaces, while the two-way FE specification, coefficient selection, historical notch, route logic and R11c freeze remain in place. The [R12a record](r12a_behaviour_estimation_response.md) gives the keyed comparisons, tests and Stage 08 covariance diagnosis.
+- **R12b, destinations.** Extract Rule A, B and C behind explicit source and destination contracts. Retain Rule B's parent-specific gate and fallback, role-specific prices and source CIT rates, conservation and incidence accounting. Require exact parity of the route, fiscal and collector outputs and a clean replay. The recipient of relocated profit and the statutory top-up collector are separate objects.
+- **R12c, inference.** Investigate the separately documented covariance repair and weak statutory IV. Keep the Stage 08 business-activity fit separate from the Stage 04 H5 regressions and the preferred response schedule. Quantify covariance and weak-IV alternatives before any decision to revise a scientific specification.
 
 ### R13. Define design, liability and contrast contracts
 
@@ -139,4 +138,4 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ## Recommended next task
 
-Begin R12 by characterising the estimation and response boundaries and reproducing the existing Stage 08 covariance warning before extracting functions. Keep econometric inference, applied response and destination allocation distinct. Retain both Factor 2 modes and the exact R11c reference while testing that boundary. Any decision to revise an estimator or covariance treatment requires a separately quantified scientific change; the extraction must not silently repair it. [R12 scope](#r12-separate-estimation-behavioural-response-and-destinations).
+R12b is the next extraction. Write source-to-destination fixtures for each of Rules A, B and C, including parent support, global fallback and an unsupported source. Characterise grain and rate roles before moving the functions. [R12b scope](#r12-separate-estimation-behavioural-response-and-destinations).

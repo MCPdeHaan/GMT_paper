@@ -1,0 +1,15 @@
+object,identical
+sample,TRUE
+fits,TRUE
+fit_comparison,TRUE
+extracted_tax_coefficients,TRUE
+wald,TRUE
+coefficients,TRUE
+schedule,TRUE
+test_comparison,TRUE
+instruments,TRUE
+alternatives,TRUE
+division_inputs,TRUE
+division_fits,TRUE
+host_schedule,TRUE
+warnings,TRUE

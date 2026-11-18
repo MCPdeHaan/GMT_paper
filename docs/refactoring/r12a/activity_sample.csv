@@ -1,0 +1,2 @@
+formula,observations,parents,affiliates,pair_years,first_year,last_year,df_inference,fixest,covariance,warning
+l3 ~ act_holding_panelai + act_ip_panelai + act_igf_panelai +      act_rd_panelai + act_man_panelai | affiliate + year,2689,40,27,2689,2017,2023,26,0.14.2,parent + affiliate,The VCOV matrix is not positive definite and was 'fixed' (see ?vcov).

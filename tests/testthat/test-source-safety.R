@@ -16,6 +16,8 @@ testthat::test_that("R modules can be sourced into an isolated environment", {
     "  Sys.unsetenv('GMT_PROJECT_ROOT')",
     "  withr::local_dir(commandArgs(trailingOnly = TRUE)[1L])",
     "  files <- list.files(all.files = TRUE, recursive = TRUE, include.dirs = TRUE)",
+    "  set.seed(190)",
+    "  rng <- .Random.seed",
     "  bindings <- ls(globalenv(), all.names = TRUE)",
     "  namespaces <- sort(loadedNamespaces())",
     "  packages <- search()",
@@ -25,6 +27,7 @@ testthat::test_that("R modules can be sourced into an isolated environment", {
     "    stopifnot(identical(ls(globalenv(), all.names = TRUE), bindings),",
     "      identical(sort(loadedNamespaces()), namespaces),",
     "      identical(search(), packages), identical(options(), session_options),",
+    "      identical(.Random.seed, rng),",
     "      identical(list.files(all.files = TRUE, recursive = TRUE, include.dirs = TRUE), files))",
     "  }",
     "})"

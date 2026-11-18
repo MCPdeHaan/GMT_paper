@@ -1,0 +1,7 @@
+regressor,observations,pairs,parents,affiliates,first_year,last_year
+current_etr,10611,2031,48,153,2017,2023
+lagged_etr,8801,1948,48,151,2017,2023
+jackknife_etr,10455,2007,48,140,2017,2023
+jackknife_foreign_only_etr,10455,2007,48,140,2017,2023
+statutory_cit,9605,1816,48,118,2017,2023
+forward_eatr,8820,1634,47,93,2017,2023

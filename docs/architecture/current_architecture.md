@@ -2,6 +2,12 @@
 
 R01 audit of `16dc40d`, the clean tip of `publication-rework` on 15 November 2026. The inventory and line numbers below describe that revision. [Baseline verification](../refactoring/baseline_verification.md) records what ran. [The scientific register](../refactoring/scientific_issue_register.md) distinguishes implementation findings, empirical assumptions and duplication. [REPLICATION.md](../../REPLICATION.md) remains the replicator-facing source and exhibit guide.
 
+## R12a. Behavioural estimation and source response
+
+The [behavioural methods](../../code/behaviour/) have three owners. `estimation_sample.R` builds bilateral estimation inputs, wider PPML and WLS samples, and keyed lag and donor comparisons. `estimation_models.R` fits the established FE-OLS, FE-WLS, PPML and IV models and exposes model-comparison and semi-elasticity functions. `response_kernel.R` integrates signed profit slopes, selects the continuous or historical notch regime, and applies the source response to scenario–parent–affiliate–year amounts. It also owns the schedule replacement adapter formerly defined by Stage 07.
+
+Stage 05 remains the primary loader, coefficient selector, schedule assembler and writer. Stage 09 retains the matched-support study design and fiscal destinations. Stages 07a and 10 use the same detailed response, and Stage 11 shares the regime classification in its sparse evaluator and retains the existing leave-out aliases. The existing source-cell, collector and fiscal amount grains remain separate. [Contracts, before-and-after fit ledger and inference audit](../refactoring/r12a_behaviour_estimation_response.md).
+
 ## R11c. Explicit substance-factor specification
 
 The leading `GMT_FACTOR2_SPECIFICATION=SECTORAL_SBIE_ONLY` compares aggregate and sectoral SBIE before an imputed QTI adjustment. `LEGACY_HYBRID_SBIE_SBTI` retains the complete R10b operation and inventory. The unchanged Stage 04 sector panel provides both SBIE-only and historical hybrid rate summaries. Stage 05 selects the rate inside `build_sectoral_factor2_bridge()` before its existing contemporaneous/2022/unit hierarchy. It records the leading specification in `step5_factor2_specification.csv` and retains all 32 binary scenario identifiers. The factor label in saved rows distinguishes the two meanings of `x2=1`.

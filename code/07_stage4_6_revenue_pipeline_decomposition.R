@@ -5,7 +5,7 @@
 # allocation. The script treats the Stage 4.5 country-year revenue matrix as
 # the final object for the 2^5 counterfactual decomposition.
 
-source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "00_helpers.R"), local = TRUE)
+source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "behaviour", "response_kernel.R"), local = TRUE)
 
 
 FACTOR_LABELS <- c(
@@ -1847,17 +1847,6 @@ stage5_source_inputs <- function() {
       affiliate_policy_iir_utpr_by_2026, affiliate_policy_utpr_by_2026,
       affiliate_policy_iir_utpr_explicit_by_2026, affiliate_policy_iir_utpr_ambiguous_by_2026
     )
-}
-
-replace_behaviour_schedule <- function(panel, tau_low, beta_raw) {
-  regime <- apply_behavioural_regime(tau_low, beta_raw)
-  panel |>
-    mutate(
-      static_tau_low = tau_low,
-      static_beta_applied = regime$beta_applied,
-      static_behavioural_regime = regime$behavioural_regime
-    ) |>
-    add_behavioural_response()
 }
 
 summarise_stress_variant <- function(revenue, design, factors, variant, gap, tau_floor = NA_real_) {
