@@ -1,5 +1,7 @@
 # Paper v2 blueprint: from thesis to journal manuscript
 
+**Historical development blueprint.** Numerical examples and implementation notes below predate R11c. The active paper now uses sectoral SBIE before imputed QTI adjustment; the historical hybrid is a conditional sensitivity. Use [the R11c revision](../docs/refactoring/r11c_sbti_specification_revision.md), the current manuscript and its named reference for current numerical claims.
+
 **Target file:** `writing/paper_v2.tex` · **Primary target:** *International Tax and Public Finance* (ITAX) · **Secondary options:** *Fiscal Studies*, *Journal of Public Economics* (JPubE) · **Preceded by:** a U.S.E. Working Paper · **Length:** about 9,050 words of main text, 8 tables, 5 figures, Online Appendix A–E · **Empirical vintage:** tag `v2.0-empirical-freeze`, FY2017–2023 OECD public country-by-country reporting (CbCR).
 
 Every number quoted below is copied from `writing/generated/paper_v2_tables/`, `writing/generated/results_tables/` or `data/processed/diagnostics/master_paper_v2_scorecard.csv`. Where the brief for Step 20 stated a number that the frozen outputs do not support, this blueprint uses the frozen value and flags the change in Section 9.

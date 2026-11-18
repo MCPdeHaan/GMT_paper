@@ -6,6 +6,10 @@ The rate boundary implemented in R09b lives in [`code/rates/statutory_rates.R`](
 
 The R10b Table IV boundary lives in [`code/measurement/table_iv_support.R`](../../code/measurement/table_iv_support.R). It keeps source-measure status at the OECD observation grain, evaluates bracket support separately for host and bilateral points, and makes the same accrued support available to direct selection, BSPI calibration and accounting. Stage 10 independently checks the cash numerator and the envelope on that accrued partition. Stage entry points retain I/O and the historical schema. [Specification and comparison](../refactoring/r10b_table_iv_support_revision.md).
 
+## R11c adopted boundary
+
+Retain both physical sectoral SBIE and capacity diagnostics in `code/substance/`. The selected Factor 2 rate belongs at the Stage 05 source-construction boundary, with an equivalent explicit selector in the sparse representation. A specification switch does not mutate the sector panel or reinterpret a historical result. Future extraction should carry the selected mode alongside scenario design and source objects, preserve the compatibility adapters, and keep conditional QTI fiscal examples outside leading liability. [Adopted contracts](current_architecture.md#r11c-explicit-substance-factor-specification).
+
 ## Layout after migration
 
 This is a destination, with the existing numbered scripts retained as adapters during migration. Subdirectories are domains. Create a file within a domain when the new boundary has a caller and a test.

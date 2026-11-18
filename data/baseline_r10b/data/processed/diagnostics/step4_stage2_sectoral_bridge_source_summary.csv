@@ -1,0 +1,17 @@
+component,source_rule,n_cells,missing_share_cells,total_sectoral_level,level_share
+assets,euklems_k_tang_stock,559,0,1238293456319.3425,0.8171815650067076
+assets,fats_gross_investment_flow,380,0,206358446208.44934,0.13618122357377996
+assets,fats_turnover_scaled_to_investment_flow,30,0,48412977081.34031,0.03194896345132658
+assets,euklems_k_tang_gapfilled_from_fats_investment,28,0,21942670145.14713,0.014480529989179754
+assets,fats_payroll_scaled_to_investment_flow,9,0,314759687.66015273,2.077179790061112e-4
+assets,missing_asset_allocator,13,13,0,0
+assets,missing_investment_allocator,61,61,0,0
+payroll,fats_personnel_costs,919,0,563142620397.58,0.9818393142627752
+payroll,fats_employees_scaled_to_personnel_costs,37,0,10182273643.16053,0.01775279691027205
+payroll,fats_turnover_scaled_to_personnel_costs,7,0,233948243.36766607,4.078888269527916e-4
+payroll,missing_payroll_allocator,117,117,0,0
+profit,fats_gross_operating_surplus,901,0,964731020925.9879,0.8779980117643408
+profit,fats_value_added_scaled_to_gos,15,0,71706061873.19923,0.06525941261398467
+profit,fats_value_added,20,0,55602821764.336494,0.050603915390546726
+profit,fats_turnover_scaled_to_gos,11,0,6745067611.250098,0.006138660231127753
+profit,missing_profit_allocator,133,133,0,0

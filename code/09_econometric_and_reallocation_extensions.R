@@ -1397,7 +1397,8 @@ build_split_substance_scales <- function() {
   sectors <- read_stage5_input("stage2_sectoral_panel")
   keys <- c("rate_scenario", "affiliate", "year")
   sector_only <- build_sectoral_factor2_bridge(
-    stage2, stage1, mutate(sectors, sectoral_kappa = 0)
+    stage2, stage1, mutate(sectors, sectoral_kappa = 0),
+    specification = "LEGACY_HYBRID_SBIE_SBTI"
   )
   sector_gap <- sector_only |>
     select(all_of(keys), starts_with("aggregate_tax_per_profit_")) |>
@@ -1518,7 +1519,17 @@ build_bilateral_measurement_variant <- function(panel) {
   )
 }
 
-build_split_substance_variant <- function(panel, scales) {
+build_split_substance_variant <- function(panel, scales,
+                                          specification = factor2_specification()) {
+  if (factor2_specification(specification) == "SECTORAL_SBIE_ONLY") {
+    # QTI application is unestimated. The second axis is deliberately redundant,
+    # not an additional set of substantively different policy scenarios.
+    return(panel |>
+      mutate(x2a_sectoral = x2_substance) |>
+      crossing(x2b_sbti = 0:1) |>
+      mutate(scenario_id = paste0("x", x1_etr, x2a_sectoral, x2b_sbti,
+        x3_rates, x4_sbs, x5_behaviour)))
+  }
   # 00 and 11 inherit the exact baseline amounts. The two off-diagonal
   # cells have one mechanism active. x2_substance denotes sectoral SBIE.
   joint <- panel |>

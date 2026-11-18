@@ -175,7 +175,7 @@ score_stage2_extensions <- function() {
     mutate(scope = affiliate, window = as.character(year),
       specification = paste(etr_measurement, rate_scenario, sep = " / "))
   stopifnot(setequal(decomposition$year, 2021:2023))
-  sectoral <- score_metrics(decomposition, "Stage 2", "Sectoral SBIE and SBTI", SCORE_CURRENT,
+  sectoral <- score_metrics(decomposition, "Stage 2", if (factor2_specification() == "SECTORAL_SBIE_ONLY") "SBIE and historical capacity diagnostic" else "Sectoral SBIE and SBTI", SCORE_CURRENT,
     "processed/diagnostics/step4_stage2_sbti_vs_sectoral_sbie_decomposition.csv",
     c(aggregate_sbie_per_profit = "rate", sectoral_sbie_per_profit = "rate",
       sectoral_sbie_sbti_per_profit = "rate", comparable_profit_share = "share",

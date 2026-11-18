@@ -1,5 +1,7 @@
 # R11b SBTI scientific audit
 
+**Historical replay after R11c.** Set `GMT_FACTOR2_SPECIFICATION=LEGACY_HYBRID_SBIE_SBTI` for this report's commands and use the explicit `r10b` verifier selector where applicable. The current ordinary default is the separately versioned sectoral-SBIE-only specification.
+
 The starting revision is `f7db342ca726d9ee1539543f0db240c89ad751be` on `publication-rework`. R10b remains the leading scientific reference with `OBSERVED_TWO_SIDED`, `STANDARD_ROLE_SPECIFIC`, `VERIFIED_PARENT_ONLY` and `NO_NOTCH_STANDARD_RESPONSE`. R11b adds an isolated diagnostic and a decision memorandum. Its policy counterfactual concerns a fiscal year starting 1 January 2026 on the FY2017–2023 economic bases. Evidence is evaluated against the project's 15 November 2026 research cutoff, with retrieval on 17 November. The full OECD chapter was read directly and its operative cap and election provisions were visually checked.
 
 ## Recommendation for R11c

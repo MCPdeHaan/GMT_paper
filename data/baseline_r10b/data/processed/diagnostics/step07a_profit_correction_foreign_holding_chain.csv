@@ -1,0 +1,2 @@
+sensitivity,affiliate_scope,correction_rate,flagged_cells,flagged_parents,flagged_affiliates,flagged_profit,profit_reduction,mean_holding_share,mean_related_party_revenue_share
+foreign_holding_chain_correction,NLD;LUX;IRL;CHE;SGP;HKG;BMU;CYM,0.1,46,16,7,125082503575.38,12508250357.537996,0.7497626882760566,0.893247186468554

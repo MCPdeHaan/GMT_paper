@@ -1,0 +1,202 @@
+%% Research note for dr. Peter Gerbrands, November 2026
+%% See REPLICATION.md for the LaTeX build instructions.
+%% All figures are taken from the v2.0-empirical-freeze outputs in
+%% writing/generated/paper_v2_tables/, writing/generated/results_tables/
+%% and data/processed/diagnostics/master_paper_v2_scorecard.csv.
+
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage{lmodern}
+\usepackage[british]{babel}
+
+\usepackage[
+  a4paper,
+  top    = 1.85cm,
+  bottom = 1.85cm,
+  left   = 2.4cm,
+  right  = 2.1cm,
+  headsep = 0.4cm,
+  includehead = false,
+  headheight = 14pt,
+]{geometry}
+
+\usepackage{microtype}
+\usepackage{setspace}
+\setstretch{1.0}
+\raggedbottom
+\setlength{\emergencystretch}{1.5em}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.6em}
+
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage[font=small, labelfont=bf, skip=4pt, hypcap=false]{caption}
+\usepackage{xcolor}
+\usepackage[round,authoryear]{natbib}
+\setlength{\bibsep}{0pt}
+\renewcommand{\bibsection}{\section*{References}}
+
+\usepackage[
+  colorlinks = true,
+  linkcolor  = blue!60!black,
+  citecolor  = blue!60!black,
+  urlcolor   = blue!60!black,
+  pdftitle   = {Decomposition of Global Minimum Tax Revenue Using CbCR Data: Methodological Extensions and 2017-2023 Empirical Results},
+  pdfauthor  = {Maurits de Haan},
+]{hyperref}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\itshape\raisebox{-3pt}{\nouppercase{\leftmark}}}
+\fancyhead[R]{\small\itshape\raisebox{-3pt}{de Haan (2026)}}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\renewcommand{\sectionmark}[1]{\markboth{\thesection\quad #1}{}}
+\fancypagestyle{plain}{%
+  \fancyhf{}
+  \fancyfoot[C]{\small\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+}
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\raggedright}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries\raggedright}{\thesubsection}{1em}{}
+\titlespacing*{\section}{0pt}{8pt plus 2pt minus 2pt}{2pt plus 1pt minus 1pt}
+\titlespacing*{\subsection}{0pt}{5pt plus 2pt minus 2pt}{1pt plus 1pt minus 1pt}
+
+\newcommand{\EUR}{\texteuro}
+\newcommand{\usd}{US\$}
+\newcommand{\pp}{\,pp}
+\newcommand{\thesisdivider}{\vspace{0.3em}\noindent\rule{\textwidth}{0.65pt}\vspace{0.35em}}
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\begin{document}
+
+\thispagestyle{plain}
+\begin{center}
+  \thesisdivider\\
+  {\Large\bfseries Decomposition of Global Minimum Tax Revenue\\[0.1em]
+  Using CbCR Data: Methodological Extensions\\[0.1em]
+  and 2017–2023 Empirical Results}\\[0.5em]
+  {\large\itshape Research Note and Publication Plan}\\[0.3em]
+  \thesisdivider\\[0.2em]
+  {\large Maurits de Haan}\\[0.15em]
+  {\small (prepared for discussion with dr.\ Peter Gerbrands)}\\[0.3em]
+  {\small November 2026}
+\end{center}
+\vspace{-0.6em}
+
+\section{Motivation and research trajectory}
+
+This note describes what I have done with my master's thesis since June. I aim that this paper can become a journal paper. The thesis asked how much of the disagreement between revenue estimates for the Global Minimum Tax (GMT) comes from the way low-taxed profit is measured, from the exemption for real activity, from the response of firms and from the rules that decide which government collects the tax. Its answer was that measurement and legal allocation dominate. In its conclusion I also listed several limitations that we discussed during supervision. Published profit differs from the legal tax base, the behavioural estimate rested on fragile identification, and the grouping of member states had little institutional meaning.
+
+Two developments made it worthwhile to return to these questions. In July 2026 the Organisation for Economic Co-operation and Development (OECD) released the 2023 vintage of its aggregated Country-by-Country Reporting (CbCR) statistics, which covers the last fiscal year before the minimum tax took effect in the European Union (2023). Over the past months I therefore rebuilt the data pipeline, extended the panel to 2017–2023 and worked through the limitations one by one.
+
+At the same time, working on the thesis confirmed that I want to continue in this field. I would like to analyse whether it would be feasible to pursue an external PhD (\emph{buitenpromovendus}) in the intersection of empirical economic and international business taxation and law, starting around summer 2027 alongside my job. 
+
+\emph{International Tax and Public Finance} is the natural home for the paper, with \emph{Fiscal Studies} as the alternative. If I identify it correctly, a working paper in the Utrecht University School of Economics (U.S.E.) series beforehand would also be logical. The empirical conversation that this paper joins takes place in these two journals: work on low-taxed profit within countries \citep{hugger2026}, on single-country revenue decomposition \citep{boukal2026}, on the economics and enforcement of the minimum tax \citep{schjelderup2024,hindriks2026}, on what country-by-country reports reveal \citep{godar2024,tuinsma2025}, and on the substance carve-out and the accounting basis of the tax base \citep{devereux2023,hanlon2023}. The paper extends the single-country decomposition of \citet{boukal2026} to all European Union member states.
+
+\section[Methodological extensions and new findings]{Methodological extensions and new empirical findings (2017–2023)}
+
+This section explains each of the six extensions.
+
+\subsection{Extending the panel to the final pre-implementation year (2017–2023)}
+
+Adding the last year before the new rules took effect brings the estimates closer to the base on which governments will actually collect, and it strengthens the test of the method. Only from fiscal year 2021 onwards do the OECD statistics report both the spread of tax rates across subsidiaries and the direct breakdown of profit by tax-rate bracket, so only those years allow the fitted distributions to be checked. The 2023 vintage lengthens this validation window from two years (2021–2022) to three (2021–2023). The analytical panel now contains 18,954 parent–affiliate pair-years, of which 14,108 report positive profit, covering \usd41.91 trillion of corrected profit across 63 parent and 232 affiliate jurisdictions.
+
+\subsection{Correcting upper-tail distortion in the effective tax rate distribution and testing a four-level aggregation ladder}
+
+How much profit is taxed below fifteen per cent is the single largest driver of the revenue estimate, so any distortion in measuring it carries straight into the result. The public data do not show each subsidiary's effective tax rate (ETR). They show only five percentiles of the distribution, and I fit a smooth Beta distribution through these points to recover the share of profit below fifteen per cent. In some large domestic cells the highest percentile exceeds 100\%, because loss years and timing differences can make tax paid larger than profit. A curve forced through such a point bends into a U-shape and places too much profit at both ends. For Germany in 2023 the 95th percentile is 122.5\%, and for France it is 102.0\%. With the historical mean anchors, those fits assigned more than 60\% of profit below fifteen per cent, although the published 25th percentile and median bracketed the floor.
+
+I regularise the mean and percentile knots using the host's observed standard combined OECD rate plus five points. The same-year standard central rate serves as a fallback and the ceiling is one where both series are missing. The paired allowance comparison supports retaining five points. The reconciliation holdout favours keeping the existing prior. On the matched validation samples the mean absolute error (MAE) in the liability rate falls from 3.62 to 1.75 percentage points and from 3.58 to 1.77 percentage points, and the calibration $R^2$ rises from 0.34–0.40 to 0.52–0.55. I now use direct Table IV only where the published brackets support both sides of the floor and the required accrued tax. The unmatched validation sample falls from 361 to 207, while the matched samples remain unchanged. The two earlier years use only eligible 2019–2020 shapes. I made the measurement choice explicit as a four-level ladder: the host-country average (L1), the bilateral average (L2), the pooled host distribution (L3) and the bilateral distribution anchored to the percentile data (L4). Moving from L1 to L4 doubles global liability after the substance carve-out for 2017–2023, from \usd866.3 billion to \usd1,758.0 billion.
+
+\subsection{Bridging accounting profit and the legal minimum tax base against national budget forecasts}
+
+Published profit is an accounting figure, while the minimum tax applies to a legally defined base, and the two can differ substantially. Dividends between group companies are largely excluded from the minimum tax base, current losses are netted within a country, losses from earlier years are carried forward, and the taxes that count towards the minimum are defined separately \citep{hanlon2023}. I now model each adjustment and treat the resulting bridge as an additional modelling choice in the scenario design.
+
+The bridge is about as important as measuring low-taxed profit. Together they explain 82.6–89.7\% of the variance across scenarios. The Shapley shares are 42.4–49.3\% for ETR measurement and 37.5–42.1\% for accounting over 2017–2023 and 2019–2023. The bridge also narrows the gap with official budget forecasts. Dutch FY2023 collector revenue falls from \EUR7.09 billion to \EUR0.45 billion after the adjustments, against a structural forecast of \EUR0.18 billion. On the average 2019–2023 base the Dutch estimate is still \EUR3.43 billion, reflecting the decline in low-taxed conduit profit before implementation. The adjustments bring Germany, France and Ireland within \EUR0.5 billion of their cash benchmarks. Different cash, channel and policy definitions make these comparisons checks of plausibility.
+
+\subsection{Separating modelling disagreement from statistical estimation noise}
+
+I draw the behavioural coefficient, the profit-correction rates and the errors of the fitted ETR distributions jointly 500 times. Each draw runs through all 32 core scenarios. Parameter noise explains 1.18\% of EU27 revenue variance over 2017–2023 and 0.44\% over 2019–2023. The spread across scenarios is 9.20 and 16.52 times the width of the preferred 90\% parameter interval. The largest parameter share among individual collectors is 45.5\% in Austria over the longer window.
+
+\subsection{Addressing ratio division bias and accounting for domestic corporate tax recovery}
+
+Estimates of how strongly firms move profit in response to taxes can be exaggerated by the way the tax rate itself is measured. The effective tax rate is tax divided by profit. Any error in measured profit therefore appears on both sides of a regression of profit on the tax rate and creates a negative relationship, strongest at low tax rates, even when firms do not respond at all. This explains the very large logarithmic responses at a 5\% tax rate in the thesis specifications (9.33–11.20 in the fixed-effects Poisson and weighted estimators). The lagged standard combined statutory instrument is weak ($F=2.09$) and its imprecise 2SLS estimate is positive. When I replace the current effective tax rate with its lagged value, or with a rate computed without the firm's own parent country, the weighted responses at 5\% fall to 0.33–0.60 in the lagged quadratic fits and 2.51–3.19 in the leave-one-parent-out logarithmic fits.
+
+Behaviour also has a fiscal counterpart that the thesis left out. When firms move profit out of low-tax countries, the top-up tax falls, but the profit is taxed again under ordinary corporate income tax (CIT) wherever it lands. Under a destination rule, the behavioural response lowers direct top-up tax in the European Union by \usd61.7 billion over 2017–2023 and raises ordinary CIT by \usd96.4 billion before source-country losses. I assign relocated profits using the historical destination threshold and price them at the standard combined statutory rate as a marginal-rate proxy. The source loses ordinary CIT at its modelled effective rate. The implied Dutch gross receipts of \EUR628–1,012 million a year exceed the Ministry of Finance's estimates of \EUR397–451 million. The model lets this response taper to zero as the ETR approaches 15\%. The historical two-point notch is reported separately. The public data cannot tell us which groups will elect a legal safe harbour.
+
+\subsection{Replacing cluster analysis with a fiscal flow ledger and testing unilateral tax-adoption incentives}
+
+I replaced the clustering with a ledger of the liability each member state generates and the receipts its treasury is assigned. For the UTPR I use national rules applicable to a fiscal year starting on 1 January 2026 and allocate through observed parent-year activity. Where the aggregate data support no route, the liability stays unassigned. Cumulative EU27 receipts under the continuous response are \usd546.3 billion under universal allocation and \usd367.7 billion under SbS. Globally the model leaves \usd1.15 billion unassigned in either setting. Four member states receive nothing under the preferred scenario, although profit booked there generates \usd4.38 billion of liability. Cyprus now receives UTPR under its operative national law.
+
+I simulate 216 domestic top-up repeal cases and 216 full opt-outs. Universal repeal leaves modelled source liability unchanged. Some full opt-outs reduce assigned collection because they remove the only observed route. Under SbS the reduction in Irish US-parented groups' liability equals 85.9\% of its net forgone receipts over 2017–2023 (87.0\% in FY2023). No government gains collector and ordinary source tax on net by repealing unilaterally. The capped incentive overlay delivers more relief than repeal in 18 of the 27 FY2023 L3 cases. This is a comparison of potential relief before the cost of funding new qualifying incentives.
+
+\newpage
+
+\section[Comparison of thesis and paper]{Comparison of thesis and updated paper estimates}
+
+The comparison above places the June thesis next to the updated paper on the dimensions that a referee will look at first. Table~\ref{tab:comparison} shows that the main conclusion holds and that the accounting bridge, the uncertainty analysis and the fiscal ledger are new.
+
+\begin{table}[!t]
+\centering
+\footnotesize
+\caption{Thesis (June 2026) and updated paper (November 2026)}
+\label{tab:comparison}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabularx}{\textwidth}{@{}P{3.3cm}P{4.9cm}L@{}}
+\toprule
+ & Thesis, 2017–2022 & Paper, 2017–2023 \\
+\midrule
+Panel & 15,758 pair-years; \usd34.84tn & 18,954 pair-years; \usd41.91tn \\
+Tax-rate measurement & Two levels; uncapped fit & Four levels; capped fit; error 3.62 to 1.75\pp \\
+EU27 revenue range & \usd127.7–517.4bn & \usd159.75–667.06bn \\
+Tax-rate variance share & 69\% & 68.4\% main effect, 71.6\% Shapley \\
+Accounting bridge & Not modelled & 37.5–42.1\%, jointly 82.6–89.7\% \\
+Budget comparison & Not performed & Eight states; real-economy gaps $<$\EUR0.5bn \\
+Parameter uncertainty & Single-source exercises & 500 joint draws; 1.18\% and 0.44\% \\
+Behavioural estimate & Linear 1.50 & Linear 1.47; matched alternatives 0.33–3.19 at 5\% \\
+Ordinary tax recovery & Not modelled & $-$\usd61.7bn top-up; $+$\usd96.4bn gross CIT \\
+Country heterogeneity & Four $k$-means clusters & Fiscal ledger; four zero collectors generate \usd4.38bn \\
+Adoption incentives & Not tested & 216 repeal cases; Ireland 85.9\% under SbS \\
+\bottomrule
+\end{tabularx}\\[0.2em]
+{\footnotesize\textit{Notes:} Current US dollars, cumulative unless stated; euro amounts are annual. EU27: the 27 member states.}
+\end{table}
+
+\section{Next steps and points for discussion}
+
+The empirical work is now stable, and I would very much like to discuss with you how to take it further. Above all, I would love to turn this into a joint paper with you, with me taking on the drafting and the code. Your knowledge of the tax rules and of how to position the paper would make it considerably stronger.
+
+I would also like to hear whether you think it makes sense to invite dr.\ Javier Garcia-Bernardo to join the paper. The pipeline builds directly on four of his papers: the United States correction for double-counted profit uses the macro reconciliation in \citet{garcia-bernardo2022a}. The logarithmic profit-shifting specification and the activity-weighted rule that sends relocated profit to its destination follow \citet{garcia-bernardo2024}. The effective tax rates computed from country-by-country data follow \citet{garcia-bernardo2021,garcia-bernardo2023}. 
+
+On the choice of journal, my preference is \emph{International Tax and Public Finance}, with \emph{Fiscal Studies} or the \emph{National Tax Journal} as alternatives and a U.S.E.\ Working Paper first. I have already prepared a complete first draft of the paper and its online appendix, so we could aim for a working paper early in 2027 and a journal submission in the spring. I can share this if you are open to further steps. 
+
+Finally, I would really value your advice on an external PhD trajectory. I am still exploring which supervisors would suit such a project and how this paper could become its first chapter. The paper still rests on public aggregates and several proxies, and I would be glad to hear where you think it is weakest. I am currently also completeing a master in International Business Law where I am also looking on how I can make further research around the connection between economics and law/taxation work. I am writing my thesis there about efficiency defences in merger-control, under supervision of prof. dr. Monti. 
+
+{\footnotesize
+\begin{thebibliography}{99}
+\bibitem[Boukal et~al.(2026)]{boukal2026} Boukal, T., Janský, P., \& Palanský, M. (2026). Decomposing the revenue implications of the global minimum tax. \emph{International Tax and Public Finance}.
+\bibitem[Devereux et~al.(2023)]{devereux2023} Devereux, M. P., Paraknewitz, J., \& Simmler, M. (2023). Empirical evidence on the global minimum tax: What is a critical mass and how large is the substance-based income exclusion? \emph{Fiscal Studies}, 44(1), 9–21.
+\bibitem[Devereux et~al.(2022)]{devereux2022} Devereux, M. P., Vella, J., \& Wardell-Burrus, H. (2022). Pillar 2: Rule order, incentives, and tax competition. SSRN Working Paper.
+\bibitem[Garcia-Bernardo and Janský(2024)]{garcia-bernardo2024} Garcia-Bernardo, J., \& Janský, P. (2024). Profit shifting of multinational corporations worldwide. \emph{World Development}, 177, 106527.
+\bibitem[Garcia-Bernardo et~al.(2021)]{garcia-bernardo2021} Garcia-Bernardo, J., Janský, P., \& T{\o}rsl{\o}v, T. (2021). Multinational corporations and tax havens: Evidence from country-by-country reporting. \emph{International Tax and Public Finance}, 28(6), 1519–1561.
+\bibitem[Garcia-Bernardo et~al.(2022)]{garcia-bernardo2022a} Garcia-Bernardo, J., Janský, P., \& Zucman, G. (2022). Did the Tax Cuts and Jobs Act reduce profit shifting by US multinational companies? NBER Working Paper 30086.
+\bibitem[Garcia-Bernardo et~al.(2023)]{garcia-bernardo2023} Garcia-Bernardo, J., Janský, P., \& T{\o}rsl{\o}v, T. (2023). Effective tax rates of multinational corporations: Country-level estimates. \emph{PLOS ONE}, 18(11), e0293552.
+\bibitem[Godar et~al.(2024)]{godar2024} Godar, S., Aliprandi, G., Faccio, T., Janský, P., \& Toledo Ruiz, K. (2024). The long way to tax transparency: Lessons from the early publishers of country-by-country reports. \emph{International Tax and Public Finance}.
+\bibitem[Hanlon(2023)]{hanlon2023} Hanlon, M. (2023). The use of accounting information in the tax base in the Pillar 2 global minimum tax. \emph{Fiscal Studies}, 44(1), 37–52.
+\bibitem[Hindriks and Nishimura(2026)]{hindriks2026} Hindriks, J., \& Nishimura, Y. (2026). The enforcement dilemma of the global minimum tax. \emph{International Tax and Public Finance}.
+\bibitem[Hugger et~al.(2026)]{hugger2026} Hugger, F., Gonzalez Cabral, A. C., \& O'Reilly, P. (2026). Effective tax rates of MNEs and the global distribution of low-taxed profit. \emph{International Tax and Public Finance}.
+\bibitem[Schjelderup and Stähler(2024)]{schjelderup2024} Schjelderup, G., \& Stähler, F. (2024). The economics of the global minimum tax. \emph{International Tax and Public Finance}.
+\bibitem[Tuinsma et~al.(2025)]{tuinsma2025} Tuinsma, T., De Witte, K., Janský, P., Palanský, M., \& Titl, V. (2025). Effects of corporate transparency on tax avoidance: Evidence from country-by-country reporting. \emph{International Tax and Public Finance}.
+\end{thebibliography}}
+
+\end{document}

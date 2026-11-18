@@ -1792,7 +1792,9 @@ build_policy_tracker_diagnostics <- function(oecd_central_record) {
 build_sectoral_factor2_bridge <- function(stage2_bilateral,
                                           stage1_affiliate_year,
                                           stage2_sectoral_matrix,
-                                          use_contemporaneous = TRUE) {
+                                          use_contemporaneous = TRUE,
+                                          specification = factor2_specification()) {
+  specification <- factor2_specification(specification)
   keys <- c("rate_scenario", "affiliate", "year")
   aggregate_rates <- stage2_bilateral |>
     filter(affiliate_is_eu27, analysis_profit_positive > 0) |>
@@ -1806,10 +1808,14 @@ build_sectoral_factor2_bridge <- function(stage2_bilateral,
       .groups = "drop"
     )
 
+  # Keep the physical panel and both capacity diagnostics intact. Select the
+  # liability rate here, before the unchanged contemporaneous/reference bridge.
+  selected <- if (specification == "SECTORAL_SBIE_ONLY") "sectoral_sbie_per_profit_" else
+    "sectoral_sbie_sbti_per_profit_"
   sectoral_rates <- summarise_sectoral_sbie_rates(stage2_sectoral_matrix, stage1_affiliate_year) |>
     rename(
-      sectoral_tax_per_profit_average = sectoral_sbie_sbti_per_profit_average,
-      sectoral_tax_per_profit_distributional = sectoral_sbie_sbti_per_profit_distributional
+      sectoral_tax_per_profit_average = all_of(paste0(selected, "average")),
+      sectoral_tax_per_profit_distributional = all_of(paste0(selected, "distributional"))
     )
   scales <- aggregate_rates |>
     left_join(sectoral_rates, by = keys, relationship = "one-to-one") |>
@@ -2010,14 +2016,14 @@ build_factorial_revenue <- function(stage2_bilateral,
   scenario_design <- tidyr::expand_grid(
     rate_scenario = c("initial", "long_run"),
     factor1_etr = c("average", "distributional"),
-    factor2_substance = c("aggregate_sbie", "sectoral_sbie_sbti"),
+    factor2_substance = c("aggregate_sbie", factor2_sectoral_label()),
     factor4_sbs = c("universal", "sbs"),
     factor5_behaviour = c("mechanical", "behavioural")
   ) |>
     mutate(
       factor3_rates = rate_scenario,
       x1_etr = as.integer(factor1_etr == "distributional"),
-      x2_substance = as.integer(factor2_substance == "sectoral_sbie_sbti"),
+      x2_substance = as.integer(factor2_substance != "aggregate_sbie"),
       x3_rates = as.integer(rate_scenario == "long_run"),
       x4_sbs = as.integer(factor4_sbs == "sbs"),
       x5_behaviour = as.integer(factor5_behaviour == "behavioural"),
@@ -2732,6 +2738,15 @@ build_behavioural_identification_design <- function() {
 
 run_stage3_pipeline <- function() {
   dir.create(DIAGNOSTICS_DIR, showWarnings = FALSE, recursive = TRUE)
+  factor2 <- factor2_specification()
+  factor2_file <- file.path(DIAGNOSTICS_DIR, FACTOR2_SPECIFICATION_FILE)
+  if (factor2 == "SECTORAL_SBIE_ONLY") {
+    write_csv(tibble(specification = factor2, x2_zero = "aggregate_sbie",
+      x2_one = factor2_sectoral_label(factor2),
+      interpretation = "before_imputed_QTI_adjustment_actual_use_unobserved"), factor2_file)
+  } else if (file.exists(factor2_file)) {
+    stop("Use a fresh output root for the historical Factor 2 specification", call. = FALSE)
+  }
   specification <- behavioural_specification()
   specification_file <- file.path(DIAGNOSTICS_DIR, BEHAVIOURAL_SPECIFICATION_FILE)
   if (specification == "BASELINE_NOTCH" && file.exists(specification_file)) {

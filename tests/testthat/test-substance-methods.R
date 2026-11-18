@@ -132,7 +132,8 @@ test_that("the six-factor off-diagonals preserve the standalone estimands", {
   saveRDS(aggregate, file.path(env$PROCESSED_DIR, "stage2_bilateral_panel.rds"))
   saveRDS(hosts, file.path(env$PROCESSED_DIR, "stage1_affiliate_year.rds"))
   saveRDS(sectors, file.path(env$PROCESSED_DIR, "stage2_sectoral_panel.rds"))
-  combined <- env$build_sectoral_factor2_bridge(aggregate, hosts, sectors)
+  combined <- env$build_sectoral_factor2_bridge(aggregate, hosts, sectors,
+    specification = "LEGACY_HYBRID_SBIE_SBTI")
   separate <- env$build_split_substance_scales()
   expect_equal(combined$sectoral_scale_distributional, rep(.75, 2))
   expect_identical(combined$sectoral_scale_source_distributional, c("contemporaneous", "reference_2022"))

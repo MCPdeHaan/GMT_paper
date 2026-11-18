@@ -1,5 +1,7 @@
 # R10b. Table IV support revision
 
+**Historical replay after R11c.** Set `GMT_FACTOR2_SPECIFICATION=LEGACY_HYBRID_SBIE_SBTI` for this report's commands and use the explicit `r10b` verifier selector where applicable. The current ordinary default is the separately versioned sectoral-SBIE-only specification.
+
 The starting revision is `0837080adad724ac0fe181b176080f1e5de15876` on `publication-rework`. The comparator is the R09b empirical specification, with the R06b reference preserved separately. The leading settings are `OBSERVED_TWO_SIDED`, `STANDARD_ROLE_SPECIFIC`, `VERIFIED_PARENT_ONLY` and `NO_NOTCH_STANDARD_RESPONSE`.
 
 ## Source, support and the decision

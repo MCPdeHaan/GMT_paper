@@ -1104,6 +1104,7 @@ run_stage1_measurement_error_simulation <- function(
 # A cache is portable only when all outputs and the regenerated inputs match
 # their frozen hashes. A cache miss runs the full simulation.
 reuse_measurement_error_cache <- function(cache_root) {
+  if (factor2_specification() != "LEGACY_HYBRID_SBIE_SBTI") return(FALSE)
   if (table_iv_specification() != "LEGACY_PUBLISHED") return(FALSE)
   if (statutory_rate_specification() != "LEGACY_TARGETED") return(FALSE)
   if (behavioural_specification() != "BASELINE_NOTCH") return(FALSE)

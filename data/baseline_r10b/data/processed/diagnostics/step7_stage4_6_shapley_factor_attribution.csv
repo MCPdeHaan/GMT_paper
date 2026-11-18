@@ -1,0 +1,6 @@
+effect,factor_label,effect_label,economic_object,uncertainty_class,main_eta_squared,interaction_eta_squared,shapley_eta_squared
+x1_etr,ETR measurement,Endowment: low-taxed profit base,Low-taxed profit volume and average top-up rate,Epistemic measurement uncertainty,0.6835717610628891,0.03224848268836844,0.7158202437512576
+x4_sbs,SbS regime,Legal allocation regime,"QDMTT, IIR and UTPR collection rights",Epistemic legal-regime uncertainty,0.1817339663279998,0.022555922646016746,0.2042898889740166
+x5_behaviour,Behavioural response,Coefficient: behavioural response,Continuous panel-estimated semi-elasticity below the minimum rate,Behavioural specification; aleatoric only under coefficient bootstrap,0.03882777715870904,0.003620449620517255,0.04244822677922629
+x2_substance,Substance specification,Endowment: substance shield,"Payroll, tangible assets and sectoral SBTI capacity",Epistemic model uncertainty,0.02828820287501977,0.007399527955336438,0.035687730830356215
+x3_rates,SBIE rate endpoint,Policy parameter: SBIE transition,Statutory carve-out endpoint,Policy-design scenario uncertainty,0.0013468943944683308,4.0701527067622757e-4,0.0017539096651445582

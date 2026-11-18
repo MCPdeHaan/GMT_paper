@@ -221,7 +221,12 @@ test_that("the replay schedule selects one row per affiliate-year, measurement a
         dplyr::mutate(dplyr::filter(collectors, country %in% e$EU27_ISO3), scope = "EU27")) |>
         e$notch_windows(windows) |>
         dplyr::summarise(assigned_total = sum(assigned_usd), .by = c(scope, window, scenario_id))
-      shadow <- if (uses_revised_table_iv()) {
+      shadow <- if (file.exists(processed_path("diagnostics", e$FACTOR2_SPECIFICATION_FILE))) {
+        # Independently recomputed R11b zero-capacity control. The R10b anchor
+        # remains the full historical test below, with its original tolerance.
+        readr::read_csv(repo_path("docs", "refactoring", "r11c", "core_shadow_receipts.csv"),
+          show_col_types = FALSE)
+      } else if (uses_revised_table_iv()) {
         readr::read_csv(repo_path("docs", "refactoring", "r10b", "core_shadow_receipts.csv"),
           show_col_types = FALSE) |>
           dplyr::filter(arm == "COMPLETE_DIRECT_AND_BSPI")

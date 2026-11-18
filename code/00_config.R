@@ -22,6 +22,25 @@ BASELINE_GENERATED_DIR <- "writing/baseline_generated"
 MAIN_YEARS <- 2017:2023
 CORE_YEARS <- 2016:2023
 GMT_RATE <- 0.15
+FACTOR2_SPECIFICATION_FILE <- "step5_factor2_specification.csv"
+
+# The identifier x2 is stable; its economic contrast belongs to this named
+# specification. Historical inputs must be replayed with the legacy mode.
+factor2_specification <- function(name = Sys.getenv("GMT_FACTOR2_SPECIFICATION",
+                                                    unset = "SECTORAL_SBIE_ONLY")) {
+  choices <- c("SECTORAL_SBIE_ONLY", "LEGACY_HYBRID_SBIE_SBTI")
+  if (length(name) != 1L || is.na(name) || !name %in% choices) {
+    stop("Unknown GMT_FACTOR2_SPECIFICATION: ", paste(name, collapse = ", "),
+      ". Expected ", paste(choices, collapse = " or "), call. = FALSE)
+  }
+  name
+}
+
+factor2_sectoral_label <- function(specification = factor2_specification()) {
+  if (factor2_specification(specification) == "SECTORAL_SBIE_ONLY") {
+    "sectoral_sbie_only"
+  } else "sectoral_sbie_sbti"
+}
 BEHAVIOURAL_SPECIFICATION_FILE <- "step5_stage3_behavioural_specification.csv"
 
 behavioural_specification <- function(name = Sys.getenv("GMT_BEHAVIOURAL_SPECIFICATION",

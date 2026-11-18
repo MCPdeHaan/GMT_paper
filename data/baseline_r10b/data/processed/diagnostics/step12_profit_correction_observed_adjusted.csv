@@ -1,0 +1,4 @@
+parent,parent_jurisdiction_name,is_domestic,cells,years,unadjusted_profit,adjusted_profit,aggregate_correction_rate,median_cell_correction_rate,profit_weighted_cell_correction_rate
+GBR,United Kingdom,TRUE,4,4,532662583982,345220963951,0.35189560083186566,0.38401839618271866,0.35189560083186566
+NLD,Netherlands,TRUE,6,6,242661677942,188226299298,0.22432622697437588,0.14942860465728663,0.2243262269743759
+NLD,Netherlands,FALSE,26,1,75708637123,75708637123,0,0,0

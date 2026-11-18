@@ -1,5 +1,54 @@
 # Acceptance baseline verification
 
+## Current reference: R11c, 18 November 2026
+
+R11c is an authorised scientific revision, not a parity refactor. The leading reference is the 374-file `tests/golden_r11c.csv`, selecting `GMT_FACTOR2_SPECIFICATION=SECTORAL_SBIE_ONLY` before an imputed QTI adjustment. Its manifest SHA-256 is `4aae84a52bb1a3c1ec53555ca172460f88242a220af698aa623087313b9482b9`. The unchanged 373-file R10b reference and its complete output/publication snapshot remain available under `data/baseline_r10b/` and require `LEGACY_HYBRID_SBIE_SBTI`. Earlier iteration records below describe their own historical gates, not current default settings. [Scientific revision, keyed comparisons and complete evidence](r11c_sbti_specification_revision.md).
+
+Use the lockfile-matched R library and system tools in [REPLICATION.md](../../REPLICATION.md#package-and-execution). The completed gate used R 4.6.0, all 68 matching package versions, `LC_ALL=en_US.UTF-8` and `TZ=Europe/Amsterdam`.
+
+```sh
+export LC_ALL=en_US.UTF-8 TZ=Europe/Amsterdam
+export GMT_TABLE_IV_SPECIFICATION=OBSERVED_TWO_SIDED
+export GMT_STATUTORY_RATE_SPECIFICATION=STANDARD_ROLE_SPECIFIC
+export GMT_UTPR_SPECIFICATION=VERIFIED_PARENT_ONLY
+export GMT_BEHAVIOURAL_SPECIFICATION=NO_NOTCH_STANDARD_RESPONSE
+export GMT_FACTOR2_SPECIFICATION=SECTORAL_SBIE_ONLY
+shasum -a 256 -c tests/step17_raw_inputs.sha256
+shasum -a 256 -c tests/r05b_legal_inputs.sha256
+Rscript --vanilla tests/verify_golden_step15.R
+Rscript --vanilla tests/testthat.R
+
+# revised and historical are distinct fresh absolute output paths.
+Rscript --vanilla run_all.R --output-root="$revised"
+GMT_FACTOR2_SPECIFICATION=LEGACY_HYBRID_SBIE_SBTI Rscript --vanilla run_all.R --output-root="$historical"
+Rscript --vanilla tests/verify_golden_step15.R "$revised" r11c
+Rscript --vanilla tests/verify_golden_step15.R "$historical" r10b
+GMT_TEST_OUTPUT_ROOT="$revised" Rscript --vanilla tests/testthat.R
+GMT_FACTOR2_SPECIFICATION=LEGACY_HYBRID_SBIE_SBTI GMT_TEST_OUTPUT_ROOT="$historical" Rscript --vanilla tests/testthat.R
+Rscript --vanilla tests/verify_golden_step15.R "$PWD/data/baseline_r10b" r10b
+git diff --check HEAD
+```
+
+Both fifteen-stage arms completed from empty output roots and recalculated every 500-draw profit-only, standalone ETR and joint study, accounting design, policy game and exhibit. No historical simulation output or checkpoint was installed. The profile excludes the old measurement cache. Seven measurement workers were used; seeds and draw order were unchanged. Recorded wall times include overnight machine suspension and are not performance benchmarks. Peak memory was not measured.
+
+| Acceptance check | R11c result |
+|---|---|
+| Pinned original and legal inputs | 54 original hashes and the independent UTPR legal-register hash pass. |
+| Historical data, replay and retained snapshot | All 373 original R10b hashes and exact path set pass in both locations. Historical manifests unchanged. |
+| Revised data, replay and checkout | All 374 R11c hashes and exact path set pass independently in both locations. 239 old files unchanged; 134 expected changes and one new marker. |
+| Full tracked suite, revised replay | 1,804 expectations; zero failures, warnings or skips, 41.3 s. |
+| Full tracked suite, checkout | 1,804 expectations; zero failures, warnings or skips, 41.2 s. |
+| Full tracked suite, historical replay | 1,804 expectations; zero failures, warnings or skips, 41.2 s. |
+| Independent scientific checks | All 606,528 source keys retained; aggregate active fields and preferred point/draw values unchanged; 448,000 paired aggregate joint projections exactly identical. Twelve 32-scenario detailed/sparse comparisons have maximum US$0.000038147 collector-year difference under the existing US$0.001 contract. |
+| Exhibits | Historical replay versus archive and revised replay versus independent regeneration each reproduce all 81 TeX files exactly and eight figure PDFs after creation/modification-date normalisation. Stage 07's separate overview writer is included. |
+| Publication | Historical 77-page paper and five-page note reproduce every page's text, decoded stream and rendered pixels. Two revised builds likewise match all 78 manuscript and five note pages, with matching selected bibliography. All revised pages visually checked. No unresolved references/citations or overfull boxes; one pre-existing underfull paper box. |
+
+The first revised suite found one obsolete scientific anchor: `test-behavioural-notch.R` compared the revised sectoral branch with the historical R10b hybrid shadow. Its numerical assertions and tolerances are retained. An independently recomputed R11b no-imputed-adjustment control, starting from historical source data and bypassing the new selector, now supplies the revised reference. Historical assertions remain unchanged. Final suites pass in both modes.
+
+Both full replays retain the same pre-existing Stage 08 repaired-VCOV warning. Its investigation remains R12 work. The test suites themselves emit no warning. Tests distinguish the point absolute rounding contract from existing relative large-pool conservation checks; no tolerance was enlarged. Diagnostic-only additions and documentation/layout completion after the replays do not alter production calculations. All new diagnostic calculations were executed separately, and source-safety and publication tests cover their final sources.
+
+The four ignored companion extracts remain present, hash-verified and necessary for a clean analytical restore: the ILO monthly earnings, CbCR Tables I and III, and CIT-revenue/GDP extracts listed in the [replication guide](../../REPLICATION.md#data-availability-and-provenance). No replacement data were acquired. Independent deposit restoration, redistribution/access arrangements and peak-memory benchmarking remain limitations. Actual QTI eligibility, elections and use remain scientifically unobserved, rather than classified as zero.
+
 ## R02. Passing acceptance baseline
 
 R02 started from a clean `publication-rework` at `0052f24` on 15 November 2026. The punctuation test still opened `supervisor_pitch_memo.tex`, which had been renamed in `ca0f41d`. The failed `readLines()` emitted a missing-file warning and then errored. The test now checks the tracked research note and reports a missing source path directly. Both punctuation assertions are retained. The replication guide gives verified temporary-build commands for both documents. Only the build comment in the note source changed. The R01 incident record below retains the original filename.
@@ -54,7 +103,7 @@ The [replication guide](../../REPLICATION.md#data-availability-and-provenance) l
 
 ### C. Scientific specification changes
 
-[R04b](r04b_budget_benchmarking.md) provides an example of an additive scientific reference. The `r04b`, `r04` and `r05b` selectors check historical inventories. The leading selector is `r10b`, with `OBSERVED_TWO_SIDED` Table IV support. Select `r09b` for the historical statutory-role reference and `r06b` for the targeted-first reference. Both historical profiles use `LEGACY_PUBLISHED` Table IV support. [R10b configuration and acceptance evidence](r10b_table_iv_support_revision.md).
+[R04b](r04b_budget_benchmarking.md) provides an example of an additive scientific reference. The leading selector is `r11c`, with `SECTORAL_SBIE_ONLY` and `OBSERVED_TWO_SIDED` Table IV support. Select `r10b` with `LEGACY_HYBRID_SBIE_SBTI` for the historical hybrid factor. Earlier references also require that legacy factor setting: `r09b` is the statutory-role reference and `r06b` the targeted-first reference, both with `LEGACY_PUBLISHED` Table IV support. The `r04b`, `r04` and `r05b` selectors preserve their historical inventories. [R11c configuration and evidence](r11c_sbti_specification_revision.md) · [R10b configuration](r10b_table_iv_support_revision.md).
 
 [R05a](r05a_utpr_shadow_results.md#reproduction) applies the standalone-diagnostic gate. Two fresh shadow executions match each other, the LEGACY arm reconciles to frozen routing and game outputs, and the 361-file production reference remains byte-identical.
 

@@ -329,7 +329,8 @@ step8_reallocate <- function(revised, factorial, stage2, host_stage1, sectors, w
       stage2_topup_tax_distributional = revised_stage1_tax * stage2_filter
     )
 
-  # Recompute the sectoral SBTI multiplier because the overlay is nonlinear
+  # Recompute the selected sectoral liability multiplier after accounting; the
+  # legacy capacity overlay is nonlinear
   # in the host gap. Observed sector proxy weights, phi and kappa stay fixed.
   updated_sectors <- sectors |>
     select(-stage1_distributional_topup_rate) |>

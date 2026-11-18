@@ -1,6 +1,17 @@
 # Manuscript tables and figures.
 
 source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "00_helpers.R"), local = TRUE)
+
+# Publication semantics follow the input tree, including historical trees read
+# under a different shell default. Absence of the R11c marker means legacy.
+factor2_publication_text <- function(legacy, revised) {
+  marker <- file.path(DIAGNOSTICS_DIR, FACTOR2_SPECIFICATION_FILE)
+  if (!file.exists(marker)) return(legacy)
+  metadata <- read_csv(marker, show_col_types = FALSE)
+  stopifnot(nrow(metadata) == 1L,
+    factor2_specification(metadata$specification) == "SECTORAL_SBIE_ONLY")
+  revised
+}
 source(file.path(GMT_PROJECT_ROOT, "code", "publication", "budget_waterfall.R"), local = TRUE)
 
 # LaTeX tables
@@ -91,6 +102,7 @@ normalise_factor_label <- function(x) {
     "distributional" = "Distributional",
     "aggregate_sbie" = "Aggregate SBIE",
     "sectoral_sbie_sbti" = "Sectoral SBIE with SBTI",
+    "sectoral_sbie_only" = "Sectoral SBIE",
     "initial" = "Initial",
     "long_run" = "Long-run",
     "sbs" = "SbS",
@@ -1222,8 +1234,8 @@ write_stage2_sectoral_table <- function() {
   write_latex_table(
     file.path(GENERATED_TABLES_DIR, "stage2_sectoral_sbti.tex"),
     label = "tab:stage2_sectoral_sbti",
-    caption = "Sectoral SBTI effect in selected EU countries",
-    short_caption = "Sectoral SBTI effect in selected EU countries",
+    caption = factor2_publication_text("Sectoral SBTI effect in selected EU countries", "Historical hybrid capacity diagnostic in selected EU countries"),
+    short_caption = factor2_publication_text("Sectoral SBTI effect in selected EU countries", "Historical hybrid capacity diagnostic in selected EU countries"),
     col_spec = "lrrrrr",
     header = c(
       "Country", "SBIE ratio", "SBTI capacity", "Floor before SBTI",
@@ -1296,7 +1308,7 @@ write_stage2_h5_table <- function() {
       "Estimating equation:",
       "$\\Delta\\mathrm{floor}_{cs} = \\alpha + \\gamma_c + \\beta\\,\\mathrm{capint}_{cs} + \\varepsilon_{cs}$,",
       "where $c$ indexes EU27 countries and $s$ broad NACE sectors,",
-      "$\\Delta\\mathrm{floor}_{cs}$ is the SBTI-induced change in the average effective floor",
+      factor2_publication_text("$\\Delta\\mathrm{floor}_{cs}$ is the SBTI-induced change in the average effective floor", "$\\Delta\\mathrm{floor}_{cs}$ is the historical hybrid capacity change in the average effective floor"),
       "in the 2022 EU sectoral reference matrix (the dependent variable),",
       "$\\mathrm{capint}_{cs}$ is sectoral tangible-asset intensity,",
       "$\\alpha$ is the constant and $\\gamma_c$ are country fixed effects.",
@@ -4683,18 +4695,18 @@ write_paper_substance_table <- function() {
       p = paper_p(p_value), n = fmt_int(n_obs), clusters = fmt_int(n_clusters))
   panels <- list(
     "A. EU27 top-up per unit of profit" = paper_panel(c("Year", "Rates", "Aggregate (%)",
-      "Sectoral (%)", "With SBTI (%)", "Comparable profit (%)"), shield),
+      "Sectoral (%)", factor2_publication_text("With SBTI (%)", "Hybrid sensitivity (%)"), "Comparable profit (%)"), shield),
     "B. Paired Table IV substance shields" = paper_panel(c("Scope", "Cell", "Rates", "Pairs",
       "Low (%)", "High (%)", "Wilcoxon p", "FE (pp)", "FE p"), bracket),
     "C. Capital intensity, pooled FY2021–2023" = paper_panel(c("Rates", "Weights", "Coef.", "SE", "p", "N", "Clusters"), h5))
-  write_paper_table("tab_v2_stage2_sbti_and_bracket_substance", "Substance carve-out and safe harbour", panels,
-    "Panel A compares sectoral SBIE at zero SBTI with the SBTI overlay on common support. Panel B excludes Brazil-parent FY2021 and uses affiliate-clustered fixed-effect inference. Panel C uses affiliate-by-year effects and affiliate-clustered standard errors.")
-  write_paper_float_table("tab_v2_main_table3_substance_and_sbti", "Substance carve-out and safe harbour", panels[1:2],
-    "Panel A compares sectoral SBIE at zero SBTI with the SBTI overlay on common support. Panel B excludes Brazil-parent FY2021 and uses affiliate-clustered fixed-effect inference. The capital-intensity regression is in Online Appendix B.",
+  write_paper_table("tab_v2_stage2_sbti_and_bracket_substance", factor2_publication_text("Substance carve-out and safe harbour", "Substance carve-out and conditional capacity"), panels,
+    factor2_publication_text("Panel A compares sectoral SBIE at zero SBTI with the SBTI overlay on common support. Panel B excludes Brazil-parent FY2021 and uses affiliate-clustered fixed-effect inference. Panel C uses affiliate-by-year effects and affiliate-clustered standard errors.", "Panel A separates sectoral SBIE before imputed QTI adjustment from the historical hybrid overlay on common support. Panel B excludes Brazil-parent FY2021 and uses affiliate-clustered fixed-effect inference. Panel C uses affiliate-by-year effects and affiliate-clustered standard errors. The leading factor compares aggregate and sectoral SBIE before imputed QTI adjustment. The hybrid column is a conditional sensitivity, not observed use or the OECD cap formula."))
+  write_paper_float_table("tab_v2_main_table3_substance_and_sbti", factor2_publication_text("Substance carve-out and safe harbour", "Substance carve-out and conditional capacity"), panels[1:2],
+    factor2_publication_text("Panel A compares sectoral SBIE at zero SBTI with the SBTI overlay on common support. Panel B excludes Brazil-parent FY2021 and uses affiliate-clustered fixed-effect inference. The capital-intensity regression is in Online Appendix B.", "Panel A separates sectoral SBIE before imputed QTI adjustment from the historical hybrid overlay on common support. Panel B excludes Brazil-parent FY2021 and uses affiliate-clustered fixed-effect inference. The capital-intensity regression is in Online Appendix B. The leading factor compares aggregate and sectoral SBIE before imputed QTI adjustment. The hybrid column is a conditional sensitivity, not observed use or the OECD cap formula."),
     align = list("A. EU27 top-up per unit of profit" = "llrrrr", "B. Paired Table IV substance shields" = "lllrrrrrr"))
-  write_paper_table("tab_v2_app_table3_h5_regression", "Capital intensity and the SBTI-induced floor reduction",
+  write_paper_table("tab_v2_app_table3_h5_regression", factor2_publication_text("Capital intensity and the SBTI-induced floor reduction", "Capital intensity and the historical hybrid floor reduction"),
     list("Capital intensity, pooled FY2021–2023" = panels[[3]]),
-    "Affiliate-by-year effects and affiliate-clustered standard errors. The dependent variable is the SBTI-induced reduction in the effective floor.")
+    factor2_publication_text("Affiliate-by-year effects and affiliate-clustered standard errors. The dependent variable is the SBTI-induced reduction in the effective floor.", "Affiliate-by-year effects and affiliate-clustered standard errors. The outcome is the mechanical historical hybrid floor reduction; this regression does not validate incentive qualification, elections or utilisation."))
 }
 
 write_paper_econometrics_table <- function() {
@@ -4734,7 +4746,7 @@ write_paper_econometrics_table <- function() {
 }
 
 write_paper_variance_table <- function() {
-  factors <- c(x1_etr = "ETR", x2_substance = "Substance/SBTI", x2a_sectoral = "Sectoral SBIE",
+  factors <- c(x1_etr = "ETR", x2_substance = factor2_publication_text("Substance/SBTI", "Sectoral SBIE"), x2a_sectoral = "Sectoral SBIE",
     x2b_sbti = "SBTI", x3_rates = "Rates", x4_sbs = "SbS", x5_behaviour = "Behaviour",
     x6_accounting = "Accounting")
   stress <- paper_read("step7_decomposition_architecture_stress_test") |>
@@ -4765,7 +4777,7 @@ write_paper_variance_table <- function() {
       "90% width (US$ bn)", "Proposal ratio"), filter(mc, window == "2017–2023")),
     "B2. Law of total variance, 2019–2023" = paper_panel(c("Scope", "Window", "Scenario (%)", "Parameter (%)",
       "90% width (US$ bn)", "Proposal ratio"), filter(mc, window == "2019–2023"))),
-    "Panel A uses pooled EU27 country-year variation. Split SBTI and accounting are separate 64-scenario designs. The 32-scenario accounting design fixes initial carve-outs. Panel B uses 500 joint draws and 32 scenarios. The proposal ratio divides point scenario spread by the preferred scenario's 90% parameter interval width. The Monte Carlo has two windows.")
+    factor2_publication_text("Panel A uses pooled EU27 country-year variation. Split SBTI and accounting are separate 64-scenario designs. The 32-scenario accounting design fixes initial carve-outs. Panel B uses 500 joint draws and 32 scenarios. The proposal ratio divides point scenario spread by the preferred scenario's 90% parameter interval width. The Monte Carlo has two windows.", "Panel A uses pooled EU27 country-year variation. Split SBTI and accounting are separate 64-scenario designs. The 32-scenario accounting design fixes initial carve-outs. Panel B uses 500 joint draws and 32 scenarios. The proposal ratio divides point scenario spread by the preferred scenario's 90% parameter interval width. The Monte Carlo has two windows. In this reference the SBTI axis is redundant: on and off cells agree exactly, so 64 diagnostic rows do not represent 64 varying policies. Historical six-factor capacity results remain separately reproducible."))
 }
 
 write_paper_ledger_table <- function() {
@@ -4847,8 +4859,8 @@ write_paper_nash_table <- function() {
   relief_label <- if (reports_unsupported) "Source relief" else "MNE tax cut"
   deviation_columns <- c("ISO", "Regime", "QDMTT lost", "Foreign soak-up", relief_label,
     "Efficiency (%)", "Retained", "Critical weight")
-  strategy_panel <- paper_panel(c("ISO", "Capacity", "Repeal relief", "SBTI relief", "Leakage",
-    "SBTI efficiency (%)"), strategy)
+  strategy_panel <- paper_panel(c("ISO", "Capacity", "Repeal relief", factor2_publication_text("SBTI relief", "Overlay relief"), "Leakage",
+    factor2_publication_text("SBTI efficiency (%)", "Overlay efficiency (%)")), strategy)
   compact_columns <- c("ISO", "QDMTT lost", "Soak-up", relief_label, "Efficiency (%)", "Retained", "Weight")
   if (reports_unsupported) {
     deviation_columns <- c(deviation_columns, "Unassigned")
@@ -4856,10 +4868,10 @@ write_paper_nash_table <- function() {
   }
   sbs_repeal <- filter(deviations, regime == "SbS")
   stopifnot(nrow(sbs_repeal) == 27L)
-  write_paper_float_table("tab_v2_main_table8_qdmtt_repeal_game", "Unilateral QDMTT repeal and capped SBTI", list(
+  write_paper_float_table("tab_v2_main_table8_qdmtt_repeal_game", factor2_publication_text("Unilateral QDMTT repeal and capped SBTI", "QDMTT repeal and a conditional historical overlay"), list(
     "A. Repeal under Side-by-Side" = paper_panel(compact_columns, select(sbs_repeal, -regime)),
     "B. Side-by-Side repeal versus maximum SBTI overlay" = strategy_panel),
-    paste(c("FY2023, L3, full EU27 adoption benchmark, US$ bn unless shown otherwise. Repeal holds the deviator's IIR and UTPR status fixed. Soak-up is the forgone QDMTT collected by foreign IIR and UTPR. Weight is the critical welfare weight, net domestic tax foregone per unit of retained profit. Under the Universal regime repeal yields no MNE tax cut in any state; those rows are in Online Appendix E. The SBTI overlay represents a capacity proxy. Its relief efficiency is distinct from the fiscal cost of new qualifying incentives.",
+    paste(c(factor2_publication_text("FY2023, L3, full EU27 adoption benchmark, US$ bn unless shown otherwise. Repeal holds the deviator's IIR and UTPR status fixed. Soak-up is the forgone QDMTT collected by foreign IIR and UTPR. Weight is the critical welfare weight, net domestic tax foregone per unit of retained profit. Under the Universal regime repeal yields no MNE tax cut in any state; those rows are in Online Appendix E. The SBTI overlay represents a capacity proxy. Its relief efficiency is distinct from the fiscal cost of new qualifying incentives.", "FY2023, L3, full EU27 adoption benchmark, US$ bn unless shown otherwise. Repeal holds the deviator's IIR and UTPR status fixed. Soak-up is the forgone QDMTT collected by foreign IIR and UTPR. Weight is the critical welfare weight, net domestic tax foregone per unit of retained profit. Under the Universal regime repeal yields no MNE tax cut in any state; those rows are in Online Appendix E. The historical direct hybrid overlay is conditional and is excluded from leading Factor 2. Its mechanical relief efficiency does not measure legal entitlement or policy welfare; existing-incentive covered-tax adjustments and new-credit ordinary CIT expenditure have separate accounts."),
       if (reports_unsupported) residual_note), collapse = " "),
     size = "scriptsize")
   universal <- filter(deviations, regime == "Universal")
@@ -4870,10 +4882,10 @@ write_paper_nash_table <- function() {
     "B. Full opt-out under Universal and Side-by-Side" = paper_panel(c("ISO", "Regime", compact_columns[-1]), opt_out)),
     paste(c("FY2023, L3, full EU27 adoption benchmark, US$ bn unless shown otherwise. Panel A holds the deviator's IIR and UTPR status fixed. Full opt-out also switches off the deviator's own IIR and UTPR. Soak-up is the forgone revenue collected by foreign IIR and UTPR. Weight is the critical welfare weight, net domestic tax foregone per unit of retained profit; it is infinite when the deviation yields no MNE tax cut. The 2017–2023 window and the L4 strict ladder are in the diagnostics CSV.",
       if (reports_unsupported) residual_note), collapse = " "))
-  write_paper_table("tab_v2_qdmtt_nash_deviation_game", "Unilateral QDMTT repeal and capped SBTI", list(
+  write_paper_table("tab_v2_qdmtt_nash_deviation_game", factor2_publication_text("Unilateral QDMTT repeal and capped SBTI", "QDMTT repeal and a conditional historical overlay"), list(
     "A. Repeal under Universal and Side-by-Side" = paper_panel(deviation_columns, deviations),
     "B. Side-by-Side repeal versus maximum SBTI overlay" = strategy_panel),
-    paste(c("FY2023, L3, full EU27 adoption benchmark, US$ bn unless shown otherwise. Repeal holds the deviator's IIR and UTPR status fixed. The critical welfare weight uses net domestic tax foregone and retained profit. The SBTI overlay represents a capacity proxy. Its relief efficiency is distinct from the fiscal cost of new qualifying incentives.",
+    paste(c(factor2_publication_text("FY2023, L3, full EU27 adoption benchmark, US$ bn unless shown otherwise. Repeal holds the deviator's IIR and UTPR status fixed. The critical welfare weight uses net domestic tax foregone and retained profit. The SBTI overlay represents a capacity proxy. Its relief efficiency is distinct from the fiscal cost of new qualifying incentives.", "FY2023, L3, full EU27 adoption benchmark, US$ bn unless shown otherwise. Repeal holds the deviator's IIR and UTPR status fixed. The critical welfare weight uses net domestic tax foregone and retained profit. The historical direct hybrid overlay is conditional and is excluded from leading Factor 2. Its mechanical relief efficiency does not measure legal entitlement or policy welfare; existing-incentive covered-tax adjustments and new-credit ordinary CIT expenditure have separate accounts."),
       if (reports_unsupported) residual_note), collapse = " "))
 }
 
@@ -4924,6 +4936,7 @@ write_paper_cbcr_table <- function() {
 }
 
 make_paper_nash_figure <- function() {
+  overlay_label <- factor2_publication_text("Capped SBTI overlay", "Historical direct overlay")
   data <- paper_read("step13_qdmtt_vs_sbti_strategy_comparison") |>
     filter(level == "L3_pooled", window == "FY2023") |>
     arrange(repeal_tax_cut_efficiency, country) |>
@@ -4933,14 +4946,14 @@ make_paper_nash_figure <- function() {
   long <- data |>
     pivot_longer(-country, names_to = "strategy", values_to = "efficiency") |>
     mutate(strategy = recode(strategy, repeal_tax_cut_efficiency = "QDMTT repeal under SbS",
-      overlay_efficiency = "Capped SBTI overlay"))
+      overlay_efficiency = overlay_label))
   ggplot2::ggplot(long, ggplot2::aes(efficiency, country)) +
     ggplot2::geom_segment(data = data, ggplot2::aes(x = repeal_tax_cut_efficiency, xend = overlay_efficiency,
       y = country, yend = country), inherit.aes = FALSE, colour = "#C9D2D9", linewidth = .5) +
     ggplot2::geom_point(ggplot2::aes(colour = strategy, shape = strategy), size = 2.2) +
-    ggplot2::scale_colour_manual(values = c("QDMTT repeal under SbS" = "#174C70", "Capped SBTI overlay" = "#A54633"),
+    ggplot2::scale_colour_manual(values = set_names(c("#174C70", "#A54633"), c("QDMTT repeal under SbS", overlay_label)),
       name = NULL) +
-    ggplot2::scale_shape_manual(values = c("QDMTT repeal under SbS" = 16, "Capped SBTI overlay" = 17), name = NULL) +
+    ggplot2::scale_shape_manual(values = set_names(c(16, 17), c("QDMTT repeal under SbS", overlay_label)), name = NULL) +
     ggplot2::scale_x_continuous(labels = scales::label_percent(), breaks = seq(0, 1, .25),
       expand = ggplot2::expansion(add = .025)) +
     ggplot2::labs(x = "Relief efficiency", y = NULL) +
@@ -4997,7 +5010,7 @@ write_paper_variance_profiles <- function(stress, accounting, mc) {
       "Main (%)", "Shapley (%)", "Effect (US$ bn)"), accounting[main_accounting, ]),
     "B. Law of total variance, EU27" = paper_panel(c("Scope", "Window", "Scenario (%)", "Parameter (%)",
       "90% width (US$ bn)", "Proposal ratio"), filter(mc, scope == "EU27"))),
-    "Panel A uses pooled EU27 country-year variation. The accounting design adds the CbCR-to-GloBE bridge as a sixth factor. Panel B uses 500 joint draws and 32 scenarios. The proposal ratio divides point scenario spread by the preferred scenario's 90% parameter interval width. Split-SBTI, 32-scenario accounting, 2021–2023 accounting and member-state rows are in Online Appendix D.",
+    factor2_publication_text("Panel A uses pooled EU27 country-year variation. The accounting design adds the CbCR-to-GloBE bridge as a sixth factor. Panel B uses 500 joint draws and 32 scenarios. The proposal ratio divides point scenario spread by the preferred scenario's 90% parameter interval width. Split-SBTI, 32-scenario accounting, 2021–2023 accounting and member-state rows are in Online Appendix D.", "Panel A uses pooled EU27 country-year variation. The accounting design adds the CbCR-to-GloBE bridge as a sixth factor. Panel B uses 500 joint draws and 32 scenarios. The proposal ratio divides point scenario spread by the preferred scenario's 90% parameter interval width. Split-SBTI, 32-scenario accounting, 2021–2023 accounting and member-state rows are in Online Appendix D. In this reference the SBTI axis is redundant: on and off cells agree exactly, so 64 diagnostic rows do not represent 64 varying policies. Historical six-factor capacity results remain separately reproducible."),
     align = list("A1. Core 32-scenario factorial" = "lllrr", "A2. Accounting 64-scenario factorial" = "llllrrr",
       "B. Law of total variance, EU27" = "llrrrr"))
   write_paper_table("tab_v2_app_table5_country_uncertainty", "Further factorial designs and member-state uncertainty", list(
@@ -5011,14 +5024,14 @@ write_paper_variance_profiles <- function(stress, accounting, mc) {
     "D. Law of total variance by member state, 2019–2023" = paper_panel(c("Scope", "Window",
       "Scenario (%)", "Parameter (%)", "90% width (US$ bn)", "Proposal ratio"),
       filter(mc, window == "2019–2023", scope != "EU27"))),
-    "Panels A and B use pooled EU27 country-year variation. The 32-scenario accounting design fixes initial carve-outs. Panels C and D use 500 joint draws and 32 scenarios; the five zero-collector states have no revenue variance.")
+    factor2_publication_text("Panels A and B use pooled EU27 country-year variation. The 32-scenario accounting design fixes initial carve-outs. Panels C and D use 500 joint draws and 32 scenarios; the five zero-collector states have no revenue variance.", "Panels A and B use pooled EU27 country-year variation. The 32-scenario accounting design fixes initial carve-outs. Panels C and D use 500 joint draws and 32 scenarios; the four zero-collector states have no revenue variance. In this reference the SBTI axis is redundant: on and off cells agree exactly, so 64 diagnostic rows do not represent 64 varying policies. Historical six-factor capacity results remain separately reproducible."))
 }
 
 forcats_rev <- function(x) factor(x, levels = rev(levels(x)))
 
 make_paper_shapley_figure <- function() {
   factors <- c(x1_etr = "ETR measurement", x6_accounting = "Accounting bridge", x4_sbs = "Side-by-Side",
-    x5_behaviour = "Behaviour", x2_substance = "Substance and SBTI", x3_rates = "Carve-out rates")
+    x5_behaviour = "Behaviour", x2_substance = factor2_publication_text("Substance and SBTI", "Sectoral SBIE"), x3_rates = "Carve-out rates")
   windows <- c("2017–2023", "2019–2023")
   designs <- c("Core design, 32 scenarios", "Accounting bridge, L3", "Accounting bridge, L4 strict")
   core <- paper_read("step7_decomposition_architecture_stress_test") |>

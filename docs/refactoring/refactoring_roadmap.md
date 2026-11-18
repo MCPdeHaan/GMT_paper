@@ -92,7 +92,7 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 - **R11a parity refactor.** Extract the aggregate shield, component-specific sector allocation and SBTI dollar primitives, leaving the H5 regressions and writers in Stage 04. Preserve the transitions, missing and capped inputs, both factorial designs and the repeal game. [Fixture, keyed-comparison and replay record](r11a_substance_methods.md).
 - **R11b diagnostic complete.** [The scientific audit](r11b_sbti_scientific_audit.md) separates the legal default, carrying-value election and sectoral hybrid, traces QTI use through covered taxes and replays the split-factor and repeal comparisons. Its evidence leaves actual group-jurisdiction eligibility, depreciation, qualifying incentives and elections unidentified. The diagnostic recommends moving the imputed overlay out of the leading Factor 2, subject to the separate R11c decision.
-- **R11c decision stage.** If a separate specification decision warrants a change, quantify source and collector effects, then update tests, the paper and the scientific freeze as part of that revision.
+- **R11c scientific revision complete.** Adopted sectoral SBIE before imputed QTI adjustment through one named Factor 2 switch. Preserved the exact R10b hybrid mode, conditional six-factor and game evidence, and distinguished existing-incentive tax additions from new-credit ordinary CIT expenditure. The [revision and acceptance record](r11c_sbti_specification_revision.md) covers two full replays, source/collector comparison, accounting, paired uncertainty, publication and the separate 374-file R11c freeze. The remaining R12–R18 programme is unchanged.
 
 ### R12. Separate estimation, behavioural response and destinations
 
@@ -139,4 +139,4 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ## Recommended next task
 
-For R11c, decide whether leading Factor 2 should contain sectoral SBIE alone, retaining the historical hybrid overlay and legal-style use scenarios as explicitly conditional sensitivities. A no-imputed-QTI baseline should leave actual use unresolved. Implement an approved choice with a named scientific specification, full downstream sensitivity and manuscript revisions, complete replays and a separate freeze. [R11b decision and implementation boundary](r11b_sbti_scientific_audit.md#r11c-scope).
+Begin R12 by characterising the estimation and response boundaries and reproducing the existing Stage 08 covariance warning before extracting functions. Keep econometric inference, applied response and destination allocation distinct. Retain both Factor 2 modes and the exact R11c reference while testing that boundary. Any decision to revise an estimator or covariance treatment requires a separately quantified scientific change; the extraction must not silently repair it. [R12 scope](#r12-separate-estimation-behavioural-response-and-destinations).

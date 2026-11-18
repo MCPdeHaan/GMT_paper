@@ -19,7 +19,9 @@ FACTOR_LABELS <- c(
 delayedAssign("FACTOR_LEVELS", tribble(
   ~effect, ~low_level, ~high_level,
   "x1_etr", "average", "distributional",
-  "x2_substance", "aggregate SBIE", "sectoral SBIE with SBTI",
+  "x2_substance", "aggregate SBIE", if (factor2_specification() == "SECTORAL_SBIE_ONLY") {
+    "sectoral SBIE before imputed QTI adjustment"
+  } else "sectoral SBIE with SBTI",
   "x3_rates", "initial rates", "long-run rates",
   "x4_sbs", "universal", "SbS",
   "x5_behaviour", "mechanical", "behavioural"
@@ -31,7 +33,9 @@ delayedAssign("FACTOR_TAXONOMY", tribble(
   "Low-taxed profit volume and average top-up rate",
   "Epistemic measurement uncertainty",
   "x2_substance", "Endowment: substance shield",
-  "Payroll, tangible assets and sectoral SBTI capacity",
+  if (factor2_specification() == "SECTORAL_SBIE_ONLY") {
+    "Aggregate versus sectoral payroll and tangible-asset SBIE"
+  } else "Payroll, tangible assets and sectoral SBTI capacity",
   "Epistemic model uncertainty",
   "x3_rates", "Policy parameter: SBIE transition",
   "Statutory carve-out endpoint",

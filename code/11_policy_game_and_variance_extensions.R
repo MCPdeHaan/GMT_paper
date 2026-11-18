@@ -595,7 +595,9 @@ step15_inputs <- function() {
     inner_join(select(host, affiliate, year, host_id), by = c("affiliate", "year"),
                relationship = "many-to-one") |>
     filter(is.finite(sectoral_profit_share_used), sectoral_profit_share_used > 0,
-           is.finite(sectoral_sbie), is.finite(sectoral_payroll), is.finite(sectoral_assets))
+           is.finite(sectoral_sbie),
+           factor2_specification() == "SECTORAL_SBIE_ONLY" |
+             (is.finite(sectoral_payroll) & is.finite(sectoral_assets)))
   sectors <- lapply(STAGE2_ENDPOINTS$rate_scenario, function(rate) {
     s <- filter(sector, rate_scenario == rate) |> arrange(host_id, nace_r2)
     ids <- unique(s$host_id)
@@ -611,7 +613,8 @@ step15_inputs <- function() {
     lapply(STEP15_SCOPES, function(c) which(collector_year$year %in% years &
                                             (collector_year$country == c | c == "EU27")))
   })
-  list(cells = cells, host = host, host_sum = host_sum, routes = routes, predictions = predictions,
+  list(factor2_specification = factor2_specification(),
+       cells = cells, host = host, host_sum = host_sum, routes = routes, predictions = predictions,
        draw_cells = draw_cells, beta = applied_preferred_beta(coef$estimate), beta_se = coef$std_error,
        residuals = residuals, residual_hosts = residual_hosts, average_support = average_support,
        sector = sectors, collector_year = collector_year, windows = windows,
@@ -644,14 +647,18 @@ step15_measure <- function(input, rho = NULL, error = NULL) {
 
 # Recompute the two sectoral scales against the drawn host profit and gap.
 # The NACE allocation weights and sector payroll/assets are the production inputs.
-step15_sector_scale <- function(input, endpoint, aggregate_tax, host_profit, share, gap) {
+step15_sector_scale <- function(input, endpoint, aggregate_tax, host_profit, share, gap,
+                                specification = factor2_specification()) {
+  specification <- factor2_specification(if (is.null(input$factor2_specification)) specification else
+    input$factor2_specification)
   s <- input$sector[[endpoint]]
   sector_profit <- host_profit[s$host] * s$profit_share
   available <- sector_profit > 0
   net_gap <- numeric(length(s$host))
-  net_gap[available] <- pmax(0,
-    gap[s$host[available]] * (1 - clamp_unit_interval(s$sbie[available] / sector_profit[available])) -
-      s$incentive[available] / sector_profit[available])
+  post_sbie <- gap[s$host[available]] *
+    (1 - clamp_unit_interval(s$sbie[available] / sector_profit[available]))
+  net_gap[available] <- if (specification == "SECTORAL_SBIE_ONLY") post_sbie else
+    pmax(0, post_sbie - s$incentive[available] / sector_profit[available])
   weighted_gap <- rowsum(net_gap * s$profit_share, s$host, reorder = FALSE)[, 1L] /
     s$profit_share_sum
   scale <- rep(NA_real_, nrow(input$host))

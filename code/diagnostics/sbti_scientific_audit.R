@@ -529,8 +529,10 @@ sbti_factor_scales <- function(analysis, sectors, hosts, aggregate, sector_only,
 sbti_factor_shadow <- function(analysis, bilateral, sectors, hosts, weights) {
   panel <- analysis$read_stage5_input("stage3_factorial_pair_year")
   sector_only <- analysis$build_split_substance_scales()
-  aggregate <- analysis$build_sectoral_factor2_bridge(bilateral, hosts, sectors)
-  split <- analysis$build_split_substance_variant(panel, sector_only)
+  aggregate <- analysis$build_sectoral_factor2_bridge(bilateral, hosts, sectors,
+    specification = "LEGACY_HYBRID_SBIE_SBTI")
+  split <- analysis$build_split_substance_variant(panel, sector_only,
+    specification = "LEGACY_HYBRID_SBIE_SBTI")
   factors <- c("x1_etr", "x2a_sectoral", "x2b_sbti", "x3_rates", "x4_sbs", "x5_behaviour")
   design <- distinct(split, scenario_id, across(all_of(factors)))
   legacy_core <- analysis$read_stage5_input("stage4_5_revenue_country_year")
@@ -602,6 +604,10 @@ sbti_audit_output_path <- function(input_root, output_dir, project_root = GMT_PR
 }
 
 run_sbti_scientific_audit <- function(input_root, output_dir) {
+  if (file.exists(file.path(input_root, "data", "processed", "diagnostics", FACTOR2_SPECIFICATION_FILE))) {
+    stop("The R11b factor audit requires a historical hybrid input tree; replay LEGACY_HYBRID_SBIE_SBTI",
+      call. = FALSE)
+  }
   output_dir <- sbti_audit_output_path(input_root, output_dir)
   analysis <- new.env(parent = environment(run_sbti_scientific_audit))
   for (file in c("diagnostics/substance_support.R", "09_econometric_and_reallocation_extensions.R",
@@ -609,7 +615,8 @@ run_sbti_scientific_audit <- function(input_root, output_dir) {
   analysis$PROCESSED_DIR <- file.path(normalizePath(input_root), "data", "processed")
   analysis$DIAGNOSTICS_DIR <- file.path(analysis$PROCESSED_DIR, "diagnostics")
   stopifnot(dir.create(output_dir))
-  baseline <- analysis$run_substance_support(input_root, file.path(output_dir, "r11a"))
+  baseline <- analysis$run_substance_support(input_root, file.path(output_dir, "r11a"),
+    specification = "LEGACY_HYBRID_SBIE_SBTI")
   caps <- baseline$sector_capacity
   missing <- filter(baseline$bilateral_exposure, scope == "global", rate_scenario == "initial")
   stopifnot(nrow(caps) == 81L, sum(caps$matched_activity_sectors) == 2894,

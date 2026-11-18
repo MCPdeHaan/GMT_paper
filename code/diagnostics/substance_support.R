@@ -2,7 +2,8 @@
 # and a separate output directory. No analytical stage calls this script.
 source(file.path(Sys.getenv("GMT_PROJECT_ROOT", unset = "."), "code", "00_helpers.R"), local = TRUE)
 
-run_substance_support <- function(input_root, output_dir) {
+run_substance_support <- function(input_root, output_dir,
+                                  specification = factor2_specification()) {
   source(file.path(GMT_PROJECT_ROOT, "code", "09_econometric_and_reallocation_extensions.R"), local = TRUE)
   source(file.path(GMT_PROJECT_ROOT, "code", "11_policy_game_and_variance_extensions.R"), local = TRUE)
   PROCESSED_DIR <- file.path(input_root, "data", "processed")
@@ -87,7 +88,7 @@ run_substance_support <- function(input_root, output_dir) {
   ) |>
     summarise(sectors = n(), amount = sum(amount, na.rm = TRUE), .by = c(component, source))
 
-  bridge <- build_sectoral_factor2_bridge(bilateral, hosts, panel)
+  bridge <- build_sectoral_factor2_bridge(bilateral, hosts, panel, specification = specification)
   keys <- c("rate_scenario", "affiliate", "year")
   factor2_support <- bilateral |>
     filter(affiliate_is_eu27) |>

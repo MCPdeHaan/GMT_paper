@@ -1,6 +1,7 @@
 %% Research note for dr. Peter Gerbrands, November 2026
 %% See REPLICATION.md for the LaTeX build instructions.
-%% All figures are taken from the v2.0-empirical-freeze outputs in
+%% Leading results use the R11c reference; conditional capacity uses the R11b audit.
+%% Publication inputs are in
 %% writing/generated/paper_v2_tables/, writing/generated/results_tables/
 %% and data/processed/diagnostics/master_paper_v2_scorecard.csv.
 
@@ -122,11 +123,13 @@ I regularise the mean and percentile knots using the host's observed standard co
 
 Published profit is an accounting figure, while the minimum tax applies to a legally defined base, and the two can differ substantially. Dividends between group companies are largely excluded from the minimum tax base, current losses are netted within a country, losses from earlier years are carried forward, and the taxes that count towards the minimum are defined separately \citep{hanlon2023}. I now model each adjustment and treat the resulting bridge as an additional modelling choice in the scenario design.
 
-The bridge is about as important as measuring low-taxed profit. Together they explain 82.6–89.7\% of the variance across scenarios. The Shapley shares are 42.4–49.3\% for ETR measurement and 37.5–42.1\% for accounting over 2017–2023 and 2019–2023. The bridge also narrows the gap with official budget forecasts. Dutch FY2023 collector revenue falls from \EUR7.09 billion to \EUR0.45 billion after the adjustments, against a structural forecast of \EUR0.18 billion. On the average 2019–2023 base the Dutch estimate is still \EUR3.43 billion, reflecting the decline in low-taxed conduit profit before implementation. The adjustments bring Germany, France and Ireland within \EUR0.5 billion of their cash benchmarks. Different cash, channel and policy definitions make these comparisons checks of plausibility.
+The bridge is about as important as measuring low-taxed profit. Together they explain 85.3–91.5\% of the variance across scenarios. The Shapley shares are 43.9–50.8\% for ETR measurement and 38.0–43.0\% for accounting over 2017–2023 and 2019–2023. The bridge also narrows the gap with official budget forecasts. Dutch FY2023 collector revenue falls from \EUR7.09 billion to \EUR0.45 billion after the adjustments, against a structural forecast of \EUR0.18 billion. On the average 2019–2023 base the Dutch estimate is still \EUR3.43 billion, reflecting the decline in low-taxed conduit profit before implementation. The adjustments bring Germany, France and Ireland within \EUR0.5 billion of their cash benchmarks. Different cash, channel and policy definitions make these comparisons checks of plausibility.
 
 \subsection{Separating modelling disagreement from statistical estimation noise}
 
-I draw the behavioural coefficient, the profit-correction rates and the errors of the fitted ETR distributions jointly 500 times. Each draw runs through all 32 core scenarios. Parameter noise explains 1.18\% of EU27 revenue variance over 2017–2023 and 0.44\% over 2019–2023. The spread across scenarios is 9.20 and 16.52 times the width of the preferred 90\% parameter interval. The largest parameter share among individual collectors is 45.5\% in Austria over the longer window.
+I draw the behavioural coefficient, the profit-correction rates and the errors of the fitted ETR distributions jointly 500 times. Each draw runs through all 32 core scenarios. Parameter noise explains 1.23\% of EU27 revenue variance over 2017–2023 and 0.43\% over 2019–2023. The spread across scenarios is 8.65 and 15.75 times the width of the preferred 90\% parameter interval. The largest parameter share among individual collectors is 44.1\% in Austria over the longer window.
+
+I now keep aggregate and sectoral substance-based income exclusions (SBIE) in the leading design without deducting an assumed substance-based tax incentive (SBTI) benefit. Public CbCR does not identify qualifying incentive use or elections. This is a reference before imputed QTI adjustment, not evidence of zero actual incentives. The historical hybrid overlay remains reproducible as a sensitivity, distinct from the OECD default depreciation-based cap and its five-year carrying-value election \citep{oecd2026}. The revised core range is \usd196.28–673.41 billion, and the substance factor's Shapley contribution falls from 3.569\% to 0.143\%. The preferred aggregate-SBIE estimate remains unchanged. Conditional cap and utilisation examples do not supply preferred take-up estimates.
 
 \subsection{Addressing ratio division bias and accounting for domestic corporate tax recovery}
 
@@ -138,15 +141,13 @@ Behaviour also has a fiscal counterpart that the thesis left out. When firms mov
 
 I replaced the clustering with a ledger of the liability each member state generates and the receipts its treasury is assigned. For the UTPR I use national rules applicable to a fiscal year starting on 1 January 2026 and allocate through observed parent-year activity. Where the aggregate data support no route, the liability stays unassigned. Cumulative EU27 receipts under the continuous response are \usd546.3 billion under universal allocation and \usd367.7 billion under SbS. Globally the model leaves \usd1.15 billion unassigned in either setting. Four member states receive nothing under the preferred scenario, although profit booked there generates \usd4.38 billion of liability. Cyprus now receives UTPR under its operative national law.
 
-I simulate 216 domestic top-up repeal cases and 216 full opt-outs. Universal repeal leaves modelled source liability unchanged. Some full opt-outs reduce assigned collection because they remove the only observed route. Under SbS the reduction in Irish US-parented groups' liability equals 85.9\% of its net forgone receipts over 2017–2023 (87.0\% in FY2023). No government gains collector and ordinary source tax on net by repealing unilaterally. The capped incentive overlay delivers more relief than repeal in 18 of the 27 FY2023 L3 cases. This is a comparison of potential relief before the cost of funding new qualifying incentives.
-
-\newpage
+I simulate 216 domestic top-up repeal cases and 216 full opt-outs. Universal repeal leaves modelled source liability unchanged. Some full opt-outs reduce assigned collection because they remove the only observed route. Under SbS the reduction in Irish US-parented groups' liability equals 85.9\% of its net forgone receipts over 2017–2023 (87.0\% in FY2023). No government gains collector and ordinary source tax on net by repealing unilaterally. The historical direct hybrid overlay delivers more top-up relief than repeal in 18 of the 27 FY2023 L3 cases, but this conditional comparison cannot rank incentive programmes. Existing qualifying incentives already reflected in covered taxes can permit an add-back, while new ordinary credits also cost CIT. In the supported R3 2021–2023 L3 illustration, full existing use of the sector hybrid gives \usd14.32 billion of top-up relief, against \usd16.47 billion under the direct overlay. New credits under that hybrid cost \usd19.14 billion and leave baseline top-up unchanged after an equal add-back. Qualification, domestic implementation, elections and use remain conditions.
 
 \section[Comparison of thesis and paper]{Comparison of thesis and updated paper estimates}
 
-The comparison above places the June thesis next to the updated paper on the dimensions that a referee will look at first. Table~\ref{tab:comparison} shows that the main conclusion holds and that the accounting bridge, the uncertainty analysis and the fiscal ledger are new.
+Table~\ref{tab:comparison} places the June thesis next to the updated paper on the dimensions that a referee will look at first. The main conclusion holds, while the accounting bridge, the uncertainty analysis and the fiscal ledger are new.
 
-\begin{table}[!t]
+\begin{table}[!htbp]
 \centering
 \footnotesize
 \caption{Thesis (June 2026) and updated paper (November 2026)}
@@ -158,11 +159,11 @@ The comparison above places the June thesis next to the updated paper on the dim
 \midrule
 Panel & 15,758 pair-years; \usd34.84tn & 18,954 pair-years; \usd41.91tn \\
 Tax-rate measurement & Two levels; uncapped fit & Four levels; capped fit; error 3.62 to 1.75\pp \\
-EU27 revenue range & \usd127.7–517.4bn & \usd159.75–667.06bn \\
-Tax-rate variance share & 69\% & 68.4\% main effect, 71.6\% Shapley \\
-Accounting bridge & Not modelled & 37.5–42.1\%, jointly 82.6–89.7\% \\
+EU27 revenue range & \usd127.7–517.4bn & \usd196.28–673.41bn \\
+Tax-rate variance share & 69\% & 72.2\% main effect, 74.7\% Shapley \\
+Accounting bridge & Not modelled & 38.0–43.0\%, jointly 85.3–91.5\% \\
 Budget comparison & Not performed & Eight states; real-economy gaps $<$\EUR0.5bn \\
-Parameter uncertainty & Single-source exercises & 500 joint draws; 1.18\% and 0.44\% \\
+Parameter uncertainty & Single-source exercises & 500 joint draws; 1.23\% and 0.43\% \\
 Behavioural estimate & Linear 1.50 & Linear 1.47; matched alternatives 0.33–3.19 at 5\% \\
 Ordinary tax recovery & Not modelled & $-$\usd61.7bn top-up; $+$\usd96.4bn gross CIT \\
 Country heterogeneity & Four $k$-means clusters & Fiscal ledger; four zero collectors generate \usd4.38bn \\
@@ -195,6 +196,7 @@ Finally, I would really value your advice on an external PhD trajectory. I am st
 \bibitem[Hanlon(2023)]{hanlon2023} Hanlon, M. (2023). The use of accounting information in the tax base in the Pillar 2 global minimum tax. \emph{Fiscal Studies}, 44(1), 37–52.
 \bibitem[Hindriks and Nishimura(2026)]{hindriks2026} Hindriks, J., \& Nishimura, Y. (2026). The enforcement dilemma of the global minimum tax. \emph{International Tax and Public Finance}.
 \bibitem[Hugger et~al.(2026)]{hugger2026} Hugger, F., Gonzalez Cabral, A. C., \& O'Reilly, P. (2026). Effective tax rates of MNEs and the global distribution of low-taxed profit. \emph{International Tax and Public Finance}.
+\bibitem[OECD(2026)]{oecd2026} OECD (2026). \emph{Tax Challenges Arising from the Digitalisation of the Economy: Global Anti-Base Erosion Model Rules (Pillar Two), Side-by-Side Package}. OECD, Paris.
 \bibitem[Schjelderup and Stähler(2024)]{schjelderup2024} Schjelderup, G., \& Stähler, F. (2024). The economics of the global minimum tax. \emph{International Tax and Public Finance}.
 \bibitem[Tuinsma et~al.(2025)]{tuinsma2025} Tuinsma, T., De Witte, K., Janský, P., Palanský, M., \& Titl, V. (2025). Effects of corporate transparency on tax avoidance: Evidence from country-by-country reporting. \emph{International Tax and Public Finance}.
 \end{thebibliography}}

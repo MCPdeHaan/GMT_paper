@@ -1,0 +1,16 @@
+metric,value
+factorial_scenarios,32
+country_year_revenue_rows,6048
+eu_countries,27
+years,7
+max_country_channel_gap,0
+max_global_conservation_gap,0.000518798828125
+negative_revenue_rows,0
+eu_revenue_min_scenario,159749701325.816
+eu_revenue_max_scenario,667064394686.346
+eu_revenue_scenario_spread,507314693360.529
+pooled_interaction_eta_squared,0.0662313981809151
+preferred_universal_revenue,638198888599.369
+preferred_sbs_revenue,429364844731.218
+preferred_behavioural_universal_revenue,546318732364.275
+preferred_behavioural_sbs_revenue,367670094644.663

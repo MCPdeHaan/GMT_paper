@@ -1,0 +1,5 @@
+test,model_a,model_b,statistic,p_value,mean_loglik_diff,interpretation
+vuong_gaussian_observation_ll,logarithmic,quadratic,1.0898669113635404,0.275771774064857,1.5492179856579284e-4,logarithmic favoured
+clarke_sign,logarithmic,quadratic,6160,5.252258213317856e-62,1.5492179856579284e-4,logarithmic favoured
+davidson_mackinnon_j,quadratic,logarithmic,1.4007291691549693,0.16333324651962064,NA,alternative fitted value in quadratic
+davidson_mackinnon_j,logarithmic,quadratic,-1.085267083123682,0.27952162504537054,NA,alternative fitted value in logarithmic

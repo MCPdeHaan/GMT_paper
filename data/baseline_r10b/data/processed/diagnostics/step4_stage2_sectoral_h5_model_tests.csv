@@ -1,0 +1,3 @@
+model_variant,inference,test,df_num,df_den,f_statistic,p_value,n_obs,n_clusters,r_squared,adj_r_squared,dependent_variable,reference_year,transition_year
+unweighted,affiliate_clustered,cluster_wald_capital_intensity,1,26,5.405299330516025,0.028150083287969994,883,27,0.3894554829110591,0.37017512973982925,sectoral_delta_floor_average,2022,2024
+profit_weighted,affiliate_clustered,cluster_wald_capital_intensity,1,26,13.31502218544876,0.0011595967764422759,883,27,0.48107272482656366,0.4646855477158235,sectoral_delta_floor_average,2022,2024

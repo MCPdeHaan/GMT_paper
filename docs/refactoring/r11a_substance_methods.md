@@ -1,5 +1,7 @@
 # R11a substance methods and support
 
+**Historical replay after R11c.** Set `GMT_FACTOR2_SPECIFICATION=LEGACY_HYBRID_SBIE_SBTI` for this report's commands and use the explicit `r10b` verifier selector where applicable. The current ordinary default is the separately versioned sectoral-SBIE-only specification.
+
 R11a started from the clean `publication-rework` checkout at `859a867e377049b3fe2984939d0ae0ace708e49a`. It retains the R10b Table IV, statutory-rate, UTPR and behavioural specifications. All dollar amounts below are model quantities over the stated economic observation years. Policy-rate endpoints and transition years index separate counterfactuals.
 
 ## Call graph and contracts
@@ -60,7 +62,7 @@ The R3 Side-by-Side game holds aggregate SBIE and the adoption response fixed. I
 
 ## R11b diagnostic scope
 
-The frozen public data supply corrected positive profit, reported tangible assets, headcount and imputed payroll, and FATS/EUKLEMS allocation proxies. They do not identify group-jurisdiction eligible payroll and assets, eligible depreciation and depletion, qualifying incentive terms and utilisation, covered-tax effects, or five-year elections and eligible carrying values. The OECD's primary guidance describes a group-jurisdiction cap, a default using eligible payroll or depreciation and depletion, and an elective eligible carrying-value method. A sector-level maximum using the two currently modelled legs has a separately defined meaning. [OECD Side-by-Side Package, chapter 3, especially pp. 71–78](https://www.oecd.org/content/dam/oecd/en/topics/policy-sub-issues/global-minimum-tax/side-by-side-package.pdf#page=71)
+The frozen public data supply corrected positive profit, reported tangible assets, headcount and imputed payroll, and FATS/EUKLEMS allocation proxies. They do not identify group-jurisdiction eligible payroll and assets, eligible depreciation and depletion, qualifying incentive terms and utilisation, covered-tax effects, or five-year elections and eligible carrying values. The OECD's primary guidance describes a group-jurisdiction cap, a default using eligible payroll or depreciation and depletion, and an elective eligible carrying-value method. A sector-level maximum using the two currently modelled legs has a separately defined meaning. [OECD Side-by-Side Package, chapter 4, especially pp. 71–78](https://www.oecd.org/content/dam/oecd/en/topics/policy-sub-issues/global-minimum-tax/side-by-side-package.pdf#page=71)
 
 Start R11b with a fixed-support decomposition of sector versus pooled maxima, the missing-activity and share cases above, and separate caps on post-SBIE liability, new incentive use and already-reflected covered-tax relief. Then assess alternative payroll and carrying-value cases and explicit depreciation scenarios, with clearly labelled assumptions for eligibility and elections. Compare source amounts and R3 receipts on identical keys before considering a specification change. S06 remains open. [Scientific issue register](scientific_issue_register.md#s06-sbti-capacity-overlay-and-use-are-different-quantities)
 

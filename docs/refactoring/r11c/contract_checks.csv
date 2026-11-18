@@ -1,0 +1,8 @@
+contract,result,rows
+ordered_original_source_keys,exact,606528
+aggregate_branch_active_fields,exact,303264
+432_repeal_and_optout_cases,exact,432
+108_historical_strategy_rows,exact,108
+500_paired_measurement_draw_inputs,exact,751500
+8000_aggregate_scenario_draw_receipts,exact,8000
+profit_only_preferred_draws,exact,1000
