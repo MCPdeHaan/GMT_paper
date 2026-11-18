@@ -1,0 +1,59 @@
+reference,comparison,amount,rows,missing_rows,exact_vector,max_abs_gap,tolerance
+R11c,Stage 06 source classification,topup_after_behaviour,606528,0,TRUE,0,0
+R11c,Stage 06 source classification,stage4_qdmtt_liability,606528,0,TRUE,0,0
+R11c,Stage 06 source classification,stage4_iir_liability,606528,0,TRUE,0,0
+R11c,Stage 06 source classification,stage4_utpr_pool,606528,0,TRUE,0,0
+R11c,Stage 06 source classification,stage4_sbs_extinguished_liability,606528,0,TRUE,0,0
+R11c,Stage 05 recorded amount identity,topup_after_stage2,606528,0,TRUE,0,0
+R11c,Stage 05 recorded amount identity,topup_after_behaviour,606528,0,TRUE,0,0
+R11c,Stage 06 EU collector receipts,revenue,6048,0,TRUE,0,0
+R11c,Stage 06 global channels,revenue,20208,0,TRUE,0,0
+R11c,Stage 05 proxy contrasts,eta_squared,31,0,TRUE,0,0
+R11c,Stage 07 collector contrasts,eta_squared,31,0,TRUE,0,0
+R11c,Stage 05 and 07 contrasts on identical collector support,ss,31,0,TRUE,0,1e-12
+R11c,Stage 05 and 07 contrasts on identical collector support,eta_squared,31,0,FALSE,4.440892098500626e-16,1e-12
+R11c,Stage 07a preferred collapsed profit-only projection vs detailed point,eu27_final_revenue,2,0,FALSE,3.0517578125e-4,0.01
+R11c,Stage 07a preferred collapsed profit-only projection vs detailed point,global_allocated_revenue,2,0,FALSE,0.003173828125,0.01
+R11c,Stage 05 vs 11 source amount before collection,topup_after_behaviour,606528,0,FALSE,9.5367431640625e-6,0.001
+R11c,Stage 11 accounting supports and amounts,factorial_variance_usd_bn_sq,47712,16128,FALSE,1.8189894035458565e-12,1e-9
+R11c,Stage 11 accounting supports and amounts,main_eta_squared,47712,44544,FALSE,1.1102230246251565e-16,1e-9
+R11c,Stage 11 accounting supports and amounts,shapley_eta_squared,47712,44544,FALSE,1.1102230246251565e-16,1e-9
+R11c,Stage 11 accounting supports and amounts,interaction_term_eta_squared,47712,23808,FALSE,2.7755575615628914e-17,1e-9
+R11c,Stage 11 accounting supports and amounts,cumulative_revenue_usd_bn,47712,31584,FALSE,5.684341886080802e-14,1e-9
+R11c,Stage 09 split substance,main_eta_squared,18,0,FALSE,9.75781955236954e-18,1e-12
+R11c,Stage 09 split substance,shapley_eta_squared,18,0,FALSE,7.15573433840433e-18,1e-12
+R11c,Stage 08 ladder,main_eta_squared,108,0,FALSE,2.7755575615628914e-17,1e-9
+R11c,Stage 08 ladder,shapley_eta_squared,108,0,FALSE,2.7755575615628914e-17,1e-9
+R11c,Stage 08 ladder,min_eu27_revenue_usd_bn,108,0,FALSE,2.842170943040401e-14,1e-9
+R11c,Stage 08 ladder,max_eu27_revenue_usd_bn,108,0,TRUE,0,1e-9
+R11c,Stage 08 vs 11 L4_bilat_anchored,topup_after_behaviour,303264,0,FALSE,1.1444091796875e-5,0.001
+R11c,Stage 08 vs 11 L4_strict_no_transport,topup_after_behaviour,303264,0,FALSE,1.1444091796875e-5,0.001
+R11c,Stage 09 A fiscal contrasts,eta_squared,496,0,FALSE,1.3877787807814457e-17,1e-12
+R11c,Stage 09 A fiscal contrasts,shapley_eta_squared,496,416,FALSE,2.7755575615628914e-17,1e-12
+R11c,Stage 09 A fiscal contrasts,interaction_eta_squared,496,0,FALSE,6.938893903907228e-18,1e-12
+R11c,Stage 09 B fiscal contrasts,eta_squared,496,0,FALSE,1.3877787807814457e-17,1e-12
+R11c,Stage 09 B fiscal contrasts,shapley_eta_squared,496,416,FALSE,2.7755575615628914e-17,1e-12
+R11c,Stage 09 B fiscal contrasts,interaction_eta_squared,496,0,FALSE,6.938893903907228e-18,1e-12
+R10b,Stage 06 source classification,topup_after_behaviour,606528,0,TRUE,0,0
+R10b,Stage 06 source classification,stage4_qdmtt_liability,606528,0,TRUE,0,0
+R10b,Stage 06 source classification,stage4_iir_liability,606528,0,TRUE,0,0
+R10b,Stage 06 source classification,stage4_utpr_pool,606528,0,TRUE,0,0
+R10b,Stage 06 source classification,stage4_sbs_extinguished_liability,606528,0,TRUE,0,0
+R10b,Stage 05 recorded amount identity,topup_after_stage2,606528,0,TRUE,0,0
+R10b,Stage 05 recorded amount identity,topup_after_behaviour,606528,0,TRUE,0,0
+R10b,Stage 06 EU collector receipts,revenue,6048,0,TRUE,0,0
+R10b,Stage 06 global channels,revenue,20104,0,TRUE,0,0
+R10b,Stage 05 proxy contrasts,eta_squared,31,0,TRUE,0,0
+R10b,Stage 07 collector contrasts,eta_squared,31,0,TRUE,0,0
+R10b,Stage 05 and 07 contrasts on identical collector support,ss,31,0,TRUE,0,1e-12
+R10b,Stage 05 and 07 contrasts on identical collector support,eta_squared,31,0,FALSE,7.771561172376096e-16,1e-12
+R10b,Stage 07a preferred collapsed profit-only projection vs detailed point,eu27_final_revenue,2,0,FALSE,3.0517578125e-4,0.01
+R10b,Stage 07a preferred collapsed profit-only projection vs detailed point,global_allocated_revenue,2,0,FALSE,0.003173828125,0.01
+R10b,Stage 05 vs 11 source amount before collection,topup_after_behaviour,606528,0,FALSE,7.62939453125e-6,0.001
+R10b,Stage 11 accounting supports and amounts,factorial_variance_usd_bn_sq,47712,16128,FALSE,3.637978807091713e-12,1e-9
+R10b,Stage 11 accounting supports and amounts,main_eta_squared,47712,44544,FALSE,1.1102230246251565e-16,1e-9
+R10b,Stage 11 accounting supports and amounts,shapley_eta_squared,47712,44544,FALSE,1.1102230246251565e-16,1e-9
+R10b,Stage 11 accounting supports and amounts,interaction_term_eta_squared,47712,23808,FALSE,2.7755575615628914e-17,1e-9
+R10b,Stage 11 accounting supports and amounts,cumulative_revenue_usd_bn,47712,31584,FALSE,5.684341886080802e-14,1e-9
+R10b,Stage 09 split substance,main_eta_squared,18,0,FALSE,8.890457814381136e-18,1e-12
+R10b,Stage 09 split substance,shapley_eta_squared,18,0,FALSE,6.938893903907228e-18,1e-12

@@ -102,9 +102,8 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ### R13. Define design, liability and contrast contracts
 
-- **Depends on:** R04, R08, R11–R12. **Files:** 00, 05, 07, 08, 09 and 11 design and decomposition functions.
-- **Change and benefit:** Centralise scenario identifiers/factor levels and one source amount kernel where equivalent. Pass the contrast basis and aggregation estimand explicitly; keep stage-proxy, pooled country-year, cumulative and ladder designs distinct. Move Stage 7 fiscal ratios and legacy TeX to their owners with compatibility adapters.
-- **Risk, tests and completion:** Factor coding, zero cells, interactions and Jensen/aggregation differences. Test single-factor and interaction fixtures, heterogeneous country aggregation, 32/64-case support and multi-level contrasts. Preserve all publication-linked factorial and legacy outputs and check source-to-collector conservation.
+- **R13a, characterisation.** Recovered and verified R12c commit `dbb28a0d4e185d3a526aaeda102b01b36ef78c39`. Recorded the 32- and 64-case designs, passed the matched source and collector parity checks, and distinguished pooled attribution from cumulative variance. [Decision, evidence and publication follow-up](r13a_factorial_estimand_contracts.md).
+- **R13b, parity extraction.** Centralise checked factor identity and orthogonal contrasts. Extract only matched source amount arithmetic with explicit operands, input units and missingness contracts. Keep legacy source-proxy, ladder/bridge, sparse projection and collector routing contracts. Preserve aggregation order and compatibility outputs. Replay the R11c and historical scientific results with the established full test and publication gates.
 
 ### R14. Make the accounting bridge auditable by adjustment
 
@@ -138,4 +137,4 @@ For each science slice, state the observed data, proxy and alternative, the esti
 
 ## Recommended next task
 
-R13 should characterise the existing scenario, source-liability and contrast contracts against R11c, including the meaning of the Factor 2 mode. The R12c evidence supports retaining the current response parameter. [Scientific decision](r12c_behavioural_inference_audit.md).
+R13b extracts the checked design and contrast primitives and the explicitly matched source arithmetic. Start with the independent contract fixtures, and retain named adapters for pooled and cumulative bases and legacy output schemas. The R12c editorial qualifications and the R13a denominator note are separately versioned publication work. [Extraction boundary](r13a_factorial_estimand_contracts.md#r13b-boundary-and-acceptance).

@@ -1,0 +1,15 @@
+reference,metric,value
+R11c,factorial_scenarios,32
+R11c,country_year_revenue_rows,6048
+R11c,eu_countries,27
+R11c,years,7
+R11c,max_country_channel_gap,0
+R11c,max_global_conservation_gap,0.000518798828125
+R11c,negative_revenue_rows,0
+R10b,factorial_scenarios,32
+R10b,country_year_revenue_rows,6048
+R10b,eu_countries,27
+R10b,years,7
+R10b,max_country_channel_gap,0
+R10b,max_global_conservation_gap,0.000518798828125
+R10b,negative_revenue_rows,0
